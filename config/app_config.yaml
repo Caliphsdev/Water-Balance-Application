@@ -1,0 +1,53 @@
+app:
+  name: Water Balance System
+  version: 1.0.0
+branding:
+  company_name: Water Balance Management
+  logo_path: C:\PROJECTS\Water-Balance-Application\config\branding\Logo Two rivers.png
+colors:
+  bg_header: '#0D47A1'
+  bg_main: '#F5F7FA'
+  bg_sidebar: '#1E2A38'
+  divider: '#E0E0E0'
+  primary: '#1976D2'
+  primary_dark: '#004BA0'
+  primary_light: '#63A4FF'
+  text_light: '#FFFFFF'
+  text_primary: '#212121'
+data_sources:
+  legacy_excel_path: test_templates\New Water Balance  20250930 Oct.xlsx
+  template_excel_path: test_templates\Water_Balance_TimeSeries_Template.xlsx
+fonts:
+  body:
+    family: Segoe UI
+    size: 11
+    weight: normal
+  body_bold:
+    family: Segoe UI
+    size: 11
+    weight: bold
+  heading_large:
+    family: Segoe UI
+    size: 20
+    weight: bold
+  heading_medium:
+    family: Segoe UI
+    size: 16
+    weight: bold
+  heading_small:
+    family: Segoe UI
+    size: 13
+    weight: bold
+session:
+  current_user: admin
+ui:
+  sidebar_width: 240
+  toolbar_height: 56
+window:
+  auto_scale: true
+  geometry: 1400x900
+  min_height: 700
+  min_width: 1200
+  scale_factor: 1.0
+  theme: arc
+  title: Water Balance
