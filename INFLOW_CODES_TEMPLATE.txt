@@ -1,0 +1,133 @@
+================================================================================
+INFLOW SOURCE CODES BY AREA - FILL IN YOUR VALUES
+================================================================================
+
+================================================================================
+📍 MER_NORTH - Merensky North Area
+================================================================================
+
+⬇️  EXTERNAL INFLOWS (nature/extraction):
+  MOGWA_boreholes                     (borehole    ) = 21252 m³  # MOGWA Boreholes
+  MERN_NDCD_rainfall                  (rainfall    ) = 287 m³  # Direct Rainfall to NDCD 3-4
+
+⛏️  DEWATERING (underground to surface):
+  MERN_ND → MERN_NDCDG                (dewatering  ) = 106 258 m³  # Merensky North Decline to Dam Group
+
+💧 SURFACE RUNOFF (area to dam):
+  MERN_NDSA → MERN_NDCDG              (runoff      ) = 96 m³  # Merensky North Decline Shaft Area runoff to NDCD
+
+================================================================================
+📍 MER_PLANT - Merensky Plant Area
+================================================================================
+
+⬇️  EXTERNAL INFLOWS (nature/extraction):
+  MPGWA_boreholes                     (borehole    ) = 28 336 m³  # MPGWA Boreholes
+  MERP_ore_water                      (ore_water   ) = 93 447 m³  # Water in Ore
+  MPSWD12_rain                        (rainfall    ) = 6 952 m³  # Direct Rainfall to MPSWD 1-2
+  MPRWSD1_rivers                      (river       ) = 0 m³  # Raw Water Intake (Rivers)
+
+💧 PROCESS WATER SUPPLY (dam to plant):
+  MPSWD12 → MERP_PLANT                (proc_supply ) = 5 497 m³  # Water supply to plant from dam
+
+================================================================================
+📍 MER_SOUTH - Merensky South Area
+================================================================================
+
+⬇️  EXTERNAL INFLOWS (nature/extraction):
+  MOGWA_boreholes_south               (borehole    ) = 28336 m³  # MOGWA Boreholes (South)
+  MERS_MDCD_rainfall                  (rainfall    ) = 4 236 m³  # Direct Rainfall to MDCD 5-6
+
+⛏️  DEWATERING (underground to surface):
+  MERS_SD → MERS_MDCDG                (dewatering  ) = 212 517 m³  # Merensky South Decline to Dam Group
+
+================================================================================
+📍 OLD_TSF - Old TSF Area
+================================================================================
+
+⬇️  EXTERNAL INFLOWS (nature/extraction):
+  OT_GWA_boreholes                    (borehole    ) = 37 781 m³  # Old TSF GWA Boreholes
+  OT_NEW_TSF_rainrun                  (rainfall    ) = 283 639 m³  # New TSF Rainfall & Runoff
+  OT_NT_RWD_rain                      (rainfall    ) = 61 866 m³  # NT RWD 1&2 Direct Rainfall
+  OT_OLD_TSF_rainrun                  (rainfall    ) = 48 477 m³  # Old TSF Rainfall & Runoff
+  OT_TRTD_rain                        (rainfall    ) = 19 757 m³  # TRTD 1-2 Direct Rainfall
+
+================================================================================
+📍 STOCKPILE - Stockpile Area
+================================================================================
+
+⬇️  EXTERNAL INFLOWS (nature/extraction):
+  SPGWA_boreholes                     (borehole    ) = 15 112 m³  # SPGWA Boreholes
+  STP_SPCD1_rainfall                  (rainfall    ) = 3 971 m³  # Direct Rainfall to SPCD 1
+  STP_STOCK_rainfall                  (rainfall    ) = 32 371 m³  # Direct Rainfall to Stockpile
+
+================================================================================
+📍 UG2_NORTH - UG2 North Decline Area
+================================================================================
+
+⬇️  EXTERNAL INFLOWS (nature/extraction):
+  NDGWA_boreholes                     (borehole    ) = 71 530 m³  # NDGWA Boreholes
+  UG2N_NDCD_rainfall                  (rainfall    ) = 5 363 m³  # Direct Rainfall to NDCD Group
+
+⛏️  DEWATERING (underground to surface):
+  UG2N_ND → UG2N_NDCDG                (dewatering  ) = 245 572 m³  # North Decline to Dam Group
+
+💧 SURFACE RUNOFF (area to dam):
+  UG2N_NDSA → UG2N_NDCDG              (runoff      ) = 17 288 m³  # North Decline Shaft Area runoff to NDCD
+
+================================================================================
+📍 UG2_PLANT - UG2 Plant Area
+================================================================================
+
+⬇️  EXTERNAL INFLOWS (nature/extraction):
+  CPGWA_boreholes                     (borehole    ) = 54 347 m³  # CPGWA 1-4 Boreholes
+  UG2P_ore_water                      (ore_water   ) = 159 715 m³  # Water in Ore
+  UG2PCD1_rain                        (rainfall    ) = 4 888 m³  # Direct Rainfall to UG2PCD 1
+  UG2P_rivers                         (river       ) = 3 097 458 m³  # Raw Water Intake (Rivers)
+
+🔄 INTERNAL TRANSFERS (bidirectional - dam to plant):
+  UG2PCD1 ↔ UG2P_PLANT                (process_rtrn) = 22 227 m³  # Dam to/from Concentrator Plant
+                                                                  # POSITIVE = flow FROM UG2PCD1 TO UG2P_PLANT (discharge to plant)
+                                                                  # NEGATIVE = flow FROM UG2P_PLANT TO UG2PCD1 (return to dam)
+
+================================================================================
+📍 UG2_SOUTH - UG2 South Decline Area
+================================================================================
+
+⬇️  EXTERNAL INFLOWS (nature/extraction):
+  MGDWA_boreholes                     (borehole    ) = 114 160 m³  # MGDWA Boreholes
+  UG2S_MDCD_rainfall                  (rainfall    ) = 7 337 m³  # Direct Rainfall to MDCD 1-4
+
+⛏️  DEWATERING (underground to surface):
+  UG2S_SD → UG2S_MDCDG                (dewatering  ) = 587 705 m³  # South Decline to Dam Group
+
+� SURFACE RUNOFF (area to dam):
+  UG2S_SDSA → UG2S_MDCDG              (runoff      ) = 1225 m³  # South Decline Shaft Area runoff to MDCD 1-4
+
+�🔄 INTER-AREA TRANSFERS (bidirectional):
+  MER_SOUTH/MERS_MDCDG → UG2S_MDCDG   (dam_transfer) = 1832 m³  # MDCD 5-6 to MDCD 1-4
+                                                                  # POSITIVE = flow FROM Merensky South TO UG2 South
+                                                                  # NEGATIVE = flow FROM UG2 South TO Merensky South
+
+================================================================================
+NOTES - FLOW DIRECTION GUIDE:
+================================================================================
+• External inflows = rainfall, boreholes, rivers, ore water (from nature)
+• Dewatering = underground mine water pumped to surface dams
+• Surface runoff = water from shaft areas, stockpiles flowing to dams
+• Internal transfers = flows within same area (dam ↔ plant, etc.)
+• Inter-area transfers = bidirectional flows between areas
+
+POSITIVE vs NEGATIVE VALUES:
+• For all bidirectional flows, the direction shown (FROM → TO) is POSITIVE
+• NEGATIVE value reverses the flow to go the opposite way (TO → FROM)
+
+EXAMPLES:
+  UG2PCD1 → UG2P_PLANT
+  • +1000 m³ = water flows from UG2PCD1 to UG2P_PLANT
+  • -1000 m³ = water flows from UG2P_PLANT to UG2PCD1
+  
+  MER_SOUTH/MERS_MDCDG → UG2S_MDCDG
+  • +500 m³ = water flows from Merensky South to UG2 South
+  • -500 m³ = water flows from UG2 South to Merensky South
+
+Fill in the _____ with your m³ values for each inflow source.
