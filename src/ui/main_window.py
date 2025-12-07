@@ -36,8 +36,9 @@ class MainWindow:
         # Set up notification system with status bar callback
         notifier.set_status_bar_callback(self._update_status_message)
         
-        # Start Excel file monitoring
-        self._setup_excel_monitor()
+        # Excel loading will be lazy (on-demand when modules need it)
+        self.excel_loaded = False
+        self.excel_monitor = None
         
         # Create main container
         self.container = ttk.Frame(self.root)
@@ -49,33 +50,9 @@ class MainWindow:
         self._create_statusbar()
         # Maximize window for better fit across modules
         self._maximize_window()
-        
-        # Pre-load Excel singleton BEFORE dashboard loads to avoid 5s delay
-        # Suppress errors here - validation warning will show later
-        try:
-            from utils.excel_timeseries_extended import ExcelTimeSeriesExtended
-            # Instantiate singleton immediately (first call triggers load)
-            # If path is invalid, it logs but doesn't crash
-            _ = ExcelTimeSeriesExtended()
-            logger.info("✓ Excel singleton pre-loaded")
-        except Exception as e:
-            # Silent - validation dialog will handle this
-            logger.warning(f"Excel pre-load failed: {e}")
-        
-        # Validate Excel path; if invalid, route user to Settings first
-        try:
-            self.root.after(200, self._validate_excel_path_startup)
-        except Exception:
-            pass
 
-        # Load default module (Dashboard) - now Excel is already loaded
+        # Load default module (Dashboard) - Excel will load on-demand
         self.load_module('dashboard')
-        
-        # Automatically pre-warm calculation cache in background after dashboard loads
-        try:
-            self.root.after(2000, self._prewarm_cache_background)
-        except Exception:
-            pass
     
     def _create_toolbar(self):
         """Create top toolbar with menu and quick actions"""
@@ -461,8 +438,47 @@ class MainWindow:
             else:
                 btn.config(bg=bg_sidebar)
     
+    def _ensure_excel_loaded(self, module_name: str) -> bool:
+        """Ensure Excel is loaded before module needs it
+        
+        Args:
+            module_name: Name of module that needs Excel
+            
+        Returns:
+            True if Excel loaded, False if missing
+        """
+        if self.excel_loaded:
+            return True  # Already loaded
+        
+        from utils.lazy_excel_loader import get_lazy_loader
+        from ui.excel_config_dialog import show_excel_config_dialog
+        
+        loader = get_lazy_loader()
+        
+        # Try to load Excel
+        def on_excel_missing(path):
+            """Called if Excel file is missing"""
+            result = show_excel_config_dialog(self.root, path)
+            if result:
+                # User configured a new path, try loading again
+                loader.reset()
+                loader.load_excel_if_needed()
+                self.excel_loaded = True
+        
+        success = loader.load_excel_if_needed(on_missing=on_excel_missing)
+        if success:
+            self.excel_loaded = True
+            logger.info(f"Excel loaded for module: {module_name}")
+            return True
+        else:
+            logger.warning(f"Excel not available for module: {module_name}")
+            return False
+    
     def _load_dashboard(self):
         """Load the dashboard module"""
+        # Lazy load Excel if needed
+        self._ensure_excel_loaded('dashboard')
+        
         from ui.dashboard import DashboardModule
         
         dashboard = DashboardModule(self.content_area)
@@ -470,6 +486,9 @@ class MainWindow:
 
     def _load_analytics(self):
         """Load the analytics & trends module"""
+        # Lazy load Excel if needed
+        self._ensure_excel_loaded('analytics')
+        
         from ui.analytics_dashboard import AnalyticsDashboard
         
         analytics = AnalyticsDashboard(self.content_area)
@@ -477,6 +496,9 @@ class MainWindow:
     
     def _load_monitoring_data(self):
         """Load the monitoring data module"""
+        # Lazy load Excel if needed
+        self._ensure_excel_loaded('monitoring_data')
+        
         from ui.monitoring_data import MonitoringDataModule
         
         module = MonitoringDataModule(self.content_area)
@@ -498,6 +520,9 @@ class MainWindow:
     
     def _load_calculations(self):
         """Load the calculations module"""
+        # Lazy load Excel if needed (calculations may use Excel data)
+        self._ensure_excel_loaded('calculations')
+        
         from ui.calculations import CalculationsModule
         
         module = CalculationsModule(self.content_area)
@@ -724,26 +749,10 @@ class MainWindow:
     # Toolbar action methods removed - use sidebar navigation instead
     
     def _setup_excel_monitor(self):
-        """Setup Excel file monitoring for auto-reload"""
-        try:
-            # Get template path from config
-            template_path_str = config.get('data_sources.template_excel_path', 'templates/Water_Balance_TimeSeries_Template.xlsx')
-            base_dir = Path(__file__).parent.parent.parent
-            excel_path = base_dir / template_path_str if not Path(template_path_str).is_absolute() else Path(template_path_str)
-            
-            if excel_path.exists():
-                self.excel_monitor = ExcelFileMonitor(
-                    str(excel_path),
-                    callback=self._on_excel_changed,
-                    check_interval=2.0  # Check every 2 seconds
-                )
-                self.excel_monitor.start()
-            else:
-                logger.warning(f"Excel template not found for monitoring: {excel_path}")
-                self.excel_monitor = None
-        except Exception as e:
-            logger.error(f"Failed to setup Excel monitor: {e}")
-            self.excel_monitor = None
+        """Setup Excel file monitoring for auto-reload (legacy - disabled on startup)"""
+        # Excel monitoring is now only done via lazy loader on-demand
+        # This method is kept for backwards compatibility
+        logger.info("Excel monitoring disabled at startup (lazy loading enabled)")
     
     def _on_excel_changed(self):
         """Called when Excel file changes - reload data"""

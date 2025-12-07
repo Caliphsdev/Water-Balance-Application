@@ -22,6 +22,10 @@ from utils.error_handler import error_handler
 from ui.main_window import MainWindow
 from database.db_manager import db
 
+# New: Async loading support (Phase 1: Fast Startup)
+from utils.async_loader import get_loader, load_database_blocking
+from ui.loading_indicator import LoadingIndicator
+
 
 class WaterBalanceApp:
     """Main application controller"""
@@ -30,6 +34,12 @@ class WaterBalanceApp:
         """Initialize the Water Balance Application"""
         self.root = None
         self.main_window = None
+        self.loading_indicator = None
+        self.db_loaded = False
+        self.mainloop_started = False
+        self.pending_db_callback = None
+        self.loading_start_time = None
+        self.min_loading_time = 3.0  # Minimum 3 seconds for smooth experience
         
     def initialize(self):
         """Initialize the application window and components"""
@@ -42,10 +52,9 @@ class WaterBalanceApp:
             config.set_current_user('admin')
             logger.info("Default user set: admin")
             
-            # Preload database caches to avoid repeated queries during module initialization
-            logger.info("Preloading database caches...")
-            db.preload_caches()
-            logger.info("Database caches preloaded")
+            # Check if fast startup feature is enabled
+            fast_startup_enabled = config.get('features.fast_startup', False)
+            logger.info(f"Fast startup feature: {'ENABLED' if fast_startup_enabled else 'DISABLED'}")
             
             # Create themed root window with safe fallback
             try:
@@ -73,10 +82,40 @@ class WaterBalanceApp:
             self._apply_custom_styles()
             logger.info("Custom styles applied")
             
+            # Database loading: ASYNC (new) or BLOCKING (old)
+            if fast_startup_enabled:
+                # NEW: Async database loading - start in background
+                logger.info("Starting ASYNC database loading (fast startup)")
+                self.db_loaded = False
+                
+                # Start async load (no loading indicator yet)
+                loader = get_loader()
+                loader.load_database_async(
+                    db_path=db.db_path,
+                    on_complete=self._on_database_loaded
+                )
+                
+            else:
+                # OLD: Blocking database load (traditional approach)
+                logger.info("Using BLOCKING database load (traditional mode)")
+                db.preload_caches()
+                logger.info("Database caches preloaded (blocking)")
+                self.db_loaded = True
+            
             # Create main window
             try:
                 self.main_window = MainWindow(self.root)
                 logger.info("Main window created successfully")
+                
+                # Now show loading indicator if using async loading
+                if fast_startup_enabled and not self.db_loaded:
+                    import time
+                    self.loading_start_time = time.time()
+                    self.loading_indicator = LoadingIndicator(self.root, "Loading data")
+                    self.loading_indicator.show()
+                    self.root.update()  # Force render
+                    logger.info("Loading indicator displayed")
+                    
             except Exception as mw_err:
                 logger.exception(f"Main window failed to initialize: {mw_err}")
                 # Provide visible fallback UI so user is not left with blank window
@@ -212,6 +251,87 @@ class WaterBalanceApp:
             foreground=[('selected', 'white')]
         )
     
+    def _on_database_loaded(self, db_manager, error):
+        """Callback when async database loading completes (called from worker thread)"""
+        # If mainloop hasn't started yet, store the callback data for later
+        if not self.mainloop_started:
+            self.pending_db_callback = (db_manager, error)
+            logger.info("DB loaded, callback deferred until mainloop starts")
+            return
+            
+        # Schedule UI updates on main thread using root.after()
+        try:
+            if self.root and self.root.winfo_exists():
+                self.root.after(0, self._update_ui_after_db_load, db_manager, error)
+        except Exception as e:
+            logger.error(f"Error scheduling UI update: {e}")
+    
+    def _update_ui_after_db_load(self, db_manager, error):
+        """Update UI after database loaded (runs on main thread)"""
+        try:
+            if error:
+                logger.error(f"Database loading failed: {error}")
+                # Hide loading indicator
+                if self.loading_indicator and self.loading_indicator.is_showing():
+                    self.loading_indicator.hide()
+                
+                # Show error and fallback to blocking load
+                if messagebox.askyesno(
+                    "Database Error",
+                    f"Async database loading failed: {error}\n\nFallback to traditional loading?"
+                ):
+                    logger.info("Falling back to blocking database load")
+                    try:
+                        db.preload_caches()
+                        self.db_loaded = True
+                        logger.info("Fallback successful")
+                    except Exception as fallback_error:
+                        logger.exception("Fallback also failed")
+                        messagebox.showerror(
+                            "Critical Error",
+                            f"Database cannot be loaded: {fallback_error}"
+                        )
+                else:
+                    logger.info("User cancelled fallback - closing app")
+                    self.root.destroy()
+            else:
+                logger.info("✅ Async database loading completed successfully")
+                self.db_loaded = True
+                
+                # Preload caches now that DB is ready
+                db.preload_caches()
+                logger.info("Database caches preloaded (async)")
+                
+                # Calculate remaining time to show loading screen (minimum 3 seconds)
+                if self.loading_indicator and self.loading_indicator.is_showing():
+                    import time
+                    elapsed = time.time() - self.loading_start_time if self.loading_start_time else 0
+                    remaining = max(0, self.min_loading_time - elapsed)
+                    
+                    if remaining > 0:
+                        logger.info(f"Waiting {remaining:.1f}s more for smooth loading experience")
+                        # Schedule hiding after remaining time
+                        self.root.after(int(remaining * 1000), self._hide_loading_indicator)
+                    else:
+                        self._hide_loading_indicator()
+                
+        except Exception as e:
+            logger.exception(f"Error in database loaded callback: {e}")
+            if self.loading_indicator and self.loading_indicator.is_showing():
+                try:
+                    self.loading_indicator.hide()
+                except:
+                    pass
+    
+    def _hide_loading_indicator(self):
+        """Hide loading indicator smoothly"""
+        try:
+            if self.loading_indicator and self.loading_indicator.is_showing():
+                self.loading_indicator.hide()
+                logger.info("Loading indicator hidden - app ready")
+        except Exception as e:
+            logger.error(f"Error hiding loading indicator: {e}")
+    
     def _center_window(self):
         """Center the window on the screen"""
         self.root.update_idletasks()
@@ -246,6 +366,14 @@ class WaterBalanceApp:
         logger.user_action("Application close requested")
         if notifier.confirm("Are you sure you want to exit?", "Confirm Exit"):
             self.root._closing = True
+            
+            # Clean up loading indicator if still showing
+            if self.loading_indicator:
+                try:
+                    self.loading_indicator.hide()
+                except:
+                    pass
+                    
             logger.info("Application closing - user confirmed")
             logger.info("=" * 60)
             logger.info("Water Balance Application Stopped")
@@ -258,6 +386,15 @@ class WaterBalanceApp:
     def run(self):
         """Start the application main loop"""
         if self.initialize():
+            self.mainloop_started = True
+            
+            # Process any pending database callback
+            if self.pending_db_callback:
+                db_manager, error = self.pending_db_callback
+                self.pending_db_callback = None
+                logger.info("Processing deferred DB callback")
+                self.root.after(100, self._update_ui_after_db_load, db_manager, error)
+                
             self.root.mainloop()
 
 
@@ -269,21 +406,7 @@ def main():
         logger.info("=" * 60)
         
         app = WaterBalanceApp()
-        try:
-            app.initialize()
-            app.run()
-        except Exception as e:
-            try:
-                # Try to use error handler and logger first
-                error_handler.handle(e)
-            except Exception:
-                # Failsafe: Write error directly to log file
-                import traceback
-                log_path = Path(__file__).parent.parent / 'logs' / 'water_balance.log'
-                log_path.parent.mkdir(exist_ok=True)
-                with open(log_path, 'a', encoding='utf-8') as f:
-                    f.write(f"\n[CRITICAL ERROR] {datetime.now()}\n{traceback.format_exc()}\n")
-                print(f"Critical error written to {log_path}")
+        app.run()  # run() already calls initialize()
         
     except KeyboardInterrupt:
         logger.info("Application interrupted by user (Ctrl+C)")

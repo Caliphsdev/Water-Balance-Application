@@ -12,10 +12,6 @@ Seepage handled in storage volume calculations (not separate outflow).
 💧 EVAPORATION (Auto-calculated from dam surface area):
   MERN_NDCDG_evap                     (evaporation ) = 5 327 m³  # NDCD 3-4 & NDSWD 2 Group
 
-🔄 INTER-AREA TRANSFERS:
-  MERN_NDCDG → MPRWSD1                (dam_transfer) = _____ m³  # To Merensky Plant (bidirectional)
-  MERN_OFF → UG2N_STP                 (wastewater  ) = _____ m³  # Offices wastewater to UG2 North STP
-
 ⬇️  UNDERGROUND RETURN:
   MERN_NDCDG → MERN_ND                (ug_return   ) = 90 320 m³  # Water sent back underground
 
@@ -34,12 +30,6 @@ Seepage handled in storage volume calculations (not separate outflow).
 💧 EVAPORATION (Auto-calculated):
   MPSWD12_evap                        (evaporation ) = 268 m³  # MPSWD 1-2
 
-
-🔄 INTER-AREA TRANSFERS (TO other areas):
-  MPRWSD1 → OT_NT_RWD                 (dam_transfer) = _____ m³  # To Old TSF NT RWD
-  MPRWSD1 → OT_TRTD                   (dam_transfer) = _____ m³  # To Old TSF TRTD
-  MPRWSD1 → CPPWT                     (trunk_feed  ) = _____ m³  # To UG2 Plant CPPWT
-
 🏭 PROCESS LOSSES:
   MERP_PLANT_losses                   (proc_losses ) = 4 839 m³  # Plant process losses
   MERP_PLANT_product                  (product_bnd ) = 8 502 m³  # Water in concentrate (product bound)
@@ -51,21 +41,12 @@ Seepage handled in storage volume calculations (not separate outflow).
   MERP_dust_suppress                  (dust_suppr  ) = 3 457 m³  # Dust suppression
   MPSWD12_spill                       (spill       ) = 0 m³  # Dam spillage
 
-🚰 SEWAGE TREATMENT:
-  MERP_STP_effluent                   (effluent    ) = _____ m³  # STP effluent to MPSWD12
-
 ================================================================================
 📍 MER_SOUTH - Merensky South Area
 ================================================================================
 
 💧 EVAPORATION (Auto-calculated):
   MERS_MDCDG_evap                     (evaporation ) = 4 481 m³  # MDCD 5-6 Group
-
-🔄 INTER-AREA TRANSFERS:
-  MERS_MDCDG → MPRWSD1                (dam_transfer) = _____ m³  # To Merensky Plant (bidirectional)
-  MERS_MDCDG → UG2S_MDCDG             (dam_transfer) = _____ m³  # To UG2 South (bidirectional)
-  MERS_SDSA → UG2S_MDCDG              (runoff      ) = _____ m³  # Shaft Area runoff to UG2 South
-  MERS_OFF → UG2S_STP                 (wastewater  ) = _____ m³  # Offices wastewater to UG2 South STP
 
 ⬇️  UNDERGROUND RETURN:
   MERS_MDCDG → MERS_SD                (ug_return   ) = 180 639 m³  # Water sent back underground
@@ -87,10 +68,6 @@ Seepage handled in storage volume calculations (not separate outflow).
   OT_OLD_TSF_evap                     (evaporation ) = 32 779 m³  # Old TSF
   OT_NT_RWD_evap                      (evaporation ) = 26 593 m³  # NT RWD 1&2
   OT_TRTD_evap                        (evaporation ) = 3 277 m³  # TRTD 1-2
-
-🔄 INTER-AREA TRANSFERS (TO other areas):
-  OT_TRTD → MPRWSD1                   (dam_transfer) = _____ m³  # To Merensky Plant (bidirectional)
-  OT_NT_RWD → MPRWSD1                 (dam_transfer) = _____ m³  # To Merensky Plant (bidirectional)
 
 ♻️  INTERNAL RECIRCULATION:
   OT_NT_RWD → OT_NEW_TSF              (irrigation  ) = 105 786 m³  # Irrigation from NT RWD
@@ -120,10 +97,7 @@ Seepage handled in storage volume calculations (not separate outflow).
   STP_STOCK_evap                      (evaporation ) = 631 m³  # Stockpile Area Evaporation
   STP_SPCD1_evap                      (evaporation ) = 1 193 m³  # SPCD 1 Dam
 
-🔄 NO INTER-AREA TRANSFERS
-  (Stockpile is isolated - no outflows to other areas)
-
-💧 DAM SPILLAGE:
+ DAM SPILLAGE:
   STP_SPCD1_spill                     (spill       ) = 0 m³  # SPCD 1 Spillage
 
 💦 OPERATIONAL USES:
@@ -138,9 +112,7 @@ Seepage handled in storage volume calculations (not separate outflow).
 ================================================================================
 
 💧 EVAPORATION (Auto-calculated):
-  UG2N_NDCDG_evap                     (evaporation ) = 5 923
-🔄 INTER-AREA TRANSFERS:
-  UG2N_NDCDG → MPRWSD1                (dam_transfer) = _____ m³  # To Merensky Plant
+  UG2N_NDCDG_evap                     (evaporation ) = 5 923 m³
 
 ⬇️  UNDERGROUND RETURN:
   UG2N_NDCDG → UG2N_ND                (ug_return   ) = 187 761 m³  # Water sent back underground
@@ -157,7 +129,6 @@ Seepage handled in storage volume calculations (not separate outflow).
 
 🚰 SEWAGE TREATMENT:
   UG2N_GH_septic                     (septic      ) = 2 594 m³  # Guest House septic tank outflow
-  UG2N_STP_effluent                   (effluent    ) = _____ m³  # STP effluent to NDCDG
 
 ================================================================================
 📍 UG2_PLANT - UG2 Plant Area
@@ -165,32 +136,17 @@ Seepage handled in storage volume calculations (not separate outflow).
 
 💧 EVAPORATION (Auto-calculated):
   UG2PCD1_evap                        (evaporation ) = 166 m³  # UG2PCD 1
-  CPRWSD1_evap                        (evaporation ) = _____ m³  # CPRWSD 1
-
-🔄 INTER-AREA TRANSFERS:
-  CPPWT → MPRWSD1                     (trunk_feed  ) = _____ m³  # To Merensky Plant
-  UG2P_PLANT → OT_NEW_TSF             (tailings    ) = _____ m³  # Plant discharge to New TSF
-  UG2P_PLANT → OT_OLD_TSF             (tailings    ) = _____ m³  # Plant discharge to Old TSF
-
-🔄 INTERNAL TRANSFERS (bidirectional):
-  UG2PCD1 ↔ UG2P_PLANT                (process_rtrn) = _____ m³  # Dam ↔ Plant
-                                                                  # POSITIVE = FROM dam TO plant (supply)
-                                                                  # NEGATIVE = FROM plant TO dam (return)
 
 🏭 PROCESS LOSSES:
   UG2P_PLANT_losses                   (proc_losses ) = 108 847 m³  # Plant process losses
   UG2P_PLANT_product                  (product_bnd ) = 11 747 m³  # Water in concentrate (product bound)
   UG2P_SOFT_losses                    (proc_losses ) = 2 717 m³  # Softening Plant losses
   UG2P_STP_losses                     (proc_losses ) = 723 m³  # Sewage Treatment losses
-  CPPWT_losses                        (proc_losses ) = _____ m³  # CPPWT treatment losses
 
 💦 OPERATIONAL USES:
   UG2P_OFF_consumption              (consumption ) = 15 489 m³  # Offices consumption
   UG2P_dust_suppress                  (dust_suppr  ) = 1 548 m³  # Dust suppression
   UG2PCD1_spill                       (spill       ) = 37 m³  # Dam spillage
-
-🚰 SEWAGE TREATMENT:
-  UG2P_STP_effluent                   (effluent    ) = _____ m³  # STP effluent to plant
 
 ================================================================================
 📍 UG2_SOUTH - UG2 South Decline Area
@@ -198,9 +154,6 @@ Seepage handled in storage volume calculations (not separate outflow).
 
 💧 EVAPORATION (Auto-calculated):
   UG2S_MDCDG_evap                     (evaporation ) = 5 166 m³  # MDCD 1-4 Group
-
-🔄 INTER-AREA TRANSFERS:
-  UG2S_MDCDG → MPRWSD1                (dam_transfer) = _____ m³  # To Merensky Plant
 
 ⬇️  UNDERGROUND RETURN:
   UG2S_MDCDG → UG2S_SD                (ug_return   ) = 514 763 m³  # Water sent back underground
@@ -213,9 +166,6 @@ Seepage handled in storage volume calculations (not separate outflow).
   UG2S_OFF_consumption              (consumption ) = 32 536 m³  # Offices consumption
   UG2S_dust_suppress                  (dust_suppr  ) = 17 506 m³  # Dust suppression
   UG2S_MDCDG_spill                    (spill       ) = 109 m³  # Dam spillage
-
-🚰 SEWAGE TREATMENT:
-  UG2S_STP_effluent                   (effluent    ) = _____ m³  # STP effluent to MDCDG
 
 ================================================================================
 IMPORTANT NOTES - DATABASE-VERIFIED STRUCTURE
