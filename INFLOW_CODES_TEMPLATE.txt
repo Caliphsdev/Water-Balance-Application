@@ -46,7 +46,7 @@ INFLOW SOURCE CODES BY AREA - FILL IN YOUR VALUES
 
 ⬇️  EXTERNAL INFLOWS (nature/extraction):
   OT_GWA_boreholes                    (borehole    ) = 37 781 m³  # Old TSF GWA Boreholes
-  OT_NEW_TSF_rainrun                  (rainfall    ) = 283 639 m³  # New TSF Rainfall & Runoff
+  OT_NEW_TSF_rainrun                  (rainfall    ) = 39 875 m³  # New TSF Rainfall & Runoff
   OT_NT_RWD_rain                      (rainfall    ) = 61 866 m³  # NT RWD 1&2 Direct Rainfall
   OT_OLD_TSF_rainrun                  (rainfall    ) = 48 477 m³  # Old TSF Rainfall & Runoff
   OT_TRTD_rain                        (rainfall    ) = 19 757 m³  # TRTD 1-2 Direct Rainfall

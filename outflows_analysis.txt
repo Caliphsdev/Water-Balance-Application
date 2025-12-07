@@ -1,0 +1,233 @@
+========================================================================================================================
+ALL AREAS - ACTUAL OUTFLOWS FROM DATABASE
+========================================================================================================================
+
+========================================================================================================================
+AREA: MER_NORTH - Merensky North Area
+========================================================================================================================
+
+STRUCTURES IN MER_NORTH:
+------------------------------------------------------------------------------------------------------------------------
+  MERN_ND              | Merensky North Decline                        | decline        
+  MERN_NDCDG           | NDCD 3-4 & NDSWD 2 Group                      | storage_group  
+  MERN_NDSA            | Merensky North Decline Shaft Area             | decline        
+  MERN_OFF             | Offices                                       | building       
+  MERN_SOFT            | Softening Plant                               | treatment      
+
+INTERNAL OUTFLOWS (leaving MER_NORTH structures):
+------------------------------------------------------------------------------------------------------------------------
+  MERN_ND              ΓåÆ MERN_NDCDG           | dirty           (dewatering          )
+  MERN_NDCDG           ΓåÆ MERN_ND              | dirty           (ug_return           )
+  MERN_NDCDG           ΓåÆ MERN_NDCDG           | clean           (dam_return          )
+  MERN_NDSA            ΓåÆ MERN_NDCDG           | dirty           (runoff              )
+  MERN_SOFT            ΓåÆ MERN_OFF             | clean           (N/A                 )
+
+INTER-AREA OUTFLOWS (TO other areas):
+------------------------------------------------------------------------------------------------------------------------
+  MERN_NDCDG           Γåö MER_PLANT/MPRWSD1              | dirty           (dam_transfer        )
+  MERN_OFF             Γåö UG2_NORTH/UG2N_STP             | dirty           (wastewater          )
+
+========================================================================================================================
+AREA: MER_PLANT - Merensky Plant Area
+========================================================================================================================
+
+STRUCTURES IN MER_PLANT:
+------------------------------------------------------------------------------------------------------------------------
+  MERP_OFF             | Offices                                       | building       
+  MERP_PLANT           | Merensky Concentrator Plant                   | plant          
+  MERP_RES             | Reservoir                                     | reservoir      
+  MERP_SOFT            | Softening Plant                               | treatment      
+  MERP_STP             | Sewage Treatment                              | treatment      
+  MPRWSD1              | MPRWSD 1                                      | reservoir      
+  MPSWD12              | MPSWD 1-2                                     | reservoir      
+
+INTERNAL OUTFLOWS (leaving MER_PLANT structures):
+------------------------------------------------------------------------------------------------------------------------
+  MERP_OFF             ΓåÆ MERP_STP             | clean           (N/A                 )
+  MERP_PLANT           ΓåÆ MPSWD12              | clean           (process_return      )
+  MERP_RES             ΓåÆ MERP_OFF             | clean           (N/A                 )
+  MERP_SOFT            ΓåÆ MERP_RES             | clean           (N/A                 )
+  MERP_STP             ΓåÆ MPSWD12              | dirty           (effluent            )
+  MPRWSD1              ΓåÆ MERP_PLANT           | dirty           (process_water       )
+  MPSWD12              ΓåÆ MERP_PLANT           | clean           (process_supply      )
+  MPSWD12              ΓåÆ MPSWD12              | clean           (dam_return          )
+
+INTER-AREA OUTFLOWS (TO other areas):
+------------------------------------------------------------------------------------------------------------------------
+  MPRWSD1              Γåö OLD_TSF/OT_NT_RWD            | dirty           (dam_transfer        )
+  MPRWSD1              Γåö OLD_TSF/OT_TRTD              | dirty           (dam_transfer        )
+  MPRWSD1              Γåö UG2_PLANT/CPPWT                | dirty           (trunk_feed          )
+
+========================================================================================================================
+AREA: MER_SOUTH - Merensky South Area
+========================================================================================================================
+
+STRUCTURES IN MER_SOUTH:
+------------------------------------------------------------------------------------------------------------------------
+  MERS_MDCDG           | MDCD 5-6                                      | storage_group  
+  MERS_OFF             | Offices                                       | building       
+  MERS_SD              | Merensky South Decline                        | decline        
+  MERS_SDSA            | Merensky South Decline Shaft Area             | decline        
+  MERS_SOFT            | Softening Plant                               | treatment      
+
+INTERNAL OUTFLOWS (leaving MER_SOUTH structures):
+------------------------------------------------------------------------------------------------------------------------
+  MERS_MDCDG           ΓåÆ MERS_MDCDG           | clean           (dam_return          )
+  MERS_MDCDG           ΓåÆ MERS_SD              | dirty           (ug_return           )
+  MERS_SD              ΓåÆ MERS_MDCDG           | dirty           (dewatering          )
+  MERS_SOFT            ΓåÆ MERS_OFF             | clean           (N/A                 )
+
+INTER-AREA OUTFLOWS (TO other areas):
+------------------------------------------------------------------------------------------------------------------------
+  MERS_MDCDG           Γåö MER_PLANT/MPRWSD1              | dirty           (dam_transfer        )
+  MERS_SDSA            Γåö UG2_SOUTH/UG2S_MDCDG           | dirty           (runoff              )
+  MERS_MDCDG           Γåö UG2_SOUTH/UG2S_MDCDG           | dirty           (dam_transfer        )
+  MERS_OFF             Γåö UG2_SOUTH/UG2S_STP             | dirty           (wastewater          )
+
+========================================================================================================================
+AREA: OLD_TSF - Old TSF Area
+========================================================================================================================
+
+STRUCTURES IN OLD_TSF:
+------------------------------------------------------------------------------------------------------------------------
+  OT_NEW_TSF           | New Tailings Storage Facility                 | tsf            
+  OT_NT_RWD            | NT RWD 1&2                                    | reservoir      
+  OT_OFF               | Offices                                       | building       
+  OT_OLD_TSF           | Old Tailings Storage Facility                 | tsf            
+  OT_TRTD              | TRTD 1-2 (RWDs)                               | reservoir      
+
+INTERNAL OUTFLOWS (leaving OLD_TSF structures):
+------------------------------------------------------------------------------------------------------------------------
+  OT_NEW_TSF           ΓåÆ OT_NEW_TSF           | dirty           (dam_return          )
+  OT_NEW_TSF           ΓåÆ OT_NT_RWD            | dirty           (return              )
+  OT_NEW_TSF           ΓåÆ OT_NT_RWD            | dirty           (drainage            )
+  OT_NT_RWD            ΓåÆ OT_NEW_TSF           | dirty           (irrigation          )
+  OT_OFF               ΓåÆ OT_OLD_TSF           | dirty           (septic              )
+  OT_OLD_TSF           ΓåÆ OT_OLD_TSF           | dirty           (dam_return          )
+  OT_OLD_TSF           ΓåÆ OT_TRTD              | dirty           (return              )
+  OT_OLD_TSF           ΓåÆ OT_TRTD              | dirty           (drainage            )
+  OT_TRTD              ΓåÆ OT_OLD_TSF           | dirty           (irrigation          )
+
+INTER-AREA OUTFLOWS (TO other areas):
+------------------------------------------------------------------------------------------------------------------------
+  OT_TRTD              Γåö MER_PLANT/MPRWSD1              | dirty           (dam_transfer        )
+  OT_NT_RWD            Γåö MER_PLANT/MPRWSD1              | dirty           (dam_transfer        )
+
+========================================================================================================================
+AREA: STOCKPILE - Stockpile Area
+========================================================================================================================
+
+STRUCTURES IN STOCKPILE:
+------------------------------------------------------------------------------------------------------------------------
+  STP_OFF              | Offices                                       | building       
+  STP_SEPTIC           | Septic Tank                                   | treatment      
+  STP_SPCD1            | SPCD 1                                        | storage_group  
+  STP_STOCK            | Stockpile Area                                | stockpile      
+
+INTERNAL OUTFLOWS (leaving STOCKPILE structures):
+------------------------------------------------------------------------------------------------------------------------
+  STP_OFF              ΓåÆ STP_SEPTIC           | dirty           (wastewater          )
+  STP_SEPTIC           Γåö STP_SPCD1            | dirty           (effluent            )
+  STP_SPCD1            ΓåÆ STP_SPCD1            | clean           (dam_return          )
+  STP_STOCK            ΓåÆ STP_SPCD1            | dirty           (runoff              )
+  STP_STOCK            ΓåÆ STP_SPCD1            | dirty           (seepage             )
+  STP_STOCK            ΓåÆ STP_STOCK            | dirty           (area_return         )
+
+INTER-AREA OUTFLOWS (TO other areas):
+------------------------------------------------------------------------------------------------------------------------
+  (No inter-area outflows)
+
+========================================================================================================================
+AREA: UG2_NORTH - UG2 North Decline Area
+========================================================================================================================
+
+STRUCTURES IN UG2_NORTH:
+------------------------------------------------------------------------------------------------------------------------
+  UG2N_GH              | Guest House                                   | building       
+  UG2N_ND              | North Decline                                 | decline        
+  UG2N_NDCDG           | NDCD Group (NDCD1-2 + NDSWD1)                 | storage_group  
+  UG2N_NDSA            | North Decline Shaft Area                      | decline        
+  UG2N_OFF             | Offices                                       | building       
+  UG2N_RES             | Reservoir                                     | reservoir      
+  UG2N_SOFT            | Softening Plant                               | treatment      
+  UG2N_STP             | Sewage Treatment                              | treatment      
+
+INTERNAL OUTFLOWS (leaving UG2_NORTH structures):
+------------------------------------------------------------------------------------------------------------------------
+  UG2N_ND              ΓåÆ UG2N_NDCDG           | dirty           (dewatering          )
+  UG2N_NDCDG           ΓåÆ UG2N_ND              | dirty           (ug_return           )
+  UG2N_NDSA            ΓåÆ UG2N_NDCDG           | dirty           (runoff              )
+  UG2N_OFF             ΓåÆ UG2N_STP             | clean           (N/A                 )
+  UG2N_RES             ΓåÆ UG2N_GH              | clean           (N/A                 )
+  UG2N_RES             ΓåÆ UG2N_OFF             | clean           (N/A                 )
+  UG2N_SOFT            ΓåÆ UG2N_RES             | clean           (N/A                 )
+  UG2N_STP             ΓåÆ UG2N_NDCDG           | dirty           (effluent            )
+
+INTER-AREA OUTFLOWS (TO other areas):
+------------------------------------------------------------------------------------------------------------------------
+  UG2N_NDCDG           Γåö MER_PLANT/MPRWSD1              | dirty           (dam_transfer        )
+
+========================================================================================================================
+AREA: UG2_PLANT - UG2 Plant Area
+========================================================================================================================
+
+STRUCTURES IN UG2_PLANT:
+------------------------------------------------------------------------------------------------------------------------
+  CPPWT                | CPPWT                                         | treatment      
+  CPRWSD1              | CPRWSD 1                                      | reservoir      
+  UG2PCD1              | UG2PCD 1                                      | reservoir      
+  UG2P_OFF             | Offices                                       | building       
+  UG2P_PLANT           | UG2 Concentrator Plant                        | plant          
+  UG2P_RES             | Reservoir                                     | reservoir      
+  UG2P_SOFT            | Softening Plant                               | treatment      
+  UG2P_STP             | Sewage Treatment                              | treatment      
+
+INTERNAL OUTFLOWS (leaving UG2_PLANT structures):
+------------------------------------------------------------------------------------------------------------------------
+  CPRWSD1              ΓåÆ UG2P_PLANT           | dirty           (process_water       )
+  UG2PCD1              ΓåÆ UG2PCD1              | dirty           (dam_return          )
+  UG2PCD1              Γåö UG2P_PLANT           | dirty           (process_return      )
+  UG2P_OFF             ΓåÆ UG2P_STP             | clean           (N/A                 )
+  UG2P_PLANT           ΓåÆ CPPWT                | dirty           (plant_discharge     )
+  UG2P_RES             ΓåÆ UG2P_OFF             | clean           (N/A                 )
+  UG2P_SOFT            ΓåÆ UG2P_RES             | clean           (N/A                 )
+  UG2P_STP             ΓåÆ UG2P_PLANT           | dirty           (effluent            )
+
+INTER-AREA OUTFLOWS (TO other areas):
+------------------------------------------------------------------------------------------------------------------------
+  CPPWT                Γåö MER_PLANT/MPRWSD1              | dirty           (trunk_feed          )
+  UG2P_PLANT           Γåö OLD_TSF/OT_NEW_TSF           | dirty           (plant_discharge     )
+  UG2P_PLANT           Γåö OLD_TSF/OT_OLD_TSF           | dirty           (plant_discharge     )
+
+========================================================================================================================
+AREA: UG2_SOUTH - UG2 South Decline Area
+========================================================================================================================
+
+STRUCTURES IN UG2_SOUTH:
+------------------------------------------------------------------------------------------------------------------------
+  UG2S_MDCDG           | MDCD 1-4                                      | storage_group  
+  UG2S_OFF             | Offices                                       | building       
+  UG2S_RES             | Reservoir                                     | reservoir      
+  UG2S_SD              | South Decline                                 | decline        
+  UG2S_SDSA            | South Decline Shaft Area                      | decline        
+  UG2S_SOFT            | Softening Plant                               | treatment      
+  UG2S_STP             | Sewage Treatment                              | treatment      
+
+INTERNAL OUTFLOWS (leaving UG2_SOUTH structures):
+------------------------------------------------------------------------------------------------------------------------
+  UG2S_MDCDG           ΓåÆ UG2S_MDCDG           | clean           (dam_return          )
+  UG2S_MDCDG           ΓåÆ UG2S_SD              | dirty           (ug_return           )
+  UG2S_OFF             ΓåÆ UG2S_STP             | clean           (N/A                 )
+  UG2S_RES             ΓåÆ UG2S_OFF             | clean           (N/A                 )
+  UG2S_SD              ΓåÆ UG2S_MDCDG           | dirty           (dewatering          )
+  UG2S_SDSA            ΓåÆ UG2S_MDCDG           | dirty           (runoff              )
+  UG2S_SOFT            ΓåÆ UG2S_RES             | clean           (N/A                 )
+  UG2S_STP             ΓåÆ UG2S_MDCDG           | dirty           (effluent            )
+
+INTER-AREA OUTFLOWS (TO other areas):
+------------------------------------------------------------------------------------------------------------------------
+  UG2S_MDCDG           Γåö MER_PLANT/MPRWSD1              | dirty           (dam_transfer        )
+
+========================================================================================================================
+ANALYSIS COMPLETE - Use this to verify OUTFLOW_CODES_TEMPLATE.txt
+========================================================================================================================
