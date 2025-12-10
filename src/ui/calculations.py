@@ -16,6 +16,9 @@ from database.db_manager import DatabaseManager
 from utils.water_balance_calculator import WaterBalanceCalculator
 from utils.excel_timeseries import get_default_excel_repo
 from utils.app_logger import logger
+from utils.template_data_parser import get_template_parser
+from utils.balance_check_engine import get_balance_check_engine
+from ui.area_exclusion_dialog import AreaExclusionDialog
 
 
 class CalculationsModule:
@@ -74,6 +77,8 @@ class CalculationsModule:
         self.parent = parent
         self.db = DatabaseManager()
         self.calculator = WaterBalanceCalculator()
+        self.balance_engine = get_balance_check_engine()
+        self.template_parser = get_template_parser()
         self.main_frame = None
 
         # Variables
@@ -194,6 +199,11 @@ class CalculationsModule:
         save_btn = ttk.Button(date_frame, text="💾 Save Calculation", 
                              command=self._save_calculation)
         save_btn.pack(side=tk.LEFT, padx=(10, 0))
+        
+        # Area Exclusions button
+        exclusions_btn = ttk.Button(date_frame, text="⚙️ Area Exclusions",
+                                   command=self._show_exclusion_manager)
+        exclusions_btn.pack(side=tk.LEFT, padx=(10, 0))
 
 
         # Event bindings
@@ -208,25 +218,42 @@ class CalculationsModule:
         notebook = ttk.Notebook(self.main_frame)
         notebook.pack(fill=tk.BOTH, expand=True)
         
-        # Tab 1: Summary
+        # Tab 1: Balance Check Summary
+        self.balance_summary_frame = ttk.Frame(notebook, padding=15)
+        notebook.add(self.balance_summary_frame, text="⚖️ Balance Check Summary")
+        
+        # Tab 2: Per-Area Balance Breakdown
+        self.area_balance_frame = ttk.Frame(notebook, padding=15)
+        notebook.add(self.area_balance_frame, text="🗺️ Area Balance Breakdown")
+        
+        # Tab 3: Summary
         self.summary_frame = ttk.Frame(notebook, padding=15)
         notebook.add(self.summary_frame, text="📋 Summary")
         
-        # Tab 2: Inflows
+        # Tab 4: Inflows
         self.inflows_frame = ttk.Frame(notebook, padding=15)
         notebook.add(self.inflows_frame, text="💧 Inflows")
         
-        # Tab 3: Outflows
+        # Tab 5: Outflows
         self.outflows_frame = ttk.Frame(notebook, padding=15)
         notebook.add(self.outflows_frame, text="🚰 Outflows")
         
-        # Tab 4: Storage
+        # Tab 6: Storage
         self.storage_frame = ttk.Frame(notebook, padding=15)
         notebook.add(self.storage_frame, text="🏗️ Storage Status")
 
     def _show_placeholder(self):
         """Show initial placeholder prompting user to run calculation on demand"""
-        for frame in (getattr(self, 'summary_frame', None), getattr(self, 'inflows_frame', None), getattr(self, 'outflows_frame', None), getattr(self, 'storage_frame', None)):
+        frames_to_clear = [
+            getattr(self, 'balance_summary_frame', None),
+            getattr(self, 'area_balance_frame', None),
+            getattr(self, 'summary_frame', None),
+            getattr(self, 'inflows_frame', None),
+            getattr(self, 'outflows_frame', None),
+            getattr(self, 'storage_frame', None)
+        ]
+        
+        for frame in frames_to_clear:
             if not frame:
                 continue
             for w in frame.winfo_children():
@@ -249,8 +276,15 @@ class CalculationsModule:
             self.current_balance = self.calculator.calculate_water_balance(calc_date, ore_tonnes)
             logger.info(f"  ✓ Balance calculation: {(time.perf_counter() - balance_calc_start)*1000:.0f}ms")
             
+            # Calculate balance check from templates
+            check_start = time.perf_counter()
+            self.balance_engine.calculate_balance()
+            logger.info(f"  ✓ Balance check engine: {(time.perf_counter() - check_start)*1000:.0f}ms")
+            
             # Update displays
             ui_start = time.perf_counter()
+            self._update_balance_check_summary()
+            self._update_area_balance_breakdown()
             self._update_summary_display()
             self._update_inflows_display()
             self._update_outflows_display()
@@ -262,6 +296,223 @@ class CalculationsModule:
             
         except Exception as e:
             messagebox.showerror("Calculation Error", f"Failed to calculate balance:\n{str(e)}")
+            logger.error(f"Calculation error: {e}", exc_info=True)
+    
+    
+    def _update_balance_check_summary(self):
+        """Update balance check summary tab with overall water balance"""
+        # Clear existing
+        for widget in self.balance_summary_frame.winfo_children():
+            widget.destroy()
+        
+        metrics = self.balance_engine.get_metrics()
+        if not metrics:
+            return
+        
+        excluded_areas = self.balance_engine.get_excluded_areas()
+        
+        # Header
+        header_text = "⚖️ Water Balance Check (Overall)"
+        if excluded_areas:
+            header_text += f" - {len(excluded_areas)} area(s) excluded"
+        
+        ttk.Label(self.balance_summary_frame, 
+                 text=header_text, 
+                 font=('Segoe UI', 14, 'bold')).pack(pady=(0, 20))
+        
+        # Exclusions info if any
+        if excluded_areas:
+            self.add_info_box(self.balance_summary_frame,
+                             f"⚠️ Excluded areas: {', '.join(excluded_areas)}\n"
+                             "These areas are NOT included in balance calculations below.",
+                             icon="⚙️")
+        
+        # Info box explaining the calculation
+        self.add_info_box(self.balance_summary_frame,
+                         "Balance Equation: Total Inflows − Recirculation − Total Outflows = Balance Difference\n"
+                         "Error %: (Balance Difference ÷ Total Inflows) × 100\n"
+                         "Status: < 0.1% = Excellent | < 0.5% = Good | ≥ 0.5% = Check needed",
+                         icon="⚙️")
+        
+        # Key metrics
+        metrics_frame = ttk.Frame(self.balance_summary_frame)
+        metrics_frame.pack(fill=tk.X, pady=(0, 15))
+        
+        self.add_metric_card(metrics_frame, "Total Inflows", f"{metrics.total_inflows:,.0f} m³",
+                            "#007bff", icon="💧")
+        self.add_metric_card(metrics_frame, "Total Outflows", f"{metrics.total_outflows:,.0f} m³",
+                            "#dc3545", icon="🚰")
+        self.add_metric_card(metrics_frame, "Dam Recirculation", f"{metrics.total_recirculation:,.0f} m³",
+                            "#28a745", icon="♻️")
+        self.add_metric_card(metrics_frame, "Balance Difference", f"{metrics.balance_difference:,.0f} m³",
+                            "#ff6b6b" if abs(metrics.balance_error_percent) > 0.5 else "#007bff", icon="⚖️")
+        
+        # Error percentage and status
+        error_color = "#28a745" if abs(metrics.balance_error_percent) < 0.5 else "#ffc107" if abs(metrics.balance_error_percent) < 1.0 else "#dc3545"
+        error_frame = ttk.Frame(self.balance_summary_frame)
+        error_frame.pack(fill=tk.X, pady=15)
+        
+        self.add_metric_card(error_frame, "Balance Error %", f"{metrics.balance_error_percent:.2f}%",
+                            error_color, icon="📊")
+        self.add_metric_card(error_frame, "Status", metrics.status_label,
+                            error_color, icon="✅")
+        
+        # Breakdown table
+        breakdown_data = [
+            {"values": ("Total Inflows (Fresh + Recycled)", f"{metrics.total_inflows:,.0f}"), "tag": "input"},
+            {"values": ("─" * 35, "─" * 20), "tag": "separator"},
+            {"values": ("Less: Dam Recirculation", f"({metrics.total_recirculation:,.0f})"), "tag": "calculation"},
+            {"values": ("Less: Total Outflows", f"({metrics.total_outflows:,.0f})"), "tag": "calculation"},
+            {"values": ("─" * 35, "─" * 20), "tag": "separator"},
+            {"values": ("= Balance Difference", f"{metrics.balance_difference:,.0f}"), "tag": "result"},
+            {"values": ("", ""), "tag": "separator"},
+            {"values": ("Error %", f"{metrics.balance_error_percent:.2f}%"), "tag": "error"},
+        ]
+        
+        breakdown_frame = ttk.LabelFrame(self.balance_summary_frame, text="📊 Balance Calculation Breakdown", padding=10)
+        breakdown_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 10))
+        
+        tag_configs = {
+            'input': {'foreground': '#007bff'},
+            'calculation': {'foreground': '#666'},
+            'result': {'font': ('Segoe UI', 10, 'bold'), 'foreground': '#000'},
+            'error': {'font': ('Segoe UI', 10, 'bold'), 'foreground': error_color},
+            'separator': {'foreground': '#ccc'}
+        }
+        
+        self.add_treeview(breakdown_frame, ('item', 'value'), 
+                         ['Item', 'Value (m³)'], breakdown_data, tag_configs)
+        
+        # Summary statistics
+        stats_frame = ttk.LabelFrame(self.balance_summary_frame, text="📈 Summary Statistics", padding=10)
+        stats_frame.pack(fill=tk.X)
+        
+        stats_data = [
+            {"values": ("Total Inflow Sources", str(metrics.inflow_count)), "tag": "normal"},
+            {"values": ("Total Outflow Flows", str(metrics.outflow_count)), "tag": "normal"},
+            {"values": ("Total Recirculation Loops", str(metrics.recirculation_count)), "tag": "normal"},
+            {"values": ("Number of Areas", str(len(metrics.area_metrics))), "tag": "normal"},
+            {"values": ("Balanced Areas", str(sum(1 for a in metrics.area_metrics.values() if a.is_balanced))), "tag": "normal"},
+        ]
+        
+        self.add_treeview(stats_frame, ('stat', 'count'), 
+                         ['Statistic', 'Count'], stats_data, {'normal': {}})
+    
+    def _update_area_balance_breakdown(self):
+        """Update per-area balance breakdown tab"""
+        # Clear existing
+        for widget in self.area_balance_frame.winfo_children():
+            widget.destroy()
+        
+        metrics = self.balance_engine.get_metrics()
+        if not metrics or not metrics.area_metrics:
+            return
+        
+        # Header
+        ttk.Label(self.area_balance_frame,
+                 text="🗺️ Balance Check by Mine Area",
+                 font=('Segoe UI', 14, 'bold')).pack(pady=(0, 20))
+        
+        # Info box
+        self.add_info_box(self.area_balance_frame,
+                         "Detailed balance breakdown for each mine area.\n"
+                         "Shows inflows, outflows, and recirculation specific to each area.",
+                         icon="💡")
+        
+        # Create notebook for each area
+        area_notebook = ttk.Notebook(self.area_balance_frame)
+        area_notebook.pack(fill=tk.BOTH, expand=True)
+        
+        # Overall summary tab
+        summary_tab = ttk.Frame(area_notebook, padding=15)
+        area_notebook.add(summary_tab, text="📊 All Areas Summary")
+        
+        # Create summary table
+        summary_data = []
+        for area_name in sorted(metrics.area_metrics.keys()):
+            area = metrics.area_metrics[area_name]
+            summary_data.append({
+                "values": (
+                    area_name,
+                    f"{area.total_inflows:,.0f}",
+                    f"{area.total_outflows:,.0f}",
+                    f"{area.total_recirculation:,.0f}",
+                    f"{area.balance_difference:,.0f}",
+                    f"{area.balance_error_percent:.2f}%",
+                    area.status_label
+                ),
+                "tag": "balanced" if area.is_balanced else "unbalanced"
+            })
+        
+        tag_configs_summary = {
+            'balanced': {'foreground': '#28a745'},
+            'unbalanced': {'foreground': '#ff6b6b', 'font': ('Segoe UI', 9, 'bold')}
+        }
+        
+        self.add_treeview(summary_tab, 
+                         ('area', 'inflows', 'outflows', 'recirculation', 'difference', 'error_pct', 'status'),
+                         ['Area', 'Inflows (m³)', 'Outflows (m³)', 'Recirculation (m³)', 
+                          'Difference (m³)', 'Error %', 'Status'],
+                         summary_data, tag_configs_summary)
+        
+        # Individual area tabs
+        for area_name in sorted(metrics.area_metrics.keys()):
+            area = metrics.area_metrics[area_name]
+            area_tab = ttk.Frame(area_notebook, padding=15)
+            area_notebook.add(area_tab, text=f"🏭 {area_name}")
+            
+            # Area metrics
+            metrics_frame = ttk.Frame(area_tab)
+            metrics_frame.pack(fill=tk.X, pady=(0, 15))
+            
+            self.add_metric_card(metrics_frame, "Inflows", f"{area.total_inflows:,.0f} m³",
+                                "#007bff", icon="💧")
+            self.add_metric_card(metrics_frame, "Outflows", f"{area.total_outflows:,.0f} m³",
+                                "#dc3545", icon="🚰")
+            self.add_metric_card(metrics_frame, "Recirculation", f"{area.total_recirculation:,.0f} m³",
+                                "#28a745", icon="♻️")
+            
+            error_color = "#28a745" if area.is_balanced else "#ff6b6b"
+            self.add_metric_card(metrics_frame, "Balance Error %", f"{area.balance_error_percent:.2f}%",
+                                error_color, icon="⚖️")
+            
+            # Breakdown
+            breakdown_data = [
+                {"values": (f"{area_name} Inflows", f"{area.total_inflows:,.0f}"), "tag": "input"},
+                {"values": ("Less: Recirculation", f"({area.total_recirculation:,.0f})"), "tag": "calculation"},
+                {"values": ("Less: Outflows", f"({area.total_outflows:,.0f})"), "tag": "calculation"},
+                {"values": ("─" * 35, "─" * 20), "tag": "separator"},
+                {"values": ("= Balance Difference", f"{area.balance_difference:,.0f}"), "tag": "result"},
+                {"values": ("Error %", f"{area.balance_error_percent:.2f}%"), "tag": "error"},
+            ]
+            
+            breakdown_frame = ttk.LabelFrame(area_tab, text="⚖️ Balance Breakdown", padding=10)
+            breakdown_frame.pack(fill=tk.BOTH, expand=True)
+            
+            tag_configs_area = {
+                'input': {'foreground': '#007bff'},
+                'calculation': {'foreground': '#666'},
+                'result': {'font': ('Segoe UI', 10, 'bold'), 'foreground': '#000'},
+                'error': {'font': ('Segoe UI', 10, 'bold'), 'foreground': error_color},
+                'separator': {'foreground': '#ccc'}
+            }
+            
+            self.add_treeview(breakdown_frame, ('item', 'value'),
+                             ['Item', 'Value (m³)'], breakdown_data, tag_configs_area)
+            
+            # Component details
+            details_data = [
+                {"values": ("Inflow Count", str(area.inflow_count)), "tag": "normal"},
+                {"values": ("Outflow Count", str(area.outflow_count)), "tag": "normal"},
+                {"values": ("Recirculation Count", str(area.recirculation_count)), "tag": "normal"},
+                {"values": ("Status", area.status_label), "tag": "status"},
+            ]
+            
+            details_frame = ttk.LabelFrame(area_tab, text="📋 Details", padding=10)
+            details_frame.pack(fill=tk.X, pady=(15, 0))
+            
+            self.add_treeview(details_frame, ('detail', 'value'),
+                             ['Detail', 'Value'], details_data, {'normal': {}, 'status': {}})
     
     def _update_summary_display(self):
         """Update summary tab with clear water balance equation"""
@@ -760,6 +1011,17 @@ class CalculationsModule:
     def refresh_data(self):
         """Refresh module data"""
         self._show_placeholder()
+
+    def _show_exclusion_manager(self):
+        """Show area exclusion manager dialog"""
+        dialog = AreaExclusionDialog(self.parent)
+        if dialog.show():
+            logger.info("Area exclusions updated")
+            if self.current_balance:
+                messagebox.showinfo("Exclusions Updated",
+                    "Area exclusions have been updated.\n"
+                    "Click 'Calculate Balance' again to see results with new exclusions.")
+    
 
     # ==================== ORE TONNAGE PREFILL ====================
     def _prefill_ore_tonnage(self):

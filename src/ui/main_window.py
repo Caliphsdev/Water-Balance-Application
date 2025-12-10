@@ -530,9 +530,9 @@ class MainWindow:
 
     def _load_flow_diagram(self):
         """Load the flow diagram module showing water balance flow"""
-        from ui.reports import ReportsModule
+        from ui.flow_diagram_dashboard import FlowDiagramDashboard
 
-        module = ReportsModule(self.content_area)
+        module = FlowDiagramDashboard(self.content_area)
         module.load()
     
     def _load_placeholder(self, title, description):

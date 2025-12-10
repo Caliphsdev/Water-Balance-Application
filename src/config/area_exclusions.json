@@ -1,0 +1,7 @@
+{
+  "excluded_areas": [
+    "OLD_TSF",
+    "STOCKPILE"
+  ],
+  "description": "Areas excluded from balance check calculations"
+}
