@@ -4,8 +4,10 @@
   "merensky_title": "Merensky North Area",
   "stockpile_title": "Stockpile Area",
   "ug2south_title": "UG2 South Decline Area",
+  "merenskysouth_title": "Merensky South Area",
+  "oldtsf_title": "Old TSF Area",
   "width": 1800,
-  "height": 1640,
+  "height": 2650,
   "zone_bg": [
     {
       "name": "UG2 North Decline Area",
@@ -38,6 +40,22 @@
       "width": 1800,
       "height": 320,
       "color": "#e8d4c1"
+    },
+    {
+      "name": "Merensky South Area",
+      "x": 40,
+      "y": 1640,
+      "width": 1800,
+      "height": 420,
+      "color": "#d4e9f7"
+    },
+    {
+      "name": "Old TSF Area",
+      "x": 40,
+      "y": 2070,
+      "width": 1800,
+      "height": 570,
+      "color": "#e8f5e9"
     }
   ],
   "nodes": [
@@ -592,8 +610,8 @@
       "label": "BOREHOLE ABSTRACTION\n(MGDWA)",
       "type": "source",
       "shape": "rect",
-      "x": 40.0,
-      "y": 1370.0,
+      "x": 42.0,
+      "y": 1359.0,
       "width": 152,
       "height": 40,
       "fill": "#8ab7e6",
@@ -605,8 +623,8 @@
       "label": "DIRECT RAINFALL\n(MDCD 1-4)",
       "type": "source",
       "shape": "rect",
-      "x": 252.0,
-      "y": 1370.0,
+      "x": 42.0,
+      "y": 1585.0,
       "width": 136,
       "height": 40,
       "fill": "#b7d4f3",
@@ -618,8 +636,8 @@
       "label": "MDCD 1-4\n(Group)",
       "type": "storage",
       "shape": "oval",
-      "x": 420.0,
-      "y": 1370.0,
+      "x": 1018.0,
+      "y": 1575.0,
       "width": 160,
       "height": 56,
       "fill": "#3f6ea3",
@@ -631,8 +649,8 @@
       "label": "SOFTENING\nPLANT",
       "type": "process",
       "shape": "rect",
-      "x": 630.0,
-      "y": 1370.0,
+      "x": 270.0,
+      "y": 1392.0,
       "width": 100,
       "height": 40,
       "fill": "#e89c3d",
@@ -644,8 +662,8 @@
       "label": "RESERVOIR",
       "type": "storage",
       "shape": "oval",
-      "x": 810.0,
-      "y": 1370.0,
+      "x": 347.0,
+      "y": 1480.0,
       "width": 136,
       "height": 52,
       "fill": "#4b78a8",
@@ -657,8 +675,8 @@
       "label": "OFFICES",
       "type": "consumption",
       "shape": "rect",
-      "x": 990.0,
-      "y": 1370.0,
+      "x": 549.0,
+      "y": 1366.0,
       "width": 120,
       "height": 40,
       "fill": "#5d88b6",
@@ -670,8 +688,8 @@
       "label": "SOUTH\nDECLINE",
       "type": "process",
       "shape": "rect",
-      "x": 1150.0,
-      "y": 1370.0,
+      "x": 627.0,
+      "y": 1526.0,
       "width": 100,
       "height": 40,
       "fill": "#a34136",
@@ -683,8 +701,8 @@
       "label": "SOUTH DECLINE\nSHAFT AREA",
       "type": "process",
       "shape": "rect",
-      "x": 1320.0,
-      "y": 1370.0,
+      "x": 883.0,
+      "y": 1407.0,
       "width": 120,
       "height": 40,
       "fill": "#b04c40",
@@ -696,8 +714,8 @@
       "label": "SEWAGE\nTREATMENT",
       "type": "treatment",
       "shape": "rect",
-      "x": 1520.0,
-      "y": 1370.0,
+      "x": 684.0,
+      "y": 1465.0,
       "width": 110,
       "height": 40,
       "fill": "#e89c3d",
@@ -709,8 +727,8 @@
       "label": "CONSUMPTION",
       "type": "consumption",
       "shape": "rect",
-      "x": 990.0,
-      "y": 1430.0,
+      "x": 1342.0,
+      "y": 1366.0,
       "width": 100,
       "height": 32,
       "fill": "#ffffff",
@@ -722,8 +740,8 @@
       "label": "SPILL",
       "type": "loss",
       "shape": "rect",
-      "x": 420.0,
-      "y": 1430.0,
+      "x": 1352.0,
+      "y": 1509.0,
       "width": 70,
       "height": 32,
       "fill": "#ffffff",
@@ -735,8 +753,8 @@
       "label": "EVAPORATION",
       "type": "loss",
       "shape": "rect",
-      "x": 510.0,
-      "y": 1430.0,
+      "x": 1339.0,
+      "y": 1551.0,
       "width": 100,
       "height": 32,
       "fill": "#ffffff",
@@ -748,8 +766,8 @@
       "label": "DUST\nSUPPRESSION",
       "type": "loss",
       "shape": "rect",
-      "x": 630.0,
-      "y": 1430.0,
+      "x": 1341.0,
+      "y": 1588.0,
       "width": 100,
       "height": 40,
       "fill": "#ffffff",
@@ -761,8 +779,8 @@
       "label": "LOSSES",
       "type": "loss",
       "shape": "rect",
-      "x": 630.0,
-      "y": 1480.0,
+      "x": 1354.0,
+      "y": 1432.0,
       "width": 70,
       "height": 32,
       "fill": "#ffffff",
@@ -774,12 +792,454 @@
       "label": "LOSSES",
       "type": "loss",
       "shape": "rect",
-      "x": 1520.0,
-      "y": 1430.0,
+      "x": 1360.0,
+      "y": 1328.0,
       "width": 70,
       "height": 32,
       "fill": "#ffffff",
       "outline": "#000000",
+      "locked": true
+    },
+    {
+      "id": "mers_borehole",
+      "label": "BOREHOLE ABSTRACTION\n(MOGWA South)",
+      "type": "source",
+      "shape": "rect",
+      "x": 43.0,
+      "y": 1690.0,
+      "width": 152,
+      "height": 40,
+      "fill": "#8ab7e6",
+      "outline": "#2c5d8a",
+      "locked": true
+    },
+    {
+      "id": "mers_rainfall",
+      "label": "DIRECT RAINFALL\n(MDCD 5-6)",
+      "type": "source",
+      "shape": "rect",
+      "x": 43.0,
+      "y": 1892.0,
+      "width": 136,
+      "height": 40,
+      "fill": "#b7d4f3",
+      "outline": "#2c5d8a",
+      "locked": true
+    },
+    {
+      "id": "mers_mdcdg",
+      "label": "MDCD 5-6\n(Group)",
+      "type": "storage",
+      "shape": "oval",
+      "x": 1058.0,
+      "y": 1880.0,
+      "width": 160,
+      "height": 56,
+      "fill": "#3f6ea3",
+      "outline": "#1f4d7a",
+      "locked": true
+    },
+    {
+      "id": "mers_soft",
+      "label": "SOFTENING\nPLANT",
+      "type": "process",
+      "shape": "rect",
+      "x": 389.0,
+      "y": 1689.0,
+      "width": 100,
+      "height": 40,
+      "fill": "#e89c3d",
+      "outline": "#c46f00",
+      "locked": true
+    },
+    {
+      "id": "mers_offices",
+      "label": "OFFICES",
+      "type": "consumption",
+      "shape": "rect",
+      "x": 775.0,
+      "y": 1693.0,
+      "width": 120,
+      "height": 40,
+      "fill": "#5d88b6",
+      "outline": "#2c5d8a",
+      "locked": true
+    },
+    {
+      "id": "mers_sd",
+      "label": "MERENSKY SOUTH\nDECLINE",
+      "type": "process",
+      "shape": "rect",
+      "x": 792.0,
+      "y": 1978.0,
+      "width": 120,
+      "height": 40,
+      "fill": "#a34136",
+      "outline": "#6d1c12",
+      "locked": true
+    },
+    {
+      "id": "mers_sdsa",
+      "label": "MERENSKY SOUTH\nDECLINE SHAFT AREA",
+      "type": "process",
+      "shape": "rect",
+      "x": 1005.0,
+      "y": 1756.0,
+      "width": 140,
+      "height": 40,
+      "fill": "#b04c40",
+      "outline": "#6d1c12",
+      "locked": true
+    },
+    {
+      "id": "mers_consumption",
+      "label": "CONSUMPTION",
+      "type": "consumption",
+      "shape": "rect",
+      "x": 1346.0,
+      "y": 1691.0,
+      "width": 100,
+      "height": 32,
+      "fill": "#ffffff",
+      "outline": "#c40000",
+      "locked": true
+    },
+    {
+      "id": "mers_mdcd_spill",
+      "label": "SPILL",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1379.0,
+      "y": 1848.0,
+      "width": 70,
+      "height": 32,
+      "fill": "#ffffff",
+      "outline": "#c40000",
+      "locked": true
+    },
+    {
+      "id": "mers_mdcd_evap",
+      "label": "EVAPORATION",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1355.0,
+      "y": 1889.0,
+      "width": 100,
+      "height": 32,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": true
+    },
+    {
+      "id": "mers_mdcd_dust",
+      "label": "DUST\nSUPPRESSION",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1358.0,
+      "y": 1938.0,
+      "width": 100,
+      "height": 40,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": true
+    },
+    {
+      "id": "mers_soft_losses",
+      "label": "LOSSES",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1361.0,
+      "y": 1645.0,
+      "width": 70,
+      "height": 32,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": true
+    },
+    {
+      "id": "oldtsf_gwa_boreholes",
+      "label": "BOREHOLE\nABSTRACTION\n(TSFGWA1-2)",
+      "type": "inflow",
+      "shape": "rect",
+      "x": 40.0,
+      "y": 2103.0,
+      "width": 160,
+      "height": 60,
+      "fill": "#d1f2eb",
+      "outline": "#148f77",
+      "locked": true
+    },
+    {
+      "id": "oldtsf_old_tsf_rainrun",
+      "label": "RAINFALL &\nRUNOFF",
+      "type": "inflow",
+      "shape": "rect",
+      "x": 41.0,
+      "y": 2223.0,
+      "width": 160,
+      "height": 40,
+      "fill": "#d1f2eb",
+      "outline": "#148f77",
+      "locked": true
+    },
+    {
+      "id": "oldtsf_trtd_rain",
+      "label": "DIRECT\nRAINFALL",
+      "type": "inflow",
+      "shape": "rect",
+      "x": 42.0,
+      "y": 2328.0,
+      "width": 160,
+      "height": 40,
+      "fill": "#d1f2eb",
+      "outline": "#148f77",
+      "locked": true
+    },
+    {
+      "id": "oldtsf_new_tsf_rainrun",
+      "label": "RAINFALL &\nRUNOFF",
+      "type": "inflow",
+      "shape": "rect",
+      "x": 40,
+      "y": 2460,
+      "width": 160,
+      "height": 40,
+      "fill": "#d1f2eb",
+      "outline": "#148f77",
+      "locked": true
+    },
+    {
+      "id": "oldtsf_nt_rwd_rain",
+      "label": "DIRECT\nRAINFALL",
+      "type": "inflow",
+      "shape": "rect",
+      "x": 42.0,
+      "y": 2578.0,
+      "width": 160,
+      "height": 40,
+      "fill": "#d1f2eb",
+      "outline": "#148f77",
+      "locked": true
+    },
+    {
+      "id": "oldtsf_offices",
+      "label": "OFFICES",
+      "type": "building",
+      "shape": "rect",
+      "x": 618.0,
+      "y": 2107.0,
+      "width": 200,
+      "height": 50,
+      "fill": "#5499c7",
+      "outline": "#21618c",
+      "locked": true
+    },
+    {
+      "id": "oldtsf_old_tsf",
+      "label": "OLD TAILINGS\nSTORAGE FACILITY",
+      "type": "tsf",
+      "shape": "rect",
+      "x": 599.0,
+      "y": 2201.0,
+      "width": 300,
+      "height": 60,
+      "fill": "#f9a825",
+      "outline": "#f57f17",
+      "locked": true
+    },
+    {
+      "id": "oldtsf_trtd",
+      "label": "TRTD 1-2(RWDs)",
+      "type": "reservoir",
+      "shape": "oval",
+      "x": 646.0,
+      "y": 2322.0,
+      "width": 160,
+      "height": 50,
+      "fill": "#5499c7",
+      "outline": "#21618c",
+      "locked": true
+    },
+    {
+      "id": "oldtsf_new_tsf",
+      "label": "NEW TAILINGS\nSTORAGE FACILITY",
+      "type": "tsf",
+      "shape": "rect",
+      "x": 568.0,
+      "y": 2449.0,
+      "width": 300,
+      "height": 60,
+      "fill": "#f9a825",
+      "outline": "#f57f17",
+      "locked": true
+    },
+    {
+      "id": "oldtsf_nt_rwd",
+      "label": "NT RWD 1&2",
+      "type": "reservoir",
+      "shape": "oval",
+      "x": 638.0,
+      "y": 2580.0,
+      "width": 160,
+      "height": 50,
+      "fill": "#5499c7",
+      "outline": "#21618c",
+      "locked": true
+    },
+    {
+      "id": "oldtsf_off_septic",
+      "label": "SEPTIC TANK",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1380,
+      "y": 2080,
+      "width": 100,
+      "height": 32,
+      "fill": "#ffffff",
+      "outline": "#e74c3c",
+      "locked": true
+    },
+    {
+      "id": "oldtsf_off_consumption",
+      "label": "CONSUMPTION",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1380,
+      "y": 2120,
+      "width": 100,
+      "height": 32,
+      "fill": "#ffffff",
+      "outline": "#e74c3c",
+      "locked": true
+    },
+    {
+      "id": "oldtsf_old_tsf_evap",
+      "label": "EVAPORATION",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1380,
+      "y": 2180,
+      "width": 100,
+      "height": 32,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": true
+    },
+    {
+      "id": "oldtsf_old_tsf_interstitial",
+      "label": "INTERSTITIAL\nSTORAGE",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1380,
+      "y": 2220,
+      "width": 100,
+      "height": 40,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": true
+    },
+    {
+      "id": "oldtsf_old_tsf_seepage",
+      "label": "SEEPAGE",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1380,
+      "y": 2260,
+      "width": 100,
+      "height": 32,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": true
+    },
+    {
+      "id": "oldtsf_trtd_evap",
+      "label": "EVAPORATION",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1380,
+      "y": 2320,
+      "width": 100,
+      "height": 32,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": true
+    },
+    {
+      "id": "oldtsf_trtd_spill",
+      "label": "SPILL",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1379.0,
+      "y": 2362.0,
+      "width": 100,
+      "height": 32,
+      "fill": "#ffffff",
+      "outline": "#e74c3c",
+      "locked": true
+    },
+    {
+      "id": "oldtsf_new_tsf_evap",
+      "label": "EVAPORATION",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1379.0,
+      "y": 2426.0,
+      "width": 100,
+      "height": 32,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": true
+    },
+    {
+      "id": "oldtsf_new_tsf_interstitial",
+      "label": "INTERSTITIAL\nSTORAGE",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1380,
+      "y": 2460,
+      "width": 100,
+      "height": 40,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": true
+    },
+    {
+      "id": "oldtsf_new_tsf_seepage",
+      "label": "SEEPAGE",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1380,
+      "y": 2500,
+      "width": 100,
+      "height": 32,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": true
+    },
+    {
+      "id": "oldtsf_nt_rwd_evap",
+      "label": "EVAPORATION",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1380,
+      "y": 2560,
+      "width": 100,
+      "height": 32,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": true
+    },
+    {
+      "id": "oldtsf_nt_rwd_spill",
+      "label": "SPILL",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1380,
+      "y": 2600,
+      "width": 100,
+      "height": 32,
+      "fill": "#ffffff",
+      "outline": "#e74c3c",
       "locked": true
     }
   ],
@@ -818,7 +1278,8 @@
       "flow_type": "clean",
       "volume": 47485.0,
       "color": "#4b78a8",
-      "label": "47,485"
+      "label": "47,485",
+      "label_offset": 0.4251041046995836
     },
     {
       "from": "reservoir",
@@ -845,7 +1306,7 @@
       "volume": 47485.0,
       "color": "#4b78a8",
       "label": "47,485",
-      "label_offset": 0.5342465753424658
+      "label_offset": 0.5502283105022832
     },
     {
       "from": "softening",
@@ -996,7 +1457,8 @@
       "flow_type": "clean",
       "volume": 33240.0,
       "color": "#4b78a8",
-      "label": "33,240"
+      "label": "33,240",
+      "label_offset": 0.4249176005273566
     },
     {
       "from": "sewage",
@@ -1063,7 +1525,8 @@
       "flow_type": "ug_return",
       "volume": 187761.0,
       "color": "#e74c3c",
-      "label": "187,761"
+      "label": "187,761",
+      "label_offset": 0.5004397537379067
     },
     {
       "from": "north_shaft",
@@ -1088,7 +1551,7 @@
       "label": "17,288",
       "snap_x": 0.825,
       "snap_y": 0.17857142857142858,
-      "label_offset": 0.39596273291925466
+      "label_offset": 0.2608695652173913
     },
     {
       "from": "ndcd",
@@ -1192,7 +1655,7 @@
       "label": "71,530",
       "snap_x": -0.008333333333333333,
       "snap_y": 0.6666666666666666,
-      "label_offset": 0.7191446249592937
+      "label_offset": 0.7400792441328865
     },
     {
       "from": "bh_mcgwa",
@@ -1233,7 +1696,8 @@
       "color": "#4b78a8",
       "label": "287",
       "snap_x": 0.05,
-      "snap_y": 0.375
+      "snap_y": 0.375,
+      "label_offset": 0.5365242774114519
     },
     {
       "from": "softening_merensky",
@@ -1341,7 +1805,7 @@
       "label": "96",
       "snap_x": 0.55,
       "snap_y": 0.17857142857142858,
-      "label_offset": 0.4216335540838852
+      "label_offset": 0.2682119205298013
     },
     {
       "from": "merensky_north_decline",
@@ -1509,7 +1973,7 @@
       "label": "14,132",
       "snap_x": 0.5367647058823529,
       "snap_y": 0.9444444444444444,
-      "label_offset": 0.5653333333333334
+      "label_offset": 0.42933333333333334
     },
     {
       "from": "stockpile_bh_gwa",
@@ -1529,7 +1993,8 @@
       "color": "#4b78a8",
       "label": "15,112",
       "snap_x": 0.16666666666666666,
-      "snap_y": 0.575
+      "snap_y": 0.575,
+      "label_offset": 0.6061184192229607
     },
     {
       "from": "stockpile_offices",
@@ -1558,7 +2023,7 @@
       "label": "4,534",
       "snap_x": 0.03571428571428571,
       "snap_y": 0.5357142857142857,
-      "label_offset": 0.286522633744856
+      "label_offset": 0.1419753086419753
     },
     {
       "from": "stockpile_offices",
@@ -1603,7 +2068,8 @@
       "color": "#4b78a8",
       "label": "3,971",
       "snap_x": 0.06875,
-      "snap_y": 0.2857142857142857
+      "snap_y": 0.2857142857142857,
+      "label_offset": 0.5194114610221994
     },
     {
       "from": "stockpile_rainfall",
@@ -1774,6 +2240,1169 @@
       "snap_x": 0.02142857142857143,
       "snap_y": 0.39285714285714285,
       "label_offset": 0.8411889596602973
+    },
+    {
+      "from": "ug2s_borehole",
+      "to": "ug2s_soft",
+      "segments": [
+        [
+          118.0,
+          1379.0
+        ],
+        [
+          118.0,
+          1417.0
+        ],
+        [
+          272.0,
+          1414.0
+        ]
+      ],
+      "flow_type": "clean",
+      "volume": 114160.0,
+      "color": "#4b78a8",
+      "label": "114,160",
+      "snap_x": 0.02,
+      "snap_y": 0.6,
+      "label_offset": 0.6701588622622574
+    },
+    {
+      "from": "ug2s_rainfall",
+      "to": "ug2s_mdcdg",
+      "segments": [
+        [
+          110.0,
+          1615.0
+        ],
+        [
+          1040.0,
+          1595.0
+        ]
+      ],
+      "flow_type": "clean",
+      "volume": 7337.0,
+      "color": "#4b78a8",
+      "label": "7,337",
+      "snap_x": 0.15,
+      "snap_y": 0.5357142857142857,
+      "label_offset": 0.5127354674679302
+    },
+    {
+      "from": "ug2s_soft",
+      "to": "ug2s_res",
+      "segments": [
+        [
+          320.0,
+          1410.0
+        ],
+        [
+          320.0,
+          1508.0
+        ],
+        [
+          382.0,
+          1503.0
+        ]
+      ],
+      "flow_type": "clean",
+      "volume": 108452.0,
+      "color": "#4b78a8",
+      "label": "108,452",
+      "snap_x": 0.2647058823529412,
+      "snap_y": 0.5192307692307693,
+      "label_offset": 0.23979591836734693
+    },
+    {
+      "from": "ug2s_res",
+      "to": "ug2s_offices",
+      "segments": [
+        [
+          415.0,
+          1506.0
+        ],
+        [
+          415.0,
+          1392.0
+        ],
+        [
+          574.0,
+          1402.0
+        ]
+      ],
+      "flow_type": "clean",
+      "volume": 108452.0,
+      "color": "#4b78a8",
+      "label": "108,452",
+      "snap_x": 0.21666666666666667,
+      "snap_y": 0.65,
+      "label_offset": 0.6875663622849861
+    },
+    {
+      "from": "ug2s_offices",
+      "to": "ug2s_stp",
+      "segments": [
+        [
+          609.0,
+          1387.0
+        ],
+        [
+          609.0,
+          1488.0
+        ],
+        [
+          703.0,
+          1480.0
+        ]
+      ],
+      "flow_type": "clean",
+      "volume": 75916.0,
+      "color": "#4b78a8",
+      "label": "75,916",
+      "snap_x": 0.1,
+      "snap_y": 0.575,
+      "label_offset": 0.35294117647058826
+    },
+    {
+      "from": "ug2s_stp",
+      "to": "ug2s_mdcdg",
+      "segments": [
+        [
+          739.0,
+          1485.0
+        ],
+        [
+          1096.0,
+          1485.0
+        ],
+        [
+          1096.0,
+          1582.0
+        ]
+      ],
+      "flow_type": "dirty",
+      "volume": 92816.0,
+      "color": "#e74c3c",
+      "label": "92,816",
+      "snap_x": 0.4875,
+      "snap_y": 0.125,
+      "label_offset": 0.6606835152211373
+    },
+    {
+      "from": "ug2s_sd",
+      "to": "ug2s_mdcdg",
+      "segments": [
+        [
+          679.0,
+          1546.0
+        ],
+        [
+          679.0,
+          1515.0
+        ],
+        [
+          1018.0,
+          1515.0
+        ],
+        [
+          1045.0,
+          1599.0
+        ]
+      ],
+      "flow_type": "dewatering",
+      "volume": 587705.0,
+      "color": "#e74c3c",
+      "label": "587,705",
+      "snap_x": 0.16875,
+      "snap_y": 0.42857142857142855
+    },
+    {
+      "from": "ug2s_mdcdg",
+      "to": "ug2s_sd",
+      "segments": [
+        [
+          1098.0,
+          1603.0
+        ],
+        [
+          1003.0,
+          1603.0
+        ],
+        [
+          1003.0,
+          1574.0
+        ],
+        [
+          794.0,
+          1574.0
+        ],
+        [
+          794.0,
+          1593.0
+        ],
+        [
+          689.0,
+          1593.0
+        ],
+        [
+          691.0,
+          1559.0
+        ]
+      ],
+      "flow_type": "ug_return",
+      "volume": 514763.0,
+      "color": "#e74c3c",
+      "label": "514,763",
+      "snap_x": 0.62,
+      "snap_y": 0.825,
+      "label_offset": 0.4481658692185008
+    },
+    {
+      "from": "ug2s_sdsa",
+      "to": "ug2s_mdcdg",
+      "segments": [
+        [
+          943.0,
+          1427.0
+        ],
+        [
+          1157.0,
+          1427.0
+        ],
+        [
+          1142.0,
+          1588.0
+        ]
+      ],
+      "flow_type": "dirty",
+      "volume": 1225.0,
+      "color": "#e74c3c",
+      "label": "1,225",
+      "snap_x": 0.775,
+      "snap_y": 0.23214285714285715,
+      "label_offset": 0.620889804684099
+    },
+    {
+      "from": "ug2s_soft",
+      "to": "ug2s_stp_losses",
+      "segments": [
+        [
+          320.0,
+          1412.0
+        ],
+        [
+          320.0,
+          1355.0
+        ],
+        [
+          1359.0,
+          1354.0
+        ]
+      ],
+      "flow_type": "evaporation",
+      "volume": 5708.0,
+      "color": "#000000",
+      "label": "5,708",
+      "snap_x": 0.014285714285714285,
+      "snap_y": 0.8125,
+      "label_offset": 0.9685579052499023
+    },
+    {
+      "from": "ug2s_offices",
+      "to": "ug2s_consumption",
+      "segments": [
+        [
+          609.0,
+          1387.0
+        ],
+        [
+          1359.0,
+          1405.0
+        ]
+      ],
+      "flow_type": "clean",
+      "volume": 32536.0,
+      "color": "#4b78a8",
+      "label": "32,536",
+      "snap_x": 0.17,
+      "snap_y": 0.71875,
+      "label_offset": 0.9077274150528607
+    },
+    {
+      "from": "ug2s_stp",
+      "to": "ug2s_soft_losses",
+      "segments": [
+        [
+          739.0,
+          1485.0
+        ],
+        [
+          739.0,
+          1451.0
+        ],
+        [
+          1362.0,
+          1465.0
+        ]
+      ],
+      "flow_type": "evaporation",
+      "volume": 189.0,
+      "color": "#000000",
+      "label": "189",
+      "snap_x": 0.08571428571428572,
+      "snap_y": 0.59375,
+      "label_offset": 0.9614718266356457
+    },
+    {
+      "from": "ug2s_mdcdg",
+      "to": "ug2s_mdcd_spill",
+      "segments": [
+        [
+          1098.0,
+          1603.0
+        ],
+        [
+          1098.0,
+          1538.0
+        ],
+        [
+          1293.0,
+          1538.0
+        ],
+        [
+          1293.0,
+          1526.0
+        ],
+        [
+          1375.0,
+          1528.0
+        ]
+      ],
+      "flow_type": "dirty",
+      "volume": 109.0,
+      "color": "#e74c3c",
+      "label": "109",
+      "snap_x": 0.3,
+      "snap_y": 0.53125,
+      "label_offset": 0.44487179487179485
+    },
+    {
+      "from": "ug2s_mdcdg",
+      "to": "ug2s_mdcd_dust",
+      "segments": [
+        [
+          1098.0,
+          1603.0
+        ],
+        [
+          1098.0,
+          1636.0
+        ],
+        [
+          1275.0,
+          1636.0
+        ],
+        [
+          1275.0,
+          1612.0
+        ],
+        [
+          1354.0,
+          1618.0
+        ]
+      ],
+      "flow_type": "dirty",
+      "volume": 17506.0,
+      "color": "#e74c3c",
+      "label": "17,506",
+      "snap_x": 0.13,
+      "snap_y": 0.6,
+      "label_offset": 0.625
+    },
+    {
+      "from": "ug2s_mdcdg",
+      "to": "ug2s_mdcd_evap",
+      "segments": [
+        [
+          1098.0,
+          1603.0
+        ],
+        [
+          1240.0,
+          1603.0
+        ],
+        [
+          1240.0,
+          1567.0
+        ],
+        [
+          1343.0,
+          1565.0
+        ]
+      ],
+      "flow_type": "evaporation",
+      "volume": 5166.0,
+      "color": "#000000",
+      "label": "5,166",
+      "snap_x": 0.05,
+      "snap_y": 0.46875
+    },
+    {
+      "from": "mers_rainfall",
+      "to": "mers_mdcdg",
+      "segments": [
+        [
+          111.0,
+          1912.0
+        ],
+        [
+          1073.0,
+          1910.0
+        ]
+      ],
+      "flow_type": "clean",
+      "volume": 4236.0,
+      "color": "#4b78a8",
+      "label": "4,236",
+      "snap_x": 0.08125,
+      "snap_y": 0.5357142857142857,
+      "label_offset": 0.5259809303169924
+    },
+    {
+      "from": "mers_borehole",
+      "to": "mers_soft",
+      "segments": [
+        [
+          119.0,
+          1710.0
+        ],
+        [
+          400.0,
+          1717.0
+        ]
+      ],
+      "flow_type": "clean",
+      "volume": 28336.0,
+      "color": "#4b78a8",
+      "label": "28,336",
+      "snap_x": 0.12,
+      "snap_y": 0.525,
+      "label_offset": 0.5912669282369319
+    },
+    {
+      "from": "mers_soft",
+      "to": "mers_offices",
+      "segments": [
+        [
+          439.0,
+          1709.0
+        ],
+        [
+          619.0,
+          1705.0
+        ]
+      ],
+      "flow_type": "clean",
+      "volume": 28336.0,
+      "color": "#4b78a8",
+      "label": "28,336",
+      "snap_x": 0.075,
+      "snap_y": 0.4,
+      "label_offset": 0.6672013820335636
+    },
+    {
+      "from": "mers_soft",
+      "to": "mers_soft_losses",
+      "segments": [
+        [
+          439.0,
+          1709.0
+        ],
+        [
+          439.0,
+          1666.0
+        ],
+        [
+          1366.0,
+          1681.0
+        ]
+      ],
+      "flow_type": "evaporation",
+      "volume": 1417.0,
+      "color": "#000000",
+      "label": "1,417",
+      "snap_x": 0.08571428571428572,
+      "snap_y": 0.65625,
+      "label_offset": 0.7486301035188017
+    },
+    {
+      "from": "mers_sdsa",
+      "to": "ug2s_mdcdg",
+      "segments": [
+        [
+          1091.0,
+          1782.0
+        ],
+        [
+          1075.0,
+          1614.0
+        ]
+      ],
+      "flow_type": "dirty",
+      "volume": 0.0,
+      "color": "#e74c3c",
+      "label": "0",
+      "snap_x": 0.35625,
+      "snap_y": 0.6964285714285714,
+      "label_offset": 0.30827733158498605
+    },
+    {
+      "from": "mers_offices",
+      "to": "mers_consumption",
+      "segments": [
+        [
+          835.0,
+          1713.0
+        ],
+        [
+          1370.0,
+          1721.0
+        ]
+      ],
+      "flow_type": "clean",
+      "volume": 8076.0,
+      "color": "#4b78a8",
+      "label": "8,076",
+      "snap_x": 0.27,
+      "snap_y": 0.6875,
+      "label_offset": 0.8161120395493507
+    },
+    {
+      "from": "mers_sd",
+      "to": "mers_mdcdg",
+      "segments": [
+        [
+          852.0,
+          1991.0
+        ],
+        [
+          852.0,
+          1833.0
+        ],
+        [
+          1140.0,
+          1833.0
+        ],
+        [
+          1142.0,
+          1900.0
+        ]
+      ],
+      "flow_type": "dewatering",
+      "volume": 212517.0,
+      "color": "#e74c3c",
+      "label": "212,517",
+      "snap_x": 0.5125,
+      "snap_y": 0.35714285714285715
+    },
+    {
+      "from": "mers_mdcdg",
+      "to": "mers_sd",
+      "segments": [
+        [
+          1138.0,
+          1908.0
+        ],
+        [
+          1138.0,
+          2002.0
+        ],
+        [
+          905.0,
+          1995.0
+        ]
+      ],
+      "flow_type": "ug_return",
+      "volume": 180639.0,
+      "color": "#e74c3c",
+      "label": "180,639",
+      "snap_x": 0.9416666666666667,
+      "snap_y": 0.6,
+      "label_offset": 0.6222314574878991
+    },
+    {
+      "from": "mers_mdcdg",
+      "to": "ug2s_mdcdg",
+      "segments": [
+        [
+          1138.0,
+          1909.0
+        ],
+        [
+          1250.0,
+          1909.0
+        ],
+        [
+          1250.0,
+          1742.0
+        ],
+        [
+          1135.0,
+          1742.0
+        ],
+        [
+          1125.0,
+          1617.0
+        ]
+      ],
+      "flow_type": "dirty",
+      "volume": 1832.0,
+      "color": "#e74c3c",
+      "label": "1,832",
+      "snap_x": 0.66875,
+      "snap_y": 0.75,
+      "label_offset": 0.3727544910179641
+    },
+    {
+      "from": "mers_offices",
+      "to": "ug2s_stp",
+      "segments": [
+        [
+          835.0,
+          1713.0
+        ],
+        [
+          835.0,
+          1616.0
+        ],
+        [
+          754.0,
+          1616.0
+        ],
+        [
+          767.0,
+          1499.0
+        ]
+      ],
+      "flow_type": "dirty",
+      "volume": 983.0,
+      "color": "#e74c3c",
+      "label": "983",
+      "snap_x": 0.7545454545454545,
+      "snap_y": 0.85
+    },
+    {
+      "from": "mers_mdcdg",
+      "to": "mers_mdcd_spill",
+      "segments": [
+        [
+          1138.0,
+          1908.0
+        ],
+        [
+          1138.0,
+          1867.0
+        ],
+        [
+          1364.0,
+          1877.0
+        ]
+      ],
+      "flow_type": "dirty",
+      "volume": 0.0,
+      "color": "#e74c3c",
+      "label": "0",
+      "snap_x": 0.05714285714285714,
+      "snap_y": 0.53125,
+      "label_offset": 0.8464823224886464
+    },
+    {
+      "from": "mers_mdcdg",
+      "to": "mers_mdcd_evap",
+      "segments": [
+        [
+          1138.0,
+          1908.0
+        ],
+        [
+          1353.0,
+          1910.0
+        ]
+      ],
+      "flow_type": "evaporation",
+      "volume": 4481.0,
+      "color": "#000000",
+      "label": "4,481",
+      "snap_x": -0.01,
+      "snap_y": 0.59375,
+      "label_offset": 0.7416056551375915
+    },
+    {
+      "from": "mers_mdcdg",
+      "to": "mers_mdcd_dust",
+      "segments": [
+        [
+          1138.0,
+          1908.0
+        ],
+        [
+          1226.0,
+          1908.0
+        ],
+        [
+          1226.0,
+          1964.0
+        ],
+        [
+          1371.0,
+          1965.0
+        ]
+      ],
+      "flow_type": "dirty",
+      "volume": 10626.0,
+      "color": "#e74c3c",
+      "label": "10,626",
+      "snap_x": 0.14,
+      "snap_y": 0.65,
+      "label_offset": 0.7984519501407318
+    },
+    {
+      "from": "oldtsf_old_tsf_rainrun",
+      "to": "oldtsf_old_tsf",
+      "segments": [
+        [
+          205.0,
+          2242.0
+        ],
+        [
+          604.0,
+          2241.0
+        ]
+      ],
+      "flow_type": "clean",
+      "volume": 48781.0,
+      "color": "#4b78a8",
+      "label": "48,781",
+      "label_offset": 0.38596491228070173
+    },
+    {
+      "from": "oldtsf_gwa_boreholes",
+      "to": "oldtsf_offices",
+      "segments": [
+        [
+          200.0,
+          2133.0
+        ],
+        [
+          618.0,
+          2132.0
+        ]
+      ],
+      "flow_type": "clean",
+      "volume": 37781.0,
+      "color": "#4b78a8",
+      "label": "37,781",
+      "label_offset": 0.34214336814994994
+    },
+    {
+      "from": "oldtsf_trtd_rain",
+      "to": "oldtsf_trtd",
+      "segments": [
+        [
+          202.0,
+          2348.0
+        ],
+        [
+          646.0,
+          2347.0
+        ]
+      ],
+      "flow_type": "clean",
+      "volume": 19757.0,
+      "color": "#4b78a8",
+      "label": "19,757",
+      "label_offset": 0.3896021548466295
+    },
+    {
+      "from": "oldtsf_new_tsf_rainrun",
+      "to": "oldtsf_new_tsf",
+      "segments": [
+        [
+          200,
+          2480.0
+        ],
+        [
+          568.0,
+          2479.0
+        ]
+      ],
+      "flow_type": "clean",
+      "volume": 39875.0,
+      "color": "#4b78a8",
+      "label": "39,875",
+      "label_offset": 0.6331401144544951
+    },
+    {
+      "from": "oldtsf_nt_rwd_rain",
+      "to": "oldtsf_nt_rwd",
+      "segments": [
+        [
+          202.0,
+          2598.0
+        ],
+        [
+          625.0,
+          2590.0
+        ]
+      ],
+      "flow_type": "clean",
+      "volume": 61866.0,
+      "color": "#4b78a8",
+      "label": "61,866",
+      "label_offset": 0.2853828306264501
+    },
+    {
+      "from": "oldtsf_nt_rwd",
+      "to": "oldtsf_nt_rwd_evap",
+      "segments": [
+        [
+          792.0,
+          2572.0
+        ],
+        [
+          1383.0,
+          2568.0
+        ]
+      ],
+      "flow_type": "evaporation",
+      "volume": 26593.0,
+      "color": "#000000",
+      "label": "26,593"
+    },
+    {
+      "from": "oldtsf_nt_rwd",
+      "to": "oldtsf_nt_rwd_spill",
+      "segments": [
+        [
+          792.0,
+          2622.0
+        ],
+        [
+          1380.0,
+          2626.0
+        ]
+      ],
+      "flow_type": "dirty",
+      "volume": 0.0,
+      "color": "#e74c3c",
+      "label": "0"
+    },
+    {
+      "from": "oldtsf_new_tsf",
+      "to": "oldtsf_nt_rwd",
+      "segments": [
+        [
+          718.0,
+          2509.0
+        ],
+        [
+          718.0,
+          2580.0
+        ]
+      ],
+      "flow_type": "dirty",
+      "volume": 2486143.0,
+      "color": "#e74c3c",
+      "label": "2,486,143",
+      "label_offset": 0.5070422535211268,
+      "label_pos": {
+        "x": 718.0,
+        "y": 2545.0
+      }
+    },
+    {
+      "from": "oldtsf_new_tsf",
+      "to": "oldtsf_nt_rwd",
+      "segments": [
+        [
+          868.0,
+          2509.0
+        ],
+        [
+          758.0,
+          2580.0
+        ]
+      ],
+      "flow_type": "dirty",
+      "volume": 5953.0,
+      "color": "#e74c3c",
+      "label": "5,953",
+      "label_offset": 0.5138556676973339,
+      "label_pos": {
+        "x": 811.4758765532932,
+        "y": 2545.4837524065106
+      }
+    },
+    {
+      "from": "oldtsf_nt_rwd",
+      "to": "oldtsf_new_tsf",
+      "segments": [
+        [
+          678.0,
+          2580.0
+        ],
+        [
+          568.0,
+          2509.0
+        ]
+      ],
+      "flow_type": "dirty",
+      "volume": 105786.0,
+      "color": "#e74c3c",
+      "label": "105,786"
+    },
+    {
+      "from": "oldtsf_new_tsf",
+      "to": "oldtsf_new_tsf_evap",
+      "segments": [
+        [
+          868.0,
+          2449.0
+        ],
+        [
+          1379.0,
+          2426.0
+        ]
+      ],
+      "flow_type": "evaporation",
+      "volume": 35460.0,
+      "color": "#000000",
+      "label": "35,460"
+    },
+    {
+      "from": "oldtsf_new_tsf",
+      "to": "oldtsf_new_tsf_interstitial",
+      "segments": [
+        [
+          868.0,
+          2479.0
+        ],
+        [
+          1380,
+          2480.0
+        ]
+      ],
+      "flow_type": "dirty",
+      "volume": 2943653.0,
+      "color": "#e74c3c",
+      "label": "2,943,653"
+    },
+    {
+      "from": "oldtsf_new_tsf",
+      "to": "oldtsf_new_tsf_seepage",
+      "segments": [
+        [
+          868.0,
+          2509.0
+        ],
+        [
+          1380,
+          2516.0
+        ]
+      ],
+      "flow_type": "dirty",
+      "volume": 1488.0,
+      "color": "#e74c3c",
+      "label": "1,488"
+    },
+    {
+      "from": "oldtsf_trtd",
+      "to": "oldtsf_trtd_evap",
+      "segments": [
+        [
+          806.0,
+          2334.5
+        ],
+        [
+          1380,
+          2336.0
+        ]
+      ],
+      "flow_type": "evaporation",
+      "volume": 3227.0,
+      "color": "#000000",
+      "label": "3,227"
+    },
+    {
+      "from": "oldtsf_trtd",
+      "to": "oldtsf_trtd_spill",
+      "segments": [
+        [
+          806.0,
+          2359.5
+        ],
+        [
+          1379.0,
+          2378.0
+        ]
+      ],
+      "flow_type": "dirty",
+      "volume": 0.0,
+      "color": "#e74c3c",
+      "label": "0"
+    },
+    {
+      "from": "oldtsf_trtd",
+      "to": "oldtsf_old_tsf",
+      "segments": [
+        [
+          686.0,
+          2322.0
+        ],
+        [
+          599.0,
+          2261.0
+        ]
+      ],
+      "flow_type": "dirty",
+      "volume": 62270.0,
+      "color": "#e74c3c",
+      "label": "62,270"
+    },
+    {
+      "from": "oldtsf_old_tsf",
+      "to": "oldtsf_trtd",
+      "segments": [
+        [
+          749.0,
+          2261.0
+        ],
+        [
+          726.0,
+          2322.0
+        ]
+      ],
+      "flow_type": "dirty",
+      "volume": 508180.0,
+      "color": "#e74c3c",
+      "label": "508,180",
+      "label_offset": 0.4181176470588236,
+      "label_pos": {
+        "x": 739.3832941176471,
+        "y": 2286.505176470588
+      }
+    },
+    {
+      "from": "oldtsf_old_tsf",
+      "to": "oldtsf_trtd",
+      "segments": [
+        [
+          899.0,
+          2261.0
+        ],
+        [
+          766.0,
+          2322.0
+        ]
+      ],
+      "flow_type": "dirty",
+      "volume": 5298.0,
+      "color": "#e74c3c",
+      "label": "5,298",
+      "label_offset": 0.43801961700140124,
+      "label_pos": {
+        "x": 840.7433909388136,
+        "y": 2287.7191966370856
+      }
+    },
+    {
+      "from": "oldtsf_old_tsf",
+      "to": "oldtsf_old_tsf_interstitial",
+      "segments": [
+        [
+          899.0,
+          2231.0
+        ],
+        [
+          1380,
+          2240.0
+        ]
+      ],
+      "flow_type": "dirty",
+      "volume": 559670.0,
+      "color": "#e74c3c",
+      "label": "559,670"
+    },
+    {
+      "from": "oldtsf_old_tsf",
+      "to": "oldtsf_old_tsf_evap",
+      "segments": [
+        [
+          899.0,
+          2201.0
+        ],
+        [
+          1380.0,
+          2199.0
+        ]
+      ],
+      "flow_type": "evaporation",
+      "volume": 32779.0,
+      "color": "#000000",
+      "label": "32,779"
+    },
+    {
+      "from": "oldtsf_old_tsf",
+      "to": "oldtsf_old_tsf_seepage",
+      "segments": [
+        [
+          899.0,
+          2261.0
+        ],
+        [
+          1380,
+          2276.0
+        ]
+      ],
+      "flow_type": "dirty",
+      "volume": 1324.0,
+      "color": "#e74c3c",
+      "label": "1,324"
+    },
+    {
+      "from": "oldtsf_offices",
+      "to": "oldtsf_off_septic",
+      "segments": [
+        [
+          818.0,
+          2107.0
+        ],
+        [
+          1377.0,
+          2083.0
+        ]
+      ],
+      "flow_type": "dirty",
+      "volume": 26447.0,
+      "color": "#e74c3c",
+      "label": "26,447"
+    },
+    {
+      "from": "oldtsf_offices",
+      "to": "oldtsf_off_consumption",
+      "segments": [
+        [
+          818.0,
+          2144.5
+        ],
+        [
+          1380.0,
+          2145.0
+        ]
+      ],
+      "flow_type": "clean",
+      "volume": 11334.0,
+      "color": "#4b78a8",
+      "label": "11,334"
     }
   ]
 }

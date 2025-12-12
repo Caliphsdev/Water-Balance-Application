@@ -59,6 +59,34 @@ from utils.config_manager import config
 value = config.get('path.to.key', default_value)
 ```
 
+### 5. Import Path Pattern
+**Every** module uses path insertion for imports:
+```python
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))  # Add src/ to path
+```
+This pattern is required in all files under `src/` to enable relative imports.
+
+### 6. Error Handling Pattern
+Use centralized error handler (singleton):
+```python
+from utils.error_handler import error_handler, ErrorCategory, ErrorSeverity
+tech_msg, user_msg, severity = error_handler.handle(
+    exception, context="Operation name", category=ErrorCategory.DATABASE
+)
+# Returns: (technical message for logs, user-friendly message, severity level)
+```
+
+### 7. Logging Pattern
+Use singleton logger with performance timing:
+```python
+from utils.app_logger import logger
+logger.info("Operation started")
+logger.performance("Query execution", elapsed_ms)  # For timing
+logger.error("Error occurred", exc_info=True)  # With stack trace
+```
+
 ## Module-Specific Guidance
 
 ### Calculations Module (`src/ui/calculations.py`)
@@ -118,7 +146,22 @@ Interactive canvas with:
 2. **Don't** modify template files programmatically - they're user-editable references
 3. **Don't** assume DB is loaded immediately (check `app.db_loaded` flag)
 4. **Don't** use blocking operations in UI thread (use `threading` or `async_loader`)
-5. **Always** call `config.set_current_user()` before DB operations requiring user context
+5. **Don't** forget `sys.path.insert(0, str(Path(__file__).parent.parent))` in new modules
+6. **Always** call `config.set_current_user()` before DB operations requiring user context
+7. **Always** use `error_handler.handle()` for exceptions - never bare try/except with print()
+
+## Utility Singletons Reference
+Quick reference for commonly used singletons:
+```python
+from database.db_manager import db                      # Database operations
+from utils.app_logger import logger                     # Logging
+from utils.error_handler import error_handler           # Error handling
+from utils.template_data_parser import get_template_parser()
+from utils.balance_check_engine import get_balance_check_engine()
+from utils.config_manager import config                 # Configuration
+from utils.ui_notify import notifier                    # UI notifications
+from utils.alert_manager import alert_manager           # Alert system
+```
 
 ## Entry Points
 - `src/main.py` - Standard launch
