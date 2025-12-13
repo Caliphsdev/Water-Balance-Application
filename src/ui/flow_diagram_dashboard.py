@@ -525,6 +525,42 @@ class DetailedNetworkFlowDiagram:
             self.canvas.create_text(50, y, text=oldtsf_title, font=('Segoe UI', 14, 'bold'),
                                    fill='#2c3e50', anchor='nw')
 
+        # Title for UG2 Plant Area (if present)
+        ug2plant_title = self.area_data.get('ug2plant_title', None)
+        if ug2plant_title:
+            # Find the y-position of the UG2 Plant zone background
+            zone_bgs = self.area_data.get('zone_bg', [])
+            ug2plant_zone = None
+            if isinstance(zone_bgs, list):
+                for zone in zone_bgs:
+                    if zone.get('name', '').lower().startswith('ug2 plant'):
+                        ug2plant_zone = zone
+                        break
+            if ug2plant_zone:
+                y = ug2plant_zone.get('y', 2650) + 10
+            else:
+                y = 2660
+            self.canvas.create_text(50, y, text=ug2plant_title, font=('Segoe UI', 14, 'bold'),
+                                   fill='#2c3e50', anchor='nw')
+
+        # Title for Merensky Plant Area (if present)
+        merplant_title = self.area_data.get('merplant_title', None)
+        if merplant_title:
+            # Find the y-position of the Merensky Plant zone background
+            zone_bgs = self.area_data.get('zone_bg', [])
+            merplant_zone = None
+            if isinstance(zone_bgs, list):
+                for zone in zone_bgs:
+                    if zone.get('name', '').lower().startswith('merensky plant'):
+                        merplant_zone = zone
+                        break
+            if merplant_zone:
+                y = merplant_zone.get('y', 3230) + 10
+            else:
+                y = 3240
+            self.canvas.create_text(50, y, text=merplant_title, font=('Segoe UI', 14, 'bold'),
+                                   fill='#2c3e50', anchor='nw')
+
         # Section labels
         self.canvas.create_text(100, 60, text='INFLOWS', font=('Segoe UI', 11, 'bold'), 
                                fill='#2980b9', anchor='center')
@@ -948,9 +984,9 @@ class DetailedNetworkFlowDiagram:
         scrollbar = tk.Scrollbar(list_frame)
         scrollbar.pack(side='right', fill='y')
         
-        # Listbox with better font
+        # Listbox with better font (allow multi-select)
         listbox = tk.Listbox(list_frame, yscrollcommand=scrollbar.set, 
-                            font=('Segoe UI', 9), height=20, selectmode='single')
+                    font=('Segoe UI', 9), height=20, selectmode='extended')
         listbox.pack(side='left', fill='both', expand=True)
         scrollbar.config(command=listbox.yview)
         
@@ -1011,21 +1047,23 @@ class DetailedNetworkFlowDiagram:
                 listbox.insert(tk.END, display_text)
                 edge_index_map.append(edge_idx)
         
-        # Result variable
-        selected_index = [None]
+        # Result variable (multiple indices)
+        selected_indices = []
         
         def on_delete():
             selection = listbox.curselection()
             if not selection:
                 messagebox.showwarning("No Selection", "Please select a flow line to delete")
                 return
-            
-            list_idx = selection[0]
-            if list_idx >= len(edge_index_map) or edge_index_map[list_idx] is None:
-                messagebox.showwarning("Invalid Selection", "Please select a flow line (not a header)")
+            # Map selected list rows to valid edge indices, ignoring headers
+            chosen_edges = []
+            for list_idx in selection:
+                if list_idx < len(edge_index_map) and edge_index_map[list_idx] is not None:
+                    chosen_edges.append(edge_index_map[list_idx])
+            if not chosen_edges:
+                messagebox.showwarning("Invalid Selection", "Please select flow lines (not headers)")
                 return
-            
-            selected_index[0] = edge_index_map[list_idx]
+            selected_indices[:] = sorted(set(chosen_edges))
             dialog.destroy()
         
         def on_cancel():
@@ -1049,18 +1087,20 @@ class DetailedNetworkFlowDiagram:
         dialog.wait_window()
         
         # Process deletion if a selection was made
-        if selected_index[0] is not None:
-            edge = edges[selected_index[0]]
+        if selected_indices:
+            # Build confirmation summary
+            lines = []
+            for idx in selected_indices:
+                e = edges[idx]
+                lines.append(f"- {self._format_node_name(e['from'])} → {self._format_node_name(e['to'])} ({e.get('flow_type', 'unknown')}, {e.get('volume', 0):,.0f} m³)")
             if messagebox.askyesno("Confirm Delete", 
-                                  f"Delete flow line?\n\n"
-                                  f"From: {self._format_node_name(edge['from'])}\n"
-                                  f"To: {self._format_node_name(edge['to'])}\n"
-                                  f"Type: {edge.get('flow_type', 'unknown')}\n"
-                                  f"Volume: {edge.get('volume', 0):,.0f} m³"):
-                edges.pop(selected_index[0])
+                                  "Delete selected flow lines?\n\n" + "\n".join(lines)):
+                # Delete in reverse order to keep indices valid
+                for idx in sorted(selected_indices, reverse=True):
+                    edge = edges.pop(idx)
+                    logger.info(f"🗑️ Deleted flow: {edge['from']} → {edge['to']}")
                 self._draw_diagram()
-                logger.info(f"🗑️ Deleted flow: {edge['from']} → {edge['to']}")
-                messagebox.showinfo("Deleted", "Flow line removed successfully")
+                messagebox.showinfo("Deleted", f"Removed {len(selected_indices)} flow line(s)")
 
     def _straighten_line(self):
         """Straighten an existing flow line with scrollable list dialog grouped by area"""
