@@ -476,9 +476,6 @@ class MainWindow:
     
     def _load_dashboard(self):
         """Load the dashboard module"""
-        # Lazy load Excel if needed
-        self._ensure_excel_loaded('dashboard')
-        
         from ui.dashboard import DashboardModule
         
         dashboard = DashboardModule(self.content_area)
@@ -486,9 +483,6 @@ class MainWindow:
 
     def _load_analytics(self):
         """Load the analytics & trends module"""
-        # Lazy load Excel if needed
-        self._ensure_excel_loaded('analytics')
-        
         from ui.analytics_dashboard import AnalyticsDashboard
         
         analytics = AnalyticsDashboard(self.content_area)
@@ -496,9 +490,6 @@ class MainWindow:
     
     def _load_monitoring_data(self):
         """Load the monitoring data module"""
-        # Lazy load Excel if needed
-        self._ensure_excel_loaded('monitoring_data')
-        
         from ui.monitoring_data import MonitoringDataModule
         
         module = MonitoringDataModule(self.content_area)

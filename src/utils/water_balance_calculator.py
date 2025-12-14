@@ -32,15 +32,26 @@ class WaterBalanceCalculator:
         self.db = DatabaseManager()
         self.constants = self._load_constants()
         self.historical_avg = HistoricalAveraging(self.db)
-        # Excel time-series repository for source inflows (rivers, boreholes, dewatering)
-        self._excel_repo = get_default_excel_repo()
-        # Extended Excel repository for additional time-series data
-        self._extended_repo = get_extended_excel_repo()
+        # Excel repositories - initialized lazily on first use
+        self._excel_repo = None
+        self._extended_repo = None
         # Performance optimization: cache for balance calculations
         self._balance_cache = {}
         self._kpi_cache = {}
         # Miscellaneous per-date caches (dust suppression, facility measurements, etc.)
         self._misc_cache: Dict[str, Dict] = {}
+    
+    def _get_excel_repo(self):
+        """Lazy-load Excel repository on first access"""
+        if self._excel_repo is None:
+            self._excel_repo = get_default_excel_repo()
+        return self._excel_repo
+    
+    def _get_extended_repo(self):
+        """Lazy-load extended Excel repository on first access"""
+        if self._extended_repo is None:
+            self._extended_repo = get_extended_excel_repo()
+        return self._extended_repo
     
     def _load_constants(self) -> Dict:
         """Load system constants from database"""
@@ -133,7 +144,7 @@ class WaterBalanceCalculator:
         header_name = self._get_excel_header_for_source(source)
         if header_name:
             try:
-                val = self._excel_repo.get_monthly_value(calculation_date, header_name)
+                val = self._get_excel_repo().get_monthly_value(calculation_date, header_name)
                 if val is not None and val > 0:
                     return float(val)
             except Exception:
@@ -203,7 +214,7 @@ class WaterBalanceCalculator:
 
         # For boreholes where the Excel column header is the same as
         # the registered source name, we can fall back to name matching.
-        df = getattr(self._excel_repo, "_df", None)
+        df = getattr(self._get_excel_repo(), "_df", None)
         if df is not None and name in df.columns:
             return name
 
@@ -278,7 +289,7 @@ class WaterBalanceCalculator:
         # - When no Excel RWD, TSF is calculated automatically in outflows.
         if not skip_measurements and calculation_date is not None:
             try:
-                excel_rwd = self._excel_repo.get_monthly_value(calculation_date, "RWD")
+                excel_rwd = self._get_excel_repo().get_monthly_value(calculation_date, "RWD")
                 if excel_rwd and excel_rwd > 0:
                     inflows['tsf_return'] = float(excel_rwd)
                     inflows['total'] += inflows['tsf_return']
@@ -309,7 +320,7 @@ class WaterBalanceCalculator:
     def _get_rainfall_inflow(self, calculation_date: date, preloaded_facilities: Optional[List[Dict]] = None) -> float:
         """Calculate rainfall contribution to storage"""
         # Priority: 1) Extended Excel, 2) Default constant
-        rainfall_mm = self._extended_repo.get_rainfall(calculation_date)
+        rainfall_mm = self._get_extended_repo().get_rainfall(calculation_date)
         if rainfall_mm is None:
             rainfall_mm = self.get_constant('DEFAULT_MONTHLY_RAINFALL_MM', 60.0)
         
@@ -344,7 +355,7 @@ class WaterBalanceCalculator:
         if ore_tonnes is None and calculation_date is not None:
             # Try Excel monthly tonnes milled
             try:
-                excel_tonnes = self._excel_repo.get_monthly_value(calculation_date, "Tonnes Milled")
+                excel_tonnes = self._get_excel_repo().get_monthly_value(calculation_date, "Tonnes Milled")
                 if excel_tonnes and excel_tonnes > 0:
                     ore_tonnes = float(excel_tonnes)
                     source_present = True
@@ -371,14 +382,14 @@ class WaterBalanceCalculator:
         if calculation_date:
             # Get ore tonnage for the month
             try:
-                ore_tonnes = self._excel_repo.get_monthly_value(calculation_date, "Tonnes Milled")
+                ore_tonnes = self._get_excel_repo().get_monthly_value(calculation_date, "Tonnes Milled")
                 if not ore_tonnes:
                     ore_tonnes = self.get_constant('monthly_ore_processing', 350000.0)
             except:
                 ore_tonnes = self.get_constant('monthly_ore_processing', 350000.0)
             
             # Get concentrate production from extended Excel
-            concentrate_tonnes = self._extended_repo.get_concentrate_produced(calculation_date)
+            concentrate_tonnes = self._get_extended_repo().get_concentrate_produced(calculation_date)
             if concentrate_tonnes is None:
                 concentrate_tonnes = self.get_constant('monthly_concentrate_production', 12000.0)
             
@@ -386,7 +397,7 @@ class WaterBalanceCalculator:
             tailings_dry_mass = ore_tonnes - concentrate_tonnes
             
             # Get tailings moisture from extended Excel
-            tailings_moisture_pct = self._extended_repo.get_tailings_moisture(calculation_date)
+            tailings_moisture_pct = self._get_extended_repo().get_tailings_moisture(calculation_date)
             if tailings_moisture_pct is None:
                 tailings_moisture_pct = self.get_constant('tailings_moisture_retention_pct', 20.0) / 100.0
             
@@ -408,7 +419,7 @@ class WaterBalanceCalculator:
         Returns: (seepage_gain, seepage_loss)
         """
         # Check extended Excel first
-        seepage_data = self._extended_repo.get_seepage(calculation_date)
+        seepage_data = self._get_extended_repo().get_seepage(calculation_date)
         if seepage_data:
             seepage_gain = seepage_data.get('seepage_gain') or 0.0
             seepage_loss = seepage_data.get('seepage_loss') or 0.0
@@ -442,7 +453,7 @@ class WaterBalanceCalculator:
         Priority: 1) Extended Excel (in Consumption sheet as 'irrigation' or separate tracking)
         """
         # Check if site tracks returns to pit in consumption data
-        consumption_data = self._extended_repo.get_consumption(calculation_date)
+        consumption_data = self._get_extended_repo().get_consumption(calculation_date)
         if consumption_data and consumption_data.get('irrigation'):
             # Some sites may use 'irrigation' field for pit returns
             # Or this could be a separate field in future
@@ -455,7 +466,7 @@ class WaterBalanceCalculator:
         Priority: 1) Extended Excel, 2) Percentage of plant consumption
         """
         # Check if explicitly tracked in consumption data
-        consumption_data = self._extended_repo.get_consumption(calculation_date)
+        consumption_data = self._get_extended_repo().get_consumption(calculation_date)
         if consumption_data and consumption_data.get('other'):
             # 'Other' consumption could include plant returns
             # In practice, plant returns are usually netted in plant consumption
@@ -479,7 +490,7 @@ class WaterBalanceCalculator:
             return self._misc_cache[cache_key]['value']
 
         # Check extended Excel first
-        consumption_data = self._extended_repo.get_consumption(calculation_date)
+        consumption_data = self._get_extended_repo().get_consumption(calculation_date)
         if consumption_data and consumption_data.get('dust_suppression') is not None:
             val = float(consumption_data['dust_suppression'])
             self._misc_cache[cache_key] = {'value': val}
@@ -565,7 +576,7 @@ class WaterBalanceCalculator:
         if calculation_date is not None:
             # Check Excel for actual measured TSF return (RWD)
             try:
-                excel_rwd = self._excel_repo.get_monthly_value(calculation_date, "RWD")
+                excel_rwd = self._get_excel_repo().get_monthly_value(calculation_date, "RWD")
                 if excel_rwd and excel_rwd > 0:
                     # Use actual measured return from Excel
                     return float(excel_rwd)
@@ -603,7 +614,7 @@ class WaterBalanceCalculator:
         Priority: 1) Extended Excel custom evaporation, 2) DB evaporation_rates table
         """
         # Check extended Excel first
-        custom_evap = self._extended_repo.get_custom_evaporation(calculation_date)
+        custom_evap = self._get_extended_repo().get_custom_evaporation(calculation_date)
         if custom_evap is not None:
             evap_mm = custom_evap
         else:
@@ -638,7 +649,7 @@ class WaterBalanceCalculator:
         """Calculate controlled discharge/releases.
         Priority: 1) Extended Excel, 2) Always 0
         """
-        return self._extended_repo.get_total_discharge(calculation_date)
+        return self._get_extended_repo().get_total_discharge(calculation_date)
     
     def calculate_total_outflows(self, calculation_date: date,
                                  ore_tonnes: float = None,
@@ -707,7 +718,7 @@ class WaterBalanceCalculator:
         # Include internal storage abstraction feeding the plant (optional)
         abstraction_to_plant = 0.0
         try:
-            abstraction_to_plant = self._extended_repo.get_total_abstraction_to_plant(calculation_date) or 0.0
+            abstraction_to_plant = self._get_extended_repo().get_total_abstraction_to_plant(calculation_date) or 0.0
         except Exception:
             abstraction_to_plant = 0.0
 
@@ -735,7 +746,7 @@ class WaterBalanceCalculator:
         dust_suppression = self.calculate_dust_suppression(calculation_date, ore_tonnes=ore_tonnes)
 
         # Mining & domestic consumption - check extended Excel (part of site water use)
-        consumption_data = self._extended_repo.get_consumption(calculation_date)
+        consumption_data = self._get_extended_repo().get_consumption(calculation_date)
         if consumption_data:
             mining_use = consumption_data.get('mining') or 0.0
             domestic_use = consumption_data.get('domestic') or 0.0
@@ -744,11 +755,11 @@ class WaterBalanceCalculator:
             domestic_use = 0.0
 
         # Product moisture (concentrate moisture) - check extended Excel
-        concentrate_tonnes = self._extended_repo.get_concentrate_produced(calculation_date)
+        concentrate_tonnes = self._get_extended_repo().get_concentrate_produced(calculation_date)
         if concentrate_tonnes is None:
             concentrate_tonnes = self.get_constant('monthly_concentrate_production', 0)
         
-        concentrate_moisture_pct = self._extended_repo.get_concentrate_moisture(calculation_date)
+        concentrate_moisture_pct = self._get_extended_repo().get_concentrate_moisture(calculation_date)
         if concentrate_moisture_pct is None:
             concentrate_moisture_pct = self.get_constant('concentrate_moisture', 8.0) / 100.0
         else:
@@ -865,7 +876,7 @@ class WaterBalanceCalculator:
         dust_suppression = self.calculate_dust_suppression(calculation_date, ore_tonnes=ore_tonnes)
 
         # Mining & domestic consumption - check extended Excel (part of site water use)
-        consumption_data = self._extended_repo.get_consumption(calculation_date)
+        consumption_data = self._get_extended_repo().get_consumption(calculation_date)
         if consumption_data:
             mining_use = consumption_data.get('mining') or 0.0
             domestic_use = consumption_data.get('domestic') or 0.0
@@ -874,11 +885,11 @@ class WaterBalanceCalculator:
             domestic_use = 0.0
 
         # Product moisture (concentrate moisture) - check extended Excel
-        concentrate_tonnes = self._extended_repo.get_concentrate_produced(calculation_date)
+        concentrate_tonnes = self._get_extended_repo().get_concentrate_produced(calculation_date)
         if concentrate_tonnes is None:
             concentrate_tonnes = self.get_constant('monthly_concentrate_production', 0)
         
-        concentrate_moisture_pct = self._extended_repo.get_concentrate_moisture(calculation_date)
+        concentrate_moisture_pct = self._get_extended_repo().get_concentrate_moisture(calculation_date)
         if concentrate_moisture_pct is None:
             concentrate_moisture_pct = self.get_constant('concentrate_moisture', 8.0) / 100.0
         else:
@@ -935,7 +946,7 @@ class WaterBalanceCalculator:
         preloaded_evap_mm = evap_rate_rows[0]['evaporation_mm'] if evap_rate_rows else 0.0
         
         # Check extended Excel for custom rainfall
-        excel_rainfall = self._extended_repo.get_rainfall(calculation_date)
+        excel_rainfall = self._get_extended_repo().get_rainfall(calculation_date)
         if excel_rainfall is not None:
             total_rainfall_mm = excel_rainfall
         else:
@@ -959,7 +970,7 @@ class WaterBalanceCalculator:
             facility_surface_area = facility.get('surface_area', 0)
 
             # Check extended Excel first for this facility's volumes (with auto-calculation support)
-            excel_storage = self._extended_repo.get_storage_data(facility_code, calculation_date, facility_capacity, facility_surface_area, self.db)
+            excel_storage = self._get_extended_repo().get_storage_data(facility_code, calculation_date, facility_capacity, facility_surface_area, self.db)
             
             if excel_storage and excel_storage.get('opening_volume') is not None and excel_storage.get('closing_volume') is not None:
                 # Use Excel data
@@ -1049,7 +1060,7 @@ class WaterBalanceCalculator:
         ore_val = ore_tonnes
         if ore_val is None and calculation_date is not None:
             try:
-                excel_tonnes = self._excel_repo.get_monthly_value(calculation_date, "Tonnes Milled")
+                excel_tonnes = self._get_excel_repo().get_monthly_value(calculation_date, "Tonnes Milled")
             except Exception:
                 excel_tonnes = 0.0
             if excel_tonnes and excel_tonnes > 0:
@@ -1087,7 +1098,7 @@ class WaterBalanceCalculator:
         # These are separate from main plant processing
         # We need to get these values first
         dust_suppression_prelim = self.calculate_dust_suppression(calculation_date, ore_tonnes=ore_val) or 0.0
-        consumption_data_prelim = self._extended_repo.get_consumption(calculation_date)
+        consumption_data_prelim = self._get_extended_repo().get_consumption(calculation_date)
         mining_use_prelim = consumption_data_prelim.get('mining', 0) if consumption_data_prelim else 0.0
         domestic_use_prelim = consumption_data_prelim.get('domestic', 0) if consumption_data_prelim else 0.0
         
@@ -1185,7 +1196,7 @@ class WaterBalanceCalculator:
                 facility_code = facility['facility_code']
                 facility_capacity = facility.get('total_capacity', 0)
                 facility_surface_area = facility.get('surface_area', 0)
-                excel_storage = self._extended_repo.get_storage_data(facility_code, calculation_date, facility_capacity, facility_surface_area, self.db)
+                excel_storage = self._get_extended_repo().get_storage_data(facility_code, calculation_date, facility_capacity, facility_surface_area, self.db)
                 
                 if excel_storage and excel_storage.get('opening_volume') is not None:
                     # Use Excel opening volume as current volume for this date

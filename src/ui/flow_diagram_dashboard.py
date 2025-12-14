@@ -3,19 +3,45 @@ Flow Diagram Editor - Manual Segment Drawing
 - Draw flow lines manually by clicking points (orthogonal segments only)
 - Lines independent from components (don't move when components move)
 - Click-to-draw: each click creates a segment corner
-- Database-locked connections (only valid flows allowed)
+- Excel-based volume loading on-demand per month
 """
 
 import json
 import tkinter as tk
-from tkinter import Canvas, Frame, Label, Scrollbar, messagebox, Button
+from tkinter import Canvas, Frame, Label, Scrollbar, messagebox, Button, ttk
 from pathlib import Path
+from datetime import date
 import sys
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from utils.app_logger import logger
 from database.db_manager import DatabaseManager
+from utils.flow_volume_loader import get_flow_volume_loader
+
+
+# Flow type and color mapping (clean, evaporation/losses, dirty variants)
+def _default_color_for_type(flow_type: str) -> str:
+    """Return default hex color for a given flow type.
+    Categories:
+    - clean: blue
+    - evaporation|losses: black
+    - dirty and variants: red
+    """
+    t = (flow_type or '').strip().lower()
+    if t in ('clean', 'clean water'):
+        return '#3498db'  # blue
+    if t in ('evaporation', 'losses', 'evaporation/losses', 'evaporation_losses'):
+        return '#000000'  # black
+    # Dirty umbrella and variants
+    dirty_variants = {
+        'dirty', 'effluent', 'runoff', 'ug return', 'ug_return', 'dewatering', 'outflow',
+        'inflow', 'drainage', 'return', 'irrigation', 'process_dirty', 'stormwater'
+    }
+    if t in dirty_variants:
+        return '#e74c3c'  # red
+    # Fallback
+    return '#e74c3c'
 
 
 class DetailedNetworkFlowDiagram:
@@ -32,6 +58,12 @@ class DetailedNetworkFlowDiagram:
         self.area_data = {}
         self.json_file = None
         self.db = DatabaseManager()
+        
+        # Excel-based volume loading (on-demand, no database)
+        self.flow_loader = get_flow_volume_loader()
+        self.current_year = date.today().year
+        self.current_month = date.today().month
+        self.area_code = None  # Will be determined from area_data
         
         # Node tracking
         self.selected_node = None
@@ -124,6 +156,10 @@ class DetailedNetworkFlowDiagram:
         title = Label(controls, text='FLOW DIAGRAM - Manual Flow Line Drawing', 
                      font=('Segoe UI', 12, 'bold'), bg='#2c3e50', fg='white')
         title.pack(pady=5)
+        # Inline legend banner
+        legend = Label(controls, text='Legend: Clean (Blue) • Evaporation/Losses (Black) • Dirty + variants (Red) • Recirculation (Purple)',
+                       font=('Segoe UI', 8), bg='#2c3e50', fg='#ecf0f1')
+        legend.pack(pady=2)
 
         button_frame = Frame(controls, bg='#2c3e50')
         button_frame.pack(fill='x', padx=10, pady=5)
@@ -147,7 +183,6 @@ class DetailedNetworkFlowDiagram:
         Button(button_frame, text='💾 Save', command=self._save_to_json,
                bg='#27ae60', fg='white', font=('Segoe UI', 9), padx=10).pack(side='left', padx=5)
         
-        
         Button(button_frame, text='🔒 Lock/Unlock', command=self._toggle_lock_selected,
                bg='#c0392b', fg='white', font=('Segoe UI', 9), padx=10).pack(side='left', padx=5)
 
@@ -155,6 +190,37 @@ class DetailedNetworkFlowDiagram:
                bg='#2ecc71', fg='white', font=('Segoe UI', 9), padx=10).pack(side='right', padx=5)
         Button(button_frame, text='➖ Zoom Out', command=lambda: self._zoom(0.9),
                bg='#e67e22', fg='white', font=('Segoe UI', 9), padx=10).pack(side='right', padx=5)
+
+        # Excel-based volume loading (month selector)
+        excel_frame = Frame(controls, bg='#2c3e50')
+        excel_frame.pack(fill='x', padx=10, pady=5)
+        
+        Label(excel_frame, text='📊 Load Monthly Volumes:', font=('Segoe UI', 9, 'bold'),
+              bg='#2c3e50', fg='#ecf0f1').pack(side='left', padx=5)
+        
+        Label(excel_frame, text='Year:', bg='#2c3e50', fg='white').pack(side='left', padx=5)
+        self.year_var = tk.StringVar(value=str(self.current_year))
+        year_spin = tk.Spinbox(excel_frame, from_=2020, to=2100, textvariable=self.year_var,
+                               width=5, font=('Segoe UI', 9))
+        year_spin.pack(side='left', padx=2)
+        
+        Label(excel_frame, text='Month:', bg='#2c3e50', fg='white').pack(side='left', padx=5)
+        self.month_var = tk.StringVar(value=str(self.current_month))
+        months = ['January', 'February', 'March', 'April', 'May', 'June',
+                  'July', 'August', 'September', 'October', 'November', 'December']
+        month_combo = ttk.Combobox(excel_frame, textvariable=self.month_var,
+                                   values=months, state='readonly', width=12, font=('Segoe UI', 9))
+        month_combo.current(self.current_month - 1)
+        month_combo.pack(side='left', padx=2)
+        
+        Button(excel_frame, text='🔄 Load from Excel', command=self._load_volumes_from_excel,
+               bg='#16a085', fg='white', font=('Segoe UI', 9), padx=10).pack(side='left', padx=5)
+        Button(excel_frame, text='🔍 Validate Excel Mapping', command=self._validate_excel_mapping,
+               bg='#34495e', fg='white', font=('Segoe UI', 9), padx=10).pack(side='left', padx=5)
+        Button(excel_frame, text='🧭 Auto-Map Excel', command=self._auto_map_excel_mappings,
+               bg='#2980b9', fg='white', font=('Segoe UI', 9), padx=10).pack(side='left', padx=5)
+        Button(excel_frame, text='📝 Edit Mappings', command=self._open_mapping_editor,
+               bg='#8e44ad', fg='white', font=('Segoe UI', 9), padx=10).pack(side='left', padx=5)
 
         info = Label(controls, 
                     text='DRAG COMPONENTS to move | SELECT + "Lock/Unlock" to lock position | GRID: Always visible (20px intervals)',
@@ -370,21 +436,53 @@ class DetailedNetworkFlowDiagram:
                                        fill=color, outline='#2c3e50', width=1)
 
     def _load_diagram_data(self):
-        """Load diagram JSON"""
+        """Load diagram JSON - loads the master UG2N diagram which contains all areas"""
         self.json_file = Path(__file__).parent.parent.parent / 'data' / 'diagrams' / 'ug2_north_decline.json'
         
         if not self.json_file.exists():
-            messagebox.showerror("Error", f"Diagram not found: {self.json_file}")
+            messagebox.showerror("Error", f"Master diagram not found: {self.json_file}")
             return
 
         try:
             with open(self.json_file, 'r', encoding='utf-8') as f:
                 self.area_data = json.load(f)
-            logger.info(f"✅ Loaded: {self.area_data.get('title')}")
+            
+            # Reset all flow volumes to "-" (load from Excel on demand)
+            edges = self.area_data.get('edges', [])
+            for edge in edges:
+                edge['volume'] = '-'
+                edge['label'] = '-'
+            
+            logger.info(f"✅ Loaded: {self.area_data.get('title')} - Master diagram with all areas")
             self._draw_diagram()
         except Exception as e:
             logger.error(f"❌ Load error: {e}")
             messagebox.showerror("Error", f"Failed to load: {e}")
+
+    def _validate_excel_mapping(self):
+        """Validate that each edge's excel_mapping references an existing sheet and column."""
+        edges = self.area_data.get('edges', [])
+        if not edges:
+            messagebox.showinfo('Validate', 'No edges to validate')
+            return
+        sheets = set(self.flow_loader.list_sheets())
+        problems = []
+        for edge in edges:
+            mapping = edge.get('excel_mapping', {})
+            if not mapping or not mapping.get('enabled'):
+                continue
+            sheet = mapping.get('sheet') or f"Flows_{self._get_area_code_from_title()}"
+            column = mapping.get('column')
+            if not sheet or sheet not in sheets:
+                problems.append(f"Missing sheet: {sheet} for {edge.get('from')} → {edge.get('to')}")
+                continue
+            cols = set(self.flow_loader.list_sheet_columns(sheet))
+            if not column or column not in cols:
+                problems.append(f"Missing column: {column} in {sheet} for {edge.get('from')} → {edge.get('to')}")
+        if problems:
+            messagebox.showwarning('Excel Mapping Issues', '\n'.join(problems[:25]))
+        else:
+            messagebox.showinfo('Excel Mapping', 'All mappings look good ✅')
 
     def _draw_diagram(self):
         """Draw diagram"""
@@ -1135,7 +1233,24 @@ class DetailedNetworkFlowDiagram:
 
         tk.Label(edit_frame, text="Flow Type:", font=('Segoe UI', 9, 'bold')).pack(anchor='w', padx=8, pady=(10,0))
         type_var = tk.StringVar(value='clean')
-        tk.OptionMenu(edit_frame, type_var, 'clean','dirty','dewatering','ug_return','process_dirty','stormwater','recirculation','evaporation').pack(fill='x', padx=8)
+        # New simplified categories with dirty variants
+        tk.OptionMenu(
+            edit_frame,
+            type_var,
+            'clean',
+            'evaporation',
+            'dirty',
+            'effluent',
+            'runoff',
+            'ug_return',
+            'dewatering',
+            'outflow',
+            'inflow',
+            'drainage',
+            'return',
+            'irrigation',
+            'recirculation'
+        ).pack(fill='x', padx=8)
 
         tk.Label(edit_frame, text="Color (hex):", font=('Segoe UI', 9, 'bold')).pack(anchor='w', padx=8, pady=(10,0))
         color_var = tk.StringVar(value='#4b78a8')
@@ -1158,7 +1273,8 @@ class DetailedNetworkFlowDiagram:
             edge_idx = edge_index_map[list_idx]
             e = edges[edge_idx]
             type_var.set(e.get('flow_type','clean'))
-            color_var.set(e.get('color', '#4b78a8'))
+            # Default color based on type if missing
+            color_var.set(e.get('color') or _default_color_for_type(e.get('flow_type')))
             vol_var.set(str(e.get('volume', 0)))
             bidir_var.set(bool(e.get('bidirectional', False)))
 
@@ -1176,7 +1292,9 @@ class DetailedNetworkFlowDiagram:
             edge_idx = edge_index_map[list_idx]
             e = edges[edge_idx]
             e['flow_type'] = type_var.get()
-            e['color'] = color_var.get()
+            # If user left color empty, apply default per type
+            chosen_color = color_var.get().strip()
+            e['color'] = chosen_color if chosen_color else _default_color_for_type(e['flow_type'])
             # Allow any value: numbers (positive/negative), dashes, text, etc.
             vol_str = vol_var.get().strip()
             if not vol_str:
@@ -1266,7 +1384,13 @@ class DetailedNetworkFlowDiagram:
                 edge = edges[edge_idx]
                 from_name = self._format_node_name(edge['from'])
                 to_name = self._format_node_name(edge['to'])
-                display_text = f"  {from_name} → {to_name} | {edge.get('flow_type','unknown')} | {edge.get('volume',0):,.0f} m³"
+                # Format volume (handle non-numeric values like '-')
+                volume = edge.get('volume', 0)
+                try:
+                    volume_str = f"{float(volume):,.0f}"
+                except (ValueError, TypeError):
+                    volume_str = str(volume)
+                display_text = f"  {from_name} → {to_name} | {edge.get('flow_type','unknown')} | {volume_str} m³"
                 listbox.insert(tk.END, display_text)
                 edge_index_map.append(edge_idx)
         
@@ -1304,7 +1428,13 @@ class DetailedNetworkFlowDiagram:
             lines = []
             for idx in selected_indices:
                 e = edges[idx]
-                lines.append(f"- {self._format_node_name(e['from'])} → {self._format_node_name(e['to'])} ({e.get('flow_type','unknown')}, {e.get('volume',0):,.0f} m³)")
+                # Format volume (handle non-numeric values like '-')
+                volume = e.get('volume', 0)
+                try:
+                    volume_str = f"{float(volume):,.0f}"
+                except (ValueError, TypeError):
+                    volume_str = str(volume)
+                lines.append(f"- {self._format_node_name(e['from'])} → {self._format_node_name(e['to'])} ({e.get('flow_type','unknown')}, {volume_str} m³)")
             if messagebox.askyesno("Confirm Delete", "Delete selected flow lines?\n\n" + "\n".join(lines)):
                 for idx in sorted(selected_indices, reverse=True):
                     edge = edges.pop(idx)
@@ -1358,9 +1488,18 @@ class DetailedNetworkFlowDiagram:
         type_var = tk.StringVar(value='recirculation')
         types = [
             ('♻️  Recirculation (internal loop)', 'recirculation'),
-            ('💧 Clean water return', 'clean'),
-            ('⚠️  Dirty water return', 'dirty'),
-            ('⛏️  Dewatering return', 'dewatering')
+            ('💧 Clean water (blue)', 'clean'),
+            ('☀️  Evaporation/Losses (black)', 'evaporation'),
+            ('⚠️  Dirty water (red)', 'dirty'),
+            ('🧪 Effluent', 'effluent'),
+            ('🌧️ Runoff', 'runoff'),
+            ('⛏️ UG Return', 'ug_return'),
+            ('⛏️ Dewatering', 'dewatering'),
+            ('➡️ Outflow', 'outflow'),
+            ('⬅️ Inflow', 'inflow'),
+            ('🕳️ Drainage', 'drainage'),
+            ('↩️ Return', 'return'),
+            ('🌿 Irrigation', 'irrigation')
         ]
         for label, value in types:
             tk.Radiobutton(flow_frame, text=label, variable=type_var, value=value,
@@ -1397,13 +1536,7 @@ class DetailedNetworkFlowDiagram:
                 
                 # Create recirculation edge (from component to itself)
                 flow_type = type_var.get()
-                color_map = {
-                    'recirculation': '#9b59b6',
-                    'clean': '#4b78a8',
-                    'dirty': '#e74c3c',
-                    'dewatering': '#e74c3c'
-                }
-                color = color_map.get(flow_type, '#9b59b6')
+                color = _default_color_for_type(flow_type) if flow_type != 'recirculation' else '#9b59b6'
                 
                 # Create a minimal recirculation edge with special flag
                 edges = self.area_data.get('edges', [])
@@ -1486,7 +1619,12 @@ class DetailedNetworkFlowDiagram:
             volume = edge.get('value', 0)
             is_locked = self.recirculation_locked.get(edge_idx, False)
             lock_status = "🔒 LOCKED" if is_locked else "🔓 UNLOCKED"
-            display_text = f"{from_node}: {volume:,.0f} m³ - {lock_status}"
+            # Format volume (handle non-numeric values like '-')
+            try:
+                volume_str = f"{float(volume):,.0f}"
+            except (ValueError, TypeError):
+                volume_str = str(volume)
+            display_text = f"{from_node}: {volume_str} m³ - {lock_status}"
             listbox.insert(tk.END, display_text)
         
         # Buttons
@@ -2145,11 +2283,12 @@ class DetailedNetworkFlowDiagram:
         tk.Label(input_frame, text="Volume or Label (m³/month):", 
             font=('Segoe UI', 10, 'bold')).pack(side='left', padx=5)
         
-        volume_var = tk.StringVar()
+        volume_var = tk.StringVar(value='-')  # Default to '-' when no data
         volume_entry = tk.Entry(input_frame, textvariable=volume_var, 
                                font=('Segoe UI', 12), width=15)
         volume_entry.pack(side='left', padx=5)
         volume_entry.focus_set()
+        volume_entry.select_range(0, tk.END)  # Select the '-' so user can type over it
         
         error_label = tk.Label(dialog, text="", font=('Segoe UI', 9), fg='#e74c3c')
         error_label.pack()
@@ -2260,8 +2399,12 @@ class DetailedNetworkFlowDiagram:
         }
         color = color_map.get(flow_type.lower(), '#3498db')
 
-        # Format label with commas
-        label = f"{volume:,.0f}"
+        # Format label with commas (handle non-numeric values like '-')
+        try:
+            label = f"{float(volume):,.0f}"
+        except (ValueError, TypeError):
+            # Keep non-numeric labels as-is (like '-', 'TBD', etc.)
+            label = str(volume)
 
         if existing_idx is not None:
             # Update existing flow
@@ -2334,11 +2477,336 @@ class DetailedNetworkFlowDiagram:
             logger.error(f"❌ Save error: {e}")
             messagebox.showerror("Error", f"Failed to save: {e}")
 
+    def _auto_map_excel_mappings(self):
+        """Auto-map flow excel_mapping based on Excel sheet columns."""
+        try:
+            loader = get_flow_volume_loader()
+            area_to_sheet = {
+                'ug2n': 'Flows_UG2N',
+                'mern': 'Flows_MERN',
+                'mers': 'Flows_MERS',
+                'merplant': 'Flows_MERP',  # Excel sheet uses MERP
+                'ug2s': 'Flows_UG2S',
+                'ug2plant': 'Flows_UG2P',  # Excel sheet uses UG2P
+                'oldtsf': 'Flows_OLDTSF',
+                'stockpile': 'Flows_STOCKPILE'
+            }
+
+            updated = 0
+            skipped = 0
+            area_data_changed = False
+
+            for edge in self.area_data.get('edges', []):
+                from_id = edge.get('from', '')
+                to_id = edge.get('to', '')
+
+                # Resolve sheet from existing mapping first
+                mapping = edge.get('excel_mapping', {}) or {}
+                sheet = mapping.get('sheet')
+
+                if not sheet:
+                    # Infer from from_id
+                    from_id_lower = from_id.lower()
+                    for key, sheet_name in area_to_sheet.items():
+                        if key in from_id_lower:
+                            sheet = sheet_name
+                            break
+
+                if not sheet:
+                    skipped += 1
+                    continue
+
+                # Load sheet columns via loader (cached)
+                df = loader._load_sheet(sheet)
+                if df is None or df.empty:
+                    skipped += 1
+                    continue
+
+                skip_cols = {'Date', 'Year', 'Month'}
+                columns = [c for c in df.columns if c not in skip_cols]
+                if not columns:
+                    skipped += 1
+                    continue
+
+                target = f"{from_id}__TO__{to_id}".lower()
+
+                found = None
+                # Exact match first
+                for col in columns:
+                    if col.lower() == target:
+                        found = col
+                        break
+
+                # Partial match fallback (contains both parts)
+                if not found:
+                    from_part = from_id.lower()
+                    to_part = to_id.lower()
+                    for col in columns:
+                        col_lower = col.lower()
+                        if from_part in col_lower and to_part in col_lower:
+                            found = col
+                            break
+
+                if found:
+                    edge['excel_mapping'] = {
+                        'enabled': True,
+                        'sheet': sheet,
+                        'column': found
+                    }
+                    updated += 1
+                    area_data_changed = True
+                else:
+                    skipped += 1
+
+            if area_data_changed:
+                self._save_to_json()
+
+            message = (
+                f"Auto-map completed\n\n"
+                f"✅ Updated: {updated}\n"
+                f"⚠️ Skipped: {skipped}\n\n"
+                "Note: Only columns present in Excel were mapped."
+            )
+            messagebox.showinfo("Auto-Map Excel", message)
+            logger.info(f"🔁 Auto-map complete: updated={updated}, skipped={skipped}")
+            self._draw_diagram()
+        except Exception as e:
+            logger.error(f"❌ Auto-map error: {e}")
+            messagebox.showerror("Error", f"Auto-map failed: {e}")
+
+    def _open_mapping_editor(self):
+        """Open a simple dialog to edit excel_mapping for any flow."""
+        edges = self.area_data.get('edges', [])
+        if not edges:
+            messagebox.showwarning("No Flows", "No flow lines to edit")
+            return
+
+        # Prepare Excel columns per sheet using loader
+        loader = get_flow_volume_loader()
+        area_sheets = {
+            'Flows_UG2N', 'Flows_MERN', 'Flows_MERS', 'Flows_MERP',
+            'Flows_UG2S', 'Flows_UG2P', 'Flows_OLDTSF', 'Flows_STOCKPILE'
+        }
+
+        sheet_columns = {}
+        for sheet in area_sheets:
+            df = loader._load_sheet(sheet)
+            if df is not None and not df.empty:
+                sheet_columns[sheet] = [c for c in df.columns if c not in {'Date', 'Year', 'Month'}]
+            else:
+                sheet_columns[sheet] = []
+
+        dialog = tk.Toplevel(self.canvas)
+        dialog.title("Edit Excel Mappings")
+        dialog.transient(self.canvas)
+        dialog.grab_set()
+        self._center_window(dialog, 900, 620)
+
+        header = ttk.Frame(dialog, padding=(12, 10, 12, 4))
+        header.pack(fill='x')
+        ttk.Label(header, text="Excel mapping editor", font=('Segoe UI', 11, 'bold')).pack(anchor='w')
+        ttk.Label(header, text="Double-click a flow to edit its sheet/column or toggle enable",
+              font=('Segoe UI', 9)).pack(anchor='w', pady=(4, 0))
+
+        list_frame = ttk.Frame(dialog, padding=(12, 6, 12, 6))
+        list_frame.pack(fill='both', expand=True)
+
+        columns = ('flow', 'sheet', 'column', 'enabled')
+        tree = ttk.Treeview(list_frame, columns=columns, show='headings', selectmode='browse')
+        tree.heading('flow', text='Flow')
+        tree.heading('sheet', text='Sheet')
+        tree.heading('column', text='Column')
+        tree.heading('enabled', text='Enabled')
+        tree.column('flow', width=360, anchor='w')
+        tree.column('sheet', width=120, anchor='w')
+        tree.column('column', width=260, anchor='w')
+        tree.column('enabled', width=80, anchor='center')
+
+        scrollbar = ttk.Scrollbar(list_frame, orient='vertical', command=tree.yview)
+        tree.configure(yscrollcommand=scrollbar.set)
+        scrollbar.pack(side='right', fill='y')
+        tree.pack(side='left', fill='both', expand=True)
+
+        tree.tag_configure('odd', background='#f7f9fb')
+        tree.tag_configure('even', background='#ffffff')
+
+        # Populate list
+        for idx, edge in enumerate(edges):
+            from_name = self._format_node_name(edge.get('from', ''))
+            to_name = self._format_node_name(edge.get('to', ''))
+            mapping = edge.get('excel_mapping', {}) or {}
+            sheet = mapping.get('sheet', '-')
+            column = mapping.get('column', '-')
+            enabled = 'Yes' if mapping.get('enabled') else 'No'
+            tag = 'odd' if idx % 2 else 'even'
+            tree.insert('', 'end', iid=str(idx), values=(f"{idx:03d} | {from_name} → {to_name}", sheet, column, enabled), tags=(tag,))
+
+        def edit_selected(event=None):
+            selection = tree.selection()
+            if not selection:
+                messagebox.showwarning("No Selection", "Please select a flow to edit")
+                return
+            item_id = selection[0]
+            idx = int(item_id)
+            edge = edges[idx]
+
+            edit_win = tk.Toplevel(dialog)
+            edit_win.title("Edit Mapping")
+            self._center_window(edit_win, 520, 340)
+
+            form = ttk.Frame(edit_win, padding=(16, 14, 16, 14))
+            form.pack(fill='both', expand=True)
+
+            ttk.Label(form, text=f"Flow: {edge.get('from')} → {edge.get('to')}",
+                      font=('Segoe UI', 10, 'bold')).pack(anchor='w', pady=(0, 8))
+
+            # Enabled
+            enabled_var = tk.BooleanVar(value=edge.get('excel_mapping', {}).get('enabled', False))
+            ttk.Checkbutton(form, text="Enable Excel mapping", variable=enabled_var).pack(anchor='w')
+
+            # Sheet
+            ttk.Label(form, text="Sheet:").pack(anchor='w', pady=(12, 2))
+            sheet_var = tk.StringVar(value=edge.get('excel_mapping', {}).get('sheet', ''))
+            sheet_combo = ttk.Combobox(form, textvariable=sheet_var,
+                                      values=sorted(sheet_columns.keys()), state='readonly')
+            sheet_combo.pack(anchor='w', fill='x')
+
+            # Column
+            ttk.Label(form, text="Column:").pack(anchor='w', pady=(12, 2))
+            column_var = tk.StringVar(value=edge.get('excel_mapping', {}).get('column', ''))
+            column_combo = ttk.Combobox(form, textvariable=column_var)
+            column_combo.pack(anchor='w', fill='x')
+
+            def refresh_columns(*_args):
+                cols = sheet_columns.get(sheet_var.get(), [])
+                column_combo['values'] = cols
+            sheet_var.trace_add('write', refresh_columns)
+            refresh_columns()
+
+            def save_mapping():
+                edge['excel_mapping'] = {
+                    'enabled': enabled_var.get(),
+                    'sheet': sheet_var.get(),
+                    'column': column_var.get()
+                }
+                # Refresh row display
+                from_name = self._format_node_name(edge.get('from', ''))
+                to_name = self._format_node_name(edge.get('to', ''))
+                enabled_flag = 'Yes' if enabled_var.get() else 'No'
+                tag = 'odd' if idx % 2 else 'even'
+                tree.item(item_id, values=(f"{idx:03d} | {from_name} → {to_name}", sheet_var.get(), column_var.get(), enabled_flag), tags=(tag,))
+                edit_win.destroy()
+                self.status_var.set("Mapping updated (not yet saved)")
+
+            ttk.Button(form, text="Save Mapping", command=save_mapping,
+                      width=20).pack(pady=18)
+
+        tree.bind('<Double-1>', edit_selected)
+
+        def save_all_and_close():
+            self._save_to_json()
+            dialog.destroy()
+
+        footer = ttk.Frame(dialog, padding=(12, 6, 12, 12))
+        footer.pack(fill='x')
+        ttk.Button(footer, text="💾 Save All", command=save_all_and_close,
+                  width=20).pack(anchor='e')
+
+    def _center_window(self, window: tk.Toplevel, width: int, height: int) -> None:
+        """Center a toplevel window over the main application window."""
+        window.update_idletasks()
+        try:
+            parent_x = self.parent.winfo_rootx()
+            parent_y = self.parent.winfo_rooty()
+            parent_w = self.parent.winfo_width() or window.winfo_screenwidth()
+            parent_h = self.parent.winfo_height() or window.winfo_screenheight()
+        except Exception:
+            parent_x, parent_y = 0, 0
+            parent_w, parent_h = window.winfo_screenwidth(), window.winfo_screenheight()
+
+        x = parent_x + max((parent_w - width) // 2, 0)
+        y = parent_y + max((parent_h - height) // 2, 0)
+        window.geometry(f"{width}x{height}+{x}+{y}")
+
     def _reload_from_json(self):
         """Reload from file"""
         if messagebox.askyesno("Reload", "Discard unsaved changes?"):
             self._load_diagram_data()
             messagebox.showinfo("Reloaded", "Reloaded from file")
+
+    def _load_volumes_from_excel(self):
+        """Load all flow volumes from Excel for selected month."""
+        try:
+            # Get selected month/year
+            year = int(self.year_var.get())
+            
+            # Get month number from combobox value (1-12)
+            months = ['January', 'February', 'March', 'April', 'May', 'June',
+                      'July', 'August', 'September', 'October', 'November', 'December']
+            month_name = self.month_var.get()
+            month = months.index(month_name) + 1 if month_name in months else self.current_month
+            
+            self.current_year = year
+            self.current_month = month
+            
+            # Determine area code from JSON
+            if not self.area_code:
+                self.area_code = self.area_data.get('area_code', 'UG2N')
+            
+            logger.info(f"📥 Loading flows from Excel: {self.area_code} for {year}-{month:02d}")
+
+            # Refresh loader instance in case Settings changed the path
+            self.flow_loader = get_flow_volume_loader()
+            
+            # Always clear loader cache so recent Excel edits are picked up
+            self.flow_loader.clear_cache()
+            
+            # Update all edges with volumes from Excel
+            self.area_data = self.flow_loader.update_diagram_edges(
+                self.area_data,
+                self.area_code,
+                year,
+                month
+            )
+            
+            # Redraw diagram with updated volumes
+            self._draw_diagram()
+            
+            messagebox.showinfo(
+                "✅ Loaded from Excel",
+                f"Flow volumes loaded for {month_name} {year}\n\n"
+                f"Area: {self.area_code}\n"
+                f"Check flow line labels for updated m³ values"
+            )
+        
+        except Exception as e:
+            logger.error(f"❌ Error loading from Excel: {e}")
+            messagebox.showerror("Error", f"Failed to load volumes from Excel:\n{e}")
+    
+    def refresh_flow_loader(self):
+        """Refresh flow loader instance (call after Settings path change)."""
+        self.flow_loader = get_flow_volume_loader()
+        logger.info("🔄 Flow loader refreshed in diagram")
+    
+    def _get_area_code_from_title(self):
+        """Extract area code from diagram title."""
+        title = self.area_data.get('title', '')
+        area_code_map = {
+            'UG2 North': 'UG2N',
+            'Merensky North': 'MERN',
+            'Merensky South': 'MERENSKY_SOUTH',
+            'UG2 South': 'UG2S',
+            'Stockpile': 'STOCKPILE',
+            'Old TSF': 'OLDTSF',
+            'UG2 Plant': 'UG2PLANT',
+            'Merensky Plant': 'MERPLANT',
+        }
+        
+        for key, code in area_code_map.items():
+            if key.lower() in title.lower():
+                return code
+        
+        return 'UG2N'  # Default
 
 
 # For compatibility

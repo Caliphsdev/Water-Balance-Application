@@ -73,7 +73,7 @@ class ExcelTimeSeriesExtended:
         
         # Validate file path strictly (avoid trying to read a directory -> PermissionError)
         if not self.file_path.exists() or not self.file_path.is_file():
-            logger.error(f"❌ Application Inputs Excel file missing or invalid: {self.file_path}")
+            logger.debug(f"Application Inputs Excel file not configured or missing: {self.file_path}")
             if self.file_path.exists() and self.file_path.is_dir():
                 logger.error("   The configured path points to a DIRECTORY, not an .xlsx file.")
             logger.error("   Open Settings → Data Sources and select the correct Excel workbook (.xlsx).")

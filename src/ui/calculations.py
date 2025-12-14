@@ -214,43 +214,24 @@ class CalculationsModule:
     
     def _create_results_section(self):
         """Create results display"""
-        # Create notebook for organized display
-        notebook = ttk.Notebook(self.main_frame)
+        # Create notebook for organized display with Flow Diagram theme
+        notebook_frame = ttk.Frame(self.main_frame)
+        notebook_frame.pack(fill=tk.BOTH, expand=True)
+        
+        notebook = ttk.Notebook(notebook_frame)
         notebook.pack(fill=tk.BOTH, expand=True)
         
-        # Tab 1: Balance Check Summary
-        self.balance_summary_frame = ttk.Frame(notebook, padding=15)
-        notebook.add(self.balance_summary_frame, text="⚖️ Balance Check Summary")
-        
-        # Tab 2: Per-Area Balance Breakdown
-        self.area_balance_frame = ttk.Frame(notebook, padding=15)
-        notebook.add(self.area_balance_frame, text="🗺️ Area Balance Breakdown")
-        
-        # Tab 3: Summary
-        self.summary_frame = ttk.Frame(notebook, padding=15)
-        notebook.add(self.summary_frame, text="📋 Summary")
-        
-        # Tab 4: Inflows
-        self.inflows_frame = ttk.Frame(notebook, padding=15)
-        notebook.add(self.inflows_frame, text="💧 Inflows")
-        
-        # Tab 5: Outflows
-        self.outflows_frame = ttk.Frame(notebook, padding=15)
-        notebook.add(self.outflows_frame, text="🚰 Outflows")
-        
-        # Tab 6: Storage
-        self.storage_frame = ttk.Frame(notebook, padding=15)
-        notebook.add(self.storage_frame, text="🏗️ Storage Status")
+        # Tab 1: Flow Diagram Parameters (pending wiring)
+        self.flow_params_frame = ttk.Frame(notebook)
+        notebook.add(self.flow_params_frame, text="🧭 Flow Diagram Parameters")
 
-    def _show_placeholder(self):
+        # Tab 2: Future Water Balance Calc (placeholder)
+        self.future_balance_frame = ttk.Frame(notebook)
+        notebook.add(self.future_balance_frame, text="📈 Water Balance Calculation")
         """Show initial placeholder prompting user to run calculation on demand"""
         frames_to_clear = [
-            getattr(self, 'balance_summary_frame', None),
-            getattr(self, 'area_balance_frame', None),
-            getattr(self, 'summary_frame', None),
-            getattr(self, 'inflows_frame', None),
-            getattr(self, 'outflows_frame', None),
-            getattr(self, 'storage_frame', None)
+            getattr(self, 'flow_params_frame', None),
+            getattr(self, 'future_balance_frame', None)
         ]
         
         for frame in frames_to_clear:
@@ -258,8 +239,16 @@ class CalculationsModule:
                 continue
             for w in frame.winfo_children():
                 w.destroy()
-            msg = ttk.Label(frame, text="Select a month and click 'Calculate Balance' to generate results.", foreground="#666")
-            msg.pack(pady=20)
+            
+            # Styled placeholder matching Flow Diagram theme
+            container = tk.Frame(frame, bg='#2c3e50')
+            container.pack(fill=tk.BOTH, expand=True, padx=2, pady=2)
+            
+            msg = tk.Label(container, 
+                          text="Select a month and click 'Calculate Balance' to generate results.",
+                          font=('Segoe UI', 10),
+                          bg='#2c3e50', fg='#ecf0f1')
+            msg.pack(pady=40)
     
     def _calculate_balance(self):
         """Perform water balance calculation"""
@@ -283,12 +272,8 @@ class CalculationsModule:
             
             # Update displays
             ui_start = time.perf_counter()
-            self._update_balance_check_summary()
-            self._update_area_balance_breakdown()
-            self._update_summary_display()
-            self._update_inflows_display()
-            self._update_outflows_display()
-            self._update_storage_display()
+            self._update_flow_params_preview()
+            self._update_future_balance_placeholder()
             logger.info(f"  ✓ UI update: {(time.perf_counter() - ui_start)*1000:.0f}ms")
             
             total_elapsed = (time.perf_counter() - calc_start) * 1000
@@ -418,6 +403,128 @@ class CalculationsModule:
                          "Detailed balance breakdown for each mine area.\n"
                          "Shows inflows, outflows, and recirculation specific to each area.",
                          icon="💡")
+
+    def _update_flow_params_preview(self):
+        """Placeholder table for flow diagram-linked parameters (monthly)."""
+        for widget in self.flow_params_frame.winfo_children():
+            widget.destroy()
+        
+        # Main container with Flow Diagram theme
+        container = tk.Frame(self.flow_params_frame, bg='#2c3e50')
+        container.pack(fill=tk.BOTH, expand=True, padx=2, pady=2)
+        
+        # Header
+        header_frame = tk.Frame(container, bg='#2c3e50')
+        header_frame.pack(fill=tk.X, padx=15, pady=(15, 10))
+        
+        tk.Label(header_frame,
+                text="🧭 Flow Diagram Parameters (Monthly)",
+                font=('Segoe UI', 14, 'bold'),
+                bg='#2c3e50', fg='#ecf0f1').pack(anchor='w')
+        
+        # Info box
+        info_frame = tk.Frame(container, bg='#34495e', relief=tk.SOLID, borderwidth=1)
+        info_frame.pack(fill=tk.X, padx=15, pady=(0, 15))
+        
+        tk.Label(info_frame,
+                text="ℹ️  Awaiting parameter list. This table will summarize selected flow diagram metrics on a monthly basis.",
+                font=('Segoe UI', 9),
+                bg='#34495e', fg='#ecf0f1',
+                wraplength=800, justify='left').pack(padx=12, pady=10)
+        
+        # Table frame
+        table_frame = tk.Frame(container, bg='#2c3e50')
+        table_frame.pack(fill=tk.BOTH, expand=True, padx=15, pady=(0, 15))
+        
+        # Styled table
+        columns = ('parameter', 'value', 'unit', 'status')
+        table = ttk.Treeview(table_frame, columns=columns, show='headings', height=10)
+        table.heading('parameter', text='Parameter')
+        table.heading('value', text='Value')
+        table.heading('unit', text='Unit')
+        table.heading('status', text='Status')
+        table.column('parameter', width=300, anchor='w')
+        table.column('value', width=150, anchor='e')
+        table.column('unit', width=100, anchor='center')
+        table.column('status', width=150, anchor='center')
+        
+        # Placeholder rows
+        placeholder_data = [
+            ('Parameter 1', '-', 'm³', 'Pending'),
+            ('Parameter 2', '-', 'm³', 'Pending'),
+            ('Parameter 3', '-', 'm³', 'Pending'),
+        ]
+        
+        for row in placeholder_data:
+            table.insert('', 'end', values=row, tags=('pending',))
+        
+        table.tag_configure('pending', foreground='#95a5a6')
+        
+        scrollbar = ttk.Scrollbar(table_frame, orient='vertical', command=table.yview)
+        table.configure(yscrollcommand=scrollbar.set)
+        scrollbar.pack(side='right', fill='y')
+        table.pack(side='left', fill='both', expand=True)
+
+    def _update_future_balance_placeholder(self):
+        """Placeholder for future water balance calculation table."""
+        for widget in self.future_balance_frame.winfo_children():
+            widget.destroy()
+        
+        # Main container with Flow Diagram theme
+        container = tk.Frame(self.future_balance_frame, bg='#2c3e50')
+        container.pack(fill=tk.BOTH, expand=True, padx=2, pady=2)
+        
+        # Header
+        header_frame = tk.Frame(container, bg='#2c3e50')
+        header_frame.pack(fill=tk.X, padx=15, pady=(15, 10))
+        
+        tk.Label(header_frame,
+                text="📈 Water Balance Calculation",
+                font=('Segoe UI', 14, 'bold'),
+                bg='#2c3e50', fg='#ecf0f1').pack(anchor='w')
+        
+        # Info box
+        info_frame = tk.Frame(container, bg='#34495e', relief=tk.SOLID, borderwidth=1)
+        info_frame.pack(fill=tk.X, padx=15, pady=(0, 15))
+        
+        tk.Label(info_frame,
+                text="⏳  This dashboard will host water balance calculations once parameters are defined.",
+                font=('Segoe UI', 9),
+                bg='#34495e', fg='#ecf0f1',
+                wraplength=800, justify='left').pack(padx=12, pady=10)
+        
+        # Table frame
+        table_frame = tk.Frame(container, bg='#2c3e50')
+        table_frame.pack(fill=tk.BOTH, expand=True, padx=15, pady=(0, 15))
+        
+        # Styled table
+        columns = ('metric', 'formula', 'value', 'unit')
+        table = ttk.Treeview(table_frame, columns=columns, show='headings', height=10)
+        table.heading('metric', text='Metric')
+        table.heading('formula', text='Formula/Computation')
+        table.heading('value', text='Value')
+        table.heading('unit', text='Unit')
+        table.column('metric', width=250, anchor='w')
+        table.column('formula', width=300, anchor='w')
+        table.column('value', width=120, anchor='e')
+        table.column('unit', width=100, anchor='center')
+        
+        # Placeholder rows
+        placeholder_data = [
+            ('Metric 1', 'Formula pending', '-', 'm³'),
+            ('Metric 2', 'Formula pending', '-', 'm³'),
+            ('Metric 3', 'Formula pending', '-', 'm³'),
+        ]
+        
+        for row in placeholder_data:
+            table.insert('', 'end', values=row, tags=('pending',))
+        
+        table.tag_configure('pending', foreground='#95a5a6')
+        
+        scrollbar = ttk.Scrollbar(table_frame, orient='vertical', command=table.yview)
+        table.configure(yscrollcommand=scrollbar.set)
+        scrollbar.pack(side='right', fill='y')
+        table.pack(side='left', fill='both', expand=True)
         
         # Create notebook for each area
         area_notebook = ttk.Notebook(self.area_balance_frame)

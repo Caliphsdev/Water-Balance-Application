@@ -51,12 +51,25 @@ class DashboardModule:
         self.parent = parent
         self.container = None
         self.kpi_widgets = {}
-        self.excel_repo = get_extended_excel_repo()
-        self.meter_repo = get_default_excel_repo()
+        # Lazy-load Excel repos only when needed
+        self.excel_repo = None
+        self.meter_repo = None
         self.db = DatabaseManager()
         self.latest_date = None
         self.sources = []
         self.facilities = []
+    
+    def _get_excel_repo(self):
+        """Lazy-load extended Excel repository"""
+        if self.excel_repo is None:
+            self.excel_repo = get_extended_excel_repo()
+        return self.excel_repo
+    
+    def _get_meter_repo(self):
+        """Lazy-load meter Excel repository"""
+        if self.meter_repo is None:
+            self.meter_repo = get_default_excel_repo()
+        return self.meter_repo
 
     def load(self):
         """Load dashboard content (Excel + DB metadata)"""
@@ -73,14 +86,19 @@ class DashboardModule:
         # Get latest available month from Excel (use cached if available)
         try:
             date_fetch_start = time.perf_counter()
-            # Excel is pre-loaded by main_window, so this should be fast
-            self.latest_date = self.meter_repo.get_latest_date()
+            self.latest_date = self._get_meter_repo().get_latest_date()
             if not self.latest_date:
-                raise FileNotFoundError("No valid data found in Excel file.")
-            logger.info(f"  ✓ Latest date fetch: {(time.perf_counter() - date_fetch_start)*1000:.0f}ms")
+                # Excel not available - use current date instead
+                from datetime import datetime
+                self.latest_date = datetime.now().date().replace(day=1)
+                logger.info(f"  ⚠️  Excel not available, using current month: {self.latest_date}")
+            else:
+                logger.info(f"  ✓ Latest date fetch: {(time.perf_counter() - date_fetch_start)*1000:.0f}ms")
         except Exception as e:
-            messagebox.showerror("Excel Data Error", f"Could not read Excel data: {e}\nPlease ensure the Excel file is available and correctly formatted.")
-            return
+            # Excel not available - continue with current date
+            from datetime import datetime
+            self.latest_date = datetime.now().date().replace(day=1)
+            logger.info(f"  ⚠️  Excel not available ({e}), using current month: {self.latest_date}")
 
         # Get facility metadata from database (capacity, surface area, etc.)
         # Get operational data (flows) from Excel
@@ -100,7 +118,7 @@ class DashboardModule:
                 
                 try:
                     # Get full storage calculation (opening, closing, inflows, outflows, evap, rainfall)
-                    storage_data = self.excel_repo.get_storage_data(
+                    storage_data = self._get_excel_repo().get_storage_data(
                         code, self.latest_date, capacity, surface_area, self.db
                     )
                     
@@ -142,7 +160,7 @@ class DashboardModule:
             self.sources = self.db.get_water_sources(active_only=True)
             
             # Get Excel column names for counting
-            df = self.meter_repo._df
+            df = self._get_meter_repo()._df
             if df is not None:
                 self.excel_columns = [col for col in df.columns if col not in ("Date", "Year", "Month")]
             else:

@@ -34,8 +34,13 @@ class ExcelTimeSeriesRepository:
     def _load(self) -> None:
         if self._df is not None:
             return
+        
+        # Check if file exists - silently return empty DataFrame
         if not self.config.file_path.exists():
-            raise FileNotFoundError(f"Excel time series file not found: {self.config.file_path}")
+            # Don't warn on startup - only when actually trying to access data
+            # User can check file status in Settings > Data Sources
+            self._df = pd.DataFrame()
+            return
 
         # Read the sheet with header at row 3 (1-based -> header=2)
         df = pd.read_excel(
@@ -118,12 +123,15 @@ class ExcelTimeSeriesRepository:
     def get_latest_date(self) -> Optional[date]:
         """Return the most recent date available in the Excel data.
         
-        Returns None if no data exists.
+        Returns None if no data exists or file is not available.
         """
         self._load()
-        assert self._df is not None
         
-        if self._df.empty or self._df["Date"].isna().all():
+        # Handle case where Excel file doesn't exist (empty DataFrame)
+        if self._df is None or self._df.empty:
+            return None
+        
+        if "Date" not in self._df.columns or self._df["Date"].isna().all():
             return None
         
         # Get the maximum date that's not NaT/NaN
@@ -137,16 +145,13 @@ class ExcelTimeSeriesRepository:
 # Convenience factory for the app to use
 
 def get_default_excel_repo() -> ExcelTimeSeriesRepository:
+    """Get default Excel repository (lazy-loaded, no warnings on init)"""
     from utils.config_manager import config
-    from utils.app_logger import logger
     base_dir = Path(__file__).resolve().parents[2]
     # Get path from config or use default
     excel_path = config.get('data_sources.legacy_excel_path', 'data/New Water Balance  20250930 Oct.xlsx')
     file_path = base_dir / excel_path if not Path(excel_path).is_absolute() else Path(excel_path)
     
-    # Warn if file doesn't exist but don't crash
-    if not file_path.exists():
-        logger.warning(f"TRP Water Balance Excel file not found: {file_path}. Historical data will not be available.")
-    
+    # Don't warn on init - file will be checked when actually loaded
     cfg = ExcelTimeSeriesConfig(file_path=file_path)
     return ExcelTimeSeriesRepository(cfg)

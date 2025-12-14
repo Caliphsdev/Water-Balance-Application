@@ -10,6 +10,7 @@ from database.db_manager import DatabaseManager
 from utils.backup_manager import BackupManager
 from utils.config_manager import config
 from utils.alert_manager import alert_manager
+from utils.app_logger import logger
 
 
 class SettingsModule:
@@ -712,6 +713,17 @@ class SettingsModule:
                 path_str = filename
             
             config.set('data_sources.template_excel_path', path_str)
+            # Also update timeseries_excel_path so flow loader picks it up
+            config.set('data_sources.timeseries_excel_path', path_str)
+            
+            # Reset flow volume loader singleton to force path reload
+            try:
+                from utils.flow_volume_loader import reset_flow_volume_loader
+                reset_flow_volume_loader()
+                logger.info(f"🔄 Flow loader reset after path change to: {path_str}")
+            except Exception as e:
+                logger.warning(f"Could not reset flow volume loader: {e}")
+            
             self.template_path_label.config(text=path_str)
             
             # Update status indicator

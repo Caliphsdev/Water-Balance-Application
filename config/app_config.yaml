@@ -17,6 +17,7 @@ colors:
 data_sources:
   legacy_excel_path: test_templates\New Water Balance  20250930 Oct.xlsx
   template_excel_path: test_templates\Water_Balance_TimeSeries_Template.xlsx
+  timeseries_excel_path: test_templates\Water_Balance_TimeSeries_Template.xlsx
 features:
   fast_startup: true
   new_calculations: false

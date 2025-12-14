@@ -1782,13 +1782,18 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": 48781.0,
+      "volume": 48477.0,
       "color": "#4b78a8",
-      "label": "48,781",
+      "label": "48,477",
       "label_offset": 0.09523809523809523,
       "label_pos": {
         "x": 243.0,
         "y": 2242.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_OLDTSF",
+        "column": "oldtsf_old_tsf_rainrun__TO__oldtsf_old_tsf"
       }
     },
     {
@@ -1812,6 +1817,11 @@
       "label_pos": {
         "x": 238.0,
         "y": 2133.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_OLDTSF",
+        "column": "oldtsf_gwa_boreholes__TO__oldtsf_offices"
       }
     },
     {
@@ -1835,6 +1845,11 @@
       "label_pos": {
         "x": 245.0,
         "y": 2348.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_OLDTSF",
+        "column": "oldtsf_trtd_rain__TO__oldtsf_trtd"
       }
     },
     {
@@ -1858,6 +1873,11 @@
       "label_pos": {
         "x": 247.0,
         "y": 2480.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_OLDTSF",
+        "column": "oldtsf_new_tsf_rainrun__TO__oldtsf_new_tsf"
       }
     },
     {
@@ -1881,6 +1901,11 @@
       "label_pos": {
         "x": 248.02760328304828,
         "y": 2709.109266816452
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2P",
+        "column": "ug2plant_ug2p_rivers__TO__ug2plant_cprwsd1"
       }
     },
     {
@@ -1904,6 +1929,11 @@
       "label_pos": {
         "x": 247.00221116993322,
         "y": 2860.1265878763797
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2P",
+        "column": "ug2plant_ug2p_ore_water__TO__ug2plant_ug2p_plant"
       }
     },
     {
@@ -1927,6 +1957,11 @@
       "label_pos": {
         "x": 249.0,
         "y": 2960.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2P",
+        "column": "ug2plant_ug2pcd1_rain__TO__ug2plant_ug2pcd1"
       }
     },
     {
@@ -1950,6 +1985,11 @@
       "label_pos": {
         "x": 248.00256541339405,
         "y": 3060.841455593252
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2P",
+        "column": "ug2plant_cpgwa_boreholes__TO__ug2plant_ug2p_soft"
       }
     },
     {
@@ -1974,7 +2014,12 @@
         "x": 430.0,
         "y": 3081.0
       },
-      "bidirectional": false
+      "bidirectional": false,
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2P",
+        "column": "ug2plant_ug2p_soft__TO__ug2plant_ug2p_res"
+      }
     },
     {
       "from": "ug2plant_ug2p_off",
@@ -2001,6 +2046,11 @@
       "label_pos": {
         "x": 749.0,
         "y": 3148.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2P",
+        "column": "ug2plant_ug2p_off__TO__ug2plant_ug2p_stp"
       }
     },
     {
@@ -2024,6 +2074,11 @@
       "label_pos": {
         "x": 1321.0012581297465,
         "y": 3160.930589715447
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2P",
+        "column": "ug2plant_ug2p_stp__TO__ug2plant_ug2p_soft_losses"
       }
     },
     {
@@ -2047,6 +2102,11 @@
       "label_pos": {
         "x": 1320.9985273355082,
         "y": 3104.0943113376657
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2P",
+        "column": "ug2plant_ug2p_off__TO__ug2plant_ug2p_off_consumption"
       }
     },
     {
@@ -2074,6 +2134,11 @@
       "label_pos": {
         "x": 599.0,
         "y": 3145.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2P",
+        "column": "ug2plant_ug2p_res__TO__ug2plant_ug2p_off"
       }
     },
     {
@@ -2097,6 +2162,11 @@
       "label_pos": {
         "x": 1322.0,
         "y": 3048.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2P",
+        "column": "ug2plant_ug2p_soft__TO__ug2plant_ug2p_stp_losses"
       }
     },
     {
@@ -2128,6 +2198,11 @@
       "label_pos": {
         "x": 850.0,
         "y": 3086.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2P",
+        "column": "ug2plant_ug2p_stp__TO__ug2plant_ug2p_plant"
       }
     },
     {
@@ -2151,6 +2226,11 @@
       "label_pos": {
         "x": 1322.0151128938346,
         "y": 2978.2013844859935
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2P",
+        "column": "ug2plant_ug2pcd1__TO__ug2plant_ug2pcd1_evap"
       }
     },
     {
@@ -2174,6 +2254,11 @@
       "label_pos": {
         "x": 1319.019613763311,
         "y": 2891.8602882259356
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2P",
+        "column": "ug2plant_ug2p_plant__TO__ug2plant_ug2p_plant_product"
       }
     },
     {
@@ -2197,6 +2282,11 @@
       "label_pos": {
         "x": 1320.0,
         "y": 2831.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2P",
+        "column": "ug2plant_ug2p_plant__TO__ug2plant_ug2p_plant_losses"
       }
     },
     {
@@ -2215,7 +2305,12 @@
       "flow_type": "dirty",
       "volume": 3889500.0,
       "color": "#e74c3c",
-      "label": "3,889,500"
+      "label": "3,889,500",
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2P",
+        "column": "ug2plant_cprwsd1__TO__ug2plant_ug2p_plant"
+      }
     },
     {
       "from": "merplant_mprwsd1_rivers",
@@ -2239,7 +2334,12 @@
         "x": 270.0,
         "y": 3295.0
       },
-      "bidirectional": false
+      "bidirectional": false,
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_MERP",
+        "column": "merplant_mprwsd1_rivers__TO__merplant_mprwsd1"
+      }
     },
     {
       "from": "merplant_merp_ore_water",
@@ -2262,6 +2362,11 @@
       "label_pos": {
         "x": 273.0,
         "y": 3444.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_MERP",
+        "column": "merplant_merp_ore_water__TO__merplant_merp_plant"
       }
     },
     {
@@ -2285,6 +2390,11 @@
       "label_pos": {
         "x": 633.9986733660015,
         "y": 3542.2579310654323
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_MERP",
+        "column": "merplant_mpswd12_rain__TO__merplant_mpswd12"
       }
     },
     {
@@ -2308,6 +2418,11 @@
       "label_pos": {
         "x": 273.0,
         "y": 3667.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_MERP",
+        "column": "merplant_mpgwa_boreholes__TO__merplant_merp_soft"
       }
     },
     {
@@ -2331,6 +2446,11 @@
       "label_pos": {
         "x": 412.0,
         "y": 3696.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_MERP",
+        "column": "merplant_merp_soft__TO__merplant_merp_res"
       }
     },
     {
@@ -2358,6 +2478,11 @@
       "label_pos": {
         "x": 560.959573252048,
         "y": 3761.5491331682224
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_MERP",
+        "column": "merplant_merp_res__TO__merplant_merp_off"
       }
     },
     {
@@ -2380,7 +2505,12 @@
       "flow_type": "clean",
       "volume": 18843.0,
       "color": "#4b78a8",
-      "label": "18,843"
+      "label": "18,843",
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_MERP",
+        "column": "merplant_merp_off__TO__merplant_merp_stp"
+      }
     },
     {
       "from": "merplant_merp_stp",
@@ -2403,6 +2533,11 @@
       "label_pos": {
         "x": 1319.008285834555,
         "y": 3772.9238972902044
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_MERP",
+        "column": "merplant_merp_stp__TO__merplant_merp_stp_losses"
       }
     },
     {
@@ -2426,6 +2561,11 @@
       "label_pos": {
         "x": 1316.0,
         "y": 3685.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_MERP",
+        "column": "merplant_merp_off__TO__merplant_merp_off_consumption"
       }
     },
     {
@@ -2449,6 +2589,11 @@
       "label_pos": {
         "x": 1314.0,
         "y": 3642.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_MERP",
+        "column": "merplant_merp_soft__TO__merplant_merp_off_losses"
       }
     },
     {
@@ -2472,6 +2617,11 @@
       "label_pos": {
         "x": 1324.0004003517377,
         "y": 3577.850268450138
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_MERP",
+        "column": "merplant_mpswd12__TO__merplant_mpswd12_dust"
       }
     },
     {
@@ -2495,6 +2645,11 @@
       "label_pos": {
         "x": 1325.0,
         "y": 3560.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_MERP",
+        "column": "merplant_mpswd12__TO__merplant_mpswd12_evap"
       }
     },
     {
@@ -2527,7 +2682,12 @@
         "x": 1322.0,
         "y": 3521.0
       },
-      "bidirectional": false
+      "bidirectional": false,
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_MERP",
+        "column": "merplant_mpswd12__TO__merplant_mpswd12_spill"
+      }
     },
     {
       "from": "merplant_merp_plant",
@@ -2543,13 +2703,18 @@
         ]
       ],
       "flow_type": "evaporation",
-      "volume": 4839.0,
+      "volume": -4839.0,
       "color": "#000000",
-      "label": "4,839",
+      "label": "-4,839",
       "label_offset": 0.8530120481927711,
       "label_pos": {
         "x": 1318.0,
         "y": 3474.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_MERP",
+        "column": "merplant_merp_plant__TO__merplant_merp_plant_losses"
       }
     },
     {
@@ -2573,6 +2738,11 @@
       "label_pos": {
         "x": 1312.0,
         "y": 3384.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_MERP",
+        "column": "merplant_merp_plant__TO__merplant_merp_plant_product"
       }
     },
     {
@@ -2605,7 +2775,12 @@
         "x": 767.0,
         "y": 3350.0
       },
-      "bidirectional": false
+      "bidirectional": false,
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_MERP",
+        "column": "merplant_mprwsd1__TO__merplant_merp_plant"
+      }
     },
     {
       "from": "merplant_merp_stp",
@@ -2624,7 +2799,7 @@
           3595.0
         ]
       ],
-      "flow_type": "dirty",
+      "flow_type": "effluent",
       "volume": 18466.0,
       "color": "#e74c3c",
       "label": "18,466",
@@ -2632,6 +2807,12 @@
       "label_pos": {
         "x": 1042.0,
         "y": 3735.0
+      },
+      "bidirectional": false,
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_MERP",
+        "column": "merplant_merp_stp__TO__merplant_mpswd12"
       }
     },
     {
@@ -2655,6 +2836,11 @@
       "label_pos": {
         "x": 250.0,
         "y": 2598.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_OLDTSF",
+        "column": "oldtsf_nt_rwd_rain__TO__oldtsf_nt_rwd"
       }
     },
     {
@@ -2671,13 +2857,18 @@
         ]
       ],
       "flow_type": "evaporation",
-      "volume": 35460.0,
+      "volume": 26593.0,
       "color": "#000000",
-      "label": "35,460",
+      "label": "26,593",
       "label_offset": 0.8717964264764214,
       "label_pos": {
         "x": 1306.0009094887066,
         "y": 2585.935898213238
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_OLDTSF",
+        "column": "oldtsf_nt_rwd__TO__oldtsf_nt_rwd_evap"
       }
     },
     {
@@ -2702,7 +2893,12 @@
         "x": 1307.9923746983259,
         "y": 2610.0631464379708
       },
-      "bidirectional": false
+      "bidirectional": false,
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_OLDTSF",
+        "column": "oldtsf_nt_rwd__TO__oldtsf_nt_rwd_spill"
+      }
     },
     {
       "from": "oldtsf_new_tsf",
@@ -2725,6 +2921,11 @@
       "label_pos": {
         "x": 1307.0,
         "y": 2510.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_OLDTSF",
+        "column": "oldtsf_new_tsf__TO__oldtsf_new_tsf_seepage"
       }
     },
     {
@@ -2748,6 +2949,11 @@
       "label_pos": {
         "x": 1305.0,
         "y": 2480.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_OLDTSF",
+        "column": "oldtsf_new_tsf__TO__oldtsf_new_tsf_interstitial"
       }
     },
     {
@@ -2771,6 +2977,11 @@
       "label_pos": {
         "x": 1303.0,
         "y": 2450.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_OLDTSF",
+        "column": "oldtsf_new_tsf__TO__oldtsf_new_tsf_evap"
       }
     },
     {
@@ -2794,7 +3005,7 @@
           2510.0
         ]
       ],
-      "flow_type": "dirty",
+      "flow_type": "irrigation",
       "volume": 105786.0,
       "color": "#e74c3c",
       "label": "105,786",
@@ -2802,6 +3013,12 @@
       "label_pos": {
         "x": 600.0,
         "y": 2547.0
+      },
+      "bidirectional": false,
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_OLDTSF",
+        "column": "oldtsf_nt_rwd__TO__oldtsf_new_tsf"
       }
     },
     {
@@ -2817,14 +3034,20 @@
           2585.5
         ]
       ],
-      "flow_type": "dirty",
-      "volume": 5953.0,
+      "flow_type": "drainage",
+      "volume": 2486143.0,
       "color": "#e74c3c",
-      "label": "5,953",
+      "label": "2,486,143",
       "label_offset": 0.3162912748742619,
       "label_pos": {
         "x": 793.265165099497,
         "y": 2533.8799912530067
+      },
+      "bidirectional": false,
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_OLDTSF",
+        "column": "oldtsf_new_tsf__TO__oldtsf_nt_rwd"
       }
     },
     {
@@ -2840,7 +3063,7 @@
           2573.0
         ]
       ],
-      "flow_type": "dirty",
+      "flow_type": "return",
       "volume": 2486143.0,
       "color": "#e74c3c",
       "label": "2,486,143",
@@ -2848,6 +3071,12 @@
       "label_pos": {
         "x": 716.711838790932,
         "y": 2528.1541561712847
+      },
+      "bidirectional": false,
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_OLDTSF",
+        "column": "oldtsf_new_tsf__TO__oldtsf_nt_rwd"
       }
     },
     {
@@ -2871,6 +3100,11 @@
       "label_pos": {
         "x": 1302.0,
         "y": 2323.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_OLDTSF",
+        "column": "oldtsf_trtd__TO__oldtsf_trtd_evap"
       }
     },
     {
@@ -2895,7 +3129,12 @@
         "x": 1303.0,
         "y": 2373.0
       },
-      "bidirectional": false
+      "bidirectional": false,
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_OLDTSF",
+        "column": "oldtsf_trtd__TO__oldtsf_trtd_spill"
+      }
     },
     {
       "from": "oldtsf_old_tsf",
@@ -2918,6 +3157,11 @@
       "label_pos": {
         "x": 1299.0,
         "y": 2202.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_OLDTSF",
+        "column": "oldtsf_old_tsf__TO__oldtsf_old_tsf_evap"
       }
     },
     {
@@ -2941,6 +3185,11 @@
       "label_pos": {
         "x": 1303.0,
         "y": 2232.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_OLDTSF",
+        "column": "oldtsf_old_tsf__TO__oldtsf_old_tsf_interstitial"
       }
     },
     {
@@ -2968,6 +3217,11 @@
       "label_pos": {
         "x": 1304.0,
         "y": 2287.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_OLDTSF",
+        "column": "oldtsf_old_tsf__TO__oldtsf_old_tsf_seepage"
       }
     },
     {
@@ -2991,7 +3245,7 @@
           2262.0
         ]
       ],
-      "flow_type": "dirty",
+      "flow_type": "irrigation",
       "volume": 62270.0,
       "color": "#e74c3c",
       "label": "62,270",
@@ -2999,6 +3253,12 @@
       "label_pos": {
         "x": 646.0,
         "y": 2310.0
+      },
+      "bidirectional": false,
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_OLDTSF",
+        "column": "oldtsf_trtd__TO__oldtsf_old_tsf"
       }
     },
     {
@@ -3022,7 +3282,7 @@
           2323.0
         ]
       ],
-      "flow_type": "dirty",
+      "flow_type": "return",
       "volume": 508180.0,
       "color": "#e74c3c",
       "label": "508,180",
@@ -3030,6 +3290,12 @@
       "label_pos": {
         "x": 739.0,
         "y": 2291.0
+      },
+      "bidirectional": false,
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_OLDTSF",
+        "column": "oldtsf_old_tsf__TO__oldtsf_trtd"
       }
     },
     {
@@ -3045,14 +3311,20 @@
           2323.0
         ]
       ],
-      "flow_type": "dirty",
-      "volume": 5298.0,
+      "flow_type": "drainage",
+      "volume": 508180.0,
       "color": "#e74c3c",
-      "label": "5,298",
+      "label": "508,180",
       "label_offset": 0.5187762727697338,
       "label_pos": {
         "x": 830.0027557216254,
         "y": 2293.6453526389537
+      },
+      "bidirectional": false,
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_OLDTSF",
+        "column": "oldtsf_old_tsf__TO__oldtsf_trtd"
       }
     },
     {
@@ -3076,6 +3348,11 @@
       "label_pos": {
         "x": 1301.0,
         "y": 2108.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_OLDTSF",
+        "column": "oldtsf_offices__TO__oldtsf_off_septic"
       }
     },
     {
@@ -3099,6 +3376,11 @@
       "label_pos": {
         "x": 1297.0,
         "y": 2158.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_OLDTSF",
+        "column": "oldtsf_offices__TO__oldtsf_off_consumption"
       }
     },
     {
@@ -3122,6 +3404,11 @@
       "label_pos": {
         "x": 232.0,
         "y": 1700.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_MERS",
+        "column": "mers_borehole__TO__mers_soft"
       }
     },
     {
@@ -3145,6 +3432,11 @@
       "label_pos": {
         "x": 646.0,
         "y": 1710.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_MERS",
+        "column": "mers_soft__TO__mers_offices"
       }
     },
     {
@@ -3168,6 +3460,11 @@
       "label_pos": {
         "x": 1279.0,
         "y": 1710.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_MERS",
+        "column": "mers_offices__TO__mers_consumption"
       }
     },
     {
@@ -3195,6 +3492,11 @@
       "label_pos": {
         "x": 1277.0,
         "y": 1659.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_MERS",
+        "column": "mers_soft__TO__mers_soft_losses"
       }
     },
     {
@@ -3218,6 +3520,11 @@
       "label_pos": {
         "x": 263.0,
         "y": 1970.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_MERS",
+        "column": "mers_rainfall__TO__mers_mdcdg"
       }
     },
     {
@@ -3241,6 +3548,11 @@
       "label_pos": {
         "x": 1301.0,
         "y": 1984.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_MERS",
+        "column": "mers_mdcdg__TO__mers_mdcd_dust"
       }
     },
     {
@@ -3264,6 +3576,11 @@
       "label_pos": {
         "x": 1301.0,
         "y": 1942.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_MERS",
+        "column": "mers_mdcdg__TO__mers_mdcd_evap"
       }
     },
     {
@@ -3292,7 +3609,12 @@
         "x": 1300.0,
         "y": 1898.0
       },
-      "bidirectional": false
+      "bidirectional": false,
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_MERS",
+        "column": "mers_mdcdg__TO__mers_mdcd_spill"
+      }
     },
     {
       "from": "mers_sd",
@@ -3319,6 +3641,11 @@
       "label_pos": {
         "x": 1145.0,
         "y": 2017.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_MERS",
+        "column": "mers_sd__TO__mers_mdcdg"
       }
     },
     {
@@ -3346,6 +3673,11 @@
       "label_pos": {
         "x": 868.0,
         "y": 1942.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_MERS",
+        "column": "mers_mdcdg__TO__mers_sd"
       }
     },
     {
@@ -3362,13 +3694,18 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": 114169.0,
+      "volume": 114160.0,
       "color": "#4b78a8",
-      "label": "114,169",
+      "label": "114,160",
       "label_offset": 0.3125,
       "label_pos": {
         "x": 238.0,
         "y": 1397.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2S",
+        "column": "ug2s_borehole__TO__ug2s_soft"
       }
     },
     {
@@ -3392,6 +3729,11 @@
       "label_pos": {
         "x": 376.0,
         "y": 1446.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2S",
+        "column": "ug2s_soft__TO__ug2s_res"
       }
     },
     {
@@ -3419,6 +3761,11 @@
       "label_pos": {
         "x": 1277.0,
         "y": 1345.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2S",
+        "column": "ug2s_soft__TO__ug2s_stp_losses"
       }
     },
     {
@@ -3446,6 +3793,11 @@
       "label_pos": {
         "x": 533.0,
         "y": 1463.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2S",
+        "column": "ug2s_res__TO__ug2s_offices"
       }
     },
     {
@@ -3469,6 +3821,11 @@
       "label_pos": {
         "x": 1274.0,
         "y": 1385.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2S",
+        "column": "ug2s_offices__TO__ug2s_consumption"
       }
     },
     {
@@ -3496,6 +3853,11 @@
       "label_pos": {
         "x": 656.0,
         "y": 1424.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2S",
+        "column": "ug2s_offices__TO__ug2s_stp"
       }
     },
     {
@@ -3519,6 +3881,11 @@
       "label_pos": {
         "x": 1275.0,
         "y": 1424.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2S",
+        "column": "ug2s_stp__TO__ug2s_soft_losses"
       }
     },
     {
@@ -3538,7 +3905,7 @@
           1553.0
         ]
       ],
-      "flow_type": "dirty",
+      "flow_type": "runoff",
       "volume": 1225.0,
       "color": "#e74c3c",
       "label": "1,225",
@@ -3546,6 +3913,12 @@
       "label_pos": {
         "x": 1065.0452830188678,
         "y": 1521.2415094339622
+      },
+      "bidirectional": false,
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2S",
+        "column": "ug2s_sdsa__TO__ug2s_mdcdg"
       }
     },
     {
@@ -3565,7 +3938,7 @@
           1553.0
         ]
       ],
-      "flow_type": "dirty",
+      "flow_type": "effluent",
       "volume": 92864.0,
       "color": "#e74c3c",
       "label": "92,864",
@@ -3573,6 +3946,12 @@
       "label_pos": {
         "x": 1132.392630649434,
         "y": 1468.4915308661796
+      },
+      "bidirectional": false,
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2S",
+        "column": "ug2s_stp__TO__ug2s_mdcdg"
       }
     },
     {
@@ -3596,6 +3975,11 @@
       "label_pos": {
         "x": 1274.0,
         "y": 1609.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2S",
+        "column": "ug2s_mdcdg__TO__ug2s_mdcd_dust"
       }
     },
     {
@@ -3619,6 +4003,11 @@
       "label_pos": {
         "x": 1275.0,
         "y": 1567.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2S",
+        "column": "ug2s_mdcdg__TO__ug2s_mdcd_evap"
       }
     },
     {
@@ -3646,6 +4035,11 @@
       "label_pos": {
         "x": 1276.0,
         "y": 1523.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2S",
+        "column": "ug2s_mdcdg__TO__ug2s_mdcd_spill"
       }
     },
     {
@@ -3669,6 +4063,11 @@
       "label_pos": {
         "x": 221.0,
         "y": 1581.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2S",
+        "column": "ug2s_rainfall__TO__ug2s_mdcdg"
       }
     },
     {
@@ -3692,6 +4091,11 @@
       "label_pos": {
         "x": 892.536958605546,
         "y": 1551.0095175292495
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2S",
+        "column": "ug2s_sd__TO__ug2s_mdcdg"
       }
     },
     {
@@ -3719,6 +4123,11 @@
       "label_pos": {
         "x": 796.0,
         "y": 1609.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2S",
+        "column": "ug2s_mdcdg__TO__ug2s_sd"
       }
     },
     {
@@ -3743,7 +4152,12 @@
         "x": 1054.2013311148087,
         "y": 1680.8336106489185
       },
-      "bidirectional": false
+      "bidirectional": false,
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_MERS",
+        "column": "mers_sdsa__TO__ug2s_mdcdg"
+      }
     },
     {
       "from": "mers_mdcdg",
@@ -3770,6 +4184,11 @@
       "label_pos": {
         "x": 1145.0,
         "y": 1842.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_MERS",
+        "column": "mers_mdcdg__TO__ug2s_mdcdg"
       }
     },
     {
@@ -3793,6 +4212,11 @@
       "label_pos": {
         "x": 247.0,
         "y": 1272.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_STOCKPILE",
+        "column": "stockpile_bh_gwa__TO__stockpile_offices"
       }
     },
     {
@@ -3816,6 +4240,11 @@
       "label_pos": {
         "x": 1274.0,
         "y": 1282.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_STOCKPILE",
+        "column": "stockpile_offices__TO__stockpile_consumption"
       }
     },
     {
@@ -3839,6 +4268,11 @@
       "label_pos": {
         "x": 1272.0,
         "y": 1242.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_STOCKPILE",
+        "column": "stockpile_offices__TO__stockpile_septic"
       }
     },
     {
@@ -3862,6 +4296,11 @@
       "label_pos": {
         "x": 227.0,
         "y": 1118.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_STOCKPILE",
+        "column": "stockpile_rainfall_spcd1__TO__spcd1"
       }
     },
     {
@@ -3885,6 +4324,11 @@
       "label_pos": {
         "x": 1270.0,
         "y": 1146.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_STOCKPILE",
+        "column": "spcd1__TO__stockpile_dust_suppression"
       }
     },
     {
@@ -3909,7 +4353,12 @@
         "x": 1270.0,
         "y": 1118.0
       },
-      "bidirectional": false
+      "bidirectional": false,
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_STOCKPILE",
+        "column": "spcd1__TO__stockpile_spill"
+      }
     },
     {
       "from": "spcd1",
@@ -3936,6 +4385,11 @@
       "label_pos": {
         "x": 1268.0,
         "y": 1071.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_STOCKPILE",
+        "column": "spcd1__TO__stockpile_evaporation2"
       }
     },
     {
@@ -3959,6 +4413,11 @@
       "label_pos": {
         "x": 221.0,
         "y": 959.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_STOCKPILE",
+        "column": "stockpile_rainfall__TO__stockpile_area"
       }
     },
     {
@@ -3982,6 +4441,11 @@
       "label_pos": {
         "x": 1266.0,
         "y": 959.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_STOCKPILE",
+        "column": "stockpile_area__TO__stockpile_evaporation"
       }
     },
     {
@@ -4006,9 +4470,14 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": 12435.0,
+      "volume": 4385.0,
       "color": "#e74c3c",
-      "label": "12,435"
+      "label": "4,385",
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_STOCKPILE",
+        "column": "stockpile_area__TO__spcd1"
+      }
     },
     {
       "from": "stockpile_area",
@@ -4027,7 +4496,7 @@
           1090.0
         ]
       ],
-      "flow_type": "dirty",
+      "flow_type": "runoff",
       "volume": 4385.0,
       "color": "#e74c3c",
       "label": "4,385",
@@ -4035,6 +4504,12 @@
       "label_pos": {
         "x": 1053.1371704418864,
         "y": 1017.9705904196064
+      },
+      "bidirectional": false,
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_STOCKPILE",
+        "column": "stockpile_area__TO__spcd1"
       }
     },
     {
@@ -4058,6 +4533,11 @@
       "label_pos": {
         "x": 223.0,
         "y": 766.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2N",
+        "column": "rainfall_merensky__TO__ndcd_merensky"
       }
     },
     {
@@ -4081,6 +4561,11 @@
       "label_pos": {
         "x": 1190.0,
         "y": 794.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2N",
+        "column": "ndcd_merensky__TO__dust_suppression_merensky"
       }
     },
     {
@@ -4104,6 +4589,11 @@
       "label_pos": {
         "x": 1190.0,
         "y": 766.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2N",
+        "column": "ndcd_merensky__TO__evaporation_merensky"
       }
     },
     {
@@ -4128,7 +4618,12 @@
         "x": 1188.0,
         "y": 738.0
       },
-      "bidirectional": false
+      "bidirectional": false,
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2N",
+        "column": "ndcd_merensky__TO__spill_merensky"
+      }
     },
     {
       "from": "merensky_north_shaft",
@@ -4143,7 +4638,7 @@
           738.0
         ]
       ],
-      "flow_type": "dirty",
+      "flow_type": "runoff",
       "volume": 96.0,
       "color": "#e74c3c",
       "label": "96",
@@ -4151,6 +4646,12 @@
       "label_pos": {
         "x": 1064.0,
         "y": 672.0
+      },
+      "bidirectional": false,
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_MERN",
+        "column": "merensky_north_shaft__TO__ndcd_merensky"
       }
     },
     {
@@ -4182,6 +4683,11 @@
       "label_pos": {
         "x": 746.0,
         "y": 838.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_MERN",
+        "column": "merensky_north_decline__TO__ndcd_merensky"
       }
     },
     {
@@ -4204,7 +4710,12 @@
       "flow_type": "ug_return",
       "volume": 90320.0,
       "color": "#e74c3c",
-      "label": "90,320"
+      "label": "90,320",
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_MERN",
+        "column": "ndcd_merensky__TO__merensky_north_decline"
+      }
     },
     {
       "from": "bh_mcgwa",
@@ -4227,6 +4738,11 @@
       "label_pos": {
         "x": 237.0,
         "y": 540.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2N",
+        "column": "bh_mcgwa__TO__softening_merensky"
       }
     },
     {
@@ -4254,6 +4770,11 @@
       "label_pos": {
         "x": 1250.0,
         "y": 490.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2N",
+        "column": "softening_merensky__TO__losses_merensky"
       }
     },
     {
@@ -4277,6 +4798,11 @@
       "label_pos": {
         "x": 609.0,
         "y": 540.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2N",
+        "column": "softening_merensky__TO__offices_merensky"
       }
     },
     {
@@ -4300,6 +4826,11 @@
       "label_pos": {
         "x": 1249.0,
         "y": 540.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2N",
+        "column": "offices_merensky__TO__consumption_merensky"
       }
     },
     {
@@ -4323,6 +4854,11 @@
       "label_pos": {
         "x": 222.0,
         "y": 379.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2N",
+        "column": "rainfall__TO__ndcd"
       }
     },
     {
@@ -4346,6 +4882,11 @@
       "label_pos": {
         "x": 1253.0,
         "y": 365.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2N",
+        "column": "ndcd__TO__spill"
       }
     },
     {
@@ -4369,6 +4910,11 @@
       "label_pos": {
         "x": 1248.0,
         "y": 393.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2N",
+        "column": "ndcd__TO__evaporation"
       }
     },
     {
@@ -4397,7 +4943,12 @@
         "x": 1251.0,
         "y": 429.0
       },
-      "bidirectional": false
+      "bidirectional": false,
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2N",
+        "column": "ndcd__TO__dust_suppression"
+      }
     },
     {
       "from": "bh_ndgwa",
@@ -4413,13 +4964,18 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": 71530.0,
+      "volume": 70000.0,
       "color": "#4b78a8",
-      "label": "71,530",
+      "label": "70,000",
       "label_offset": 0.2469879518072289,
       "label_pos": {
         "x": 229.0,
         "y": 146.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2N",
+        "column": "bh_ndgwa__TO__softening"
       }
     },
     {
@@ -4443,6 +4999,11 @@
       "label_pos": {
         "x": 414.0,
         "y": 178.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2N",
+        "column": "softening__TO__reservoir"
       }
     },
     {
@@ -4474,6 +5035,11 @@
       "label_pos": {
         "x": 515.0,
         "y": 213.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2N",
+        "column": "reservoir__TO__offices"
       }
     },
     {
@@ -4501,6 +5067,11 @@
       "label_pos": {
         "x": 478.0,
         "y": 77.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2N",
+        "column": "softening__TO__guest_house"
       }
     },
     {
@@ -4524,6 +5095,11 @@
       "label_pos": {
         "x": 1231.0,
         "y": 77.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2N",
+        "column": "guest_house__TO__septic"
       }
     },
     {
@@ -4551,6 +5127,11 @@
       "label_pos": {
         "x": 1231.0,
         "y": 118.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2N",
+        "column": "guest_house__TO__consumption"
       }
     },
     {
@@ -4574,6 +5155,11 @@
       "label_pos": {
         "x": 1233.0,
         "y": 164.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2N",
+        "column": "softening__TO__losses"
       }
     },
     {
@@ -4598,13 +5184,18 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": 14246.0,
+      "volume": 1112.0,
       "color": "#4b78a8",
-      "label": "14,246",
+      "label": "1,112",
       "label_offset": 0.8666666666666667,
       "label_pos": {
         "x": 1233.0,
         "y": 207.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2N",
+        "column": "offices__TO__consumption2"
       }
     },
     {
@@ -4628,6 +5219,11 @@
       "label_pos": {
         "x": 624.0,
         "y": 233.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2N",
+        "column": "offices__TO__sewage"
       }
     },
     {
@@ -4651,6 +5247,11 @@
       "label_pos": {
         "x": 1246.0,
         "y": 285.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2N",
+        "column": "sewage__TO__losses2"
       }
     },
     {
@@ -4666,14 +5267,20 @@
           351.0
         ]
       ],
-      "flow_type": "dirty",
-      "volume": 33240.0,
+      "flow_type": "runoff",
+      "volume": 17288.0,
       "color": "#e74c3c",
-      "label": "33,240",
+      "label": "17,288",
       "label_offset": 0.17346938775510204,
       "label_pos": {
         "x": 1095.0,
         "y": 270.0
+      },
+      "bidirectional": false,
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2N",
+        "column": "north_shaft__TO__ndcd"
       }
     },
     {
@@ -4701,6 +5308,11 @@
       "label_pos": {
         "x": 914.0,
         "y": 434.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2N",
+        "column": "north_decline__TO__ndcd"
       }
     },
     {
@@ -4728,6 +5340,11 @@
       "label_pos": {
         "x": 915.0,
         "y": 365.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2N",
+        "column": "ndcd__TO__north_decline"
       }
     },
     {
@@ -4755,10 +5372,15 @@
       "volume": 14132.0,
       "color": "#e74c3c",
       "label": "14,132",
-      "label_offset": 0.800603318250377,
+      "label_offset": 0.7334841628959277,
       "label_pos": {
-        "x": 624.5981900452489,
-        "y": 331.11493212669683
+        "x": 624.7995475113122,
+        "y": 340.57873303167423
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2N",
+        "column": "offices_merensky__TO__sewage"
       }
     },
     {
@@ -4790,6 +5412,11 @@
       "label_pos": {
         "x": 744.0,
         "y": 1505.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_MERS",
+        "column": "mers_offices__TO__ug2s_stp"
       }
     },
     {
@@ -4825,6 +5452,11 @@
       "label_pos": {
         "x": 1024.0,
         "y": 3295.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_MERP",
+        "column": "ndcd__TO__merplant_mprwsd1"
       }
     },
     {
@@ -4856,6 +5488,11 @@
       "label_pos": {
         "x": 938.0,
         "y": 3260.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_MERP",
+        "column": "merplant_mprwsd1__TO__oldtsf_trtd"
       }
     },
     {
@@ -4879,6 +5516,11 @@
       "label_pos": {
         "x": 1322.995907391742,
         "y": 2942.882599798678
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2P",
+        "column": "ug2plant_ug2pcd1__TO__ug2plant_ug2pcd1_spill"
       }
     },
     {
@@ -4914,6 +5556,11 @@
       "label_pos": {
         "x": 518.0,
         "y": 3244.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_MERP",
+        "column": "merplant_merp_plant__TO__oldtsf_old_tsf"
       }
     },
     {
@@ -4937,7 +5584,7 @@
           365.0
         ]
       ],
-      "flow_type": "dirty",
+      "flow_type": "effluent",
       "volume": 46425.0,
       "color": "#e74c3c",
       "label": "46,425",
@@ -4951,6 +5598,11 @@
       "label_pos": {
         "x": 979.0,
         "y": 303.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2N",
+        "column": "sewage__TO__junction_127_1208_365"
       }
     },
     {
@@ -4983,6 +5635,11 @@
       "junction_pos": {
         "x": 1229.0,
         "y": 842.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2N",
+        "column": "ndcd_merensky__TO__junction_128_1229_842"
       }
     },
     {
@@ -5028,6 +5685,11 @@
       "label_pos": {
         "x": 1140.5789821546596,
         "y": 1210.1559814937211
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_STOCKPILE",
+        "column": "spcd1__TO__junction_129_1140_1242"
       }
     },
     {
@@ -5060,6 +5722,11 @@
       "junction_pos": {
         "x": 1229.0,
         "y": 1793.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2S",
+        "column": "ug2s_mdcdg__TO__junction_130_1229_1793"
       }
     },
     {
@@ -5097,6 +5764,11 @@
       "label_pos": {
         "x": 1185.0,
         "y": 2045.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_MERS",
+        "column": "mers_mdcdg__TO__junction_131_1229_2072"
       }
     },
     {
@@ -5117,7 +5789,12 @@
       "color": "#e74c3c",
       "label": "283,639",
       "bidirectional": false,
-      "is_junction": false
+      "is_junction": false,
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_OLDTSF",
+        "column": "junction_132_288_2496__TO__oldtsf_new_tsf"
+      }
     },
     {
       "from": "ug2plant_ug2p_plant",
@@ -5141,6 +5818,11 @@
       "junction_pos": {
         "x": 288.0,
         "y": 2922.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2P",
+        "column": "ug2plant_ug2p_plant__TO__junction_133_288_2922"
       }
     },
     {
@@ -5166,6 +5848,11 @@
       "label_pos": {
         "x": 1113.0391307516052,
         "y": 2880.482661182586
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2P",
+        "column": "junction_134_1193_2880__TO__ug2plant_ug2p_plant"
       }
     },
     {
@@ -5195,6 +5882,11 @@
       "label_pos": {
         "x": 750.9809470240405,
         "y": 2856.098077258536
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2P",
+        "column": "ug2plant_ug2p_plant__TO__junction_135_1229_2857"
       }
     },
     {
@@ -5228,6 +5920,11 @@
       "label_pos": {
         "x": 963.6439273190947,
         "y": 3523.940070130698
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_MERP",
+        "column": "merplant_merp_plant__TO__merplant_mpswd12"
       }
     },
     {
@@ -5261,39 +5958,11 @@
       "label_pos": {
         "x": 1051.1981755524023,
         "y": 3446.2216095682143
-      }
-    },
-    {
-      "from": "ug2plant_ug2p_plant",
-      "to": "ug2plant_ug2pcd1",
-      "segments": [
-        [
-          962.0,
-          2801.0
-        ],
-        [
-          1071.0,
-          2802.0
-        ],
-        [
-          1071.0,
-          2802.0
-        ],
-        [
-          1072.0,
-          2925.0
-        ]
-      ],
-      "flow_type": "dirty",
-      "volume": 22227.0,
-      "color": "#e74c3c",
-      "label": "22,227",
-      "bidirectional": false,
-      "is_junction": false,
-      "label_offset": 0.18049711047522865,
-      "label_pos": {
-        "x": 1021.0225551253998,
-        "y": 2801.5414913314257
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_MERP",
+        "column": "merplant_mpswd12__TO__merplant_merp_plant"
       }
     },
     {
@@ -5326,15 +5995,20 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": 25328.0,
+      "volume": 22227.0,
       "color": "#e74c3c",
-      "label": "25,328",
+      "label": "22,227",
       "bidirectional": false,
       "is_junction": false,
       "label_offset": 0.48514851485148514,
       "label_pos": {
         "x": 956.0,
         "y": 3030.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2P",
+        "column": "ug2plant_ug2p_plant__TO__ug2plant_ug2pcd1"
       }
     },
     {
@@ -5359,6 +6033,11 @@
       "recirculation_pos": {
         "x": 1055.0,
         "y": 3604.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_MERP",
+        "column": "merplant_mpswd12__TO__merplant_mpswd12"
       }
     },
     {
@@ -5383,6 +6062,11 @@
       "recirculation_pos": {
         "x": 1128.0,
         "y": 3009.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2P",
+        "column": "ug2plant_ug2pcd1__TO__ug2plant_ug2pcd1"
       }
     },
     {
@@ -5407,6 +6091,11 @@
       "recirculation_pos": {
         "x": 621.0,
         "y": 2623.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_OLDTSF",
+        "column": "oldtsf_nt_rwd__TO__oldtsf_nt_rwd"
       }
     },
     {
@@ -5431,6 +6120,11 @@
       "recirculation_pos": {
         "x": 847.0,
         "y": 2435.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_OLDTSF",
+        "column": "oldtsf_new_tsf__TO__oldtsf_new_tsf"
       }
     },
     {
@@ -5455,6 +6149,11 @@
       "recirculation_pos": {
         "x": 644.0,
         "y": 2382.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_OLDTSF",
+        "column": "oldtsf_trtd__TO__oldtsf_trtd"
       }
     },
     {
@@ -5479,6 +6178,11 @@
       "recirculation_pos": {
         "x": 878.0,
         "y": 2187.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_OLDTSF",
+        "column": "oldtsf_old_tsf__TO__oldtsf_old_tsf"
       }
     },
     {
@@ -5495,14 +6199,19 @@
         ]
       ],
       "flow_type": "recirculation",
-      "volume": 77.0,
+      "volume": 77.7,
       "color": "#9b59b6",
-      "label": "77",
+      "label": "78",
       "bidirectional": false,
       "is_recirculation": true,
       "recirculation_pos": {
         "x": 1082.0,
         "y": 1995.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_MERS",
+        "column": "mers_mdcdg__TO__mers_mdcdg"
       }
     },
     {
@@ -5527,6 +6236,11 @@
       "recirculation_pos": {
         "x": 1119.0,
         "y": 1542.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2S",
+        "column": "ug2s_mdcdg__TO__ug2s_mdcdg"
       }
     },
     {
@@ -5551,6 +6265,11 @@
       "recirculation_pos": {
         "x": 998.0,
         "y": 1083.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_STOCKPILE",
+        "column": "spcd1__TO__spcd1"
       }
     },
     {
@@ -5575,6 +6294,11 @@
       "recirculation_pos": {
         "x": 740.0,
         "y": 915.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_STOCKPILE",
+        "column": "stockpile_area__TO__stockpile_area"
       }
     },
     {
@@ -5599,6 +6323,11 @@
       "recirculation_pos": {
         "x": 1006.0,
         "y": 803.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2N",
+        "column": "ndcd_merensky__TO__ndcd_merensky"
       }
     },
     {
@@ -5623,6 +6352,49 @@
       "recirculation_pos": {
         "x": 1010.0,
         "y": 408.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2N",
+        "column": "ndcd__TO__ndcd"
+      }
+    },
+    {
+      "from": "ug2plant_ug2pcd1",
+      "to": "ug2plant_ug2p_plant",
+      "segments": [
+        [
+          1072.0,
+          2925.0
+        ],
+        [
+          1071.0,
+          2800.0
+        ],
+        [
+          1071.0,
+          2800.0
+        ],
+        [
+          962.0,
+          2801.0
+        ]
+      ],
+      "flow_type": "dirty",
+      "volume": 22227.0,
+      "color": "#e74c3c",
+      "label": "22,227",
+      "bidirectional": false,
+      "is_junction": false,
+      "label_offset": 0.2346943128973079,
+      "label_pos": {
+        "x": 1071.295917061308,
+        "y": 2836.9896326635094
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2P",
+        "column": "ug2plant_ug2p_plant__TO__ug2plant_ug2pcd1"
       }
     }
   ],
