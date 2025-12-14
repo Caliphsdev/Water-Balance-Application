@@ -42,7 +42,7 @@ class DetailedNetworkFlowDiagram:
         self.nodes_by_id = {}
         self.snap_to_grid = False
         self.grid_size = 20
-        self.show_grid = False
+        self.show_grid = True
         self.locked_nodes = {}  # {node_id: True/False}
         
         # Drawing mode
@@ -57,11 +57,18 @@ class DetailedNetworkFlowDiagram:
         self.label_items = {}  # {canvas_id: edge_index}
         self.edge_to_label_items = {}  # {edge_idx: [box_id, text_id]}
         
+        # Recirculation dragging
+        self.dragging_recirculation = False
+        self.dragged_recirculation_edge_idx = None
+        self.recirculation_drag_start_x = 0
+        self.recirculation_drag_start_y = 0
+        self.recirculation_locked = {}  # {edge_idx: True/False}
+        
         # Redraw state (track which edge is being redrawn)
         self.redraw_edge_index = None
         
         # Snap to component
-        self.snap_distance = 30  # pixels to snap
+        self.snap_distance = 15  # pixels to snap (reduced for precision)
         self.snap_anchor_points = {}  # {node_id: [anchor_points]}
         self.hovered_anchor = None  # Currently hovered anchor point
         
@@ -124,35 +131,33 @@ class DetailedNetworkFlowDiagram:
         Button(button_frame, text='✏️ Draw Flow Line', command=self._start_drawing,
                bg='#3498db', fg='white', font=('Segoe UI', 9), padx=10).pack(side='left', padx=5)
         
-        Button(button_frame, text='� Redraw Line', command=self._start_redrawing,
+        Button(button_frame, text='🎨 Edit Line', command=self._edit_line,
                bg='#9b59b6', fg='white', font=('Segoe UI', 9), padx=10).pack(side='left', padx=5)
         
         Button(button_frame, text='🗑️ Delete Line', command=self._delete_line,
                bg='#e74c3c', fg='white', font=('Segoe UI', 9), padx=10).pack(side='left', padx=5)
         
-        Button(button_frame, text='📏 Straighten', command=self._straighten_line,
+        Button(button_frame, text='♻️ Add Recirculation', command=self._add_recirculation,
                bg='#16a085', fg='white', font=('Segoe UI', 9), padx=10).pack(side='left', padx=5)
+        
+        # Lock/Unlock button for recirculation
+        Button(button_frame, text='🔒 Lock Recirculation', command=self._toggle_recirculation_lock,
+               bg='#95a5a6', fg='white', font=('Segoe UI', 9), padx=10).pack(side='left', padx=5)
         
         Button(button_frame, text='💾 Save', command=self._save_to_json,
                bg='#27ae60', fg='white', font=('Segoe UI', 9), padx=10).pack(side='left', padx=5)
         
-        Button(button_frame, text='↺ Reload', command=self._reload_from_json,
-               bg='#e67e22', fg='white', font=('Segoe UI', 9), padx=10).pack(side='left', padx=5)
-        
-        Button(button_frame, text='🧲 Snap Grid', command=self._toggle_snap_grid,
-               bg='#7f8c8d', fg='white', font=('Segoe UI', 9), padx=10).pack(side='left', padx=5)
-        
-        Button(button_frame, text='📐 Show Grid', command=self._toggle_show_grid,
-               bg='#95a5a6', fg='white', font=('Segoe UI', 9), padx=10).pack(side='left', padx=5)
-        
-        Button(button_frame, text='⏹ Align All', command=self._align_to_grid,
-               bg='#8e44ad', fg='white', font=('Segoe UI', 9), padx=10).pack(side='left', padx=5)
         
         Button(button_frame, text='🔒 Lock/Unlock', command=self._toggle_lock_selected,
                bg='#c0392b', fg='white', font=('Segoe UI', 9), padx=10).pack(side='left', padx=5)
 
+        Button(button_frame, text='➕ Zoom In', command=lambda: self._zoom(1.1),
+               bg='#2ecc71', fg='white', font=('Segoe UI', 9), padx=10).pack(side='right', padx=5)
+        Button(button_frame, text='➖ Zoom Out', command=lambda: self._zoom(0.9),
+               bg='#e67e22', fg='white', font=('Segoe UI', 9), padx=10).pack(side='right', padx=5)
+
         info = Label(controls, 
-                    text='DRAG COMPONENTS to move | SELECT + "Lock/Unlock" to lock position | GRID: Snap when moving, Show for alignment',
+                    text='DRAG COMPONENTS to move | SELECT + "Lock/Unlock" to lock position | GRID: Always visible (20px intervals)',
                     font=('Segoe UI', 8), bg='#2c3e50', fg='#ecf0f1')
         info.pack(pady=2)
 
@@ -175,7 +180,8 @@ class DetailedNetworkFlowDiagram:
 
         canvas_frame.grid_rowconfigure(0, weight=1)
         canvas_frame.grid_columnconfigure(0, weight=1)
-        self.canvas.configure(scrollregion=(0, 0, 2400, 1200))
+        # Initial scrollregion; will be tightened in _draw_diagram
+        self.canvas.configure(scrollregion=(0, 0, 2000, 1200))
 
         # Event bindings
         self.canvas.bind('<Button-1>', self._on_canvas_click)
@@ -185,9 +191,8 @@ class DetailedNetworkFlowDiagram:
         self.canvas.bind('<Motion>', self._on_canvas_motion)
 
     def _toggle_snap_grid(self):
-        self.snap_to_grid = not self.snap_to_grid
-        state = '✅ Enabled' if self.snap_to_grid else '❌ Disabled'
-        messagebox.showinfo('Grid Snap', f'Grid snapping {state}\n\nComponents will snap to {self.grid_size}px grid when dragging.')
+        # Feature removed per request
+        messagebox.showinfo('Grid Snap', 'Snap to grid feature removed')
     
     def _toggle_show_grid(self):
         self.show_grid = not self.show_grid
@@ -211,17 +216,7 @@ class DetailedNetworkFlowDiagram:
         self._draw_diagram()
 
     def _align_to_grid(self):
-        nodes = self.area_data.get('nodes', [])
-        aligned_count = 0
-        for node in nodes:
-            # Only align unlocked nodes
-            if not self.locked_nodes.get(node['id'], False):
-                node['x'] = round(node['x'] / self.grid_size) * self.grid_size
-                node['y'] = round(node['y'] / self.grid_size) * self.grid_size
-                aligned_count += 1
-        self._draw_diagram()
-        locked_count = len([n for n in nodes if self.locked_nodes.get(n['id'], False)])
-        messagebox.showinfo('Aligned', f'✅ {aligned_count} components aligned to grid\n🔒 {locked_count} locked components skipped')
+        messagebox.showinfo('Align', 'Align to grid feature removed')
 
     def _find_nearest_anchor(self, node_id, click_x, click_y):
         """Find nearest anchor point on component, snap if within snap_distance"""
@@ -247,6 +242,10 @@ class DetailedNetworkFlowDiagram:
 
     def _get_node_area(self, node_id):
         """Determine which area a node belongs to based on its y-position"""
+        # Handle junction connections (not real nodes)
+        if node_id.startswith('junction_'):
+            return "Junction"
+        
         if node_id not in self.nodes_by_id:
             return "Unknown"
         
@@ -280,6 +279,12 @@ class DetailedNetworkFlowDiagram:
 
     def _format_node_name(self, node_id):
         """Format node name for display - remove prefix and make readable"""
+        # Friendly name for virtual junctions
+        if isinstance(node_id, str) and node_id.startswith('junction_'):
+            parts = node_id.split('_')
+            if len(parts) >= 4:
+                return f"Junction ({parts[-2]}, {parts[-1]})"
+            return "Junction"
         if node_id not in self.nodes_by_id:
             return node_id
         
@@ -315,6 +320,9 @@ class DetailedNetworkFlowDiagram:
                 updated = True
             
             if updated:
+                # Clear manually-positioned label so it follows the moved line
+                if 'label_pos' in edge:
+                    del edge['label_pos']
                 logger.debug(f"📌 Updated edge {edge.get('from')} → {edge.get('to')}")
 
     def _straighten_edge(self, edge_idx):
@@ -390,12 +398,17 @@ class DetailedNetworkFlowDiagram:
         self.edge_to_label_items = {}  # Reverse mapping (edge_idx -> [box_id, text_id])
 
         # Update scroll region dynamically based on diagram size (adds padding for panning)
-        area_width = self.area_data.get('width', 1800)
-        area_height = self.area_data.get('height', 1200)
-        pad = 200
-        scroll_w = area_width + pad
-        scroll_h = area_height + pad
+        # Tighten scroll region to actual content bounds to avoid large empty space
+        nodes = self.area_data.get('nodes', [])
+        max_x = max([(n.get('x',0) + n.get('width',0)) for n in nodes] + [0])
+        max_y = max([(n.get('y',0) + n.get('height',0)) for n in nodes] + [0])
+        pad_x = 150
+        pad_y = 150
+        scroll_w = max_x + pad_x
+        scroll_h = max_y + pad_y
         self.canvas.configure(scrollregion=(0, 0, scroll_w, scroll_h))
+
+        # Ensure outflow area stays near view: adjust canvas size subtly
 
         # Draw zone backgrounds (multiple areas)
         zone_bgs = self.area_data.get('zone_bg', None)
@@ -418,8 +431,8 @@ class DetailedNetworkFlowDiagram:
 
         # Draw grid lines if enabled
         if self.show_grid:
-            canvas_width = scroll_w
-            canvas_height = scroll_h
+            canvas_width = int(scroll_w)
+            canvas_height = int(scroll_h)
             for x in range(0, canvas_width, self.grid_size):
                 self.canvas.create_line(x, 0, x, canvas_height, fill='#e0e0e0', width=1, tags='grid')
             for y in range(0, canvas_height, self.grid_size):
@@ -575,14 +588,19 @@ class DetailedNetworkFlowDiagram:
             if 'locked' in node:
                 self.locked_nodes[node['id']] = node['locked']
 
+        # Draw nodes first, then edges, then raise edges so arrowheads stay visible
+        # Draw nodes
+        for node in nodes:
+            self._draw_node(node)
+
         # Draw edges (manual segments - independent from nodes)
         edges = self.area_data.get('edges', [])
         for idx, edge in enumerate(edges):
             self._draw_edge_segments(edge, idx)
 
-        # Draw nodes
-        for node in nodes:
-            self._draw_node(node)
+        # Ensure flow lines and labels render above nodes (important for dams/ovals)
+        self.canvas.tag_raise('flow_line')
+        self.canvas.tag_raise('flow_label')
 
         # Draw current drawing segments if in drawing mode
         if self.drawing_mode and len(self.drawing_segments) > 0:
@@ -700,6 +718,58 @@ class DetailedNetworkFlowDiagram:
         # Return exact click point - user has full control
         return click_x, click_y
 
+    def _draw_recirculation_icon(self, edge, edge_idx):
+        """Draw recirculation loop as an outline rectangle with label inside - draggable (unless locked)"""
+        color = edge.get('color', '#9b59b6')
+        label = edge.get('label', '')
+        component_id = edge.get('from')
+        
+        if component_id not in self.nodes_by_id:
+            return
+        
+        node = self.nodes_by_id[component_id]
+        
+        # Get recirculation position or default to right of component
+        loop_data = edge.get('recirculation_pos', {})
+        if isinstance(loop_data, dict) and 'x' in loop_data and 'y' in loop_data:
+            cx = float(loop_data['x'])
+            cy = float(loop_data['y'])
+        else:
+            # Default position: to the right of the component, middle height
+            cx = node['x'] + node['width'] + 35
+            cy = node['y'] + node['height'] / 2
+        
+        # Draw outline rectangle (40x28 pixels = 80% of original 50x35) - 20% smaller
+        rect_width = 40
+        rect_height = 28
+        x1 = cx - rect_width/2
+        y1 = cy - rect_height/2
+        x2 = cx + rect_width/2
+        y2 = cy + rect_height/2
+        
+        # Check if this recirculation is locked
+        is_locked = self.recirculation_locked.get(edge_idx, False)
+        outline_color = color if not is_locked else '#7f8c8d'  # Gray if locked
+        dash_pattern = () if not is_locked else (4, 2)  # Dashed if locked
+        
+        rect_id = self.canvas.create_rectangle(x1, y1, x2, y2, fill='', outline=outline_color, 
+                                               width=2, dash=dash_pattern, tags=('flow_line', 'recirculation'))
+        
+        # Draw label text directly inside the rectangle
+        if label:
+            # Add lock symbol if locked
+            display_label = label if not is_locked else f"🔒 {label}"
+            text_id = self.canvas.create_text(cx, cy, text=display_label,
+                                             font=('Segoe UI', 8, 'bold'), fill=outline_color,
+                                             anchor='center', tags=('flow_label', 'recirculation_label'))
+            
+            # Store for dragging - mark this rectangle as draggable recirculation (if not locked)
+            if not is_locked:
+                self.label_items[rect_id] = edge_idx
+                self.label_items[text_id] = edge_idx
+                self.edge_to_label_items[edge_idx] = [rect_id, text_id]
+
+
     def _draw_edge_segments(self, edge, edge_idx):
         """Draw flow line with manual control and proper arrow placement"""
         segments = edge.get('segments', [])
@@ -707,13 +777,47 @@ class DetailedNetworkFlowDiagram:
         label = edge.get('label', '')
         from_id = edge.get('from')
         to_id = edge.get('to')
+        is_junction = edge.get('is_junction', False)
+        is_junction_start = bool(edge.get('is_junction_start', False))
         
-        # Validate components exist
-        if from_id not in self.nodes_by_id or to_id not in self.nodes_by_id:
+        # Check if this is a recirculation loop - render as special icon instead of line
+        is_recirculation = edge.get('is_recirculation', False)
+        if is_recirculation:
+            self._draw_recirculation_icon(edge, edge_idx)
             return
         
-        from_node = self.nodes_by_id[from_id]
-        to_node = self.nodes_by_id[to_id]
+        # Determine start endpoint: component or junction
+        from_node = None
+        junction_start_pos = None
+        if is_junction_start or (isinstance(from_id, str) and from_id.startswith('junction_')):
+            # Start from a junction; use stored coordinates
+            jpos = edge.get('junction_start_pos')
+            if isinstance(jpos, dict) and 'x' in jpos and 'y' in jpos:
+                junction_start_pos = (float(jpos['x']), float(jpos['y']))
+            else:
+                # If segments exist, trust first segment as start
+                if len(segments) >= 1:
+                    junction_start_pos = (segments[0][0], segments[0][1])
+            if junction_start_pos is None:
+                return
+        else:
+            # Validate from component exists
+            if from_id not in self.nodes_by_id:
+                return
+            from_node = self.nodes_by_id[from_id]
+        
+        # Handle junction connections (line-to-line) vs component connections
+        if is_junction:
+            # Endpoint is on another flow line, not a component
+            junction_pos = edge.get('junction_pos', {})
+            if not junction_pos:
+                return  # Invalid junction
+            to_node = None
+        else:
+            # Normal component-to-component connection
+            if to_id not in self.nodes_by_id:
+                return
+            to_node = self.nodes_by_id[to_id]
         
         # Use stored segment points directly - full manual control
         if len(segments) >= 2:
@@ -724,12 +828,18 @@ class DetailedNetworkFlowDiagram:
             # Fallback to center if no segments stored
             from_x = from_node['x'] + from_node['width'] / 2
             from_y = from_node['y'] + from_node['height'] / 2
-            to_x = to_node['x'] + to_node['width'] / 2
-            to_y = to_node['y'] + to_node['height'] / 2
+            if is_junction:
+                # Junction endpoint uses stored coordinates
+                junction_pos = edge.get('junction_pos', {})
+                to_x = junction_pos.get('x', from_x)
+                to_y = junction_pos.get('y', from_y)
+            else:
+                to_x = to_node['x'] + to_node['width'] / 2
+                to_y = to_node['y'] + to_node['height'] / 2
 
         # Calculate intersection with component edge for precise arrow head placement
-        def get_edge_intersection(x1, y1, x2, y2, node):
-            """Calculate where line intersects component boundary"""
+        def get_edge_intersection(x1, y1, x2, y2, node, arrow_pad=10):
+            """Calculate where line intersects component boundary and pull back by arrow_pad"""
             # Rectangle bounds
             left = node['x']
             right = node['x'] + node['width']
@@ -740,31 +850,44 @@ class DetailedNetworkFlowDiagram:
             is_oval = node.get('shape') == 'oval'
             
             if is_oval:
-                # For ovals, calculate intersection with ellipse
+                # For ovals, calculate accurate line-ellipse intersection
                 cx = (left + right) / 2
                 cy = (top + bottom) / 2
                 rx = node['width'] / 2
                 ry = node['height'] / 2
-                
-                # Direction from x1,y1 to x2,y2
+
                 dx = x2 - x1
                 dy = y2 - y1
-                length = (dx*dx + dy*dy)**0.5
-                if length < 1e-6:
+                if abs(dx) < 1e-6 and abs(dy) < 1e-6:
                     return x2, y2
-                
-                # Normalize direction
-                dx_norm = dx / length
-                dy_norm = dy / length
-                
-                # Calculate intersection with ellipse
-                # Parametric: point = (cx + rx*cos(t), cy + ry*sin(t))
-                # We need to find t where line from (x1,y1) in direction (dx,dy) intersects ellipse
-                # Approximation: Move from center towards direction until we hit boundary
-                t = min(rx, ry) * 0.9  # Start near edge
-                intersect_x = cx + dx_norm * t * (rx / min(rx, ry))
-                intersect_y = cy + dy_norm * t * (ry / min(rx, ry))
-                
+
+                # Solve quadratic for t where (x1+dx*t, y1+dy*t) hits ellipse boundary
+                # ((x-cx)^2)/rx^2 + ((y-cy)^2)/ry^2 = 1
+                a = (dx*dx)/(rx*rx) + (dy*dy)/(ry*ry)
+                b = 2*((x1-cx)*dx/(rx*rx) + (y1-cy)*dy/(ry*ry))
+                c = ((x1-cx)*(x1-cx))/(rx*rx) + ((y1-cy)*(y1-cy))/(ry*ry) - 1
+
+                disc = b*b - 4*a*c
+                if disc < 0 or abs(a) < 1e-12:
+                    return x2, y2
+
+                sqrt_disc = disc ** 0.5
+                t1 = (-b - sqrt_disc) / (2*a)
+                t2 = (-b + sqrt_disc) / (2*a)
+                candidates_t = [t for t in (t1, t2) if t > 0]
+                if not candidates_t:
+                    return x2, y2
+
+                t_hit = min(candidates_t)
+                intersect_x = x1 + dx * t_hit
+                intersect_y = y1 + dy * t_hit
+
+                # Pull back by arrow_pad to keep arrowhead outside the oval
+                length = (dx*dx + dy*dy) ** 0.5
+                if length > 1e-6 and arrow_pad > 0:
+                    intersect_x -= dx / length * arrow_pad
+                    intersect_y -= dy / length * arrow_pad
+
                 return intersect_x, intersect_y
             else:
                 # Rectangle intersection
@@ -806,8 +929,12 @@ class DetailedNetworkFlowDiagram:
                 if candidates:
                     # Sort by t parameter (closest to start point)
                     candidates.sort(key=lambda c: c[2])
-                    # Return the last one (closest to target)
-                    return candidates[-1][0], candidates[-1][1]
+                    ix, iy, _ = candidates[-1]
+                    length = (dx*dx + dy*dy) ** 0.5
+                    if length > 1e-6 and arrow_pad > 0:
+                        ix -= dx / length * arrow_pad
+                        iy -= dy / length * arrow_pad
+                    return ix, iy
                 
                 return x2, y2
 
@@ -822,32 +949,54 @@ class DetailedNetworkFlowDiagram:
                     # All points except the last
                     path_points.extend(seg)
                 else:
-                    # For last segment, calculate intersection with target component
+                    # For last segment, calculate intersection with target
                     if len(segments) >= 2:
                         # Get second-to-last point
                         prev_x, prev_y = segments[-2]
                         target_x, target_y = seg
                         
-                        # Calculate where arrow should stop at component edge
-                        intersect_x, intersect_y = get_edge_intersection(
-                            prev_x, prev_y, target_x, target_y, to_node
-                        )
-                        
-                        path_points.extend([intersect_x, intersect_y])
+                        if is_junction:
+                            # Junction endpoint - use exact coordinates
+                            path_points.extend([target_x, target_y])
+                        else:
+                            # Component endpoint - calculate intersection with edge and keep arrowhead outside
+                            intersect_x, intersect_y = get_edge_intersection(
+                                prev_x, prev_y, target_x, target_y, to_node, arrow_pad=10
+                            )
+                            path_points.extend([intersect_x, intersect_y])
                     else:
                         path_points.extend(seg)
+            # If starting from a junction, ensure the start point is the junction_start_pos
+            if junction_start_pos is not None:
+                # Replace the first coordinate pair with junction start to avoid relying on component center
+                if len(path_points) >= 2:
+                    path_points[0] = junction_start_pos[0]
+                    path_points[1] = junction_start_pos[1]
             
-            # Draw the polyline with arrow - arrow will now stop at component edge
-            self.canvas.create_line(*path_points, fill=color, width=1.2, 
-                                   arrow='last', arrowshape=(9.6, 12, 4.8), smooth=False)
+            # Draw the polyline with arrow(s). Always show direction; enlarge arrowheads for visibility.
+            arrowshape = (12, 15, 6)
+            arrow_opt = 'both' if bool(edge.get('bidirectional', False)) else 'last'
+            line_id = self.canvas.create_line(*path_points, fill=color, width=1.2,
+                                   arrow=arrow_opt, arrowshape=arrowshape, smooth=False, tags=('flow_line',))
+            # Ensure arrows render above component fills (especially dams/ovals)
+            self.canvas.tag_raise(line_id)
             
-            # Draw label (prefer persisted absolute position if available)
+            # Draw junction marker if this is a line-to-line connection
+            if is_junction and len(path_points) >= 2:
+                # Draw a small circle at the junction point to make it visible
+                jx, jy = path_points[-2], path_points[-1]
+                self.canvas.create_oval(jx-3, jy-3, jx+3, jy+3, fill=color, outline='white', width=1)
+            
+            # Draw label - prefer manually-positioned labels, otherwise calculate from segments
             if label:
+                # Check if label has been manually positioned (dragged by user)
                 label_pos = edge.get('label_pos')
                 if isinstance(label_pos, dict) and 'x' in label_pos and 'y' in label_pos:
+                    # Use stored position from manual drag
                     mid_x = float(label_pos['x'])
                     mid_y = float(label_pos['y'])
                 else:
+                    # Recalculate from current path_points to follow component movement
                     label_offset = edge.get('label_offset', 0.5)
                     total_segments = len(path_points) // 2 - 1
                     if total_segments > 0:
@@ -877,10 +1026,13 @@ class DetailedNetworkFlowDiagram:
         logger.warning(f"Edge {from_id} -> {to_id} has no segments, using node centers")
         
         # Calculate intersection for arrow placement
-        intersect_x, intersect_y = get_edge_intersection(from_x, from_y, to_x, to_y, to_node)
-        
-        self.canvas.create_line(from_x, from_y, intersect_x, intersect_y,
-                               fill=color, width=1.2, arrow='last', arrowshape=(9.6, 12, 4.8))
+        intersect_x, intersect_y = get_edge_intersection(from_x, from_y, to_x, to_y, to_node, arrow_pad=10)
+
+        arrowshape = (12, 15, 6)
+        arrow_opt = 'both' if bool(edge.get('bidirectional', False)) else 'last'
+        line_id = self.canvas.create_line(from_x, from_y, intersect_x, intersect_y,
+                       fill=color, width=1.2, arrow=arrow_opt, arrowshape=arrowshape, tags=('flow_line',))
+        self.canvas.tag_raise(line_id)
         if label:
             label_offset = edge.get('label_offset', 0.5)
             mid_x = from_x + (intersect_x - from_x) * label_offset
@@ -898,51 +1050,160 @@ class DetailedNetworkFlowDiagram:
             logger.debug(f"Tracked fallback label for edge {edge_idx}: box={box_id}, text={text_id}")
 
     def _start_redrawing(self):
-        """Start redrawing an existing flow line"""
+        """Deprecated - replaced by _edit_line"""
+        self._edit_line()
+
+    def _straighten_line(self):
+        """Deprecated - feature removed"""
+        messagebox.showinfo("Straighten", "Straighten feature removed. Use Edit Line to manage paths and styles.")
+
+    def _edit_line(self):
+        """Edit flow line properties: type, color, volume, bidirectional"""
         edges = self.area_data.get('edges', [])
         if not edges:
-            messagebox.showwarning("No Flows", "No flow lines to redraw")
+            messagebox.showwarning("No Flows", "No flow lines to edit")
             return
+
+        dialog = tk.Toplevel(self.canvas)
+        dialog.title("Edit Flow Line")
+        dialog.transient(self.canvas)
+        dialog.grab_set()
+
+        dialog_width = 780
+        dialog_height = 580
+        screen_width = dialog.winfo_screenwidth()
+        screen_height = dialog.winfo_screenheight()
+        x = (screen_width - dialog_width) // 2
+        y = (screen_height - dialog_height) // 2
+        dialog.geometry(f"{dialog_width}x{dialog_height}+{x}+{y}")
+
+        tk.Label(dialog, text="Select a flow line to edit (grouped by area):",
+                 font=('Segoe UI', 12, 'bold')).pack(pady=8)
+
+        container = tk.Frame(dialog)
+        container.pack(fill='both', expand=True, padx=10, pady=5)
+
+        # List of edges grouped by area
+        list_frame = tk.Frame(container)
+        list_frame.pack(side='left', fill='both', expand=True)
+        scrollbar = tk.Scrollbar(list_frame)
+        scrollbar.pack(side='right', fill='y')
+        listbox = tk.Listbox(list_frame, yscrollcommand=scrollbar.set,
+                             font=('Segoe UI', 9), height=20, selectmode='single')
+        listbox.pack(side='left', fill='both', expand=True)
+        scrollbar.config(command=listbox.yview)
+
+        # Group edges by area like _delete_line does
+        edges_by_area = {}
+        for i, edge in enumerate(edges):
+            from_area = self._get_node_area(edge['from'])
+            to_area = self._get_node_area(edge['to'])
+            area = from_area if from_area == to_area else f"{from_area} ↔ {to_area}"
+            if area not in edges_by_area:
+                edges_by_area[area] = []
+            edges_by_area[area].append(i)
         
-        # Show list of flows to choose from
-        flow_list = [f"{e['from']} → {e['to']}" for e in edges]
-        
-        from tkinter import simpledialog
-        choice = simpledialog.askinteger("Redraw Flow", 
-                                        f"Choose flow to redraw (0-{len(flow_list)-1}):\n\n" + 
-                                        "\n".join(f"{i}: {f}" for i, f in enumerate(flow_list)),
-                                        minvalue=0, maxvalue=len(flow_list)-1)
-        
-        if choice is None:
-            return
-        
-        edge = edges[choice]
-        # Track which edge we're redrawing so we update it instead of creating a new one
-        self.redraw_edge_index = choice
-        self.drawing_from = edge['from']
-        self.drawing_to = edge['to']
-        
-        # Start with existing endpoints
-        from_node = self.nodes_by_id.get(self.drawing_from)
-        to_node = self.nodes_by_id.get(self.drawing_to)
-        
-        if not from_node or not to_node:
-            messagebox.showerror("Error", "Source or destination component not found")
-            return
-        
-        start_x = from_node['x'] + from_node['width'] / 2
-        start_y = from_node['y'] + from_node['height'] / 2
-        end_x = to_node['x'] + to_node['width'] / 2
-        end_y = to_node['y'] + to_node['height'] / 2
-        
-        self.drawing_segments = [(start_x, start_y), (end_x, end_y)]
-        self.drawing_mode = True
-        self.canvas.config(cursor='crosshair')
-        
-        logger.info(f"🔄 Redrawing: {self.drawing_from} → {self.drawing_to}")
-        messagebox.showinfo("Redraw Mode", 
-                           "Click points to reshape the flow path\n"
-                           "Click TO component when done (or right-click to cancel)")
+        edge_index_map = []
+        for area in sorted(edges_by_area.keys()):
+            listbox.insert(tk.END, f"")
+            listbox.itemconfig(tk.END, bg='#ecf0f1')
+            edge_index_map.append(None)
+            
+            listbox.insert(tk.END, f"━━━ {area} ━━━")
+            listbox.itemconfig(tk.END, bg='#3498db', fg='white')
+            edge_index_map.append(None)
+            
+            for edge_idx in edges_by_area[area]:
+                edge = edges[edge_idx]
+                from_name = self._format_node_name(edge['from'])
+                to_name = self._format_node_name(edge['to'])
+
+                # Safely format volume/label (supports numeric, negative, or text)
+                vol_val = edge.get('volume', '')
+                if isinstance(vol_val, (int, float)):
+                    vol_display = f"{vol_val:,.0f} m³"
+                else:
+                    vol_display = str(vol_val)
+
+                display_text = f"  {from_name} → {to_name} | {edge.get('flow_type','unknown')} | {vol_display}"
+                listbox.insert(tk.END, display_text)
+                edge_index_map.append(edge_idx)
+
+        # Edit panel
+        edit_frame = tk.Frame(container, relief='groove', borderwidth=1)
+        edit_frame.pack(side='right', fill='y', padx=10)
+
+        tk.Label(edit_frame, text="Flow Type:", font=('Segoe UI', 9, 'bold')).pack(anchor='w', padx=8, pady=(10,0))
+        type_var = tk.StringVar(value='clean')
+        tk.OptionMenu(edit_frame, type_var, 'clean','dirty','dewatering','ug_return','process_dirty','stormwater','recirculation','evaporation').pack(fill='x', padx=8)
+
+        tk.Label(edit_frame, text="Color (hex):", font=('Segoe UI', 9, 'bold')).pack(anchor='w', padx=8, pady=(10,0))
+        color_var = tk.StringVar(value='#4b78a8')
+        tk.Entry(edit_frame, textvariable=color_var, font=('Segoe UI', 10)).pack(fill='x', padx=8)
+
+        tk.Label(edit_frame, text="Volume or Label (m³):", font=('Segoe UI', 9, 'bold')).pack(anchor='w', padx=8, pady=(10,0))
+        vol_var = tk.StringVar(value='0')
+        tk.Entry(edit_frame, textvariable=vol_var, font=('Segoe UI', 10)).pack(fill='x', padx=8)
+
+        bidir_var = tk.BooleanVar(value=False)
+        tk.Checkbutton(edit_frame, text="Bidirectional (arrows both ends)", variable=bidir_var).pack(anchor='w', padx=8, pady=8)
+
+        def on_select(evt=None):
+            sel = listbox.curselection()
+            if not sel:
+                return
+            list_idx = sel[0]
+            if list_idx >= len(edge_index_map) or edge_index_map[list_idx] is None:
+                return  # Header or separator selected
+            edge_idx = edge_index_map[list_idx]
+            e = edges[edge_idx]
+            type_var.set(e.get('flow_type','clean'))
+            color_var.set(e.get('color', '#4b78a8'))
+            vol_var.set(str(e.get('volume', 0)))
+            bidir_var.set(bool(e.get('bidirectional', False)))
+
+        listbox.bind('<<ListboxSelect>>', on_select)
+
+        def on_apply():
+            sel = listbox.curselection()
+            if not sel:
+                messagebox.showwarning("No Selection", "Select a flow line to edit")
+                return
+            list_idx = sel[0]
+            if list_idx >= len(edge_index_map) or edge_index_map[list_idx] is None:
+                messagebox.showwarning("Invalid Selection", "Please select a flow line (not a header)")
+                return
+            edge_idx = edge_index_map[list_idx]
+            e = edges[edge_idx]
+            e['flow_type'] = type_var.get()
+            e['color'] = color_var.get()
+            # Allow any value: numbers (positive/negative), dashes, text, etc.
+            vol_str = vol_var.get().strip()
+            if not vol_str:
+                messagebox.showwarning("Invalid Volume", "Enter a volume or label")
+                return
+    
+            try:
+                # Try to format as number if it's numeric
+                if vol_str.replace('-', '').replace('.', '').isdigit() or (vol_str.startswith('-') and vol_str[1:].replace('.', '').isdigit()):
+                    e['volume'] = float(vol_str)
+                    e['label'] = f"{e['volume']:,.0f}"
+                else:
+                    # Non-numeric value (like "-" or "N/A")
+                    e['volume'] = vol_str
+                    e['label'] = vol_str
+            except ValueError:
+                messagebox.showwarning("Invalid Volume", "Error processing volume")
+                return
+            e['bidirectional'] = bidir_var.get()
+            self._draw_diagram()
+            messagebox.showinfo("Updated", "Flow line updated")
+
+        tk.Button(edit_frame, text="Apply", command=on_apply,
+                  bg='#27ae60', fg='white', font=('Segoe UI', 9, 'bold')).pack(fill='x', padx=8, pady=12)
+
+        tk.Button(dialog, text="Close", command=dialog.destroy,
+                  bg='#95a5a6', fg='white', font=('Segoe UI', 9)).pack(pady=8)
 
     def _delete_line(self):
         """Delete an existing flow line with scrollable list dialog grouped by area"""
@@ -957,7 +1218,6 @@ class DetailedNetworkFlowDiagram:
         dialog.transient(self.canvas)
         dialog.grab_set()
         
-        # Larger dialog for better readability
         dialog_width = 750
         dialog_height = 550
         screen_width = dialog.winfo_screenwidth()
@@ -966,50 +1226,34 @@ class DetailedNetworkFlowDiagram:
         y = (screen_height - dialog_height) // 2
         dialog.geometry(f"{dialog_width}x{dialog_height}+{x}+{y}")
         
-        # Title label
-        title_label = tk.Label(dialog, text="Select a flow line to delete (grouped by area):", 
-                              font=('Segoe UI', 12, 'bold'), pady=10)
-        title_label.pack()
+        tk.Label(dialog, text="Select flow lines to delete (grouped by area):",
+                 font=('Segoe UI', 12, 'bold'), pady=10).pack()
         
-        # Info label
-        info_label = tk.Label(dialog, text="⚠️  Warning: Deletion is permanent after saving", 
-                             font=('Segoe UI', 9), fg='#e74c3c', pady=5)
-        info_label.pack()
+        tk.Label(dialog, text="⚠️  Warning: Deletion is permanent after saving",
+                 font=('Segoe UI', 9), fg='#e74c3c', pady=5).pack()
         
-        # Frame for listbox and scrollbar
         list_frame = tk.Frame(dialog)
         list_frame.pack(fill='both', expand=True, padx=10, pady=5)
         
-        # Scrollbar
         scrollbar = tk.Scrollbar(list_frame)
         scrollbar.pack(side='right', fill='y')
         
-        # Listbox with better font (allow multi-select)
-        listbox = tk.Listbox(list_frame, yscrollcommand=scrollbar.set, 
-                    font=('Segoe UI', 9), height=20, selectmode='extended')
+        listbox = tk.Listbox(list_frame, yscrollcommand=scrollbar.set,
+                             font=('Segoe UI', 9), height=20, selectmode='extended')
         listbox.pack(side='left', fill='both', expand=True)
         scrollbar.config(command=listbox.yview)
         
-        # Group edges by area
         edges_by_area = {}
         for i, edge in enumerate(edges):
             from_area = self._get_node_area(edge['from'])
             to_area = self._get_node_area(edge['to'])
-            
-            # Determine primary area
-            if from_area == to_area:
-                area = from_area
-            else:
-                area = f"{from_area} ↔ {to_area}"
-            
+            area = from_area if from_area == to_area else f"{from_area} ↔ {to_area}"
             if area not in edges_by_area:
                 edges_by_area[area] = []
             edges_by_area[area].append(i)
         
-        # Populate listbox grouped by area
-        edge_index_map = []  # Maps listbox index to edge index
+        edge_index_map = []
         for area in sorted(edges_by_area.keys()):
-            # Area header
             listbox.insert(tk.END, f"")
             listbox.itemconfig(tk.END, bg='#ecf0f1')
             edge_index_map.append(None)
@@ -1018,44 +1262,21 @@ class DetailedNetworkFlowDiagram:
             listbox.itemconfig(tk.END, bg='#e74c3c', fg='white')
             edge_index_map.append(None)
             
-            # Edges in this area
             for edge_idx in edges_by_area[area]:
                 edge = edges[edge_idx]
-                segments = edge.get('segments', [])
-                flow_type = edge.get('flow_type', 'unknown')
-                volume = edge.get('volume', 0)
-                
-                # Format node names
                 from_name = self._format_node_name(edge['from'])
                 to_name = self._format_node_name(edge['to'])
-                
-                # Color indicator for flow type
-                type_emoji = {
-                    'clean': '🔵',
-                    'dirty': '🔴',
-                    'wastewater': '🔴',
-                    'ug_return': '🟠',
-                    'dewatering': '🔴',
-                    'recirculation': '🟣',
-                    'evaporation': '⚫'
-                }.get(flow_type.lower(), '⚪')
-                
-                # Status indicator
-                status = f"{len(segments)}pts"
-                
-                display_text = f"  {from_name} → {to_name} | {type_emoji} {flow_type} | {volume:,.0f} m³ | {status}"
+                display_text = f"  {from_name} → {to_name} | {edge.get('flow_type','unknown')} | {edge.get('volume',0):,.0f} m³"
                 listbox.insert(tk.END, display_text)
                 edge_index_map.append(edge_idx)
         
-        # Result variable (multiple indices)
         selected_indices = []
         
         def on_delete():
             selection = listbox.curselection()
             if not selection:
-                messagebox.showwarning("No Selection", "Please select a flow line to delete")
+                messagebox.showwarning("No Selection", "Please select flow lines to delete")
                 return
-            # Map selected list rows to valid edge indices, ignoring headers
             chosen_edges = []
             for list_idx in selection:
                 if list_idx < len(edge_index_map) and edge_index_map[list_idx] is not None:
@@ -1066,191 +1287,236 @@ class DetailedNetworkFlowDiagram:
             selected_indices[:] = sorted(set(chosen_edges))
             dialog.destroy()
         
-        def on_cancel():
-            dialog.destroy()
-        
-        # Button frame
         btn_frame = tk.Frame(dialog)
         btn_frame.pack(pady=10)
         
-        delete_btn = tk.Button(btn_frame, text="🗑️ Delete Selected", command=on_delete,
-                               bg='#e74c3c', fg='white', font=('Segoe UI', 10, 'bold'),
-                               padx=20, pady=5)
-        delete_btn.pack(side='left', padx=5)
+        tk.Button(btn_frame, text="🗑️ Delete Selected", command=on_delete,
+                  bg='#e74c3c', fg='white', font=('Segoe UI', 10, 'bold'),
+                  padx=20, pady=5).pack(side='left', padx=5)
         
-        cancel_btn = tk.Button(btn_frame, text="Cancel", command=on_cancel,
-                               bg='#95a5a6', fg='white', font=('Segoe UI', 10),
-                               padx=20, pady=5)
-        cancel_btn.pack(side='left', padx=5)
+        tk.Button(btn_frame, text="Cancel", command=dialog.destroy,
+                  bg='#95a5a6', fg='white', font=('Segoe UI', 10),
+                  padx=20, pady=5).pack(side='left', padx=5)
         
-        # Wait for dialog to close
         dialog.wait_window()
         
-        # Process deletion if a selection was made
         if selected_indices:
-            # Build confirmation summary
             lines = []
             for idx in selected_indices:
                 e = edges[idx]
-                lines.append(f"- {self._format_node_name(e['from'])} → {self._format_node_name(e['to'])} ({e.get('flow_type', 'unknown')}, {e.get('volume', 0):,.0f} m³)")
-            if messagebox.askyesno("Confirm Delete", 
-                                  "Delete selected flow lines?\n\n" + "\n".join(lines)):
-                # Delete in reverse order to keep indices valid
+                lines.append(f"- {self._format_node_name(e['from'])} → {self._format_node_name(e['to'])} ({e.get('flow_type','unknown')}, {e.get('volume',0):,.0f} m³)")
+            if messagebox.askyesno("Confirm Delete", "Delete selected flow lines?\n\n" + "\n".join(lines)):
                 for idx in sorted(selected_indices, reverse=True):
                     edge = edges.pop(idx)
                     logger.info(f"🗑️ Deleted flow: {edge['from']} → {edge['to']}")
                 self._draw_diagram()
                 messagebox.showinfo("Deleted", f"Removed {len(selected_indices)} flow line(s)")
 
-    def _straighten_line(self):
-        """Straighten an existing flow line with scrollable list dialog grouped by area"""
-        edges = self.area_data.get('edges', [])
-        if not edges:
-            messagebox.showwarning("No Flows", "No flow lines to straighten")
+    def _add_recirculation(self):
+        """Add a recirculation loop symbol to a component"""
+        if not self.selected_node:
+            messagebox.showwarning("No Selection", "Select a component first (click on it) to add recirculation")
             return
         
-        # Create custom dialog with scrollable listbox
+        component_id = self.selected_node
+        
+        # Show dialog for volume and type
         dialog = tk.Toplevel(self.canvas)
-        dialog.title("Straighten Flow Line")
+        dialog.title("Add Recirculation Loop")
         dialog.transient(self.canvas)
         dialog.grab_set()
         
-        # Larger dialog for better readability
-        dialog_width = 750
-        dialog_height = 550
+        dialog_width = 480
+        dialog_height = 520  # Increased to ensure button is fully visible
         screen_width = dialog.winfo_screenwidth()
         screen_height = dialog.winfo_screenheight()
         x = (screen_width - dialog_width) // 2
         y = (screen_height - dialog_height) // 2
         dialog.geometry(f"{dialog_width}x{dialog_height}+{x}+{y}")
+        dialog.minsize(480, 520)  # Prevent resizing too small
         
-        # Title label
-        title_label = tk.Label(dialog, text="Select a flow line to straighten (grouped by area):", 
-                              font=('Segoe UI', 12, 'bold'), pady=10)
-        title_label.pack()
+        # Header
+        header = tk.Label(dialog, text="♻️ Recirculation Loop", 
+                         font=('Segoe UI', 13, 'bold'), bg='#16a085', fg='white', pady=12)
+        header.pack(fill='x')
         
-        # Info label
-        info_label = tk.Label(dialog, text="📏 Straightening removes intermediate waypoints, creating direct line from start to end", 
-                             font=('Segoe UI', 9), fg='#7f8c8d', pady=5)
-        info_label.pack()
+        # Main scrollable content frame
+        main_frame = tk.Frame(dialog)
+        main_frame.pack(fill='both', expand=True, padx=10, pady=10)
         
-        # Frame for listbox and scrollbar
-        list_frame = tk.Frame(dialog)
-        list_frame.pack(fill='both', expand=True, padx=10, pady=5)
+        # Component info
+        info_frame = tk.Frame(main_frame, bg='#ecf0f1', pady=12)
+        info_frame.pack(fill='x', padx=0, pady=(0,10))
+        tk.Label(info_frame, text=f"Component: {self._format_node_name(component_id)}", 
+                font=('Segoe UI', 10, 'bold'), bg='#ecf0f1', fg='#2c3e50').pack(anchor='w', padx=10)
         
-        # Scrollbar
-        scrollbar = tk.Scrollbar(list_frame)
+        # Flow type with more space
+        flow_frame = tk.Frame(main_frame)
+        flow_frame.pack(fill='x', padx=0, pady=(10,10))
+        tk.Label(flow_frame, text="Flow Type:", font=('Segoe UI', 11, 'bold'), fg='#2c3e50').pack(anchor='w')
+        
+        type_var = tk.StringVar(value='recirculation')
+        types = [
+            ('♻️  Recirculation (internal loop)', 'recirculation'),
+            ('💧 Clean water return', 'clean'),
+            ('⚠️  Dirty water return', 'dirty'),
+            ('⛏️  Dewatering return', 'dewatering')
+        ]
+        for label, value in types:
+            tk.Radiobutton(flow_frame, text=label, variable=type_var, value=value,
+                          font=('Segoe UI', 10), anchor='w', selectcolor='#16a085',
+                          activebackground='#ecf0f1').pack(anchor='w', padx=15, pady=6)
+        
+        # Volume section
+        vol_frame = tk.Frame(main_frame)
+        vol_frame.pack(fill='x', padx=0, pady=(10,10))
+        tk.Label(vol_frame, text="Volume or Label (m³/month):", font=('Segoe UI', 11, 'bold'), 
+                fg='#2c3e50').pack(anchor='w')
+        vol_var = tk.StringVar(value='0')
+        tk.Entry(vol_frame, textvariable=vol_var, font=('Segoe UI', 11), width=20).pack(anchor='w', padx=15, pady=8)
+        
+        error_label = tk.Label(main_frame, text="", font=('Segoe UI', 9), fg='#e74c3c')
+        error_label.pack(pady=(5,10))
+        
+        def on_ok():
+            vol_str = vol_var.get().strip()
+            if not vol_str:
+                error_label.config(text="Enter a volume or label")
+                return
+            
+            # Allow any value: numbers (positive/negative), dashes, text, etc.
+            try:
+                # Try to format as number if it's numeric
+                if vol_str.replace('-', '').replace('.', '').isdigit() or (vol_str.startswith('-') and vol_str[1:].replace('.', '').isdigit()):
+                    volume = float(vol_str)
+                    label_str = f"{volume:,.0f}"
+                else:
+                    # Non-numeric value (like "-" or "N/A")
+                    volume = vol_str
+                    label_str = vol_str
+                
+                # Create recirculation edge (from component to itself)
+                flow_type = type_var.get()
+                color_map = {
+                    'recirculation': '#9b59b6',
+                    'clean': '#4b78a8',
+                    'dirty': '#e74c3c',
+                    'dewatering': '#e74c3c'
+                }
+                color = color_map.get(flow_type, '#9b59b6')
+                
+                # Create a minimal recirculation edge with special flag
+                edges = self.area_data.get('edges', [])
+                node = self.nodes_by_id[component_id]
+                
+                # Position loop icon to the right of component, roughly in middle
+                loop_x = node['x'] + node['width'] + 15
+                loop_y = node['y'] + node['height'] / 2
+                
+                recirculation_edge = {
+                    'from': component_id,
+                    'to': component_id,
+                    'segments': [
+                        (node['x'] + node['width'] / 2, node['y'] + node['height'] / 2),
+                        (node['x'] + node['width'] / 2, node['y'] + node['height'] / 2)
+                    ],
+                    'flow_type': flow_type,
+                    'volume': volume,
+                    'color': color,
+                    'label': label_str,
+                    'bidirectional': False,
+                    'is_recirculation': True,
+                    'recirculation_pos': {'x': loop_x, 'y': loop_y}
+                }
+                
+                edges.append(recirculation_edge)
+                self.area_data['edges'] = edges
+                self._draw_diagram()
+                dialog.destroy()
+                messagebox.showinfo("Success", f"♻️ Recirculation loop added to {self._format_node_name(component_id)}\n{label_str} m³ {flow_type}")
+            except Exception as e:
+                error_label.config(text=f"Error: {str(e)}")
+
+        
+        # Button frame fixed at bottom
+        button_frame = tk.Frame(dialog)
+        button_frame.pack(fill='x', padx=10, pady=(15,10), side='bottom')
+        tk.Button(button_frame, text="✅ OK", command=on_ok, bg='#27ae60', fg='white',
+                 font=('Segoe UI', 11, 'bold'), padx=30, pady=8, width=15).pack(expand=True)
+
+    def _toggle_recirculation_lock(self):
+        """Toggle lock state for selected recirculation"""
+        edges = self.area_data.get('edges', [])
+        recirculation_edges = [(i, e) for i, e in enumerate(edges) if e.get('is_recirculation', False)]
+        
+        if not recirculation_edges:
+            messagebox.showwarning("No Recirculation", "No recirculation loops found in this diagram")
+            return
+        
+        # Show dialog to select which recirculation to lock/unlock
+        dialog = tk.Toplevel(self.canvas)
+        dialog.title("Toggle Recirculation Lock")
+        dialog.transient(self.canvas)
+        dialog.grab_set()
+        dialog.geometry("400x300")
+        
+        # Header
+        header = tk.Label(dialog, text="🔒 Lock/Unlock Recirculation", 
+                         font=('Segoe UI', 12, 'bold'), bg='#95a5a6', fg='white', pady=10)
+        header.pack(fill='x')
+        
+        # Frame for listbox
+        frame = tk.Frame(dialog)
+        frame.pack(fill='both', expand=True, padx=10, pady=10)
+        
+        tk.Label(frame, text="Select a recirculation to toggle lock:", 
+                font=('Segoe UI', 9)).pack(anchor='w', pady=(0, 5))
+        
+        # Listbox with scrollbar
+        scrollbar = tk.Scrollbar(frame)
         scrollbar.pack(side='right', fill='y')
         
-        # Listbox with better font
-        listbox = tk.Listbox(list_frame, yscrollcommand=scrollbar.set, 
-                            font=('Segoe UI', 9), height=20, selectmode='single')
-        listbox.pack(side='left', fill='both', expand=True)
+        listbox = tk.Listbox(frame, yscrollcommand=scrollbar.set, font=('Segoe UI', 9))
+        listbox.pack(fill='both', expand=True)
         scrollbar.config(command=listbox.yview)
         
-        # Group edges by area
-        edges_by_area = {}
-        for i, edge in enumerate(edges):
-            from_area = self._get_node_area(edge['from'])
-            to_area = self._get_node_area(edge['to'])
-            
-            # Determine primary area
-            if from_area == to_area:
-                area = from_area
-            else:
-                area = f"{from_area} ↔ {to_area}"
-            
-            if area not in edges_by_area:
-                edges_by_area[area] = []
-            edges_by_area[area].append(i)
+        # Populate listbox
+        for idx, (edge_idx, edge) in enumerate(recirculation_edges):
+            from_node = edge.get('from', 'Unknown')
+            volume = edge.get('value', 0)
+            is_locked = self.recirculation_locked.get(edge_idx, False)
+            lock_status = "🔒 LOCKED" if is_locked else "🔓 UNLOCKED"
+            display_text = f"{from_node}: {volume:,.0f} m³ - {lock_status}"
+            listbox.insert(tk.END, display_text)
         
-        # Populate listbox grouped by area
-        edge_index_map = []  # Maps listbox index to edge index
-        for area in sorted(edges_by_area.keys()):
-            # Area header
-            listbox.insert(tk.END, f"")
-            listbox.itemconfig(tk.END, bg='#ecf0f1')
-            edge_index_map.append(None)
-            
-            listbox.insert(tk.END, f"━━━ {area} ━━━")
-            listbox.itemconfig(tk.END, bg='#3498db', fg='white')
-            edge_index_map.append(None)
-            
-            # Edges in this area
-            for edge_idx in edges_by_area[area]:
-                edge = edges[edge_idx]
-                segments = edge.get('segments', [])
-                flow_type = edge.get('flow_type', 'unknown')
-                volume = edge.get('volume', 0)
-                
-                # Format node names
-                from_name = self._format_node_name(edge['from'])
-                to_name = self._format_node_name(edge['to'])
-                
-                # Color indicator for flow type
-                type_emoji = {
-                    'clean': '🔵',
-                    'dirty': '🔴',
-                    'wastewater': '🔴',
-                    'ug_return': '🟠',
-                    'dewatering': '🔴',
-                    'recirculation': '🟣',
-                    'evaporation': '⚫'
-                }.get(flow_type.lower(), '⚪')
-                
-                # Status indicator
-                status = f"{len(segments)}pts" if len(segments) > 2 else "straight"
-                status_emoji = "📐" if len(segments) <= 2 else "〰️"
-                
-                display_text = f"  {status_emoji} {from_name} → {to_name} | {type_emoji} {flow_type} | {volume:,.0f} m³ | {status}"
-                listbox.insert(tk.END, display_text)
-                
-                # Color coding
-                if len(segments) <= 2:
-                    listbox.itemconfig(tk.END, fg='#95a5a6')  # Gray for already straight
-                
-                edge_index_map.append(edge_idx)
+        # Buttons
+        button_frame = tk.Frame(dialog)
+        button_frame.pack(fill='x', padx=10, pady=(10, 10))
         
-        # Result variable
-        selected_index = [None]
-        
-        def on_straighten():
+        def toggle_selected():
             selection = listbox.curselection()
             if not selection:
-                messagebox.showwarning("No Selection", "Please select a flow line to straighten")
+                messagebox.showwarning("No Selection", "Select a recirculation to toggle")
                 return
             
-            list_idx = selection[0]
-            if list_idx >= len(edge_index_map) or edge_index_map[list_idx] is None:
-                messagebox.showwarning("Invalid Selection", "Please select a flow line (not a header)")
-                return
+            selected_idx = selection[0]
+            edge_idx, edge = recirculation_edges[selected_idx]
             
-            selected_index[0] = edge_index_map[list_idx]
+            # Toggle lock state
+            current_state = self.recirculation_locked.get(edge_idx, False)
+            self.recirculation_locked[edge_idx] = not current_state
+            
+            new_state = self.recirculation_locked[edge_idx]
+            status = "🔒 LOCKED" if new_state else "🔓 UNLOCKED"
+            messagebox.showinfo("Success", f"Recirculation {status}")
+            
+            self._draw_diagram()
             dialog.destroy()
         
-        def on_cancel():
-            dialog.destroy()
-        
-        # Button frame
-        btn_frame = tk.Frame(dialog)
-        btn_frame.pack(pady=10)
-        
-        straighten_btn = tk.Button(btn_frame, text="📏 Straighten Selected", command=on_straighten,
-                               bg='#16a085', fg='white', font=('Segoe UI', 10, 'bold'),
-                               padx=20, pady=5)
-        straighten_btn.pack(side='left', padx=5)
-        
-        cancel_btn = tk.Button(btn_frame, text="Cancel", command=on_cancel,
-                               bg='#95a5a6', fg='white', font=('Segoe UI', 10),
-                               padx=20, pady=5)
-        cancel_btn.pack(side='left', padx=5)
-        
-        # Wait for dialog to close
-        dialog.wait_window()
-        
-        # Process straightening if a selection was made
-        if selected_index[0] is not None:
-            self._straighten_edge(selected_index[0])
+        tk.Button(button_frame, text="✅ Toggle", command=toggle_selected, 
+                 bg='#27ae60', fg='white', font=('Segoe UI', 10, 'bold'), padx=20).pack(side='left', padx=5)
+        tk.Button(button_frame, text="❌ Cancel", command=dialog.destroy,
+                 bg='#e74c3c', fg='white', font=('Segoe UI', 10, 'bold'), padx=20).pack(side='left', padx=5)
 
     def _start_drawing(self):
         """Start manual flow line drawing"""
@@ -1258,7 +1524,7 @@ class DetailedNetworkFlowDiagram:
         self.drawing_segments = []
         self.drawing_from = None
         self.drawing_to = None
-        self.canvas.config(cursor='crosshair')
+        self.canvas.config(cursor='tcross')  # Smaller, more precise cursor
         messagebox.showinfo("Draw Mode", 
                            "🔧 SNAP TO COMPONENT MODE\n\n"
                            "1. Click FROM component (snaps to nearest edge)\n"
@@ -1266,7 +1532,7 @@ class DetailedNetworkFlowDiagram:
                            "3. Click TO component (snaps to nearest edge)\n"
                            "4. Add intermediate points by clicking canvas\n"
                            "5. Right-click to cancel\n\n"
-                           "⭕ Orange anchors = snap points (within 30px)")
+                           "⭕ Orange anchors = snap points (within 15px)")
 
 
     def _on_canvas_click(self, event):
@@ -1294,35 +1560,172 @@ class DetailedNetworkFlowDiagram:
                         self.drawing_segments = [(canvas_x, canvas_y)]
                         messagebox.showinfo("From Selected", f"Drawing from: {clicked_node}\nClick to add path points or click target component")
                 else:
-                    messagebox.showwarning("Invalid", "Click on a component to start")
-            elif clicked_node and clicked_node != self.drawing_from:
-                # Clicked on a component - finish drawing at snapped endpoint
-                snap_point = self._find_nearest_anchor(clicked_node, canvas_x, canvas_y)
-                if snap_point:
-                    self.drawing_segments.append(snap_point)
+                    # Allow starting from an existing flow line (junction start)
+                    edges = self.area_data.get('edges', [])
+                    min_dist = 1e9
+                    threshold = 15.0
+                    snap_x, snap_y = canvas_x, canvas_y
+                    snapped = False
+                    for edge_idx, e in enumerate(edges):
+                        segs = e.get('segments', [])
+                        for i in range(len(segs)-1):
+                            x1, y1 = segs[i]
+                            x2, y2 = segs[i+1]
+                            dx = x2 - x1
+                            dy = y2 - y1
+                            length2 = dx*dx + dy*dy
+                            if length2 < 1e-6:
+                                continue
+                            t = ((canvas_x - x1)*dx + (canvas_y - y1)*dy) / length2
+                            t = max(0.0, min(1.0, t))
+                            px = x1 + t*dx
+                            py = y1 + t*dy
+                            dist = ((canvas_x - px)**2 + (canvas_y - py)**2)**0.5
+                            if dist < min_dist and dist <= threshold:
+                                min_dist = dist
+                                snap_x, snap_y = px, py
+                                snapped = True
+                    if snapped:
+                        junction_id = f"junction_{len(edges)}_{snap_x:.0f}_{snap_y:.0f}"
+                        self.drawing_from = junction_id
+                        self.drawing_segments = [(snap_x, snap_y)]
+                        messagebox.showinfo("From Selected", "Drawing from existing flow line (junction). Add waypoints or click target component/line.")
+                    else:
+                        messagebox.showwarning("Invalid", "Click on a component or near a flow line to start")
+            elif clicked_node:
+                # Clicked on a component - check if it's the same (recirculation loop) or different
+                if clicked_node == self.drawing_from:
+                    # Self-loop (recirculation) - must have intermediate waypoints
+                    if len(self.drawing_segments) < 2:
+                        messagebox.showwarning("Add Waypoints", 
+                                             "♻️ RECIRCULATION LOOP\n\n"
+                                             "To create a loop back to the same component:\n"
+                                             "1. Add at least one waypoint by clicking on the canvas\n"
+                                             "2. Then click the component again to complete the loop\n\n"
+                                             "This creates a visible recirculation path.")
+                        return
+                    # Has waypoints - allow the loop
+                    snap_point = self._find_nearest_anchor(clicked_node, canvas_x, canvas_y)
+                    if snap_point:
+                        self.drawing_segments.append(snap_point)
+                    else:
+                        self.drawing_segments.append((canvas_x, canvas_y))
+                    # Create recirculation edge
+                    self._finish_drawing(self.drawing_from, clicked_node)
                 else:
-                    self.drawing_segments.append((canvas_x, canvas_y))
-                # Create edge with user-defined path
-                self._finish_drawing(self.drawing_from, clicked_node)
+                    # Different component - normal flow
+                    snap_point = self._find_nearest_anchor(clicked_node, canvas_x, canvas_y)
+                    if snap_point:
+                        self.drawing_segments.append(snap_point)
+                    else:
+                        self.drawing_segments.append((canvas_x, canvas_y))
+                    # Create edge with user-defined path
+                    self._finish_drawing(self.drawing_from, clicked_node)
             else:
-                # Clicked on canvas - add segment point at exact location
+                # Clicked on canvas - check if clicking on a flow line to connect to it
                 if len(self.drawing_segments) > 0:
-                    # Add intermediate point at exact click location
+                    # Check if click is near an existing flow line
+                    edges = self.area_data.get('edges', [])
+                    min_dist = 1e9
+                    threshold = 15.0  # Slightly larger threshold for endpoint snap
+                    snap_to_line = None
+                    snap_x, snap_y = canvas_x, canvas_y
+                    
+                    for edge_idx, e in enumerate(edges):
+                        segs = e.get('segments', [])
+                        for i in range(len(segs)-1):
+                            x1, y1 = segs[i]
+                            x2, y2 = segs[i+1]
+                            # Project point onto segment
+                            dx = x2 - x1
+                            dy = y2 - y1
+                            length2 = dx*dx + dy*dy
+                            if length2 < 1e-6:
+                                continue
+                            t = ((canvas_x - x1)*dx + (canvas_y - y1)*dy) / length2
+                            t = max(0.0, min(1.0, t))
+                            px = x1 + t*dx
+                            py = y1 + t*dy
+                            dist = ((canvas_x - px)**2 + (canvas_y - py)**2)**0.5
+                            if dist < min_dist:
+                                min_dist = dist
+                                if dist <= threshold:
+                                    snap_x, snap_y = px, py
+                                    snap_to_line = {'edge_idx': edge_idx, 'point': (px, py)}
+                    
+                    # If snapped to a line, finish the drawing as line-to-line connection
+                    if snap_to_line:
+                        self.drawing_segments.append((snap_x, snap_y))
+                        # Create a virtual junction ID for this connection point
+                        junction_id = f"junction_{len(edges)}_{snap_x:.0f}_{snap_y:.0f}"
+                        self._finish_drawing(self.drawing_from, junction_id, is_junction=True, junction_pos=(snap_x, snap_y))
+                        return
+                    
+                    # Otherwise, add intermediate waypoint
                     self.drawing_segments.append((canvas_x, canvas_y))
+                    self._draw_diagram()
+                    # Add intermediate point; snap to nearby flow line if close
+                    snap_x, snap_y = canvas_x, canvas_y
+                    try:
+                        edges = self.area_data.get('edges', [])
+                        min_dist = 1e9
+                        threshold = 8.0
+                        for e in edges:
+                            segs = e.get('segments', [])
+                            for i in range(len(segs)-1):
+                                x1, y1 = segs[i]
+                                x2, y2 = segs[i+1]
+                                # Project point onto segment
+                                dx = x2 - x1
+                                dy = y2 - y1
+                                length2 = dx*dx + dy*dy
+                                if length2 < 1e-6:
+                                    continue
+                                t = ((canvas_x - x1)*dx + (canvas_y - y1)*dy) / length2
+                                t = max(0.0, min(1.0, t))
+                                px = x1 + t*dx
+                                py = y1 + t*dy
+                                dist = ((canvas_x - px)**2 + (canvas_y - py)**2)**0.5
+                                if dist < min_dist:
+                                    min_dist = dist
+                                    if dist <= threshold:
+                                        snap_x, snap_y = px, py
+                        # Use snapped point if within threshold
+                    except Exception:
+                        pass
+                    self.drawing_segments.append((snap_x, snap_y))
                     self._draw_diagram()
             return
 
-        # Check if clicked on a flow label
+        # Check if clicked on a flow label or recirculation rectangle
         clicked_items = self.canvas.find_overlapping(canvas_x - 2, canvas_y - 2, canvas_x + 2, canvas_y + 2)
         logger.debug(f"Clicked items: {clicked_items}, label_items keys: {list(self.label_items.keys())}")
         for item in clicked_items:
             if item in self.label_items:
-                self.dragging_label = True
-                self.dragged_label_edge_idx = self.label_items[item]
-                self.drag_start_x = canvas_x
-                self.drag_start_y = canvas_y
-                logger.info(f"📝 Dragging label for edge {self.dragged_label_edge_idx}")
-                return
+                edge_idx = self.label_items[item]
+                # Check if this is a recirculation rectangle (not a regular label)
+                edges = self.area_data.get('edges', [])
+                if edge_idx < len(edges) and edges[edge_idx].get('is_recirculation', False):
+                    # Check if recirculation is locked
+                    is_locked = self.recirculation_locked.get(edge_idx, False)
+                    if is_locked:
+                        messagebox.showinfo("Locked", "🔒 This recirculation is locked. Unlock it first to move.")
+                        return
+                    # Dragging recirculation rectangle
+                    self.dragging_recirculation = True
+                    self.dragged_recirculation_edge_idx = edge_idx
+                    self.recirculation_drag_start_x = canvas_x
+                    self.recirculation_drag_start_y = canvas_y
+                    logger.info(f"📦 Dragging recirculation rectangle for edge {edge_idx}")
+                    return
+                else:
+                    # Regular label drag
+                    self.dragging_label = True
+                    self.dragged_label_edge_idx = edge_idx
+                    self.drag_start_x = canvas_x
+                    self.drag_start_y = canvas_y
+                    logger.info(f"📝 Dragging label for edge {self.dragged_label_edge_idx}")
+                    return
 
         # Normal mode - drag components
         clicked_node = self._get_node_at(canvas_x, canvas_y)
@@ -1341,23 +1744,53 @@ class DetailedNetworkFlowDiagram:
         canvas_x = self.canvas.canvasx(event.x)
         canvas_y = self.canvas.canvasy(event.y)
         
+        # Recirculation rectangle dragging - allow user to position it
+        if self.dragging_recirculation and self.dragged_recirculation_edge_idx is not None:
+            edges = self.area_data.get('edges', [])
+            if self.dragged_recirculation_edge_idx < len(edges):
+                edge = edges[self.dragged_recirculation_edge_idx]
+                
+                # Calculate the drag offset
+                dx = canvas_x - self.recirculation_drag_start_x
+                dy = canvas_y - self.recirculation_drag_start_y
+                
+                # Get current position
+                loop_data = edge.get('recirculation_pos', {})
+                cx = float(loop_data.get('x', 0))
+                cy = float(loop_data.get('y', 0))
+                
+                # Update position
+                new_cx = cx + dx
+                new_cy = cy + dy
+                
+                # Update drag start for next frame
+                self.recirculation_drag_start_x = canvas_x
+                self.recirculation_drag_start_y = canvas_y
+                
+                # Update edge data
+                edge['recirculation_pos'] = {'x': new_cx, 'y': new_cy}
+                
+                # Redraw to show new position
+                self._draw_diagram()
+            return
+        
         # Label dragging - move canvas items directly for smooth dragging
         if self.dragging_label and self.dragged_label_edge_idx is not None:
             edges = self.area_data.get('edges', [])
             if self.dragged_label_edge_idx < len(edges):
                 edge = edges[self.dragged_label_edge_idx]
                 
-                # Calculate new label position
-                from_id = edge.get('from')
-                to_id = edge.get('to')
+                # Build path points from segments (works for all edges including junctions)
+                segments = edge.get('segments', [])
                 
-                if from_id in self.nodes_by_id and to_id in self.nodes_by_id:
-                    # Build path points from segments
-                    segments = edge.get('segments', [])
-                    
-                    if len(segments) >= 2:
-                        path_points = segments[:]
-                    else:
+                if len(segments) >= 2:
+                    # Use segments directly - all manually drawn lines have segments
+                    path_points = segments[:]
+                else:
+                    # Fallback: try to build from node centers (only for component-to-component)
+                    from_id = edge.get('from')
+                    to_id = edge.get('to')
+                    if from_id in self.nodes_by_id and to_id in self.nodes_by_id:
                         from_node = self.nodes_by_id[from_id]
                         to_node = self.nodes_by_id[to_id]
                         from_x = from_node['x'] + from_node['width'] / 2
@@ -1365,39 +1798,42 @@ class DetailedNetworkFlowDiagram:
                         to_x = to_node['x'] + to_node['width'] / 2
                         to_y = to_node['y'] + to_node['height'] / 2
                         path_points = [(from_x, from_y), (to_x, to_y)]
+                    else:
+                        # No valid path available
+                        return
+                
+                # Find closest point on path to mouse
+                min_dist = float('inf')
+                best_offset = 0.5
+                closest_x, closest_y = canvas_x, canvas_y
+                
+                for i in range(len(path_points) - 1):
+                    x1, y1 = path_points[i]
+                    x2, y2 = path_points[i + 1]
                     
-                    # Find closest point on path to mouse
-                    min_dist = float('inf')
-                    best_offset = 0.5
-                    closest_x, closest_y = canvas_x, canvas_y
-                    
-                    for i in range(len(path_points) - 1):
-                        x1, y1 = path_points[i]
-                        x2, y2 = path_points[i + 1]
+                    segment_len = ((x2 - x1)**2 + (y2 - y1)**2)**0.5
+                    if segment_len > 0:
+                        t = max(0, min(1, ((canvas_x - x1) * (x2 - x1) + (canvas_y - y1) * (y2 - y1)) / segment_len**2))
+                        cx = x1 + t * (x2 - x1)
+                        cy = y1 + t * (y2 - y1)
+                        dist = ((canvas_x - cx)**2 + (canvas_y - cy)**2)**0.5
                         
-                        segment_len = ((x2 - x1)**2 + (y2 - y1)**2)**0.5
-                        if segment_len > 0:
-                            t = max(0, min(1, ((canvas_x - x1) * (x2 - x1) + (canvas_y - y1) * (y2 - y1)) / segment_len**2))
-                            cx = x1 + t * (x2 - x1)
-                            cy = y1 + t * (y2 - y1)
-                            dist = ((canvas_x - cx)**2 + (canvas_y - cy)**2)**0.5
-                            
-                            if dist < min_dist:
-                                min_dist = dist
-                                best_offset = (i + t) / (len(path_points) - 1)
-                                closest_x, closest_y = cx, cy
-                    
-                    # Persist exact label coordinates for stable redraws
-                    edge['label_offset'] = best_offset
-                    edge['label_pos'] = {'x': closest_x, 'y': closest_y}
-                    
-                    # Move the label canvas items directly (smooth visual feedback)
-                    if self.dragged_label_edge_idx in self.edge_to_label_items:
-                        box_id, text_id = self.edge_to_label_items[self.dragged_label_edge_idx]
-                        # Update box position
-                        self.canvas.coords(box_id, closest_x - 30, closest_y - 8, closest_x + 30, closest_y + 8)
-                        # Update text position
-                        self.canvas.coords(text_id, closest_x, closest_y)
+                        if dist < min_dist:
+                            min_dist = dist
+                            best_offset = (i + t) / (len(path_points) - 1)
+                            closest_x, closest_y = cx, cy
+                
+                # Persist exact label coordinates for stable redraws
+                edge['label_offset'] = best_offset
+                edge['label_pos'] = {'x': closest_x, 'y': closest_y}
+                
+                # Move the label canvas items directly (smooth visual feedback)
+                if self.dragged_label_edge_idx in self.edge_to_label_items:
+                    box_id, text_id = self.edge_to_label_items[self.dragged_label_edge_idx]
+                    # Update box position
+                    self.canvas.coords(box_id, closest_x - 30, closest_y - 8, closest_x + 30, closest_y + 8)
+                    # Update text position
+                    self.canvas.coords(text_id, closest_x, closest_y)
             return
         
         # Component dragging
@@ -1437,14 +1873,22 @@ class DetailedNetworkFlowDiagram:
         # If we were dragging a label, redraw once to finalize position
         was_dragging_label = self.dragging_label
         
+        # If we were dragging recirculation box, save position
+        was_dragging_recirculation = self.dragging_recirculation
+        
         self.dragging = False
         self.dragging_label = False
         self.dragged_label_edge_idx = None
+        self.dragging_recirculation = False
         
-        # Redraw only once after label drag is complete
+        # Redraw only once after drag is complete
         if was_dragging_label:
             self._draw_diagram()
             logger.info("✅ Label position saved")
+        
+        if was_dragging_recirculation:
+            self._draw_diagram()
+            logger.info("✅ Recirculation position saved")
 
     def _on_canvas_right_click(self, event):
         """Handle right-click - cancel drawing or delete"""
@@ -1518,6 +1962,20 @@ class DetailedNetworkFlowDiagram:
             # Vertical preview
             self._preview_line_id = self.canvas.create_line(last_x, last_y, last_x, canvas_y, 
                                    fill='#95a5a6', width=2, dash=(3, 3), tags='preview')
+
+    def _zoom(self, factor):
+        """Zoom canvas content by factor around origin"""
+        try:
+            self.canvas.scale('all', 0, 0, factor, factor)
+            # Also scale scrollregion
+            sr = self.canvas.cget('scrollregion')
+            if sr:
+                x1, y1, x2, y2 = map(float, sr.split())
+                x2 *= factor
+                y2 *= factor
+                self.canvas.configure(scrollregion=(x1, y1, x2, y2))
+        except Exception as e:
+            logger.error(f"Zoom error: {e}")
 
     def _show_flow_type_dialog(self, from_id, to_id):
         """Show professional flow type selection dialog with scrollable options"""
@@ -1684,7 +2142,7 @@ class DetailedNetworkFlowDiagram:
         input_frame = tk.Frame(dialog)
         input_frame.pack(pady=15, padx=10, fill='x')
         
-        tk.Label(input_frame, text="Volume (m³/month):", 
+        tk.Label(input_frame, text="Volume or Label (m³/month):", 
             font=('Segoe UI', 10, 'bold')).pack(side='left', padx=5)
         
         volume_var = tk.StringVar()
@@ -1699,15 +2157,14 @@ class DetailedNetworkFlowDiagram:
         result = [None]
         
         def validate_and_submit():
-            try:
-                val = float(volume_var.get())
-                if val < 0:
-                    error_label.config(text="Volume must be positive")
-                    return
-                result[0] = val
-                dialog.destroy()
-            except ValueError:
-                error_label.config(text="Please enter a valid number")
+            val_str = volume_var.get().strip()
+            if not val_str:
+                error_label.config(text="Please enter a value or label")
+                return
+            
+            # Allow any value: numbers (positive/negative), dashes, text, etc.
+            result[0] = val_str
+            dialog.destroy()
         
         def on_cancel():
             dialog.destroy()
@@ -1732,12 +2189,39 @@ class DetailedNetworkFlowDiagram:
         dialog.wait_window()
         return result[0]
 
-    def _finish_drawing(self, from_id, to_id):
-        """Finish drawing and create or update edge with smart edge connections"""
+    def _finish_drawing(self, from_id, to_id, is_junction=False, junction_pos=None):
+        """Finish drawing and create or update edge with smart edge connections
+        
+        Args:
+            from_id: Source component ID
+            to_id: Destination component ID or junction ID
+            is_junction: True if connecting to a flow line junction point
+            junction_pos: (x, y) tuple for junction position if is_junction=True
+        """
         edges = self.area_data.get('edges', [])
         
+        # Format display names for dialogs
+        to_display = f"Flow Junction at ({junction_pos[0]:.0f}, {junction_pos[1]:.0f})" if is_junction else to_id
+        # Detect if the source is a junction (started from an existing line)
+        is_junction_start = False
+        junction_start_pos = None
+        try:
+            if isinstance(from_id, str) and from_id.startswith("junction:"):
+                parts = from_id.split(":")
+                if len(parts) == 3:
+                    jx = float(parts[1])
+                    jy = float(parts[2])
+                    is_junction_start = True
+                    junction_start_pos = (jx, jy)
+                    # Improve dialog display for clarity
+                    from_id = f"Flow Junction at ({jx:.0f}, {jy:.0f})"
+        except Exception:
+            # If parsing fails, treat as normal component
+            is_junction_start = False
+            junction_start_pos = None
+        
         # Get flow type using custom dialog
-        flow_type = self._show_flow_type_dialog(from_id, to_id)
+        flow_type = self._show_flow_type_dialog(from_id, to_display)
         if not flow_type:
             messagebox.showwarning("Cancelled", "Flow type required. Drawing cancelled.")
             self.drawing_mode = False
@@ -1748,7 +2232,7 @@ class DetailedNetworkFlowDiagram:
             return
 
         # Get volume using custom dialog
-        volume = self._show_volume_dialog(from_id, to_id, flow_type)
+        volume = self._show_volume_dialog(from_id, to_display, flow_type)
         if volume is None:
             messagebox.showwarning("Cancelled", "Volume required. Drawing cancelled.")
             self.drawing_mode = False
@@ -1796,10 +2280,20 @@ class DetailedNetworkFlowDiagram:
                 'flow_type': flow_type,
                 'volume': volume,
                 'color': color,
-                'label': label
+                'label': label,
+                'bidirectional': False,
+                'is_junction': is_junction
             }
+            if is_junction and junction_pos:
+                new_edge['junction_pos'] = {'x': junction_pos[0], 'y': junction_pos[1]}
+            if is_junction_start and junction_start_pos:
+                new_edge['is_junction_start'] = True
+                new_edge['junction_start_pos'] = {'x': junction_start_pos[0], 'y': junction_start_pos[1]}
+            
             edges.append(new_edge)
-            logger.info(f"✅ Created flow: {from_id} → {to_id} ({flow_type}, {label} m³)")
+            connection_type = "junction" if is_junction else "component"
+            origin_type = "junction" if is_junction_start else "component"
+            logger.info(f"✅ Created flow: {from_id} → {to_id} ({flow_type}, {label} m³) [from {origin_type} to {connection_type}]")
 
         self.area_data['edges'] = edges
         self.drawing_mode = False
@@ -1810,7 +2304,12 @@ class DetailedNetworkFlowDiagram:
         self.canvas.config(cursor='hand2')
         
         self._draw_diagram()
-        messagebox.showinfo("Success", f"Flow saved: {from_id} → {to_id}\n{flow_type.title()}: {label} m³")
+        success_msg = f"Flow saved: {from_id} → {to_display}\n{flow_type.title()}: {label} m³"
+        if is_junction:
+            success_msg += "\n\n✅ Connected to existing flow line"
+        if is_junction_start:
+            success_msg += "\n\n✅ Started from existing flow line"
+        messagebox.showinfo("Success", success_msg)
 
     def _get_node_at(self, x, y):
         """Get node at position"""
