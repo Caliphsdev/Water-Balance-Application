@@ -91,7 +91,10 @@ class OverallBalanceMetrics:
 
 
 class BalanceCheckEngine:
-    """Calculates water balance metrics from template data"""
+    """Calculates water balance metrics from template data
+    
+    Uses ALL flows from templates - no configuration filtering
+    """
     
     def __init__(self):
         self.parser = get_template_parser()
@@ -99,12 +102,26 @@ class BalanceCheckEngine:
         self.metrics: Optional[OverallBalanceMetrics] = None
     
     def calculate_balance(self) -> OverallBalanceMetrics:
-        """Calculate overall and per-area balance metrics
+        """Calculate overall and per-area balance metrics from template files
         
-        Respects area exclusions - excluded areas are skipped from calculations
+        Reads ALL flows from .txt template files:
+        - INFLOW_CODES_TEMPLATE.txt
+        - OUTFLOW_CODES_TEMPLATE_CORRECTED.txt
+        - DAM_RECIRCULATION_TEMPLATE.txt
+        
+        Respects area exclusions only (no flow filtering)
         
         Returns:
             OverallBalanceMetrics object with all calculations
+        """
+        return self._calculate_from_templates()
+
+    
+    def _calculate_from_templates(self) -> OverallBalanceMetrics:
+        """Calculate balance from template files (fallback)
+        
+        Returns:
+            OverallBalanceMetrics with calculations from templates
         """
         metrics = OverallBalanceMetrics()
         
@@ -113,7 +130,7 @@ class BalanceCheckEngine:
         included_areas = self.exclusion_manager.get_included_areas(all_areas)
         excluded_areas = self.exclusion_manager.get_excluded_areas()
         
-        # Calculate totals (only for included areas)
+        # Calculate totals (only for included areas - ALL flows)
         for entry in self.parser.inflows:
             if entry.area not in excluded_areas:
                 metrics.total_inflows += entry.value_m3
@@ -137,7 +154,7 @@ class BalanceCheckEngine:
             if entry.area not in excluded_areas:
                 metrics.recirculation_count += 1
         
-        # Calculate per-area metrics (for ALL areas, but mark excluded)
+        # Calculate per-area metrics (for ALL areas)
         for area in sorted(all_areas):
             area_inflows = self.parser.get_inflows_by_area(area)
             area_outflows = self.parser.get_outflows_by_area(area)

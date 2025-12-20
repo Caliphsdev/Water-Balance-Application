@@ -207,6 +207,51 @@ class FlowVolumeLoader:
         
         logger.info(f"📊 Loaded {len(volumes)} flows for {area_code} ({year}-{month:02d})")
         return volumes
+
+    def get_all_volumes_for_month_from_sheet(self,
+                                             sheet_name: str,
+                                             year: int,
+                                             month: int) -> Dict[str, float]:
+        """Return all volumes for a given sheet and month, keyed by column.
+
+        This is sheet-aware and avoids cross-sheet column collisions by only
+        returning data from the specified sheet.
+
+        Args:
+            sheet_name: Exact Excel sheet name (e.g., 'Flows_UG2N')
+            year: Year to filter
+            month: Month to filter (1-12)
+
+        Returns:
+            Dict mapping column name to volume for the requested (year, month).
+        """
+        df = self._load_sheet(sheet_name)
+        if df.empty:
+            return {}
+
+        # Find row matching year and month
+        matching_rows = df[(df['Year'] == year) & (df['Month'] == month)]
+        if matching_rows.empty:
+            return {}
+
+        row = matching_rows.iloc[0]
+        volumes: Dict[str, float] = {}
+        skip_cols = {'Date', 'Year', 'Month'}
+        for col in df.columns:
+            if col in skip_cols:
+                continue
+            try:
+                vol = float(row[col])
+                if not pd.isna(vol):
+                    volumes[col] = vol
+            except (TypeError, ValueError):
+                # Non-numeric or missing values are ignored
+                continue
+
+        logger.info(
+            f"📊 Loaded {len(volumes)} flows from '{sheet_name}' ({year}-{month:02d})"
+        )
+        return volumes
     
     def update_diagram_edges(self,
                             area_data: Dict,
@@ -225,44 +270,74 @@ class FlowVolumeLoader:
         Returns:
             Updated area_data with volumes refreshed
         """
-        # Collect all unique sheets referenced by edges
+        # Collect all unique sheets referenced by enabled edges (sheet-aware)
         edges = area_data.get('edges', [])
-        sheets_to_load = set()
-        
+        sheets_to_load: set[str] = set()
+
         for edge in edges:
             excel_mapping = edge.get('excel_mapping', {})
-            if excel_mapping.get('enabled'):
-                sheet = excel_mapping.get('sheet', f'Flows_{area_code}')
-                sheets_to_load.add(sheet)
-        
-        # Load volumes from all required sheets
-        all_volumes = {}
+            if not excel_mapping.get('enabled'):
+                continue
+            # If a sheet is explicitly set, use exactly that sheet; otherwise default
+            sheet = excel_mapping.get('sheet') or f'Flows_{area_code}'
+            sheets_to_load.add(sheet)
+
+        # Load volumes per sheet to avoid cross-sheet collisions
+        volumes_by_sheet: Dict[str, Dict[str, float]] = {}
         for sheet in sheets_to_load:
-            # Extract area code from sheet name (e.g., Flows_UG2N -> UG2N)
-            sheet_area_code = sheet.replace('Flows_', '') if sheet.startswith('Flows_') else area_code
-            volumes = self.get_all_volumes_for_month(sheet_area_code, year, month)
-            all_volumes.update(volumes)
-        
-        # Update edges with volumes
+            volumes_by_sheet[sheet] = self.get_all_volumes_for_month_from_sheet(
+                sheet, year, month
+            )
+
+        # Update edges with volumes using (sheet, column) mapping
         updated_count = 0
+        empty_sheets = set()  # Track sheets that returned no data for this month
+        
+        for sheet, vols in volumes_by_sheet.items():
+            if not vols:
+                empty_sheets.add(sheet)
+        
         for edge in edges:
             excel_mapping = edge.get('excel_mapping', {})
             if not excel_mapping.get('enabled'):
                 continue
             
+            sheet = excel_mapping.get('sheet') or f'Flows_{area_code}'
             flow_id = excel_mapping.get('column')
-            if not flow_id or flow_id not in all_volumes:
+            if not flow_id:
+                logger.debug(f"⚠️ Skipping edge without 'column' mapping: {edge}")
                 continue
-            
-            # Update edge with new volume
-            new_volume = all_volumes[flow_id]
+
+            sheet_vols = volumes_by_sheet.get(sheet, {})
+            if flow_id not in sheet_vols:
+                # Clear any stale labels/volumes to reflect missing data deterministically
+                # If the entire sheet is empty for this month, display dash to signal emptiness
+                if sheet in empty_sheets:
+                    edge['volume'] = None
+                    edge['label'] = "—"  # Dash indicates sheet had no data for this month
+                    logger.debug(
+                        f"⚠️ Sheet '{sheet}' empty for {year}-{month:02d}; edge ({flow_id}) shows '—'"
+                    )
+                else:
+                    edge.pop('label', None)
+                    edge['volume'] = None
+                    logger.debug(
+                        f"⚠️ No volume for ({sheet}, {flow_id}) in {year}-{month:02d}"
+                    )
+                continue
+
+            # Update edge with sheet-specific volume
+            new_volume = sheet_vols[flow_id]
             edge['volume'] = new_volume
-            edge['label'] = f"{new_volume:,.0f}"
+            edge['label'] = f"{new_volume:,.2f}"
             updated_count += 1
-            
-            logger.debug(f"✅ Updated {edge.get('from')} → {edge.get('to')}: {new_volume:,.0f} m³")
-        
-        logger.info(f"📈 Updated {updated_count} flow volumes from Excel (sheets: {', '.join(sheets_to_load)})")
+            logger.debug(
+                f"✅ Updated {edge.get('from')} → {edge.get('to')} ({sheet}:{flow_id}): {new_volume:,.2f} m³"
+            )
+
+        logger.info(
+            f"📈 Updated {updated_count} flow volumes from Excel (sheets: {', '.join(sorted(sheets_to_load))})"
+        )
         return area_data
     
     def get_available_months(self, area_code: str) -> List[Tuple[int, int]]:

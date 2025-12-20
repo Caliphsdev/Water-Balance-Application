@@ -21,6 +21,7 @@ from utils.ui_notify import notifier
 from utils.error_handler import error_handler
 from ui.main_window import MainWindow
 from database.db_manager import db
+from utils.flow_volume_loader import get_flow_volume_loader, reset_flow_volume_loader
 
 # New: Async loading support (Phase 1: Fast Startup)
 from utils.async_loader import get_loader, load_database_blocking
@@ -373,6 +374,17 @@ class WaterBalanceApp:
                     self.loading_indicator.hide()
                 except:
                     pass
+
+            # Clear Excel flow loader caches to ensure fresh loads next session
+            try:
+                loader = get_flow_volume_loader()
+                loader.clear_cache()
+            except Exception:
+                pass
+            try:
+                reset_flow_volume_loader()
+            except Exception:
+                pass
                     
             logger.info("Application closing - user confirmed")
             logger.info("=" * 60)

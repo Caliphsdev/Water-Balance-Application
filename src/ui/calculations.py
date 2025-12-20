@@ -10,6 +10,7 @@ import calendar
 from typing import Optional
 import sys
 from pathlib import Path
+import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from database.db_manager import DatabaseManager
@@ -195,6 +196,11 @@ class CalculationsModule:
                              style='Accent.TButton')
         calc_btn.pack(side=tk.LEFT, padx=(10, 0))
         
+        # Configure Balance Check button - DISABLED (using all template flows)
+        # config_btn = ttk.Button(date_frame, text="⚙️ Configure Balance Check",
+        #                        command=self._open_balance_config_editor)
+        # config_btn.pack(side=tk.LEFT, padx=(10, 0))
+        
         # Save button
         save_btn = ttk.Button(date_frame, text="💾 Save Calculation", 
                              command=self._save_calculation)
@@ -221,16 +227,49 @@ class CalculationsModule:
         notebook = ttk.Notebook(notebook_frame)
         notebook.pack(fill=tk.BOTH, expand=True)
         
-        # Tab 1: Flow Diagram Parameters (pending wiring)
-        self.flow_params_frame = ttk.Frame(notebook)
-        notebook.add(self.flow_params_frame, text="🧭 Flow Diagram Parameters")
+        # Tab 1: Balance Calculation Breakdown (PARAMETERS & FORMULA - NEW TAB)
+        self.breakdown_frame = ttk.Frame(notebook)
+        notebook.add(self.breakdown_frame, text="📐 Balance Calculation Breakdown")
 
-        # Tab 2: Future Water Balance Calc (placeholder)
+        # Tab 2: Balance Check Summary (MAIN RESULTS TAB)
+        self.balance_summary_frame = ttk.Frame(notebook)
+        notebook.add(self.balance_summary_frame, text="⚖️ Balance Check Summary")
+
+        # Hidden for now - can be enabled later
+        # Tab 3: Area Balance Breakdown
+        self.area_balance_frame = ttk.Frame(notebook)
+        # notebook.add(self.area_balance_frame, text="🗺️ Area Breakdown")
+
+        # ORIGINAL Calculation Tabs (hidden for now)
+        # Tab 4: Summary (water balance calculation)
+        self.summary_frame = ttk.Frame(notebook)
+        # notebook.add(self.summary_frame, text="📋 Summary")
+        
+        # Tab 5: Inflows
+        self.inflows_frame = ttk.Frame(notebook)
+        # notebook.add(self.inflows_frame, text="💧 Inflows")
+        
+        # Tab 6: Outflows
+        self.outflows_frame = ttk.Frame(notebook)
+        # notebook.add(self.outflows_frame, text="🚰 Outflows")
+        
+        # Tab 7: Storage
+        self.storage_frame = ttk.Frame(notebook)
+        # notebook.add(self.storage_frame, text="🏗️ Storage")
+
+        # Tab 8: Future Water Balance Calc (placeholder)
         self.future_balance_frame = ttk.Frame(notebook)
-        notebook.add(self.future_balance_frame, text="📈 Water Balance Calculation")
+        # notebook.add(self.future_balance_frame, text="📈 Water Balance Calculation")
+
+    def _show_placeholder(self):
         """Show initial placeholder prompting user to run calculation on demand"""
         frames_to_clear = [
-            getattr(self, 'flow_params_frame', None),
+            getattr(self, 'balance_summary_frame', None),
+            getattr(self, 'area_balance_frame', None),
+            getattr(self, 'summary_frame', None),
+            getattr(self, 'inflows_frame', None),
+            getattr(self, 'outflows_frame', None),
+            getattr(self, 'storage_frame', None),
             getattr(self, 'future_balance_frame', None)
         ]
         
@@ -283,9 +322,199 @@ class CalculationsModule:
             messagebox.showerror("Calculation Error", f"Failed to calculate balance:\n{str(e)}")
             logger.error(f"Calculation error: {e}", exc_info=True)
     
+    def _update_balance_calculation_breakdown(self):
+        """Professional Balance Calculation Breakdown tab with parameters and formula"""
+        # Check if frame still exists
+        if not hasattr(self, 'breakdown_frame') or not self.breakdown_frame.winfo_exists():
+            logger.warning("Breakdown frame no longer exists, skipping update")
+            return
+        
+        # Clear existing
+        for widget in self.breakdown_frame.winfo_children():
+            widget.destroy()
+        
+        metrics = self.balance_engine.get_metrics()
+        if not metrics:
+            return
+        
+        # Main container with Flow Diagram theme
+        main_container = tk.Frame(self.breakdown_frame, bg='#2c3e50')
+        main_container.pack(fill=tk.BOTH, expand=True, padx=2, pady=2)
+        
+        # Create scrollable area
+        canvas = tk.Canvas(main_container, bg='#2c3e50', highlightthickness=0)
+        scrollbar = ttk.Scrollbar(main_container, orient='vertical', command=canvas.yview)
+        scrollable_frame = tk.Frame(canvas, bg='#2c3e50')
+        
+        scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+        
+        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+        
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+        
+        # Header
+        header_frame = tk.Frame(scrollable_frame, bg='#2c3e50')
+        header_frame.pack(fill=tk.X, padx=15, pady=(15, 10))
+        
+        tk.Label(header_frame,
+                text="📐 Balance Calculation Breakdown",
+                font=('Segoe UI', 16, 'bold'),
+                bg='#2c3e50', fg='#ecf0f1').pack(anchor='w')
+        
+        tk.Label(header_frame,
+                text="Step-by-step calculation with all parameters and formula",
+                font=('Segoe UI', 10),
+                bg='#2c3e50', fg='#95a5a6').pack(anchor='w', pady=(5, 0))
+        
+        # Formula section
+        formula_frame = tk.Frame(scrollable_frame, bg='#34495e', relief=tk.SOLID, borderwidth=1)
+        formula_frame.pack(fill=tk.X, padx=15, pady=(0, 15))
+        
+        tk.Label(formula_frame,
+                text="📝 Balance Formula",
+                font=('Segoe UI', 11, 'bold'),
+                bg='#34495e', fg='#ecf0f1').pack(anchor='w', padx=12, pady=(10, 5))
+        
+        formula_text = (
+            "Total Inflows − Total Recirculation − Total Outflows = Balance Difference\n"
+            "Balance Error % = (Balance Difference ÷ Total Inflows) × 100"
+        )
+        tk.Label(formula_frame,
+                text=formula_text,
+                font=('Segoe UI', 10, 'italic'),
+                bg='#34495e', fg='#ecf0f1',
+                justify='left').pack(anchor='w', padx=12, pady=(0, 10))
+        
+        # Parameters section
+        params_frame = tk.Frame(scrollable_frame, bg='#2c3e50')
+        params_frame.pack(fill=tk.X, padx=15, pady=(0, 15))
+        
+        tk.Label(params_frame,
+                text="⚙️ Input Parameters",
+                font=('Segoe UI', 11, 'bold'),
+                bg='#2c3e50', fg='#ecf0f1').pack(anchor='w')
+        
+        # Parameters in a grid
+        params_grid = tk.Frame(params_frame, bg='#2c3e50')
+        params_grid.pack(fill=tk.X, pady=(10, 0))
+        
+        # Get calculation date from UI
+        try:
+            calc_date_str = self.calc_date_var.get() if hasattr(self, 'calc_date_var') else datetime.now().strftime('%Y-%m-%d')
+        except:
+            calc_date_str = datetime.now().strftime('%Y-%m-%d')
+        
+        params_data = [
+            ("Calculation Date", calc_date_str, "📅"),
+            ("Excluded Areas", ", ".join(self.balance_engine.get_excluded_areas()) or "None", "⛔"),
+            ("Included Areas", f"{len([a for a in metrics.area_metrics.keys() if a not in self.balance_engine.get_excluded_areas()])} areas", "🏭"),
+        ]
+        
+        for i, (label, value, icon) in enumerate(params_data):
+            param_card = tk.Frame(params_grid, bg='#34495e', relief=tk.SOLID, borderwidth=1)
+            param_card.pack(fill=tk.X, pady=5)
+            
+            tk.Label(param_card, text=f"{icon} {label}:", font=('Segoe UI', 10, 'bold'),
+                    bg='#34495e', fg='#ecf0f1').pack(anchor='w', padx=12, pady=(8, 2))
+            tk.Label(param_card, text=str(value), font=('Segoe UI', 10),
+                    bg='#34495e', fg='#3498db').pack(anchor='w', padx=12, pady=(0, 8))
+        
+        # Calculation steps section
+        steps_frame = tk.Frame(scrollable_frame, bg='#2c3e50')
+        steps_frame.pack(fill=tk.BOTH, expand=True, padx=15, pady=(0, 15))
+        
+        tk.Label(steps_frame,
+                text="📊 Calculation Steps",
+                font=('Segoe UI', 11, 'bold'),
+                bg='#2c3e50', fg='#ecf0f1').pack(anchor='w')
+        
+        # Step 1: Total Inflows
+        step1_frame = tk.Frame(steps_frame, bg='#34495e', relief=tk.SOLID, borderwidth=1)
+        step1_frame.pack(fill=tk.X, pady=(10, 5))
+        
+        tk.Label(step1_frame, text="Step 1️⃣ Calculate Total Inflows",
+                font=('Segoe UI', 10, 'bold'),
+                bg='#34495e', fg='#3498db').pack(anchor='w', padx=12, pady=(8, 5))
+        tk.Label(step1_frame, text=f"Total Inflows = {metrics.total_inflows:,.0f} m³  ({metrics.inflow_count} sources)",
+                font=('Segoe UI', 10),
+                bg='#34495e', fg='#ecf0f1').pack(anchor='w', padx=12, pady=(0, 8))
+        
+        # Step 2: Total Recirculation
+        step2_frame = tk.Frame(steps_frame, bg='#34495e', relief=tk.SOLID, borderwidth=1)
+        step2_frame.pack(fill=tk.X, pady=5)
+        
+        tk.Label(step2_frame, text="Step 2️⃣ Calculate Total Recirculation",
+                font=('Segoe UI', 10, 'bold'),
+                bg='#34495e', fg='#27ae60').pack(anchor='w', padx=12, pady=(8, 5))
+        tk.Label(step2_frame, text=f"Total Recirculation = {metrics.total_recirculation:,.0f} m³  ({metrics.recirculation_count} self-loops)",
+                font=('Segoe UI', 10),
+                bg='#34495e', fg='#ecf0f1').pack(anchor='w', padx=12, pady=(0, 8))
+        
+        # Step 3: Total Outflows
+        step3_frame = tk.Frame(steps_frame, bg='#34495e', relief=tk.SOLID, borderwidth=1)
+        step3_frame.pack(fill=tk.X, pady=5)
+        
+        tk.Label(step3_frame, text="Step 3️⃣ Calculate Total Outflows",
+                font=('Segoe UI', 10, 'bold'),
+                bg='#34495e', fg='#e74c3c').pack(anchor='w', padx=12, pady=(8, 5))
+        tk.Label(step3_frame, text=f"Total Outflows = {metrics.total_outflows:,.0f} m³  ({metrics.outflow_count} flows)",
+                font=('Segoe UI', 10),
+                bg='#34495e', fg='#ecf0f1').pack(anchor='w', padx=12, pady=(0, 8))
+        
+        # Step 4: Balance Difference
+        step4_frame = tk.Frame(steps_frame, bg='#34495e', relief=tk.SOLID, borderwidth=1)
+        step4_frame.pack(fill=tk.X, pady=5)
+        
+        tk.Label(step4_frame, text="Step 4️⃣ Calculate Balance Difference",
+                font=('Segoe UI', 10, 'bold'),
+                bg='#34495e', fg='#f39c12').pack(anchor='w', padx=12, pady=(8, 5))
+        
+        calc_text = (
+            f"{metrics.total_inflows:,.0f} − {metrics.total_recirculation:,.0f} − {metrics.total_outflows:,.0f} "
+            f"= {metrics.balance_difference:,.0f} m³"
+        )
+        tk.Label(step4_frame, text=calc_text,
+                font=('Segoe UI', 10),
+                bg='#34495e', fg='#ecf0f1').pack(anchor='w', padx=12, pady=(0, 8))
+        
+        # Step 5: Error Percentage
+        step5_frame = tk.Frame(steps_frame, bg='#34495e', relief=tk.SOLID, borderwidth=1)
+        step5_frame.pack(fill=tk.X, pady=5)
+        
+        tk.Label(step5_frame, text="Step 5️⃣ Calculate Error Percentage",
+                font=('Segoe UI', 10, 'bold'),
+                bg='#34495e', fg='#9b59b6').pack(anchor='w', padx=12, pady=(8, 5))
+        
+        error_calc = (
+            f"({metrics.balance_difference:,.0f} ÷ {metrics.total_inflows:,.0f}) × 100 "
+            f"= {metrics.balance_error_percent:.2f}%"
+        )
+        tk.Label(step5_frame, text=error_calc,
+                font=('Segoe UI', 10),
+                bg='#34495e', fg='#ecf0f1').pack(anchor='w', padx=12, pady=(0, 8))
+        
+        # Final result
+        result_frame = tk.Frame(steps_frame, bg='#27ae60' if metrics.is_balanced else '#e74c3c', relief=tk.SOLID, borderwidth=2)
+        result_frame.pack(fill=tk.X, pady=(10, 0))
+        
+        status_icon = "✅" if metrics.is_balanced else "⚠️"
+        tk.Label(result_frame, text=f"{status_icon} Final Status: {metrics.status_label}",
+                font=('Segoe UI', 12, 'bold'),
+                bg='#27ae60' if metrics.is_balanced else '#e74c3c', fg='#ecf0f1').pack(padx=12, pady=12)
+    
     
     def _update_balance_check_summary(self):
         """Update balance check summary tab with overall water balance"""
+        # Check if frame still exists
+        if not hasattr(self, 'balance_summary_frame') or not self.balance_summary_frame.winfo_exists():
+            logger.warning("Balance summary frame no longer exists, skipping update")
+            return
+        
         # Clear existing
         for widget in self.balance_summary_frame.winfo_children():
             widget.destroy()
@@ -342,32 +571,6 @@ class CalculationsModule:
         self.add_metric_card(error_frame, "Status", metrics.status_label,
                             error_color, icon="✅")
         
-        # Breakdown table
-        breakdown_data = [
-            {"values": ("Total Inflows (Fresh + Recycled)", f"{metrics.total_inflows:,.0f}"), "tag": "input"},
-            {"values": ("─" * 35, "─" * 20), "tag": "separator"},
-            {"values": ("Less: Dam Recirculation", f"({metrics.total_recirculation:,.0f})"), "tag": "calculation"},
-            {"values": ("Less: Total Outflows", f"({metrics.total_outflows:,.0f})"), "tag": "calculation"},
-            {"values": ("─" * 35, "─" * 20), "tag": "separator"},
-            {"values": ("= Balance Difference", f"{metrics.balance_difference:,.0f}"), "tag": "result"},
-            {"values": ("", ""), "tag": "separator"},
-            {"values": ("Error %", f"{metrics.balance_error_percent:.2f}%"), "tag": "error"},
-        ]
-        
-        breakdown_frame = ttk.LabelFrame(self.balance_summary_frame, text="📊 Balance Calculation Breakdown", padding=10)
-        breakdown_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 10))
-        
-        tag_configs = {
-            'input': {'foreground': '#007bff'},
-            'calculation': {'foreground': '#666'},
-            'result': {'font': ('Segoe UI', 10, 'bold'), 'foreground': '#000'},
-            'error': {'font': ('Segoe UI', 10, 'bold'), 'foreground': error_color},
-            'separator': {'foreground': '#ccc'}
-        }
-        
-        self.add_treeview(breakdown_frame, ('item', 'value'), 
-                         ['Item', 'Value (m³)'], breakdown_data, tag_configs)
-        
         # Summary statistics
         stats_frame = ttk.LabelFrame(self.balance_summary_frame, text="📈 Summary Statistics", padding=10)
         stats_frame.pack(fill=tk.X)
@@ -385,6 +588,11 @@ class CalculationsModule:
     
     def _update_area_balance_breakdown(self):
         """Update per-area balance breakdown tab"""
+        # Check if frame still exists
+        if not hasattr(self, 'area_balance_frame') or not self.area_balance_frame.winfo_exists():
+            logger.warning("Area balance frame no longer exists, skipping update")
+            return
+        
         # Clear existing
         for widget in self.area_balance_frame.winfo_children():
             widget.destroy()
@@ -392,139 +600,6 @@ class CalculationsModule:
         metrics = self.balance_engine.get_metrics()
         if not metrics or not metrics.area_metrics:
             return
-        
-        # Header
-        ttk.Label(self.area_balance_frame,
-                 text="🗺️ Balance Check by Mine Area",
-                 font=('Segoe UI', 14, 'bold')).pack(pady=(0, 20))
-        
-        # Info box
-        self.add_info_box(self.area_balance_frame,
-                         "Detailed balance breakdown for each mine area.\n"
-                         "Shows inflows, outflows, and recirculation specific to each area.",
-                         icon="💡")
-
-    def _update_flow_params_preview(self):
-        """Placeholder table for flow diagram-linked parameters (monthly)."""
-        for widget in self.flow_params_frame.winfo_children():
-            widget.destroy()
-        
-        # Main container with Flow Diagram theme
-        container = tk.Frame(self.flow_params_frame, bg='#2c3e50')
-        container.pack(fill=tk.BOTH, expand=True, padx=2, pady=2)
-        
-        # Header
-        header_frame = tk.Frame(container, bg='#2c3e50')
-        header_frame.pack(fill=tk.X, padx=15, pady=(15, 10))
-        
-        tk.Label(header_frame,
-                text="🧭 Flow Diagram Parameters (Monthly)",
-                font=('Segoe UI', 14, 'bold'),
-                bg='#2c3e50', fg='#ecf0f1').pack(anchor='w')
-        
-        # Info box
-        info_frame = tk.Frame(container, bg='#34495e', relief=tk.SOLID, borderwidth=1)
-        info_frame.pack(fill=tk.X, padx=15, pady=(0, 15))
-        
-        tk.Label(info_frame,
-                text="ℹ️  Awaiting parameter list. This table will summarize selected flow diagram metrics on a monthly basis.",
-                font=('Segoe UI', 9),
-                bg='#34495e', fg='#ecf0f1',
-                wraplength=800, justify='left').pack(padx=12, pady=10)
-        
-        # Table frame
-        table_frame = tk.Frame(container, bg='#2c3e50')
-        table_frame.pack(fill=tk.BOTH, expand=True, padx=15, pady=(0, 15))
-        
-        # Styled table
-        columns = ('parameter', 'value', 'unit', 'status')
-        table = ttk.Treeview(table_frame, columns=columns, show='headings', height=10)
-        table.heading('parameter', text='Parameter')
-        table.heading('value', text='Value')
-        table.heading('unit', text='Unit')
-        table.heading('status', text='Status')
-        table.column('parameter', width=300, anchor='w')
-        table.column('value', width=150, anchor='e')
-        table.column('unit', width=100, anchor='center')
-        table.column('status', width=150, anchor='center')
-        
-        # Placeholder rows
-        placeholder_data = [
-            ('Parameter 1', '-', 'm³', 'Pending'),
-            ('Parameter 2', '-', 'm³', 'Pending'),
-            ('Parameter 3', '-', 'm³', 'Pending'),
-        ]
-        
-        for row in placeholder_data:
-            table.insert('', 'end', values=row, tags=('pending',))
-        
-        table.tag_configure('pending', foreground='#95a5a6')
-        
-        scrollbar = ttk.Scrollbar(table_frame, orient='vertical', command=table.yview)
-        table.configure(yscrollcommand=scrollbar.set)
-        scrollbar.pack(side='right', fill='y')
-        table.pack(side='left', fill='both', expand=True)
-
-    def _update_future_balance_placeholder(self):
-        """Placeholder for future water balance calculation table."""
-        for widget in self.future_balance_frame.winfo_children():
-            widget.destroy()
-        
-        # Main container with Flow Diagram theme
-        container = tk.Frame(self.future_balance_frame, bg='#2c3e50')
-        container.pack(fill=tk.BOTH, expand=True, padx=2, pady=2)
-        
-        # Header
-        header_frame = tk.Frame(container, bg='#2c3e50')
-        header_frame.pack(fill=tk.X, padx=15, pady=(15, 10))
-        
-        tk.Label(header_frame,
-                text="📈 Water Balance Calculation",
-                font=('Segoe UI', 14, 'bold'),
-                bg='#2c3e50', fg='#ecf0f1').pack(anchor='w')
-        
-        # Info box
-        info_frame = tk.Frame(container, bg='#34495e', relief=tk.SOLID, borderwidth=1)
-        info_frame.pack(fill=tk.X, padx=15, pady=(0, 15))
-        
-        tk.Label(info_frame,
-                text="⏳  This dashboard will host water balance calculations once parameters are defined.",
-                font=('Segoe UI', 9),
-                bg='#34495e', fg='#ecf0f1',
-                wraplength=800, justify='left').pack(padx=12, pady=10)
-        
-        # Table frame
-        table_frame = tk.Frame(container, bg='#2c3e50')
-        table_frame.pack(fill=tk.BOTH, expand=True, padx=15, pady=(0, 15))
-        
-        # Styled table
-        columns = ('metric', 'formula', 'value', 'unit')
-        table = ttk.Treeview(table_frame, columns=columns, show='headings', height=10)
-        table.heading('metric', text='Metric')
-        table.heading('formula', text='Formula/Computation')
-        table.heading('value', text='Value')
-        table.heading('unit', text='Unit')
-        table.column('metric', width=250, anchor='w')
-        table.column('formula', width=300, anchor='w')
-        table.column('value', width=120, anchor='e')
-        table.column('unit', width=100, anchor='center')
-        
-        # Placeholder rows
-        placeholder_data = [
-            ('Metric 1', 'Formula pending', '-', 'm³'),
-            ('Metric 2', 'Formula pending', '-', 'm³'),
-            ('Metric 3', 'Formula pending', '-', 'm³'),
-        ]
-        
-        for row in placeholder_data:
-            table.insert('', 'end', values=row, tags=('pending',))
-        
-        table.tag_configure('pending', foreground='#95a5a6')
-        
-        scrollbar = ttk.Scrollbar(table_frame, orient='vertical', command=table.yview)
-        table.configure(yscrollcommand=scrollbar.set)
-        scrollbar.pack(side='right', fill='y')
-        table.pack(side='left', fill='both', expand=True)
         
         # Create notebook for each area
         area_notebook = ttk.Notebook(self.area_balance_frame)
@@ -620,6 +695,269 @@ class CalculationsModule:
             
             self.add_treeview(details_frame, ('detail', 'value'),
                              ['Detail', 'Value'], details_data, {'normal': {}, 'status': {}})
+
+    def _open_balance_config_editor(self):
+        """Open dialog to configure which flows are included in balance check.
+        
+        Uses template flow codes to enable/disable flows from:
+        - INFLOW_CODES_TEMPLATE.txt
+        - OUTFLOW_CODES_TEMPLATE_CORRECTED.txt
+        - DAM_RECIRCULATION_TEMPLATE.txt
+        """
+        import json
+        from pathlib import Path
+        from utils.template_data_parser import get_template_parser
+        
+        config_path = Path('data/balance_check_config.json')
+        
+        # Load existing config or create default
+        if config_path.exists():
+            with open(config_path, 'r') as f:
+                config = json.load(f)
+        else:
+            config = {'inflows': [], 'recirculation': [], 'outflows': []}
+        
+        # Get available flows from templates
+        try:
+            parser = get_template_parser()
+            
+            # Collect all flows
+            available_flows = {
+                'inflows': parser.inflows,
+                'recirculation': parser.recirculation,
+                'outflows': parser.outflows
+            }
+        except Exception as e:
+            messagebox.showerror("Error Loading Templates", 
+                               f"Cannot load template files.\n\n"
+                               f"Error: {str(e)}")
+            return
+        
+        # Create dialog
+        dialog = tk.Toplevel(self.parent)
+        dialog.title("⚖️ Configure Balance Check - Select Flows to Include")
+        dialog.transient(self.parent)
+        dialog.grab_set()
+        self._center_window(dialog, 1000, 700)
+        
+        # Header
+        header = tk.Frame(dialog, bg='#2c3e50', height=60)
+        header.pack(fill='x')
+        header.pack_propagate(False)
+        
+        tk.Label(header, text="Balance Check Configuration",
+                font=('Segoe UI', 12, 'bold'),
+                bg='#2c3e50', fg='#ecf0f1').pack(side='left', padx=15, pady=15)
+        
+        tk.Label(header,
+                text="Select which flows to include in the balance calculation",
+                font=('Segoe UI', 9),
+                bg='#2c3e50', fg='#95a5a6').pack(side='left', padx=(0, 15))
+        
+        # Main content
+        content = tk.Frame(dialog, bg='#ecf0f1')
+        content.pack(fill='both', expand=True, padx=2, pady=2)
+        
+        # Info box
+        info_frame = tk.Frame(content, bg='#34495e', relief=tk.SOLID, borderwidth=1)
+        info_frame.pack(fill='x', padx=10, pady=10)
+        
+        info_text = (
+            "📋 Instructions: Check/uncheck flows to include/exclude them from balance calculation.\n"
+            "Only ENABLED flows will be included when you click 'Calculate Balance' in the Calculations module."
+        )
+        tk.Label(info_frame, text=info_text, font=('Segoe UI', 9),
+                bg='#34495e', fg='#ecf0f1', justify='left').pack(padx=12, pady=8)
+        
+        # Notebook for flow types
+        from tkinter import ttk
+        notebook = ttk.Notebook(content)
+        notebook.pack(fill='both', expand=True, padx=10, pady=(0, 10))
+        
+        flow_checks = {}  # Store checkbutton variables
+        
+        # Create tabs for each flow type
+        for flow_type in ['inflows', 'recirculation', 'outflows']:
+            tab_frame = tk.Frame(notebook, bg='#ecf0f1')
+            notebook.add(tab_frame, text=f"{flow_type.title()}")
+            
+            # Scrollable area
+            canvas_frame = tk.Frame(tab_frame, bg='#ecf0f1')
+            canvas_frame.pack(fill='both', expand=True)
+            
+            canvas = tk.Canvas(canvas_frame, bg='#ecf0f1', highlightthickness=0)
+            scrollbar = ttk.Scrollbar(canvas_frame, orient='vertical', command=canvas.yview)
+            scrollable_frame = tk.Frame(canvas, bg='#ecf0f1')
+            
+            scrollable_frame.bind(
+                "<Configure>",
+                lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+            )
+            
+            canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+            canvas.configure(yscrollcommand=scrollbar.set)
+            
+            canvas.pack(side='left', fill='both', expand=True)
+            scrollbar.pack(side='right', fill='y')
+            
+            # Get flows for this type
+            flows = available_flows[flow_type]
+            
+            # Create checkbutton for each flow
+            for entry in flows:
+                # Check if flow is in config
+                is_enabled = False
+                for config_item in config.get(flow_type, []):
+                    if config_item.get('code') == entry.code:
+                        is_enabled = config_item.get('enabled', True)
+                        break
+                
+                var = tk.BooleanVar(value=is_enabled)
+                flow_checks[entry.code] = (var, flow_type)
+                
+                # Frame for each flow item
+                item_frame = tk.Frame(scrollable_frame, bg='#ecf0f1')
+                item_frame.pack(fill='x', padx=10, pady=4)
+                
+                # Checkbutton
+                check = ttk.Checkbutton(item_frame, text=f"{entry.code}", variable=var)
+                check.pack(side='left', anchor='w')
+                
+                # Flow name and value
+                label_text = f"{entry.name} ({entry.value_m3:,.0f} {entry.unit})"
+                label = tk.Label(item_frame, text=label_text, font=('Segoe UI', 9),
+                               bg='#ecf0f1', fg='#7f8c8d')
+                label.pack(side='left', padx=(10, 0), anchor='w')
+        
+        # Footer buttons
+        footer = tk.Frame(dialog, bg='#ecf0f1', height=60)
+        footer.pack(fill='x')
+        footer.pack_propagate(False)
+        
+        def save_and_close():
+            # Build new config from checked items
+            new_config = {'inflows': [], 'recirculation': [], 'outflows': []}
+            
+            for flow_code, (var, flow_type) in flow_checks.items():
+                # Find the flow in templates to get metadata
+                for entry in available_flows[flow_type]:
+                    if entry.code == flow_code:
+                        new_config[flow_type].append({
+                            'code': entry.code,
+                            'name': entry.name,
+                            'area': entry.area,
+                            'enabled': var.get()
+                        })
+                        break
+            
+            # Save config
+            config_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(config_path, 'w') as f:
+                json.dump(new_config, f, indent=2)
+            
+            # Count enabled flows
+            enabled_count = sum(
+                len([item for item in new_config[flow_type] if item.get('enabled')])
+                for flow_type in ['inflows', 'recirculation', 'outflows']
+            )
+            
+            messagebox.showinfo("Saved", 
+                              f"✅ Balance check configuration saved!\n\n"
+                              f"{enabled_count} flows will be included in calculations.")
+            dialog.destroy()
+        
+        ttk.Button(footer, text="💾 Save Configuration", command=save_and_close,
+                  width=25).pack(side='right', padx=10, pady=12)
+        ttk.Button(footer, text="Cancel", command=dialog.destroy,
+                  width=15).pack(side='right', pady=12)
+
+    def _center_window(self, window, width, height):
+        """Center a window on the parent."""
+        window.update_idletasks()
+        try:
+            parent_x = self.parent.winfo_rootx()
+            parent_y = self.parent.winfo_rooty()
+            parent_w = self.parent.winfo_width() or window.winfo_screenwidth()
+            parent_h = self.parent.winfo_height() or window.winfo_screenheight()
+        except Exception:
+            parent_x, parent_y = 0, 0
+            parent_w, parent_h = window.winfo_screenwidth(), window.winfo_screenheight()
+        
+        x = parent_x + max((parent_w - width) // 2, 0)
+        y = parent_y + max((parent_h - height) // 2, 0)
+        window.geometry(f"{width}x{height}+{x}+{y}")
+    
+    def _update_flow_params_preview(self):
+        """Update balance check tabs"""
+        # Update both tabs
+        self._update_balance_calculation_breakdown()
+        self._update_balance_check_summary()
+
+    def _update_future_balance_placeholder(self):
+        """Placeholder for future water balance calculation table."""
+        # Check if frame still exists
+        if not hasattr(self, 'future_balance_frame') or not self.future_balance_frame.winfo_exists():
+            logger.warning("Future balance frame no longer exists, skipping update")
+            return
+        
+        for widget in self.future_balance_frame.winfo_children():
+            widget.destroy()
+        
+        # Main container with Flow Diagram theme
+        container = tk.Frame(self.future_balance_frame, bg='#2c3e50')
+        container.pack(fill=tk.BOTH, expand=True, padx=2, pady=2)
+        
+        # Header
+        header_frame = tk.Frame(container, bg='#2c3e50')
+        header_frame.pack(fill=tk.X, padx=15, pady=(15, 10))
+        
+        tk.Label(header_frame,
+                text="📈 Water Balance Calculation",
+                font=('Segoe UI', 14, 'bold'),
+                bg='#2c3e50', fg='#ecf0f1').pack(anchor='w')
+        
+        # Info box
+        info_frame = tk.Frame(container, bg='#34495e', relief=tk.SOLID, borderwidth=1)
+        info_frame.pack(fill=tk.X, padx=15, pady=(0, 15))
+        
+        tk.Label(info_frame,
+                text="⏳  This dashboard will host water balance calculations once parameters are defined.",
+                font=('Segoe UI', 9),
+                bg='#34495e', fg='#ecf0f1',
+                wraplength=800, justify='left').pack(padx=12, pady=10)
+        
+        # Table frame
+        table_frame = tk.Frame(container, bg='#2c3e50')
+        table_frame.pack(fill=tk.BOTH, expand=True, padx=15, pady=(0, 15))
+        
+        # Styled table
+        columns = ('metric', 'formula', 'value', 'unit')
+        table = ttk.Treeview(table_frame, columns=columns, show='headings', height=10)
+        table.heading('metric', text='Metric')
+        table.heading('formula', text='Formula/Computation')
+        table.heading('value', text='Value')
+        table.heading('unit', text='Unit')
+        table.column('metric', width=250, anchor='w')
+        table.column('formula', width=300, anchor='w')
+        table.column('value', width=120, anchor='e')
+        table.column('unit', width=100, anchor='center')
+        
+        # Placeholder rows
+        placeholder_data = [
+            ('Metric 1', 'Formula pending', '-', 'm³'),
+            ('Metric 2', 'Formula pending', '-', 'm³'),
+            ('Metric 3', 'Formula pending', '-', 'm³'),
+        ]
+        
+        for row in placeholder_data:
+            table.insert('', 'end', values=row, tags=('pending',))
+        
+        table.tag_configure('pending', foreground='#95a5a6')
+        
+        scrollbar = ttk.Scrollbar(table_frame, orient='vertical', command=table.yview)
+        table.configure(yscrollcommand=scrollbar.set)
+        scrollbar.pack(side='right', fill='y')
+        table.pack(side='left', fill='both', expand=True)
     
     def _update_summary_display(self):
         """Update summary tab with clear water balance equation"""

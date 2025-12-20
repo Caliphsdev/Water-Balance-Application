@@ -1,256 +1,63 @@
 # Water Balance Application - AI Agent Instructions
 
-## Project Overview
-Mine water balance management system built with Python/Tkinter. Calculates daily water flows across 8 mine areas (Merensky North/South, UG2 North/Plant, TSF, Stockpile) tracking inflows, outflows, recirculation, and storage volumes. Uses SQLite for persistence and Excel templates for time-series data. **Key architecture**: On-demand Excel loading via singletons, reactive UI with fast startup feature, modular calculations with balance checking.
+- **What this is**: Python/Tkinter desktop app for mine water balance across 8 areas. Core flows: templates → calculations → optional Excel overlays → SQLite persistence → interactive dashboards.
 
-## Architecture & Data Flow
+## Architecture Map
+- **Controllers**: [src/main.py](src/main.py) bootstraps `WaterBalanceApp` with fast-startup; [src/ui/main_window.py](src/ui/main_window.py) handles navigation.
+- **Calculations**: [src/utils/water_balance_calculator.py](src/utils/water_balance_calculator.py) heavy engine with caches (`_balance_cache`, `_kpi_cache`, `_misc_cache`). Balance check lives in [src/utils/balance_check_engine.py](src/utils/balance_check_engine.py) fed by [src/utils/template_data_parser.py](src/utils/template_data_parser.py).
+- **Data loading**: Excel on-demand via [src/utils/flow_volume_loader.py](src/utils/flow_volume_loader.py) (path priority: `data_sources.timeseries_excel_path` → `data_sources.template_excel_path` → fallback). JSON diagrams under `data/diagrams/<area>_flow_diagram.json` rendered by [src/ui/flow_diagram_dashboard.py](src/ui/flow_diagram_dashboard.py).
+- **Persistence**: SQLite handled by [src/database/db_manager.py](src/database/db_manager.py) and [src/database/schema.py](src/database/schema.py); auto-creates `data/water_balance.db` if missing.
+- **Entry variants**: Standard [src/main.py](src/main.py); fallback [src/main_launcher.py](src/main_launcher.py); experimental [src/main_optimized.py](src/main_optimized.py).
 
-### Core Components
-- **src/main.py** — Entry point with `WaterBalanceApp` controller and fast startup orchestration
-- **src/utils/water_balance_calculator.py** (2000+ lines) — Core calculation engine implementing TRP formulas with internal caching (`_balance_cache`, `_kpi_cache`, `_misc_cache`)
-- **src/utils/flow_volume_loader.py** — On-demand Excel loader (singleton pattern) with dynamic path resolution for diagram flows
-- **src/database/db_manager.py** — Database operations with caching and connection pooling (auto-creates DB at data/water_balance.db via schema.py if missing)
-- **src/database/schema.py** — SQLite schema for 15+ tables (structures, measurements, calculations, etc.)
-- **src/ui/main_window.py** — Module navigation controller and loading orchestration
-- **src/ui/flow_diagram_dashboard.py** — Interactive flow diagram with JSON persistence, Excel mapping, and auto-color detection
-- **src/ui/** — 25+ Tkinter UI modules organized by feature (calculations, dashboard, monitoring, settings, etc.)
+## Core Patterns
+- **Singletons everywhere**: Always use getters (`get_flow_volume_loader()`, `get_template_parser()`, `get_balance_check_engine()`, `db`, `config`, `logger`, `error_handler`). Never instantiate classes directly. If settings change a path, call the module `reset_*` (e.g., `reset_flow_volume_loader()`) then re-fetch.
+- **Config**: Centralized in [config/app_config.yaml](config/app_config.yaml). Update via `config.set(...)`, persist automatically, `config.load_config()` after external edits. Feature flags under `features.*` (notably `fast_startup`).
+- **Import shim**: Every module in `src/` prepends `Path(__file__).parent.parent` to `sys.path`—keep this in new files.
+- **Fast startup**: Background DB load via [src/utils/async_loader.py](src/utils/async_loader.py); UI must respect `app.db_loaded` before DB-dependent actions.
+- **Error/logging**: Use [src/utils/error_handler.py](src/utils/error_handler.py) (`error_handler.handle(...)` returns tech/user messages + severity). Log with [src/utils/app_logger.py](src/utils/app_logger.py); use `logger.performance()` for timing.
 
-### Data Sources & Templates
-**Critical**: System uses `.txt` template files for balance checking:
-- `INFLOW_CODES_TEMPLATE.txt` - 34 inflow entries across 8 areas
-- `OUTFLOW_CODES_TEMPLATE_CORRECTED.txt` - 64 outflow entries
-- `DAM_RECIRCULATION_TEMPLATE.txt` - 12 recirculation loops
+## Repository Hygiene
+- Prefer updating existing docs instead of creating new `.md` files; consolidate into existing guides (README, feature docs) when adding notes.
+- Avoid adding ad-hoc scripts; extend existing utilities in [scripts](scripts) or `src/` where they logically fit. Delete any temporary script once its purpose is served.
+- Keep root directory tidy—store new assets under existing folders (e.g., `docs/`, `scripts/`, `data/`).
+- When generating outputs for one-off analysis, write to temporary locations and remove after use to avoid clutter.
 
-Parser: `src/utils/template_data_parser.py` (singleton pattern `get_template_parser()`)
-Engine: `src/utils/balance_check_engine.py` (singleton pattern `get_balance_check_engine()`)
+## Environment
+- Use the existing virtualenv at [.venv](../.venv); run tools via `.venv\Scripts\python` and install via `.venv\Scripts\python -m pip install ...`. Do not create new environments.
 
-### Database Tables (Key)
-- `wb_structures` - Water sources, dams, plants (110+ entries)
-- `wb_flow_connections` - Flow topology between structures
-- `wb_calculations` - Stored calculation results
-- `system_constants` - Configuration values (evaporation rates, plant ratios, etc.)
+## Data Inputs & Flows
+- Templates (read-only): [INFLOW_CODES_TEMPLATE.txt](INFLOW_CODES_TEMPLATE.txt), [OUTFLOW_CODES_TEMPLATE_CORRECTED.txt](OUTFLOW_CODES_TEMPLATE_CORRECTED.txt), [DAM_RECIRCULATION_TEMPLATE.txt](DAM_RECIRCULATION_TEMPLATE.txt). Parsed once by `get_template_parser()`.
+- Excel overlays: `flow_volume_loader.get_flow_volumes_for_month(...)` resolves paths in priority order; call `clear_cache()` before reloads.
+- Diagrams: Flow diagram uses `excel_mapping` on edges (mapped vs unmapped). Waypoints and colors auto-detected (clean/waste/underground) in [src/ui/flow_diagram_dashboard.py](src/ui/flow_diagram_dashboard.py).
 
-## Critical Development Patterns
+## Key Workflows
+- Run app: `python src/main.py` (honors fast startup). Alternate: `python src/main_launcher.py` or `python src/main_optimized.py`.
+- Tests: `pytest src/database/test_database.py` (schema/connectivity). DB init/reset: `python -c "from database.schema import DatabaseSchema; DatabaseSchema().create_database()"`.
+- Balance calc flow: in [src/ui/calculations.py](src/ui/calculations.py) `_calculate_balance()` invokes `WaterBalanceCalculator.calculate_water_balance()` + `BalanceCheckEngine.calculate_balance()`; tabs: Balance Summary, Area Breakdown, legacy Summary/Inflows/Outflows/Storage.
+- Flow diagram loading: in `_load_from_excel()` (dashboard) fetch fresh loader, `clear_cache()`, then redraw edges.
 
-### 1. Singleton Pattern (Heavy Usage) & Reset Mechanism
-**Never** instantiate directly. Always use module-level getters:
-```python
-from utils.template_data_parser import get_template_parser  # NOT TemplateDataParser()
-from utils.balance_check_engine import get_balance_check_engine
-from utils.flow_volume_loader import get_flow_volume_loader  # Excel loader
-from database.db_manager import db  # Global instance
-from utils.config_manager import config
-```
-
-**Important**: Some singletons (like `flow_volume_loader`) have **reset functions** to force config reload:
-```python
-from utils.flow_volume_loader import reset_flow_volume_loader
-reset_flow_volume_loader()  # Call after Settings path change to clear cached instance
-```
-This pattern is used when Settings updates affect singleton behavior. Check if a reset function exists before creating workarounds.
-
-### 2. Async Loading (Fast Startup Feature)
-Controlled by `config/app_config.yaml`:
-```yaml
-features:
-  fast_startup: true  # Async DB load (3s UI display)
-```
-Implementation: `src/utils/async_loader.py` - Background thread loads DB while UI shows loading indicator.
-**Important**: Always handle `db_loaded` flag in UI interactions.
-
-### 3. Excel Loading (On-Demand Pattern)
-The flow diagram loads Excel data on-demand, NOT automatically. **Path resolution is critical**:
-
-```python
-from utils.flow_volume_loader import get_flow_volume_loader
-loader = get_flow_volume_loader()
-
-# In flow_diagram_dashboard.py, before loading from Excel:
-self.flow_loader = get_flow_volume_loader()  # Get fresh instance (picks up Settings changes)
-self.flow_loader.clear_cache()  # Clear cached sheets so edits are visible
-volumes = loader.get_flow_volumes_for_month(area_code, year, month)
-```
-
-**Path Priority** (in `flow_volume_loader.py`):
-1. `data_sources.timeseries_excel_path` (user-configured)
-2. `data_sources.template_excel_path` (fallback)
-3. Default hardcoded path (last resort)
-
-**When Settings changes Excel path**:
-1. Settings calls `config.set()` to update both paths
-2. Settings calls `reset_flow_volume_loader()` to clear singleton
-3. Next `get_flow_volume_loader()` creates fresh instance with new path
-4. Flow diagram re-gets loader before loading (see line ~2505 in `flow_diagram_dashboard.py`)
-
-**Excel Format Support**: Loader handles both Date-based and Year/Month-based column formats automatically.
-
-### 5. Configuration Management
-Single source: `config/app_config.yaml` accessed via:
-```python
-from utils.config_manager import config
-value = config.get('path.to.key', default_value)
-config.set('path.to.key', new_value)  # Updates and persists to YAML
-config.load_config()  # Force reload from disk (used by singletons after Settings changes)
-```
-DB path: `database.path` (defaults to data/water_balance.db). Feature flags live under `features.*`.
-
-**Important**: After changing config (e.g., in Settings), some singletons won't see the change until reset. Call `config.load_config()` and the corresponding reset function if needed.
-
-### 6. Import Path Pattern
-**Every** module uses path insertion for imports:
-```python
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent))  # Add src/ to path
-```
-This pattern is required in all files under `src/` to enable relative imports.
-
-### 7. Error Handling Pattern
-Use centralized error handler (singleton):
-```python
-from utils.error_handler import error_handler, ErrorCategory, ErrorSeverity
-tech_msg, user_msg, severity = error_handler.handle(
-    exception, context="Operation name", category=ErrorCategory.DATABASE
-)
-# Returns: (technical message for logs, user-friendly message, severity level)
-```
-
-### 8. Logging Pattern
-Use singleton logger with performance timing:
-```python
-from utils.app_logger import logger
-logger.info("Operation started")
-logger.performance("Query execution", elapsed_ms)  # For timing
-logger.error("Error occurred", exc_info=True)  # With stack trace
-```
-
-## Running & Testing
-- Launch app: `python src/main.py` (fast startup honored); fallback launcher: `python src/main_launcher.py`; experimental: `python src/main_optimized.py`.
-- Unit tests: `pytest src/database/test_database.py` (SQLite connectivity + schema checks).
-- DB init/reset: `python -c "from database.schema import DatabaseSchema; DatabaseSchema().create_database()"` (writes to data/water_balance.db).
-- Debug fast-startup: toggle `features.fast_startup` in `config/app_config.yaml`; blocking load uses `load_database_blocking`.
-
-## Module-Specific Guidance
-
-### Calculations Module (`src/ui/calculations.py`)
-6-tab interface:
-1. Balance Check Summary - Overall equation
-2. Area Balance Breakdown - Per-area tabs (8 areas)
-3. Summary (legacy)
-4. Inflows (legacy)
-5. Outflows (legacy)
-6. Storage (legacy)
-
-**Workflow**: User selects month → clicks "Calculate Balance" → `_calculate_balance()` calls both `WaterBalanceCalculator.calculate_water_balance()` and `BalanceCheckEngine.calculate_balance()`
-
-### Flow Diagram (`src/ui/flow_diagram_dashboard.py`)
-Interactive canvas with:
-- Drag-and-drop components
-- Flow connections with auto-color detection (blue=clean, red=wastewater, orange=underground return)
-- Waypoints for curved routing (middle-click to add)
-- JSON persistence in `data/diagrams/<area>_flow_diagram.json`
-- **Key pattern**: Uses `excel_mapping` on edges to link flows to Excel columns (21 mapped, 131 unmapped in UG2N)
-- **Loading workflow**: Click "Load from Excel" → `_load_from_excel()` → gets fresh loader instance → clears cache → updates edges → redraws
-
-### Testing
-- `pytest` for unit tests (see `src/database/test_database.py`)
-- Run calculations: `python src/main.py` → Calculations module
-- Fast startup test: Verify 3-second UI load time
-
-### Data Inputs/Outputs
-- Templates: root `INFLOW_CODES_TEMPLATE.txt`, `OUTFLOW_CODES_TEMPLATE_CORRECTED.txt`, `DAM_RECIRCULATION_TEMPLATE.txt` (read-only, parsed by template_data_parser).
-- Excel time-series: `utils.excel_timeseries` / `excel_timeseries_extended` pull from `test_templates/` paths in config; use lazy loader in `lazy_excel_loader.py`.
-- Diagrams: JSON persisted per area at `data/diagrams/<area>_flow_diagram.json`.
-- Database: SQLite at `data/water_balance.db`; caches for sources/facilities in db_manager, balance/KPI caches in water_balance_calculator.
-
-## Common Tasks
-
-### Adding New Calculation
-1. Add constant to `system_constants` table via `db_manager._ensure_all_constants()`
-2. Implement logic in `WaterBalanceCalculator` class methods
-3. Update UI in relevant module (`calculations.py`, `dashboard.py`, etc.)
-4. Test with real data from Excel templates
-
-### Modifying Flow Topology
-1. Update `wb_flow_connections` table (from_structure_id, to_structure_id, flow_type)
-2. Regenerate templates if needed (scripts in root: `check_*.py`, `add_*.py`)
-3. Update diagrams via Flow Diagram Dashboard UI
-
-### Schema Changes
-1. Add migration in `src/database/db_manager.py` → `_ensure_*` methods
-2. Run schema creation: `python -c "from database.schema import DatabaseSchema; DatabaseSchema().create_database()"`
-3. Verify with `check_db_schema.py` scripts
-
-## Performance Considerations
-- **Caching**: `WaterBalanceCalculator` has `_balance_cache`, `_kpi_cache`, `_misc_cache` - check before DB hits
-- **Logging**: Use `logger.performance()` for timing (see `utils/app_logger.py`)
-- **UI**: Minimize DOM-like operations - batch Tkinter updates with `root.update_idletasks()`
-
-## Key Files for Context
-- [BALANCE_CHECK_README.md](../BALANCE_CHECK_README.md) - Balance check feature docs
-- [FLOW_DIAGRAM_GUIDE.md](../FLOW_DIAGRAM_GUIDE.md) - Interactive diagram usage
-- `.github/instructions/python.instructions.md` - Python style guide (PEP 8)
-- `.github/instructions/performance-optimization.instructions.md` - Performance best practices
+## Performance & UX Notes
+- Reuse caches in calculator before hitting DB. Avoid blocking UI thread; offload heavy work or respect async loader.
+- Log timings for hot paths; keep template files immutable in code.
 
 ## Common Pitfalls
-1. **Don't** create new instances of singleton classes
-2. **Don't** modify template files programmatically - they're user-editable references
-3. **Don't** assume DB is loaded immediately (check `app.db_loaded` flag)
-4. **Don't** use blocking operations in UI thread (use `threading` or `async_loader`)
-5. **Don't** forget `sys.path.insert(0, str(Path(__file__).parent.parent))` in new modules
-6. **Always** call `config.set_current_user()` before DB operations requiring user context
-7. **Always** use `error_handler.handle()` for exceptions - never bare try/except with print()
-8. **Always** call `config.load_config()` in path resolvers after Settings changes (singletons won't pick up config changes automatically)
-9. **Always** call the reset function (e.g., `reset_flow_volume_loader()`) when Settings changes paths that singletons depend on
+- Forgetting singleton reset after config/path changes → stale data (flows, Excel, config).
+- Bypassing `config` or `db` singletons → inconsistencies.
+- Omitting `sys.path.insert(...)` in new modules under `src/` → import failures.
+- Modifying template `.txt` files programmatically → user data loss.
+- Ignoring `db_loaded` during startup → UI errors.
 
-## Singleton Reset Patterns
+## Component Rename System
+When renaming a component (e.g., `offices` → `office_building`), use the automated system:
+1. Edit `component_rename_config.json` with old/new names and Excel columns
+2. Run: `python component_rename_manager.py --dry-run` (preview)
+3. Run: `python component_rename_manager.py` (apply)
+- **What updates**: JSON node IDs, edge references, mappings, Excel columns across all 8 flow sheets
+- **Docs**: [COMPONENT_RENAME_SYSTEM_INDEX.md](COMPONENT_RENAME_SYSTEM_INDEX.md) (start here); [COMPONENT_RENAME_QUICK_REFERENCE.md](COMPONENT_RENAME_QUICK_REFERENCE.md) (quick copy-paste).
+- **Key**: Always preview first with `--dry-run`; supports batch renames.
 
-**When Settings changes configuration that affects singletons:**
-
-1. Call `config.set()` to update YAML
-2. Call the singleton's reset function to clear cached instance
-3. Next access to singleton getter creates new instance with updated config
-
-**Example (Settings path change):**
-```python
-# settings_revamped.py
-config.set('data_sources.timeseries_excel_path', new_path)
-from utils.flow_volume_loader import reset_flow_volume_loader
-reset_flow_volume_loader()  # Force new instance on next access
-```
-
-**Example (Flow diagram after Settings change):**
-```python
-# flow_diagram_dashboard.py - before loading from Excel
-self.flow_loader = get_flow_volume_loader()  # Gets NEW instance (reset cleared old one)
-self.flow_loader.clear_cache()  # Clear any cached sheets
-```
-
-**Singletons with reset functions:**
-- `flow_volume_loader` → `reset_flow_volume_loader()`
-- `excel_timeseries_extended` → `ExcelTimeSeriesExtended._instance = None`
-
-Check implementation for others.
-
-## Utility Singletons Reference
-Quick reference for commonly used singletons:
-```python
-from database.db_manager import db                      # Database operations
-from utils.app_logger import logger                     # Logging
-from utils.error_handler import error_handler           # Error handling
-from utils.template_data_parser import get_template_parser()
-from utils.balance_check_engine import get_balance_check_engine()
-from utils.flow_volume_loader import get_flow_volume_loader()  # Excel loader for flow diagram
-from utils.config_manager import config                 # Configuration
-from utils.ui_notify import notifier                    # UI notifications
-from utils.alert_manager import alert_manager           # Alert system
-```
-
-## Entry Points
-- `src/main.py` - Standard launch
-- `src/main_launcher.py` - Launcher with error handling
-- `src/main_optimized.py` - Experimental optimized startup
-
-## Dependencies
-Core: `tkinter`, `ttkthemes`, `sqlite3`, `pandas`, `openpyxl`, `PyYAML`
-Full list: [requirements.txt](../requirements.txt)
+## Pointers for Deep Dives
+- Balance check docs: [BALANCE_CHECK_README.md](BALANCE_CHECK_README.md).
+- Flow diagram usage: [FLOW_DIAGRAM_GUIDE.md](FLOW_DIAGRAM_GUIDE.md).
+- Component rename system: [COMPONENT_RENAME_SYSTEM_INDEX.md](COMPONENT_RENAME_SYSTEM_INDEX.md).
+- Style/perf guides: [.github/instructions/python.instructions.md](../.github/instructions/python.instructions.md), [.github/instructions/performance-optimization.instructions.md](../.github/instructions/performance-optimization.instructions.md).
