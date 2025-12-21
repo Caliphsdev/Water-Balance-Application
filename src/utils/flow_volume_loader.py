@@ -58,7 +58,7 @@ class FlowVolumeLoader:
         return base_dir / cfg_path
     
     def _load_sheet(self, sheet_name: str) -> pd.DataFrame:
-        """Load a sheet from Excel with caching."""
+        """Load a sheet from Excel with caching and resilient header detection."""
         # Refresh path from config so Settings changes are picked up without restart
         new_path = self._resolve_excel_path(None)
         if new_path != self.excel_path:
@@ -67,53 +67,136 @@ class FlowVolumeLoader:
 
         if sheet_name in self._df_cache:
             return self._df_cache[sheet_name]
-        
+
         if not self.excel_path.exists():
             logger.error(f"❌ Excel file not found: {self.excel_path}")
             return pd.DataFrame()
-        
-        try:
-            # Read the sheet: Try header=2 first (row 3 as data), then header=0
-            df = None
-            for header_row in [2, 0]:
-                try:
-                    df = pd.read_excel(
-                        self.excel_path,
-                        sheet_name=sheet_name,
-                        header=header_row,
-                        engine='openpyxl'
-                    )
-                    # Check if we got valid column names
-                    if 'Date' in df.columns or 'Year' in df.columns:
-                        break
-                except:
-                    continue
+
+        def _flatten_columns(cols: pd.Index) -> List[str]:
+            if isinstance(cols, pd.MultiIndex):
+                flattened = []
+                for tup in cols:
+                    parts = [str(x).strip() for x in tup if str(x).strip() and not str(x).startswith('Unnamed:')]
+                    # Take the last meaningful part (actual column name)
+                    if parts:
+                        flattened.append(parts[-1])
+                    else:
+                        flattened.append(" - ".join([str(x).strip() for x in tup if str(x).strip()]))
+                return flattened
+            return [str(c).strip() for c in cols]
+
+        def _normalize_time(df: pd.DataFrame) -> pd.DataFrame:
+            """Ensure Year/Month columns exist using Date or datetime columns."""
+            col_lower = {str(c).lower().strip(): c for c in df.columns}
             
-            if df is None or df.empty:
-                logger.error(f"❌ Could not read sheet '{sheet_name}'")
-                return pd.DataFrame()
-            
-            # Ensure we have Year and Month columns
-            if 'Date' in df.columns and 'Year' not in df.columns:
-                # Convert Date column to datetime and extract Year/Month
-                df['Date'] = pd.to_datetime(df['Date'], errors='coerce').dt.date
-                df['Year'] = df['Date'].apply(lambda d: d.year if pd.notna(d) else None)
-                df['Month'] = df['Date'].apply(lambda d: d.month if pd.notna(d) else None)
-            elif 'Year' in df.columns and 'Month' in df.columns:
-                # Already have Year and Month columns - ensure they're numeric
+            # Direct Year/Month columns
+            if 'year' in col_lower and 'month' in col_lower:
+                df.rename(columns={col_lower['year']: 'Year',
+                                   col_lower['month']: 'Month'}, inplace=True)
                 df['Year'] = pd.to_numeric(df['Year'], errors='coerce')
                 df['Month'] = pd.to_numeric(df['Month'], errors='coerce')
-            else:
-                logger.error(f"❌ Sheet '{sheet_name}' missing Date or Year/Month columns")
-                return pd.DataFrame()
+                return df
+
+            # Look for date-related columns (case-insensitive, partial match)
+            date_candidates = [c for c in df.columns if 'date' in str(c).lower() or 'time' in str(c).lower()]
+            if date_candidates:
+                dt = pd.to_datetime(df[date_candidates[0]], errors='coerce')
+                df['Year'] = dt.dt.year
+                df['Month'] = dt.dt.month
+                return df
+
+            # Check for datetime-typed columns
+            for c in df.columns:
+                if pd.api.types.is_datetime64_any_dtype(df[c]):
+                    dt = pd.to_datetime(df[c], errors='coerce')
+                    df['Year'] = dt.dt.year
+                    df['Month'] = dt.dt.month
+                    return df
             
-            self._df_cache[sheet_name] = df
-            logger.info(f"📥 Loaded sheet '{sheet_name}': {len(df)} rows, {len(df.columns)} columns")
+            # Scan first few data rows for year-like values (YYYY pattern)
+            for c in df.columns:
+                sample = df[c].dropna().astype(str).head(5)
+                if any(s.isdigit() and 1900 <= int(s) <= 2100 for s in sample if len(s) == 4):
+                    # Found a year-like column
+                    year_col = c
+                    # Look for adjacent month column
+                    col_idx = df.columns.get_loc(c)
+                    if col_idx + 1 < len(df.columns):
+                        month_col = df.columns[col_idx + 1]
+                        month_sample = df[month_col].dropna().astype(str).head(5)
+                        if any(s.isdigit() and 1 <= int(s) <= 12 for s in month_sample):
+                            df['Year'] = pd.to_numeric(df[year_col], errors='coerce')
+                            df['Month'] = pd.to_numeric(df[month_col], errors='coerce')
+                            return df
             return df
-        
-        except Exception as e:
-            logger.error(f"❌ Error loading sheet '{sheet_name}': {e}")
-            return pd.DataFrame()
+
+        header_options = [
+            [0, 1, 2],
+            [0, 1],
+            [1, 2],
+            [2, 3],
+            3,
+            2,
+            1,
+            0,
+            4,
+        ]
+
+        for header in header_options:
+            try:
+                df = pd.read_excel(
+                    self.excel_path,
+                    sheet_name=sheet_name,
+                    header=header,
+                    engine='openpyxl'
+                )
+            except Exception:
+                continue
+
+            if df is None:
+                continue
+
+            df.columns = _flatten_columns(df.columns)
+            
+            # Check if we have Year/Month directly in columns after flattening
+            col_lower = {str(c).lower().strip(): c for c in df.columns}
+            has_year_month_cols = 'year' in col_lower and 'month' in col_lower
+            
+            if has_year_month_cols:
+                # Rename to standardized names
+                df.rename(columns={col_lower['year']: 'Year',
+                                   col_lower['month']: 'Month'}, inplace=True)
+                df['Year'] = pd.to_numeric(df['Year'], errors='coerce')
+                df['Month'] = pd.to_numeric(df['Month'], errors='coerce')
+                self._df_cache[sheet_name] = df
+                logger.info(
+                    f"📥 Loaded sheet '{sheet_name}': "
+                    f"{len(df)} rows, {len(df.columns)} columns"
+                )
+                return df
+            
+            # Skip empty DataFrames for data-based time normalization
+            if df.empty:
+                continue
+            
+            # Try normalizing time columns from data
+            df = _normalize_time(df)
+
+            if 'Year' in df.columns and 'Month' in df.columns:
+                df['Year'] = pd.to_numeric(df['Year'], errors='coerce')
+                df['Month'] = pd.to_numeric(df['Month'], errors='coerce')
+                self._df_cache[sheet_name] = df
+                logger.info(
+                    f"📥 Loaded sheet '{sheet_name}': "
+                    f"{len(df)} rows, {len(df.columns)} columns"
+                )
+                return df
+
+        logger.error(
+            f"❌ Sheet '{sheet_name}' missing Date or Year/Month columns after "
+            f"trying headers {header_options}"
+        )
+        return pd.DataFrame()
     
     def get_monthly_volume(self, 
                           area_code: str,
@@ -379,12 +462,135 @@ class FlowVolumeLoader:
             return []
 
     def list_sheet_columns(self, sheet_name: str) -> List[str]:
-        """List column names for a given sheet (excluding Date/Year/Month)."""
-        df = self._load_sheet(sheet_name)
-        if df.empty:
+        """List column names for a given sheet (excluding Date/Year/Month).
+
+        Robust to varying header rows. Tries openpyxl row 1 first, then row 3,
+        and finally falls back to pandas-based detection.
+        """
+        # Ensure Excel path is up to date
+        new_path = self._resolve_excel_path(None)
+        if new_path != self.excel_path:
+            self.excel_path = new_path
+        if not self.excel_path.exists():
+            logger.error(f"❌ Excel file not found for columns: {self.excel_path}")
             return []
+
         skip = {'Date', 'Year', 'Month'}
-        return [c for c in df.columns if c not in skip]
+        cols: List[str] = []
+
+        # Helper: clean, flatten and filter header values
+        def _clean(values: List[object]) -> List[str]:
+            cleaned: List[str] = []
+            for v in values:
+                if v is None:
+                    continue
+                if isinstance(v, tuple):
+                    flat = " - ".join([str(x).strip() for x in v if x is not None])
+                else:
+                    flat = str(v).strip()
+                if not flat or flat in skip:
+                    continue
+                cleaned.append(flat)
+            # Deduplicate while preserving order
+            seen = set()
+            unique: List[str] = []
+            for c in cleaned:
+                if c not in seen:
+                    unique.append(c)
+                    seen.add(c)
+            return unique
+
+        # Attempt openpyxl for direct header read with heuristics
+        try:
+            from openpyxl import load_workbook
+            wb = load_workbook(self.excel_path, read_only=True, data_only=True)
+            if sheet_name in wb.sheetnames:
+                ws = wb[sheet_name]
+                candidates: List[List[object]] = []
+                for r in (1, 2, 3):
+                    if ws.max_row >= r:
+                        vals = [cell.value for cell in ws[r] if cell.value is not None]
+                        str_count = sum(1 for v in vals if isinstance(v, str))
+                        # Heuristic: at least 5 string-like values suggests a header row
+                        if str_count >= 5:
+                            candidates.append(vals)
+                if candidates:
+                    cols = _clean(candidates[0])
+            wb.close()
+        except Exception as e:
+            logger.debug(f"ℹ️ openpyxl header read failed for '{sheet_name}': {e}")
+
+        # If openpyxl yielded nothing, try to infer header row by scanning first 10 rows
+        if not cols:
+            try:
+                from openpyxl import load_workbook
+                wb = load_workbook(self.excel_path, read_only=True, data_only=True)
+                if sheet_name in wb.sheetnames:
+                    ws = wb[sheet_name]
+                    best_row_values: List[object] = []
+                    best_score = -1.0
+                    max_scan = min(ws.max_row or 0, 10)
+                    for r in range(1, max_scan + 1):
+                        vals = [cell.value for cell in ws[r] if cell.value is not None]
+                        if not vals:
+                            continue
+                        str_count = sum(1 for v in vals if isinstance(v, str))
+                        total = len(vals)
+                        ratio = (str_count / total) if total else 0.0
+                        # Score favors more strings and more total values
+                        score = str_count + ratio
+                        if str_count >= 5 and score > best_score:
+                            best_row_values = vals
+                            best_score = score
+                    if best_row_values:
+                        cols = _clean(best_row_values)
+                wb.close()
+            except Exception as e:
+                logger.debug(f"ℹ️ openpyxl row scan failed for '{sheet_name}': {e}")
+
+        # Fallback to pandas if still nothing detected
+        if not cols:
+            try:
+                # Try multi-row headers first, then single-row
+                for header_rows in ([0, 1, 2], [0, 1]):
+                    try:
+                        df = pd.read_excel(
+                            self.excel_path,
+                            sheet_name=sheet_name,
+                            header=list(header_rows),
+                            engine='openpyxl'
+                        )
+                        if df is not None and not df.empty:
+                            if isinstance(df.columns, pd.MultiIndex):
+                                flattened = [tuple(map(lambda x: str(x).strip() if x is not None else "", tup)) for tup in df.columns]
+                                cols = _clean(flattened)
+                            else:
+                                cols = _clean(list(df.columns))
+                            if cols:
+                                break
+                    except Exception:
+                        continue
+                if not cols:
+                    for header_row in [0, 1, 2, 3, 4]:
+                        try:
+                            df = pd.read_excel(
+                                self.excel_path,
+                                sheet_name=sheet_name,
+                                header=header_row,
+                                engine='openpyxl'
+                            )
+                            if df is not None and not df.empty:
+                                detected = _clean(list(df.columns))
+                                if detected:
+                                    cols = detected
+                                    break
+                        except Exception:
+                            continue
+            except Exception as e:
+                logger.debug(f"ℹ️ pandas header detection failed for '{sheet_name}': {e}")
+
+        logger.info(f"📄 Columns for '{sheet_name}': {len(cols)} found")
+        return cols
 
 
 # Singleton instance

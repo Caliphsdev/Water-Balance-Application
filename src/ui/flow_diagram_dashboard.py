@@ -12,6 +12,7 @@ from tkinter import Canvas, Frame, Label, Scrollbar, messagebox, Button, ttk
 from pathlib import Path
 from datetime import date
 from openpyxl import load_workbook
+import uuid
 import sys
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -179,6 +180,8 @@ class DetailedNetworkFlowDiagram:
                bg='#e74c3c', fg='white', font=('Segoe UI', 8), padx=8).pack(side='left', padx=2)
         Button(flowlines_frame, text='♻️ Recirculation', command=self._add_recirculation,
                bg='#16a085', fg='white', font=('Segoe UI', 8), padx=8).pack(side='left', padx=2)
+        Button(flowlines_frame, text='✏️ Edit ♻️', command=self._edit_recirculation,
+               bg='#9b59b6', fg='white', font=('Segoe UI', 8), padx=8).pack(side='left', padx=2)
         Button(flowlines_frame, text='🔒 Lock ♻️', command=self._toggle_recirculation_lock,
                bg='#95a5a6', fg='white', font=('Segoe UI', 8), padx=8).pack(side='left', padx=2)
 
@@ -500,18 +503,19 @@ class DetailedNetworkFlowDiagram:
         def _collect_issues(wb):
             sheets = set(wb.sheetnames)
             print(f"\n[DEBUG] Available sheets: {sheets}")
-            
+
+            # Use the FlowVolumeLoader to detect columns consistently
+            loader = get_flow_volume_loader()
             header_cache = {}
             for sheet in sheets:
-                if sheet in wb:
-                    headers = {cell.value for cell in wb[sheet][3] if cell.value}
-                    header_cache[sheet] = headers
-                    print(f"[DEBUG] {sheet} has {len(headers)} headers in row 3")
+                try:
+                    cols = set(loader.list_sheet_columns(sheet))
+                    header_cache[sheet] = cols
+                    print(f"[DEBUG] {sheet} has {len(cols)} detected columns (loader)")
                     if sheet.startswith('Flows_'):
-                        # Show first few headers
-                        sample = list(headers)[:3]
-                        print(f"[DEBUG] {sheet} sample headers: {sample}")
-                else:
+                        sample = list(cols)[:3]
+                        print(f"[DEBUG] {sheet} sample columns: {sample}")
+                except Exception:
                     header_cache[sheet] = set()
 
             problems_local = []
@@ -1032,9 +1036,9 @@ class DetailedNetworkFlowDiagram:
             cx = node['x'] + node['width'] + 35
             cy = node['y'] + node['height'] / 2
         
-        # Draw outline rectangle (40x28 pixels = 80% of original 50x35) - 20% smaller
-        rect_width = 40
-        rect_height = 28
+        # Get customizable box size (default: 40x28 pixels)
+        rect_width = edge.get('box_width', 40)
+        rect_height = edge.get('box_height', 28)
         x1 = cx - rect_width/2
         y1 = cy - rect_height/2
         x2 = cx + rect_width/2
@@ -1369,18 +1373,57 @@ class DetailedNetworkFlowDiagram:
         form = tk.Frame(dialog, bg='white', padx=25, pady=20)
         form.pack(fill='both', expand=True, padx=10, pady=10)
         
-        # Component ID (must be unique)
+        # Auto-generate unique component ID
+        def generate_unique_id(base_label='component'):
+            """Generate a unique ID based on label and counter"""
+            nodes = self.area_data.get('nodes', [])
+            existing_ids = {node['id'] for node in nodes}
+            
+            # Clean base label (remove spaces, special chars, convert to lowercase)
+            base = base_label.strip().lower().replace(' ', '_').replace('-', '_')
+            base = ''.join(c for c in base if c.isalnum() or c == '_')
+            if not base:
+                base = 'component'
+            
+            # Try base name first
+            if base not in existing_ids:
+                return base
+            
+            # Add counter suffix
+            counter = 1
+            while f"{base}_{counter}" in existing_ids:
+                counter += 1
+            return f"{base}_{counter}"
+        
+        # Component ID (auto-generated, read-only with refresh button)
         tk.Label(form, text="Component ID:", font=('Segoe UI', 10, 'bold'), bg='white').grid(row=0, column=0, sticky='w', pady=8)
-        id_var = tk.StringVar()
-        id_entry = tk.Entry(form, textvariable=id_var, font=('Segoe UI', 10), width=35)
-        id_entry.grid(row=0, column=1, pady=8, padx=5, sticky='ew')
-        tk.Label(form, text="(unique identifier, no spaces)", font=('Segoe UI', 8, 'italic'), bg='white', fg='#7f8c8d').grid(row=1, column=1, sticky='w', padx=5)
+        id_var = tk.StringVar(value=generate_unique_id())
+        
+        id_frame = tk.Frame(form, bg='white')
+        id_frame.grid(row=0, column=1, pady=8, padx=5, sticky='ew')
+        id_entry = tk.Entry(id_frame, textvariable=id_var, font=('Segoe UI', 10), state='readonly', width=28)
+        id_entry.pack(side='left', fill='x', expand=True)
+        
+        def refresh_id():
+            label_text = label_var.get() if 'label_var' in locals() else 'component'
+            id_var.set(generate_unique_id(label_text))
+        
+        refresh_btn = tk.Button(id_frame, text="🔄", command=refresh_id, bg='#3498db', fg='white',
+                               font=('Segoe UI', 9), padx=6, relief='flat', cursor='hand2')
+        refresh_btn.pack(side='left', padx=(4, 0))
+        
+        tk.Label(form, text="(auto-generated, click 🔄 to refresh)", font=('Segoe UI', 8, 'italic'), bg='white', fg='#7f8c8d').grid(row=1, column=1, sticky='w', padx=5)
         
         # Label (display name)
         tk.Label(form, text="Label:", font=('Segoe UI', 10, 'bold'), bg='white').grid(row=2, column=0, sticky='w', pady=8)
         label_var = tk.StringVar(value='NEW COMPONENT')
         label_entry = tk.Entry(form, textvariable=label_var, font=('Segoe UI', 10), width=35)
         label_entry.grid(row=2, column=1, pady=8, padx=5, sticky='ew')
+        
+        # Auto-update ID when label changes (with debounce)
+        def on_label_change(*args):
+            refresh_id()
+        label_var.trace_add('write', on_label_change)
         
         # Position X
         tk.Label(form, text="Position X:", font=('Segoe UI', 10, 'bold'), bg='white').grid(row=3, column=0, sticky='w', pady=8)
@@ -1506,17 +1549,19 @@ class DetailedNetworkFlowDiagram:
         form.grid_columnconfigure(1, weight=1)
         
         def create_component():
-            # Validate input
+            # Auto-generate ID if empty (shouldn't happen, but safeguard)
             comp_id = id_var.get().strip()
             if not comp_id:
-                messagebox.showwarning('Missing ID', 'Please enter a Component ID')
-                return
+                comp_id = generate_unique_id(label_var.get())
+                id_var.set(comp_id)
             
-            # Check for duplicate ID
+            # Check for duplicate ID (double-check safety)
             nodes = self.area_data.get('nodes', [])
             if any(node['id'] == comp_id for node in nodes):
-                messagebox.showerror('Duplicate ID', f'Component ID "{comp_id}" already exists!')
-                return
+                # Auto-regenerate with timestamp suffix
+                import time
+                comp_id = f"{comp_id}_{int(time.time() % 10000)}"
+                id_var.set(comp_id)
             
             # Create new node
             new_node = {
@@ -2110,6 +2155,7 @@ class DetailedNetworkFlowDiagram:
 
     def _add_recirculation(self):
         """Add a recirculation loop symbol to a component"""
+
         if not self.selected_node:
             messagebox.showwarning("No Selection", "Select a component first (click on it) to add recirculation")
             return
@@ -2242,6 +2288,180 @@ class DetailedNetworkFlowDiagram:
         button_frame.pack(fill='x', padx=10, pady=(15,10), side='bottom')
         tk.Button(button_frame, text="✅ OK", command=on_ok, bg='#27ae60', fg='white',
                  font=('Segoe UI', 11, 'bold'), padx=30, pady=8, width=15).pack(expand=True)
+
+    def _edit_recirculation(self):
+        """Edit existing recirculation loop properties: size, font, color, volume"""
+        edges = self.area_data.get('edges', [])
+        recirculation_edges = [(i, e) for i, e in enumerate(edges) if e.get('is_recirculation', False)]
+
+        if not recirculation_edges:
+            messagebox.showwarning("No Recirculation", "No recirculation loops found in this diagram")
+            return
+
+        # Selection dialog
+        select_dialog = self._create_styled_dialog("Select Recirculation to Edit", 600, 400)
+
+        # Header
+        header = tk.Frame(select_dialog, bg='#9b59b6', height=60)
+        header.pack(fill='x')
+        header.pack_propagate(False)
+        tk.Label(header, text="✏️ Edit Recirculation Loop",
+                 font=('Segoe UI', 14, 'bold'), bg='#9b59b6', fg='white').pack(pady=18)
+
+        # Listbox frame
+        list_frame = tk.Frame(select_dialog)
+        list_frame.pack(fill='both', expand=True, padx=10, pady=10)
+
+        tk.Label(list_frame, text="Select a recirculation loop to edit:",
+                font=('Segoe UI', 10)).pack(anchor='w', pady=(0, 5))
+
+        scrollbar = tk.Scrollbar(list_frame)
+        scrollbar.pack(side='right', fill='y')
+
+        listbox = tk.Listbox(list_frame, yscrollcommand=scrollbar.set, font=('Segoe UI', 9), height=15)
+        listbox.pack(fill='both', expand=True)
+        scrollbar.config(command=listbox.yview)
+
+        # Populate listbox
+        for idx, (edge_idx, edge) in enumerate(recirculation_edges):
+            from_node = edge.get('from', 'Unknown')
+            volume = edge.get('volume', 0)
+            flow_type = edge.get('flow_type', 'recirculation')
+            try:
+                volume_str = f"{float(volume):,.2f}"
+            except (ValueError, TypeError):
+                volume_str = str(volume)
+            display_text = f"  {self._format_node_name(from_node)} | {flow_type} | {volume_str} m³"
+            listbox.insert(tk.END, display_text)
+
+        selected_idx = [None]
+
+        def on_select():
+            sel = listbox.curselection()
+            if not sel:
+                messagebox.showwarning("No Selection", "Please select a recirculation loop")
+                return
+            selected_idx[0] = recirculation_edges[sel[0]][0]
+            select_dialog.destroy()
+
+        btn_frame = tk.Frame(select_dialog)
+        btn_frame.pack(fill='x', padx=10, pady=10)
+        tk.Button(btn_frame, text="✏️ Edit Selected", command=on_select,
+                  bg='#9b59b6', fg='white', font=('Segoe UI', 11, 'bold'),
+                  padx=25, pady=8).pack(side='right', padx=5)
+        tk.Button(btn_frame, text="✖ Cancel", command=select_dialog.destroy,
+                  bg='#95a5a6', fg='white', font=('Segoe UI', 11),
+                  padx=25, pady=8).pack(side='right', padx=5)
+
+        select_dialog.wait_window()
+
+        if selected_idx[0] is None:
+            return
+
+        edge_idx = selected_idx[0]
+        edge = edges[edge_idx]
+
+        # Edit dialog
+        dialog = self._create_styled_dialog("Edit Recirculation Properties", 550, 700)
+
+        # Header
+        header = tk.Frame(dialog, bg='#9b59b6', height=60)
+        header.pack(fill='x')
+        header.pack_propagate(False)
+        tk.Label(header, text="✏️ Edit Recirculation Loop",
+                 font=('Segoe UI', 14, 'bold'), bg='#9b59b6', fg='white').pack(pady=18)
+
+        # Form
+        form = tk.Frame(dialog, bg='white', padx=25, pady=20)
+        form.pack(fill='both', expand=True, padx=10, pady=10)
+
+        # Component info (read-only)
+        tk.Label(form, text="Component:", font=('Segoe UI', 10, 'bold'), bg='white').grid(row=0, column=0, sticky='w', pady=8)
+        tk.Label(form, text=self._format_node_name(edge['from']), font=('Segoe UI', 10), bg='#ecf0f1',
+                 relief='sunken', padx=10, pady=5).grid(row=0, column=1, pady=8, sticky='ew')
+
+        # Flow type
+        tk.Label(form, text="Flow Type:", font=('Segoe UI', 10, 'bold'), bg='white').grid(row=1, column=0, sticky='w', pady=8)
+        type_var = tk.StringVar(value=edge.get('flow_type', 'recirculation'))
+        type_combo = ttk.Combobox(form, textvariable=type_var,
+                                  values=['recirculation', 'clean', 'evaporation', 'dirty', 'effluent',
+                                         'runoff', 'ug_return', 'dewatering', 'outflow', 'inflow'],
+                                  state='readonly', font=('Segoe UI', 10), width=18)
+        type_combo.grid(row=1, column=1, sticky='w', pady=8)
+
+        # Volume
+        tk.Label(form, text="Volume (m³):", font=('Segoe UI', 10, 'bold'), bg='white').grid(row=2, column=0, sticky='w', pady=8)
+        vol_var = tk.StringVar(value=str(edge.get('volume', 0)))
+        tk.Entry(form, textvariable=vol_var, font=('Segoe UI', 10), width=20).grid(row=2, column=1, sticky='w', pady=8)
+
+        # Color
+        tk.Label(form, text="Color (hex):", font=('Segoe UI', 10, 'bold'), bg='white').grid(row=3, column=0, sticky='w', pady=8)
+        color_var = tk.StringVar(value=edge.get('color', '#9b59b6'))
+        color_entry = tk.Entry(form, textvariable=color_var, font=('Segoe UI', 10), width=20)
+        color_entry.grid(row=3, column=1, sticky='w', pady=8)
+
+        # Font size (supports decimals)
+        tk.Label(form, text="Label Font Size:", font=('Segoe UI', 10, 'bold'), bg='white').grid(row=4, column=0, sticky='w', pady=8)
+        font_size_var = tk.DoubleVar(value=edge.get('label_font_size', 8.0))
+        font_size_frame = tk.Frame(form, bg='white')
+        font_size_frame.grid(row=4, column=1, sticky='w', pady=8)
+        font_size_spin = tk.Spinbox(font_size_frame, from_=4.0, to=36.0, increment=0.5,
+                                   textvariable=font_size_var, font=('Segoe UI', 10), width=8)
+        font_size_spin.pack(side='left', padx=2)
+        tk.Label(font_size_frame, text="pt", font=('Segoe UI', 9), bg='white', fg='#7f8c8d').pack(side='left', padx=2)
+
+        # Size (width/height of rectangle)
+        tk.Label(form, text="Box Width:", font=('Segoe UI', 10, 'bold'), bg='white').grid(row=5, column=0, sticky='w', pady=8)
+        width_var = tk.IntVar(value=edge.get('box_width', 40))
+        tk.Spinbox(form, from_=20, to=100, textvariable=width_var, font=('Segoe UI', 10), width=8).grid(row=5, column=1, sticky='w', pady=8)
+
+        tk.Label(form, text="Box Height:", font=('Segoe UI', 10, 'bold'), bg='white').grid(row=6, column=0, sticky='w', pady=8)
+        height_var = tk.IntVar(value=edge.get('box_height', 28))
+        tk.Spinbox(form, from_=20, to=100, textvariable=height_var, font=('Segoe UI', 10), width=8).grid(row=6, column=1, sticky='w', pady=8)
+
+        form.grid_columnconfigure(1, weight=1)
+
+        def on_save():
+            vol_str = vol_var.get().strip()
+            if not vol_str:
+                messagebox.showwarning("Invalid Input", "Volume cannot be empty")
+                return
+
+            # Parse volume
+            try:
+                if vol_str.replace('-', '').replace('.', '').isdigit() or (vol_str.startswith('-') and vol_str[1:].replace('.', '').isdigit()):
+                    volume = float(vol_str)
+                    label_str = f"{volume:,.2f}"
+                else:
+                    volume = vol_str
+                    label_str = vol_str
+            except ValueError:
+                messagebox.showwarning("Invalid Volume", "Enter a valid number or text label")
+                return
+
+            # Update edge
+            edge['flow_type'] = type_var.get()
+            edge['volume'] = volume
+            edge['label'] = label_str
+            edge['color'] = color_var.get().strip() or '#9b59b6'
+            edge['label_font_size'] = font_size_var.get()
+            edge['box_width'] = width_var.get()
+            edge['box_height'] = height_var.get()
+
+            self._draw_diagram()
+            dialog.destroy()
+            messagebox.showinfo("Updated", f"Recirculation loop updated for {self._format_node_name(edge['from'])}")
+
+        # Buttons
+        btn_frame = tk.Frame(dialog, bg='#ecf0f1')
+        btn_frame.pack(fill='x', pady=15, padx=10)
+        tk.Button(btn_frame, text="💾 Save Changes", command=on_save,
+                  bg='#27ae60', fg='white', font=('Segoe UI', 11, 'bold'),
+                  padx=25, pady=8).pack(side='right', padx=5)
+        tk.Button(btn_frame, text="✖ Cancel", command=dialog.destroy,
+                  bg='#95a5a6', fg='white', font=('Segoe UI', 11),
+                  padx=25, pady=8).pack(side='right', padx=5)
+
 
     def _toggle_recirculation_lock(self):
         """Toggle lock state for selected recirculation"""
@@ -2805,18 +3025,57 @@ class DetailedNetworkFlowDiagram:
         tk.Label(form, text=position_text, font=('Segoe UI', 10), bg='#ecf0f1', relief='sunken', 
                  padx=10, pady=5).grid(row=0, column=1, pady=8, padx=5, sticky='ew')
         
-        # Component ID (must be unique)
+        # Auto-generate unique component ID
+        def generate_unique_id(base_label='component'):
+            """Generate a unique ID based on label and counter"""
+            nodes = self.area_data.get('nodes', [])
+            existing_ids = {node['id'] for node in nodes}
+            
+            # Clean base label (remove spaces, special chars, convert to lowercase)
+            base = base_label.strip().lower().replace(' ', '_').replace('-', '_')
+            base = ''.join(c for c in base if c.isalnum() or c == '_')
+            if not base:
+                base = 'component'
+            
+            # Try base name first
+            if base not in existing_ids:
+                return base
+            
+            # Add counter suffix
+            counter = 1
+            while f"{base}_{counter}" in existing_ids:
+                counter += 1
+            return f"{base}_{counter}"
+        
+        # Component ID (auto-generated, read-only with refresh button)
         tk.Label(form, text="Component ID:", font=('Segoe UI', 10, 'bold'), bg='white').grid(row=1, column=0, sticky='w', pady=8)
-        id_var = tk.StringVar()
-        id_entry = tk.Entry(form, textvariable=id_var, font=('Segoe UI', 10), width=35)
-        id_entry.grid(row=1, column=1, pady=8, padx=5, sticky='ew')
-        tk.Label(form, text="(unique identifier, no spaces)", font=('Segoe UI', 8, 'italic'), bg='white', fg='#7f8c8d').grid(row=2, column=1, sticky='w', padx=5)
+        id_var = tk.StringVar(value=generate_unique_id())
+        
+        id_frame = tk.Frame(form, bg='white')
+        id_frame.grid(row=1, column=1, pady=8, padx=5, sticky='ew')
+        id_entry = tk.Entry(id_frame, textvariable=id_var, font=('Segoe UI', 10), state='readonly', width=28)
+        id_entry.pack(side='left', fill='x', expand=True)
+        
+        def refresh_id():
+            label_text = label_var.get() if 'label_var' in locals() else 'component'
+            id_var.set(generate_unique_id(label_text))
+        
+        refresh_btn = tk.Button(id_frame, text="🔄", command=refresh_id, bg='#3498db', fg='white',
+                               font=('Segoe UI', 9), padx=6, relief='flat', cursor='hand2')
+        refresh_btn.pack(side='left', padx=(4, 0))
+        
+        tk.Label(form, text="(auto-generated, click 🔄 to refresh)", font=('Segoe UI', 8, 'italic'), bg='white', fg='#7f8c8d').grid(row=2, column=1, sticky='w', padx=5)
         
         # Label (display name)
         tk.Label(form, text="Label:", font=('Segoe UI', 10, 'bold'), bg='white').grid(row=3, column=0, sticky='w', pady=8)
         label_var = tk.StringVar(value='NEW COMPONENT')
         label_entry = tk.Entry(form, textvariable=label_var, font=('Segoe UI', 10), width=35)
         label_entry.grid(row=3, column=1, pady=8, padx=5, sticky='ew')
+        
+        # Auto-update ID when label changes
+        def on_label_change(*args):
+            refresh_id()
+        label_var.trace_add('write', on_label_change)
         
         # Type
         tk.Label(form, text="Type:", font=('Segoe UI', 10, 'bold'), bg='white').grid(row=4, column=0, sticky='w', pady=8)
@@ -2929,17 +3188,19 @@ class DetailedNetworkFlowDiagram:
         form.grid_columnconfigure(1, weight=1)
         
         def create_component():
-            # Validate input
+            # Auto-generate ID if empty (shouldn't happen, but safeguard)
             comp_id = id_var.get().strip()
             if not comp_id:
-                messagebox.showwarning('Missing ID', 'Please enter a Component ID')
-                return
+                comp_id = generate_unique_id(label_var.get())
+                id_var.set(comp_id)
             
-            # Check for duplicate ID
+            # Check for duplicate ID (double-check safety)
             nodes = self.area_data.get('nodes', [])
             if any(node['id'] == comp_id for node in nodes):
-                messagebox.showerror('Duplicate ID', f'Component ID "{comp_id}" already exists!')
-                return
+                # Auto-regenerate with timestamp suffix
+                import time
+                comp_id = f"{comp_id}_{int(time.time() % 10000)}"
+                id_var.set(comp_id)
             
             # Create new node with clicked position
             new_node = {
@@ -3345,8 +3606,10 @@ class DetailedNetworkFlowDiagram:
             # Keep non-numeric labels as-is (like '-', 'TBD', etc.)
             label = str(volume)
 
-        # Create new edge
+        # Create new edge with a unique id
+        edge_id = str(uuid.uuid4())
         new_edge = {
+            'id': edge_id,
             'from': from_id,
             'to': to_id,
             'segments': self.drawing_segments[:],
@@ -3407,8 +3670,14 @@ class DetailedNetworkFlowDiagram:
             messagebox.showerror("Error", f"Failed to save: {e}")
 
     def _flow_registry_id(self, edge: dict) -> str:
-        """Return a stable flow identifier for registry storage."""
+        """Return a stable flow identifier for registry storage.
+        Prefer a unique edge id when available to support parallel edges.
+        """
         area_prefix = self.area_data.get('area_code') or self.area_code or 'unknown'
+        edge_uid = edge.get('id')
+        if edge_uid:
+            return f"{area_prefix}::edge:{edge_uid}"
+        # Fallback for legacy edges without id
         from_id = edge.get('from', '')
         to_id = edge.get('to', '')
         return f"{area_prefix}::{from_id}->{to_id}"
@@ -3557,19 +3826,24 @@ class DetailedNetworkFlowDiagram:
             loader.clear_cache()
         except Exception:
             pass
-        area_sheets = {
-            'Flows_UG2N', 'Flows_MERN', 'Flows_MERS', 'Flows_MERP',
-            'Flows_UG2S', 'Flows_UG2P', 'Flows_OLDTSF', 'Flows_STOCKPILE'
-        }
+
+        # Use actual available sheets from the workbook to avoid empty column lists
+        available_sheets = set(loader.list_sheets())
+        # Prefer Flows_* sheets for mapping
+        flow_sheets = sorted([s for s in available_sheets if s.startswith('Flows_')])
+        # Fallback to known area sheets only if workbook listing failed
+        if not flow_sheets:
+            flow_sheets = [
+                'Flows_UG2N', 'Flows_MERN', 'Flows_MERS', 'Flows_MERP',
+                'Flows_UG2S', 'Flows_UG2P', 'Flows_OLDTSF', 'Flows_STOCKPILE'
+            ]
 
         sheet_columns = {}
-        for sheet in area_sheets:
-            df = loader._load_sheet(sheet)
-            if df is not None and not df.empty:
-                # Include all columns except time columns; strip whitespace for robust matching
-                cols = [str(c).strip() for c in df.columns if str(c).strip() not in {'Date', 'Year', 'Month'}]
-                sheet_columns[sheet] = cols
-            else:
+        for sheet in flow_sheets:
+            try:
+                cols = loader.list_sheet_columns(sheet)
+                sheet_columns[sheet] = [str(c).strip() for c in cols]
+            except Exception:
                 sheet_columns[sheet] = []
 
         def _open_link_manager():
@@ -4266,7 +4540,6 @@ class DetailedNetworkFlowDiagram:
                 tag = 'odd' if idx % 2 else 'even'
                 tree.item(item_id, values=(f"{idx:03d} | {from_name} → {to_name}", sheet_var.get(), column_var.get(), enabled_flag), tags=(tag,))
                 edit_win.destroy()
-                self.status_var.set("Mapping updated (not yet saved)")
 
             ttk.Button(form, text="Save Mapping", command=save_mapping,
                       width=20).pack(pady=18)
@@ -4472,16 +4745,11 @@ class DetailedNetworkFlowDiagram:
             if not selected_sheet:
                 return
             try:
-                wb = load_workbook(excel_path)
-                if selected_sheet not in wb.sheetnames:
-                    wb.close()
-                    return
-                ws = wb[selected_sheet]
-                if ws.max_row > 0:
-                    for cell in ws[1]:
-                        if cell.value:
-                            columns_listbox.insert(tk.END, f"📊 {cell.value}")
-                wb.close()
+                # Use FlowVolumeLoader to list columns consistently with loader logic
+                loader = get_flow_volume_loader()
+                cols = loader.list_sheet_columns(selected_sheet)
+                for col in cols:
+                    columns_listbox.insert(tk.END, f"📊 {col}")
             except Exception as e:
                 messagebox.showerror("Error", f"Failed to load columns:\n{e}")
         

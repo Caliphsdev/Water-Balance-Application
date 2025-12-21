@@ -6,7 +6,7 @@
     },
     "UG2N::oldtsf_gwa_boreholes->oldtsf_offices": {
       "sheet": "Flows_OLDTSF",
-      "column": "oldtsf_gwa_boreholes__TO__oldtsf_offices"
+      "column": "OLDTSF_GWA_BOREHOLES \u2192 OLDTSF_OFFICES"
     },
     "UG2N::oldtsf_trtd_rain->oldtsf_trtd": {
       "sheet": "Flows_OLDTSF",
@@ -145,16 +145,16 @@
       "column": "merplant_merp_stp__TO__merplant_mpswd12"
     },
     "UG2N::oldtsf_nt_rwd_rain->oldtsf_nt_rwd": {
-      "sheet": "Flows_OLDTSF",
-      "column": "oldtsf_nt_rwd_rain__TO__oldtsf_nt_rwd"
+      "sheet": "Flows_NEWTSF",
+      "column": "NEW_TSF_RAINRUN \u2192 NEW_TSF_NT_RWD"
     },
     "UG2N::oldtsf_nt_rwd->oldtsf_nt_rwd_evap": {
-      "sheet": "Flows_OLDTSF",
-      "column": "oldtsf_nt_rwd__TO__oldtsf_nt_rwd_evap"
+      "sheet": "Flows_NEWTSF",
+      "column": "OLDTSF_NT_RWD \u2192 OLDTSF_EVAP"
     },
     "UG2N::oldtsf_nt_rwd->oldtsf_nt_rwd_spill": {
-      "sheet": "Flows_OLDTSF",
-      "column": "oldtsf_nt_rwd__TO__oldtsf_nt_rwd_spill"
+      "sheet": "Flows_NEWTSF",
+      "column": "OLDTSF_NT_RWD \u2192 OLDTSF_SPILL"
     },
     "UG2N::oldtsf_new_tsf->oldtsf_new_tsf_seepage": {
       "sheet": "Flows_OLDTSF",
@@ -169,12 +169,12 @@
       "column": "oldtsf_new_tsf__TO__oldtsf_new_tsf_evap"
     },
     "UG2N::oldtsf_nt_rwd->oldtsf_new_tsf": {
-      "sheet": "Flows_OLDTSF",
-      "column": "NT_RWDs_to__NEWTSF(irrigation)"
+      "sheet": "Flows_NEWTSF",
+      "column": "OLDTSF_NT_RWD \u2192 OLDTSF_NEW_TSF"
     },
     "UG2N::oldtsf_new_tsf->oldtsf_nt_rwd": {
-      "sheet": "Flows_OLDTSF",
-      "column": "NEWTSF_to_NT_RWDs(return)"
+      "sheet": "Flows_NEWTSF",
+      "column": "OLDTSF_NEW_TSF \u2192 OLDTSF_NT_RWD(Drainage)"
     },
     "UG2N::oldtsf_trtd->oldtsf_trtd_evap": {
       "sheet": "Flows_OLDTSF",
@@ -186,7 +186,7 @@
     },
     "UG2N::oldtsf_old_tsf->oldtsf_old_tsf_evap": {
       "sheet": "Flows_OLDTSF",
-      "column": "oldtsf_old_tsf__TO__oldtsf_old_tsf_evap"
+      "column": "OLDTSF_OLD_TSF \u2192 OLDTSF_OLD_TSF_EVAP"
     },
     "UG2N::oldtsf_old_tsf->oldtsf_old_tsf_interstitial": {
       "sheet": "Flows_OLDTSF",
@@ -198,19 +198,19 @@
     },
     "UG2N::oldtsf_trtd->oldtsf_old_tsf": {
       "sheet": "Flows_OLDTSF",
-      "column": "OLDTSF_to_TRTDs(return)"
+      "column": "OLDTSF_TRTD \u2192 OLDTSF_OLD_TSF"
     },
     "UG2N::oldtsf_old_tsf->oldtsf_trtd": {
       "sheet": "Flows_OLDTSF",
-      "column": "TRTDs_to_OLDTSF(irrigation)"
+      "column": "OLDTSF_OLD_TSF \u2192 OLDTSF_TRTD(Return)"
     },
     "UG2N::oldtsf_offices->oldtsf_off_septic": {
       "sheet": "Flows_OLDTSF",
-      "column": "oldtsf_offices__TO__oldtsf_off_septic"
+      "column": "OLDTSF_OFFICES \u2192 OLDTSF_OFF_SEPTIC"
     },
     "UG2N::oldtsf_offices->oldtsf_off_consumption": {
       "sheet": "Flows_OLDTSF",
-      "column": "oldtsf_offices__TO__oldtsf_off_consumption"
+      "column": "OLDTSF_OFFICES \u2192 OLDTSF_OFF_CONSUMPTION"
     },
     "UG2N::mers_borehole->mers_soft": {
       "sheet": "Flows_MERS",
@@ -254,7 +254,7 @@
     },
     "UG2N::ug2s_soft->ug2s_stp_losses": {
       "sheet": "Flows_UG2S",
-      "column": "ug2s_soft__TO__ug2s_stp_losses"
+      "column": "UG2S_SOFT \u2192 UG2S_STP_LOSSES"
     },
     "UG2N::ug2s_res->ug2s_offices": {
       "sheet": "Flows_UG2S",
@@ -266,7 +266,7 @@
     },
     "UG2N::ug2s_offices->ug2s_stp": {
       "sheet": "Flows_UG2S",
-      "column": "ug2s_offices__TO__ug2s_stp"
+      "column": "UG2S_OFFICES \u2192 UG2S_STP"
     },
     "UG2N::ug2s_stp->ug2s_soft_losses": {
       "sheet": "Flows_UG2S",
@@ -302,43 +302,43 @@
     },
     "UG2N::stockpile_bh_gwa->stockpile_offices": {
       "sheet": "Flows_STOCKPILE",
-      "column": "stockpile_bh_gwa__TO__stockpile_offices"
+      "column": "STOCKPILE_BH_GWA \u2192 STOCKPILE_OFFICES"
     },
     "UG2N::stockpile_offices->stockpile_consumption": {
       "sheet": "Flows_STOCKPILE",
-      "column": "stockpile_offices__TO__stockpile_consumption"
+      "column": "STOCKPILE_OFFICES \u2192 STOCKPILE_CONSUMPTION"
     },
     "UG2N::stockpile_offices->stockpile_septic": {
       "sheet": "Flows_STOCKPILE",
-      "column": "stockpile_offices__TO__stockpile_septic"
+      "column": "STOCKPILE_OFFICES \u2192 STOCKPILE_SEPTIC"
     },
     "UG2N::stockpile_rainfall_spcd1->spcd1": {
       "sheet": "Flows_STOCKPILE",
-      "column": "stockpile_rainfall_spcd1__TO__spcd1"
+      "column": "STOCKPILE_RAINFALL_SPCD1 \u2192 SPCD1"
     },
     "UG2N::spcd1->stockpile_dust_suppression": {
       "sheet": "Flows_STOCKPILE",
-      "column": "spcd1__TO__stockpile_dust_suppression"
+      "column": "SPCD1 \u2192 STOCKPILE_DUST_SUPPRESSION"
     },
     "UG2N::spcd1->stockpile_spill": {
       "sheet": "Flows_STOCKPILE",
-      "column": "spcd1__TO__stockpile_spill"
+      "column": "SPCD1 \u2192 STOCKPILE_SPILL"
     },
     "UG2N::spcd1->stockpile_evaporation2": {
       "sheet": "Flows_STOCKPILE",
-      "column": "spcd1__TO__stockpile_evaporation2"
+      "column": "SPCD1 \u2192 STOCKPILE_EVAPORATION2"
     },
     "UG2N::stockpile_rainfall->stockpile_area": {
       "sheet": "Flows_STOCKPILE",
-      "column": "stockpile_rainfall__TO__stockpile_area"
+      "column": "STOCKPILE_RAINFALL \u2192 STOCKPILE_AREA"
     },
     "UG2N::stockpile_area->stockpile_evaporation": {
       "sheet": "Flows_STOCKPILE",
-      "column": "stockpile_area__TO__stockpile_evaporation"
+      "column": "STOCKPILE_AREA \u2192 STOCKPILE_EVAPORATION"
     },
     "UG2N::stockpile_area->spcd1": {
       "sheet": "Flows_STOCKPILE",
-      "column": "stockpile_area__TO__spcd1"
+      "column": "STOCKPILE_AREA \u2192 SPCD1"
     },
     "UG2N::rainfall->ndcd": {
       "sheet": "Flows_UG2N",
@@ -346,27 +346,27 @@
     },
     "UG2N::ndcd->spill": {
       "sheet": "Flows_UG2N",
-      "column": "ndcd__TO__spill"
+      "column": "NDCD \u2192 SPILL"
     },
     "UG2N::ndcd->evaporation": {
       "sheet": "Flows_UG2N",
-      "column": "ndcd__TO__evaporation"
+      "column": "NDCD \u2192 EVAPORATION"
     },
     "UG2N::ndcd->dust_suppression": {
       "sheet": "Flows_UG2N",
-      "column": "ndcd__TO__dust_suppression"
+      "column": "NDCD \u2192 DUST_SUPPRESSION"
     },
     "UG2N::bh_ndgwa->softening": {
       "sheet": "Flows_UG2N",
-      "column": "bh_ndgwa__TO__softening"
+      "column": "BH_NDGWA \u2192 SOFTENING"
     },
     "UG2N::softening->reservoir": {
       "sheet": "Flows_UG2N",
-      "column": "softening__TO__reservoir"
+      "column": "SOFTENING \u2192 RESERVOIR"
     },
     "UG2N::reservoir->offices": {
       "sheet": "Flows_UG2N",
-      "column": "reservoir__TO__offices"
+      "column": "RESERVOIR \u2192 OFFICES"
     },
     "UG2N::softening->guest_house": {
       "sheet": "Flows_UG2N",
@@ -382,19 +382,19 @@
     },
     "UG2N::softening->losses": {
       "sheet": "Flows_UG2N",
-      "column": "softening__TO__losses"
+      "column": "SOFTENING \u2192 LOSSES"
     },
     "UG2N::offices->consumption2": {
       "sheet": "Flows_UG2N",
-      "column": "offices__TO__consumption2"
+      "column": "OFFICES \u2192 CONSUMPTION2"
     },
     "UG2N::offices->sewage": {
       "sheet": "Flows_UG2N",
-      "column": "offices__TO__sewage"
+      "column": "OFFICES \u2192 SEWAGE"
     },
     "UG2N::sewage->losses2": {
       "sheet": "Flows_UG2N",
-      "column": "sewage__TO__losses2"
+      "column": "SEWAGE \u2192 LOSSES2"
     },
     "UG2N::mers_offices->ug2s_stp": {
       "sheet": "Flows_MERS",
@@ -418,11 +418,11 @@
     },
     "UG2N::sewage->junction_127_1208_365": {
       "sheet": "Flows_UG2N",
-      "column": "sewage__TO__junction_127_1208_365"
+      "column": "SEWAGE \u2192 JUNCTION_127_1208_365"
     },
     "UG2N::spcd1->junction_129_1140_1242": {
       "sheet": "Flows_STOCKPILE",
-      "column": "spcd1__TO__junction_129_1140_1242"
+      "column": "SPCD1 \u2192 JUNCTION_129_1140_1242"
     },
     "UG2N::ug2s_mdcdg->junction_130_1229_1793": {
       "sheet": "Flows_UG2S",
@@ -466,11 +466,11 @@
     },
     "UG2N::ug2plant_ug2pcd1->ug2plant_ug2pcd1": {
       "sheet": "Flows_UG2P",
-      "column": "ug2plant_ug2pcd1__TO__ug2plant_ug2pcd1"
+      "column": "UG2PLANT_UG2PCD1 \u2192 UG2PLANT_UG2PCD1"
     },
     "UG2N::oldtsf_nt_rwd->oldtsf_nt_rwd": {
-      "sheet": "Flows_OLDTSF",
-      "column": "oldtsf_nt_rwd__TO__oldtsf_nt_rwd"
+      "sheet": "Flows_NEWTSF",
+      "column": "OLDTSF_NT_RWD \u2192 OLDTSF_NT_RWD"
     },
     "UG2N::oldtsf_new_tsf->oldtsf_new_tsf": {
       "sheet": "Flows_OLDTSF",
@@ -494,15 +494,15 @@
     },
     "UG2N::spcd1->spcd1": {
       "sheet": "Flows_STOCKPILE",
-      "column": "spcd1__TO__spcd1"
+      "column": "SPCD1 \u2192 SPCD1"
     },
     "UG2N::stockpile_area->stockpile_area": {
       "sheet": "Flows_STOCKPILE",
-      "column": "stockpile_area__TO__stockpile_area"
+      "column": "STOCKPILE_AREA \u2192 SPCD1"
     },
     "UG2N::ndcd->ndcd": {
       "sheet": "Flows_UG2N",
-      "column": "ndcd__TO__ndcd"
+      "column": "NDCD \u2192 EVAPORATION"
     },
     "UG2N::ug2plant_ug2pcd1->ug2plant_ug2p_plant": {
       "sheet": "Flows_UG2P",
@@ -511,6 +511,162 @@
     "UG2N::merensky_north_shaft->ndcd_merensky": {
       "sheet": "Flows_MERN",
       "column": "MERN_NDSA_to_NDCD/NDSWD (runoff)"
+    },
+    "UG2N::rainfall_inflow->ndcd": {
+      "sheet": "Flows_UG2N",
+      "column": "RAINFALL \u2192 NDCD"
+    },
+    "UG2N::softening->trp_clinic": {
+      "sheet": "Flows_UG2N",
+      "column": "SOFTENING \u2192 TRP_CLINIC"
+    },
+    "UG2N::trp_clinic->septic": {
+      "sheet": "Flows_UG2N",
+      "column": "TRP_CLINIC \u2192 SEPTIC"
+    },
+    "UG2N::trp_clinic->consumption": {
+      "sheet": "Flows_UG2N",
+      "column": "TRP_CLINIC \u2192 CONSUMPTION"
+    },
+    "UG2N::north_shaft->ndcd": {
+      "sheet": "Flows_UG2N",
+      "column": "NORTH_SHAFT \u2192 NDCD"
+    },
+    "UG2N::north_decline->ndcd": {
+      "sheet": "Flows_UG2N",
+      "column": "NORTH_DECLINE \u2192 NDCD"
+    },
+    "UG2N::ndcd->north_decline": {
+      "sheet": "Flows_UG2N",
+      "column": "NDCD \u2192 NORTH_DECLINE"
+    },
+    "UG2N::ug2s_sdsa->ug2s_mdcdg": {
+      "sheet": "Flows_UG2S",
+      "column": "UG2S_SDSA \u2192 UG2S_MDCDG"
+    },
+    "UG2N::ug2s_sd->ug2s_mdcdg": {
+      "sheet": "Flows_UG2S",
+      "column": "UG2S_SD \u2192 UG2S_MDCDG"
+    },
+    "UG2N::junction_133_1190_1189->junction_133_1261_1240": {
+      "sheet": "Flows_UG2S",
+      "column": "UG2S_MDCDG \u2192 JUNCTION_130_1229_1793"
+    },
+    "UG2N::mers_mdcdg->junction_133_1261_1640": {
+      "sheet": "Flows_MERS",
+      "column": "MERS_MDCDG \u2192 JUNCTION_131_1229_2072"
+    },
+    "UG2N::edge:74f4c2d7-a64f-421c-b19e-42a9d6520961": {
+      "sheet": "Flows_UG2P",
+      "column": "UG2PLANT_UG2P_DWARSRIVIER \u2192 UG2PLANT_CPRWSD1"
+    },
+    "UG2N::edge:0c68f471-c9cd-4daf-88d3-a8969ee69293": {
+      "sheet": "Flows_UG2P",
+      "column": "UG2PLANT_UG2P_KLEINDWARS \u2192 UG2PLANT_CPRWSD1"
+    },
+    "UG2N::edge:e1f9f2f4-3655-49cd-9485-ce450a2c7695": {
+      "sheet": "Flows_UG2P",
+      "column": "UG2PLANT_UG2P_ORE_WATER \u2192 UG2PLANT_UG2P_PLANT"
+    },
+    "UG2N::edge:2d6e5e0a-5e68-49b4-8732-4e7397e9db53": {
+      "sheet": "Flows_UG2P",
+      "column": "UG2PLANT_CPRWSD1 \u2192 UG2PLANT_UG2P_PLANT"
+    },
+    "UG2N::edge:57dfab70-6114-4806-b3eb-6a9221b41cda": {
+      "sheet": "Flows_UG2P",
+      "column": "UG2PLANT_UG2P_PLANT \u2192 UG2PLANT_UG2P_PLANT_PRODUCT"
+    },
+    "UG2N::edge:d8b0b70a-b372-47a2-9fcd-0ef365973dfb": {
+      "sheet": "Flows_UG2P",
+      "column": "UG2PLANT_UG2PCD1 \u2192 UG2PLANT_UG2PCD1_SPILL"
+    },
+    "UG2N::edge:078db9fe-d2f3-4d7b-8765-4432e5d6b107": {
+      "sheet": "Flows_UG2P",
+      "column": "UG2PLANT_UG2PCD1 \u2192 UG2PLANT_UG2PCD1_EVAP"
+    },
+    "UG2N::edge:ec19caad-89ed-4ef6-a96c-78499ec1c2c0": {
+      "sheet": "Flows_UG2P",
+      "column": "UG2PLANT_UG2PCD1 \u2192 UG2PLANT_UG2PCD1_DUST"
+    },
+    "UG2N::edge:fa8d22ee-c061-41d5-9cf4-199f5b02c947": {
+      "sheet": "Flows_UG2P",
+      "column": "UG2PLANT_UG2PCD1_RAIN \u2192 UG2PLANT_UG2PCD1"
+    },
+    "UG2N::edge:6738bb27-6963-48a1-a43e-77df589f9142": {
+      "sheet": "Flows_UG2P",
+      "column": "UG2PLANT_CPGWA_BOREHOLES \u2192 UG2PLANT_UG2P_SOFT"
+    },
+    "UG2N::edge:633e0e24-8844-4fe6-ac15-eb108ee139c9": {
+      "sheet": "Flows_UG2P",
+      "column": "UG2PLANT_UG2P_OFF \u2192 UG2PLANT_UG2P_OFF_CONSUMPTION"
+    },
+    "UG2N::edge:b038e454-c7b6-4b60-b7d3-b7138ae4c5fc": {
+      "sheet": "Flows_UG2P",
+      "column": "UG2PLANT_UG2P_OFF \u2192 UG2PLANT_UG2P_STP"
+    },
+    "UG2N::edge:19da179a-a08c-4097-8a9f-5d7e51dcf490": {
+      "sheet": "Flows_UG2P",
+      "column": "UG2PLANT_UG2P_RES \u2192 UG2PLANT_UG2P_OFF"
+    },
+    "UG2N::edge:355ad2b5-9da4-443f-bdfe-6219c463da85": {
+      "sheet": "Flows_UG2P",
+      "column": "UG2PLANT_UG2P_SOFT \u2192 UG2PLANT_UG2P_RES"
+    },
+    "UG2N::edge:223a2daf-035d-4126-a931-f8dadadfc25d": {
+      "sheet": "Flows_UG2P",
+      "column": "UG2PLANT_UG2P_STP \u2192 UG2PLANT_UG2P_SOFT_LOSSES"
+    },
+    "UG2N::edge:d61c7b9b-a4c1-435d-86cf-8a25b3a7eb2d": {
+      "sheet": "Flows_UG2P",
+      "column": "UG2PLANT_UG2P_SOFT \u2192 UG2PLANT_UG2P_STP_LOSSES"
+    },
+    "UG2N::edge:28b437fa-d53f-4c12-b6af-2d490fe008ae": {
+      "sheet": "Flows_UG2P",
+      "column": "UG2PLANT_UG2P_STP \u2192 UG2PLANT_UG2P_PLANT"
+    },
+    "UG2N::edge:dd847b09-c6f5-4afb-99e8-c29f4d6d604f": {
+      "sheet": "Flows_UG2P",
+      "column": "UG2PCD1_to_Plant"
+    },
+    "UG2N::edge:0c8d79f1-ad48-49a3-a2ea-71d35d5cc6c9": {
+      "sheet": "Flows_UG2P",
+      "column": "UG2PLANT_UG2P_PLANT \u2192 UG2PLANT_UG2PCD1"
+    },
+    "UG2N::edge:a44a72b2-a6cb-409b-ba2a-6672df03e9ea": {
+      "sheet": "Flows_UG2P",
+      "column": "JUNCTION_134_1193_2880 \u2192 UG2PLANT_UG2P_PLANT"
+    },
+    "UG2N::edge:b04a3773-e956-4bcd-b7f0-f077b67159a1": {
+      "sheet": "Flows_UG2P",
+      "column": "UG2PLANT_UG2P_PLANT \u2192 JUNCTION_135_1229_2857"
+    },
+    "UG2N::edge:59c38992-bcb2-4f4d-ac12-93f4610f3723": {
+      "sheet": "Flows_UG2P",
+      "column": "UG2PLANT_UG2P_PLANT \u2192 JUNCTION_133_288_2922"
+    },
+    "UG2N::edge:5fd22a7b-02d6-40a5-a02c-857a19dc2ce3": {
+      "sheet": "Flows_MERP",
+      "column": "MERPLANT_KLEINDWARS \u2192 MERPLANT_MPRWSD1"
+    },
+    "UG2N::edge:7689ddc8-3a15-4e6e-8ce8-6048840246d8": {
+      "sheet": "Flows_MERP",
+      "column": "MERPLANT_DWARSRIVIER \u2192 MERPLANT_MPRWSD1"
+    },
+    "UG2N::edge:d7760bb2-3bd1-4446-b8f0-6f86512c7329": {
+      "sheet": "Flows_MERP",
+      "column": "MERPLANT_MERP_PLANT \u2192  MERPLANT_MPRWSD1"
+    },
+    "UG2N::edge:fd71006a-6998-4c94-af5f-a2bf518b276a": {
+      "sheet": "Flows_MERP",
+      "column": "MERPLANT_MERP_PLANT \u2192 OLDTSF_OLD_TSF"
+    },
+    "UG2N::edge:e5c1df12-0472-4584-830a-b178d86eb7a7": {
+      "sheet": "Flows_MERP",
+      "column": "NDCD \u2192 MERPLANT_MPRWSD1"
+    },
+    "UG2N::edge:b91a35c1-75a3-4244-9571-bc98febd6656": {
+      "sheet": "Flows_OLDTSF",
+      "column": "OLDTSF_TRTD \u2192 MRP_MPRWSD1"
     }
   },
   "meta": {
