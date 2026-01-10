@@ -15,9 +15,12 @@ colors:
   text_light: '#FFFFFF'
   text_primary: '#212121'
 data_sources:
-  legacy_excel_path: test_templates\New Water Balance  20250930 Oct.xlsx
+  legacy_excel_path: D:/Downloads/New Water Balance  20250930 Oct.xlsx
   template_excel_path: new_templates\Water_Balance_TimeSeries_Template_v2.xlsx
   timeseries_excel_path: new_templates\Water_Balance_TimeSeries_Template_v2.xlsx
+  inflow_codes_path: data\templates\INFLOW_CODES_TEMPLATE.txt
+  outflow_codes_path: data\templates\OUTFLOW_CODES_TEMPLATE_CORRECTED.txt
+  dam_recirculation_path: data\templates\DAM_RECIRCULATION_TEMPLATE.txt
 features:
   fast_startup: true
   new_calculations: false
