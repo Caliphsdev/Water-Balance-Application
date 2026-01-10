@@ -448,6 +448,41 @@ class DatabaseManager:
         result = self.execute_update(query, tuple(facility_ids))
         self._invalidate_facilities_cache()
         return result
+
+    def hard_delete_storage_facility(self, facility_id: int) -> int:
+        """Hard delete a storage facility and cascade delete dependent records.
+        Removes rows in related tables that reference the facility to satisfy
+        foreign key constraints, then deletes the facility itself.
+
+        Returns:
+            1 if the facility row was deleted, otherwise 0.
+        """
+        # Fetch existing for audit context
+        existing = self.get_storage_facility(facility_id)
+        if not existing:
+            return 0
+
+        # Delete explicit dependents first where ON DELETE CASCADE isn't defined
+        # Measurements and monthly configs have CASCADE, but alerts and operating_rules do not.
+        try:
+            # Alerts referencing facility
+            self.execute_update("DELETE FROM alerts WHERE facility_id = ?", (facility_id,))
+            # Operating rules for this facility
+            self.execute_update("DELETE FROM operating_rules WHERE facility_id = ?", (facility_id,))
+            # Measurements (also covered by FK CASCADE, kept for clarity)
+            self.execute_update("DELETE FROM measurements WHERE facility_id = ?", (facility_id,))
+            # Monthly rainfall/evap rows (FK CASCADE exists; explicit for completeness)
+            self.execute_update("DELETE FROM facility_rainfall_monthly WHERE facility_id = ?", (facility_id,))
+            self.execute_update("DELETE FROM facility_evaporation_monthly WHERE facility_id = ?", (facility_id,))
+            # Finally delete the facility
+            rows = self.execute_update("DELETE FROM storage_facilities WHERE facility_id = ?", (facility_id,))
+            if rows:
+                self.log_change('storage_facilities', facility_id, 'delete', old_values={'facility_code': existing.get('facility_code')})
+            self._invalidate_facilities_cache()
+            return rows
+        except sqlite3.Error:
+            # If anything fails, propagate to caller for test visibility
+            raise
     
     # ==================== MEASUREMENTS ====================
     
@@ -636,7 +671,67 @@ class DatabaseManager:
         query = "SELECT evaporation_mm FROM evaporation_rates WHERE month = ? AND zone = ? AND year IS NULL"
         results = self.execute_query(query, (month, zone))
         return results[0]['evaporation_mm'] if results else 0.0
-    
+
+    def get_facility_rainfall_monthly(self, facility_id: int, month: int, year: int = None) -> float:
+        """Get per-facility rainfall for month (from dashboard).
+        Falls back to 0 if not set in dashboard.
+        """
+        if year is None:
+            query = "SELECT rainfall_mm FROM facility_rainfall_monthly WHERE facility_id = ? AND month = ? AND year IS NULL LIMIT 1"
+            results = self.execute_query(query, (facility_id, month))
+        else:
+            query = "SELECT rainfall_mm FROM facility_rainfall_monthly WHERE facility_id = ? AND month = ? AND year = ? LIMIT 1"
+            results = self.execute_query(query, (facility_id, month, year))
+        return results[0]['rainfall_mm'] if results else 0.0
+
+    def get_facility_evaporation_monthly(self, facility_id: int, month: int, year: int = None) -> float:
+        """Get per-facility evaporation for month (from dashboard).
+        Falls back to 0 if not set in dashboard.
+        """
+        if year is None:
+            query = "SELECT evaporation_mm FROM facility_evaporation_monthly WHERE facility_id = ? AND month = ? AND year IS NULL LIMIT 1"
+            results = self.execute_query(query, (facility_id, month))
+        else:
+            query = "SELECT evaporation_mm FROM facility_evaporation_monthly WHERE facility_id = ? AND month = ? AND year = ? LIMIT 1"
+            results = self.execute_query(query, (facility_id, month, year))
+        return results[0]['evaporation_mm'] if results else 0.0
+
+    def get_facility_rainfall_all_months(self, facility_id: int, year: int = None) -> Dict[int, float]:
+        """Get all 12 months of rainfall for facility"""
+        if year is None:
+            query = "SELECT month, rainfall_mm FROM facility_rainfall_monthly WHERE facility_id = ? AND year IS NULL ORDER BY month"
+            results = self.execute_query(query, (facility_id,))
+        else:
+            query = "SELECT month, rainfall_mm FROM facility_rainfall_monthly WHERE facility_id = ? AND year = ? ORDER BY month"
+            results = self.execute_query(query, (facility_id, year))
+        return {row['month']: row['rainfall_mm'] for row in results}
+
+    def get_facility_evaporation_all_months(self, facility_id: int, year: int = None) -> Dict[int, float]:
+        """Get all 12 months of evaporation for facility"""
+        if year is None:
+            query = "SELECT month, evaporation_mm FROM facility_evaporation_monthly WHERE facility_id = ? AND year IS NULL ORDER BY month"
+            results = self.execute_query(query, (facility_id,))
+        else:
+            query = "SELECT month, evaporation_mm FROM facility_evaporation_monthly WHERE facility_id = ? AND year = ? ORDER BY month"
+            results = self.execute_query(query, (facility_id, year))
+        return {row['month']: row['evaporation_mm'] for row in results}
+
+    def set_facility_rainfall_monthly(self, facility_id: int, month: int, rainfall_mm: float, year: int = None, user: str = 'dashboard') -> int:
+        """Set per-facility rainfall for a month"""
+        query = """
+            INSERT OR REPLACE INTO facility_rainfall_monthly (facility_id, month, year, rainfall_mm, data_source, updated_at)
+            VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        """
+        return self.execute_update(query, (facility_id, month, year, rainfall_mm, user))
+
+    def set_facility_evaporation_monthly(self, facility_id: int, month: int, evaporation_mm: float, year: int = None, user: str = 'dashboard') -> int:
+        """Set per-facility evaporation for a month"""
+        query = """
+            INSERT OR REPLACE INTO facility_evaporation_monthly (facility_id, month, year, evaporation_mm, data_source, updated_at)
+            VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        """
+        return self.execute_update(query, (facility_id, month, year, evaporation_mm, user))
+
     def get_constant(self, key: str) -> Optional[float]:
         """Get system constant value"""
         query = "SELECT constant_value FROM system_constants WHERE constant_key = ?"
