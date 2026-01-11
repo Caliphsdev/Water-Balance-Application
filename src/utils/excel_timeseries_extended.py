@@ -17,8 +17,12 @@ import pandas as pd
 from pathlib import Path
 from utils.app_logger import logger
 import time
+import warnings
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from utils.persistent_cache import ExcelStorageCache
+
+# Suppress openpyxl warnings about print areas and defined names
+warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')
 
 
 class ExcelTimeSeriesExtended:
@@ -114,7 +118,8 @@ class ExcelTimeSeriesExtended:
                     return (sheet_key, df, None)
                 except Exception as e:
                     elapsed = (time.perf_counter() - sheet_start) * 1000
-                    logger.warning(f"  ✗ {sheet_name}: {elapsed:.0f}ms - {str(e)[:50]}")
+                    # Most sheets are optional - only log at DEBUG level
+                    logger.debug(f"  ⊘ {sheet_name}: not found (optional sheet, skipped)")
                     return (sheet_key, None, e)
             
             # Load sheets in parallel using ThreadPoolExecutor

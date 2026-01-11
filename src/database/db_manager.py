@@ -65,10 +65,10 @@ class DatabaseManager:
             schema = DatabaseSchema(str(self.db_path))
             schema.create_database()
         
-        # Log resolved DB path for visibility
+        # Log resolved DB path (DEBUG level - not shown on console)
         try:
             from utils.app_logger import logger
-            logger.info(f"Database path resolved: {self.db_path}")
+            logger.debug(f"Database connected: {self.db_path}")
         except Exception:
             pass
         # Ensure scenarios tables exist
@@ -114,7 +114,10 @@ class DatabaseManager:
             elapsed = (time.perf_counter() - start_time) * 1000
             from utils.app_logger import logger
             query_preview = query[:50].replace('\n', ' ')
-            logger.performance(f"DB query ({query_preview}..., {len(result)} rows)", elapsed)
+            if elapsed > 100:
+                logger.info(f"⚠️  SLOW query ({elapsed:.0f}ms): {query_preview}... ({len(result)} rows)")
+            else:
+                logger.debug(f"PERF: DB query ({query_preview}..., {len(result)} rows) in {elapsed:.2f}ms")
             
             return result
         finally:
@@ -136,7 +139,10 @@ class DatabaseManager:
             elapsed = (time.perf_counter() - start_time) * 1000
             from utils.app_logger import logger
             query_preview = query[:50].replace('\n', ' ')
-            logger.performance(f"DB update ({query_preview}..., {rowcount} rows affected)", elapsed)
+            if elapsed > 100:
+                logger.info(f"⚠️  SLOW update ({elapsed:.0f}ms): {query_preview}... ({rowcount} rows affected)")
+            else:
+                logger.debug(f"PERF: DB update ({query_preview}..., {rowcount} rows affected) in {elapsed:.2f}ms")
             
             return rowcount
         except sqlite3.Error as e:
@@ -1348,8 +1354,11 @@ class DatabaseManager:
         # Log summary
         try:
             from utils.app_logger import logger
-            preview = ", ".join(removable[:10])
-            logger.info(f"Auto-removed {deleted} constants unused by calculator: {preview}{' ...' if len(removable) > 10 else ''}")
+            if deleted > 0:
+                preview = ", ".join(removable[:5])
+                logger.info(f"♻️  Cleaned up {deleted}/{len(keys)} unused constants: {preview}{'...' if len(removable) > 5 else ''}")
+            else:
+                logger.debug(f"All {len(keys)} system constants are in use by calculator")
         except Exception:
             pass
         return deleted

@@ -11,9 +11,13 @@ import tkinter as tk
 from tkinter import Canvas, Frame, Label, Scrollbar, messagebox, Button, ttk
 from pathlib import Path
 from datetime import date
+import warnings
 from openpyxl import load_workbook
 import uuid
 import sys
+
+# Suppress openpyxl warnings about print areas
+warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
