@@ -283,6 +283,8 @@ def main():
             logger.info("Application terminated")
         except:
             print("Application terminated")
+        # Force exit to ensure process terminates
+        sys.exit(0)
 
 
 if __name__ == "__main__":

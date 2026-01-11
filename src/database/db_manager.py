@@ -423,7 +423,7 @@ class DatabaseManager:
                 pump_start_level = ?, pump_stop_level = ?,
                 high_level_alarm = ?, low_level_alarm = ?,
                 minimum_operating_level = ?, maximum_operating_level = ?,
-                description = ?, active = ?,
+                description = ?, active = ?, evap_active = ?,
                 updated_at = CURRENT_TIMESTAMP
             WHERE facility_id = ?
         """
@@ -441,7 +441,7 @@ class DatabaseManager:
             pump_start, pump_stop,
             data.get('high_level_alarm', 90.0), data.get('low_level_alarm', 10.0),
             data.get('minimum_operating_level', 0), data.get('maximum_operating_level', 100),
-            data.get('description'), data.get('active', 1), facility_id
+            data.get('description'), data.get('active', 1), data.get('evap_active', 1), facility_id
         )
         result = self.execute_update(query, params)
         self._invalidate_facilities_cache()

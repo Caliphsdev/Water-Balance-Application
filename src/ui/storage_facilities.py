@@ -535,8 +535,8 @@ class StorageFacilitiesModule:
             if not self.type_filter_var.get():
                 self.type_combo.set('All')
             
-            # Load facilities (all, including inactive)
-            self.facilities = self.db.get_storage_facilities(active_only=False)
+            # Load facilities (all, including inactive) - force cache bypass for fresh data
+            self.facilities = self.db.get_storage_facilities(active_only=False, use_cache=False)
             
             # Find latest year/month in both Excel files
             year, month = self._get_latest_year_month()

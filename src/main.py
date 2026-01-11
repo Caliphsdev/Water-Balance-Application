@@ -411,6 +411,7 @@ class WaterBalanceApp:
             logger.info("Water Balance Application Stopped")
             logger.info("=" * 60)
             self.root.destroy()
+            self.root.quit()  # Exit mainloop
         else:
             logger.info("Application close cancelled by user")
             self.root._closing = False
@@ -459,6 +460,8 @@ def main():
             print(f"Technical: {tech_msg}")
     finally:
         logger.info("Application terminated")
+        # Force exit to ensure process terminates
+        sys.exit(0)
 
 
 if __name__ == "__main__":

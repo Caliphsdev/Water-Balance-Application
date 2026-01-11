@@ -195,6 +195,9 @@ def main():
         )
         root.destroy()
         raise
+    finally:
+        # Force exit to ensure process terminates
+        sys.exit(0)
 
 
 if __name__ == '__main__':
