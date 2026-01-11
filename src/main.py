@@ -101,6 +101,16 @@ class WaterBalanceApp:
                 logger.info("Using BLOCKING database load (traditional mode)")
                 db.preload_caches()
                 logger.info("Database caches preloaded (blocking)")
+                # Health check in blocking mode
+                try:
+                    stats = db.get_dashboard_stats()
+                    logger.info(
+                        f"DB Health: sources={stats.get('total_sources',0)}, facilities={stats.get('total_facilities',0)}, "
+                        f"capacity={stats.get('total_capacity',0):.2f} Mm³, current={stats.get('total_current_volume',0):.2f} Mm³"
+                    )
+                    logger.info(f"Active DB: {db.db_path}")
+                except Exception as hc_err:
+                    logger.warning(f"DB health check failed: {hc_err}")
                 self.db_loaded = True
             
             # Create main window
@@ -302,6 +312,16 @@ class WaterBalanceApp:
                 # Preload caches now that DB is ready
                 db.preload_caches()
                 logger.info("Database caches preloaded (async)")
+                # Health check: log key counts to confirm DB visibility
+                try:
+                    stats = db.get_dashboard_stats()
+                    logger.info(
+                        f"DB Health: sources={stats.get('total_sources',0)}, facilities={stats.get('total_facilities',0)}, "
+                        f"capacity={stats.get('total_capacity',0):.2f} Mm³, current={stats.get('total_current_volume',0):.2f} Mm³"
+                    )
+                    logger.info(f"Active DB: {db.db_path}")
+                except Exception as hc_err:
+                    logger.warning(f"DB health check failed: {hc_err}")
                 
                 # Calculate remaining time to show loading screen (minimum 3 seconds)
                 if self.loading_indicator and self.loading_indicator.is_showing():

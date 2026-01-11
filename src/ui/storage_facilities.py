@@ -272,7 +272,7 @@ class StorageFacilitiesModule:
             state='readonly',
             values=['All', 'Active', 'Inactive']
         )
-        status_combo.set('Active')  # Default to showing only active
+        status_combo.set('All')  # Default to showing all facilities
         status_combo.pack(side='left')
         
         # Right side - Action buttons
@@ -326,10 +326,23 @@ class StorageFacilitiesModule:
             command=self._delete_facility,
             **button_style
         )
-        delete_btn.pack(side='left')
+        delete_btn.pack(side='left', padx=(0, 8))
+        
+        # Monthly Parameters button
+        params_btn = tk.Button(
+            right_frame,
+            text="📅 Monthly Params",
+            fg='white',
+            bg='#9b59b6',
+            activebackground='#8e44ad',
+            activeforeground='white',
+            command=self._show_monthly_params_dialog,
+            **button_style
+        )
+        params_btn.pack(side='left')
         
         # Hover effects
-        for btn in [add_btn, edit_btn, delete_btn]:
+        for btn in [add_btn, edit_btn, delete_btn, params_btn]:
             active_bg = btn['activebackground']
             normal_bg = btn['bg']
             btn.bind('<Enter>', lambda e, b=btn, c=active_bg: b.config(bg=c))
@@ -704,6 +717,27 @@ class StorageFacilitiesModule:
                 messagebox.showerror("Error", f"Failed to delete facilities: {str(e)}")
             self._load_data()
 
+    def _show_monthly_params_dialog(self):
+        """Show dialog to configure monthly rainfall and evaporation"""
+        selection = self.tree.selection()
+        if not selection:
+            messagebox.showwarning("No Selection", "Please select a storage facility")
+            return
+        
+        if len(selection) > 1:
+            messagebox.showwarning("Multiple Selection", "Please select one facility at a time")
+            return
+        
+        try:
+            facility_id = self.tree.item(selection[0])['values'][0]
+            # Get facility details
+            facility = self.db.get_storage_facility(facility_id)
+            if facility:
+                FacilityMonthlyParamsDialog(self.parent, self.db, facility)
+                self._load_data()  # Refresh after potential changes
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to open monthly parameters: {str(e)}")
+
 
 class FacilityDialog:
     """Dialog for adding/editing storage facilities"""
@@ -718,7 +752,13 @@ class FacilityDialog:
         # Create dialog
         self.dialog = tk.Toplevel(parent)
         self.dialog.title(f"{'Edit' if mode == 'edit' else 'Add'} Storage Facility")
-        self.dialog.geometry("650x950")
+        
+        # Make dialog responsive to screen size
+        screen_height = parent.winfo_screenheight()
+        dialog_width = 650
+        dialog_height = min(700, int(screen_height * 0.85))  # Max 700px or 85% of screen height
+        
+        self.dialog.geometry(f"{dialog_width}x{dialog_height}")
         self.dialog.resizable(True, True)
         self.dialog.transient(parent)
 
@@ -736,8 +776,8 @@ class FacilityDialog:
         
         # Center dialog
         self.dialog.update_idletasks()
-        x = parent.winfo_x() + (parent.winfo_width() // 2) - (650 // 2)
-        y = parent.winfo_y() + (parent.winfo_height() // 2) - (950 // 2)
+        x = parent.winfo_x() + (parent.winfo_width() // 2) - (dialog_width // 2)
+        y = parent.winfo_y() + (parent.winfo_height() // 2) - (dialog_height // 2)
         self.dialog.geometry(f"+{x}+{y}")
         
         # Form variables
@@ -758,9 +798,16 @@ class FacilityDialog:
         
     def _create_form(self):
         """Create form fields"""
-        # Scrollable container
-        canvas = tk.Canvas(self.dialog, bg='white')
-        scrollbar = ttk.Scrollbar(self.dialog, orient='vertical', command=canvas.yview)
+        # Main container with scrollable area and fixed button area
+        main_container = tk.Frame(self.dialog, bg='white')
+        main_container.pack(fill='both', expand=True)
+        
+        # Scrollable container for form content
+        scroll_container = tk.Frame(main_container, bg='white')
+        scroll_container.pack(fill='both', expand=True)
+        
+        canvas = tk.Canvas(scroll_container, bg='white')
+        scrollbar = ttk.Scrollbar(scroll_container, orient='vertical', command=canvas.yview)
         scrollable_frame = tk.Frame(canvas, bg='white')
         
         scrollable_frame.bind(
@@ -773,6 +820,10 @@ class FacilityDialog:
         
         canvas.pack(side='left', fill='both', expand=True)
         scrollbar.pack(side='right', fill='y')
+        
+        # Fixed button area at bottom (outside scrollable area)
+        button_container = tk.Frame(main_container, bg='white', relief='solid', borderwidth=1)
+        button_container.pack(fill='x', side='bottom', pady=0)
         
         # Form content
         container = tk.Frame(scrollable_frame, bg='white', padx=30, pady=20)
@@ -903,21 +954,19 @@ class FacilityDialog:
         )
         note.pack(fill='x', pady=(0, 20))
         
-        # Buttons - centered at bottom with padding
-        btn_frame = tk.Frame(container, bg='white')
-        btn_frame.pack(fill='x', pady=(20, 10))
-        
+        # Buttons - in fixed container at bottom (created earlier, now populate it)
         # Center container for buttons
-        btn_center = tk.Frame(btn_frame, bg='white')
-        btn_center.pack(anchor='center')
+        btn_center = tk.Frame(button_container, bg='white')
+        btn_center.pack(anchor='center', pady=15)
         
         cancel_btn = tk.Button(
             btn_center,
             text="Cancel",
             font=config.get_font('body'),
-            fg=config.get_color('text_primary'),
-            bg=config.get_color('bg_secondary'),
-            activebackground=config.get_color('bg_secondary'),
+            fg='white',
+            bg='#424242',
+            activebackground='#616161',
+            activeforeground='white',
             relief='flat',
             padx=20,
             pady=8,
@@ -1089,5 +1138,388 @@ class FacilityDialog:
             self.result = True
             self.dialog.destroy()
             
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to save: {str(e)}")
+
+class FacilityMonthlyParamsDialog:
+    """Dialog for configuring monthly rainfall and evaporation per facility"""
+    
+    def __init__(self, parent, db, facility):
+        self.db = db
+        self.facility = facility
+        self.facility_id = facility['facility_id']
+        self.facility_code = facility['facility_code']
+        
+        # Monthly data caches (per-facility flows only)
+        self.inflow_data = {}
+        self.outflow_data = {}
+        self.abstraction_data = {}
+        self.inflow_entries = {}
+        self.outflow_entries = {}
+        self.abstraction_entries = {}
+        
+        # Create dialog
+        self.dialog = tk.Toplevel(parent)
+        self.dialog.title(f"Monthly Parameters: {self.facility_code}")
+        self.dialog.geometry("900x600")
+        self.dialog.resizable(True, True)
+        self.dialog.transient(parent)
+        
+        # Defer grab_set
+        def _defer_grab():
+            try:
+                if self.dialog.winfo_viewable():
+                    self.dialog.grab_set()
+                else:
+                    self.dialog.after(25, _defer_grab)
+            except Exception:
+                pass
+        self.dialog.after(25, _defer_grab)
+        
+        # Center dialog
+        self.dialog.update_idletasks()
+        x = parent.winfo_x() + (parent.winfo_width() // 2) - (900 // 2)
+        y = parent.winfo_y() + (parent.winfo_height() // 2) - (600 // 2)
+        self.dialog.geometry(f"+{x}+{y}")
+        
+        self._create_ui()
+        self._load_data()
+        
+    def _create_ui(self):
+        """Create tabbed interface for rainfall and evaporation"""
+        # Header
+        header_frame = tk.Frame(self.dialog, bg='#f5f6fa', relief='flat')
+        header_frame.pack(fill='x', padx=0, pady=0)
+        
+        title = tk.Label(
+            header_frame,
+            text=f"Configure Monthly Flow Parameters for {self.facility_code}",
+            font=('Segoe UI', 14, 'bold'),
+            fg='#2c3e50',
+            bg='#f5f6fa'
+        )
+        title.pack(padx=20, pady=15)
+        
+        # Subtitle
+        subtitle = tk.Label(
+            header_frame,
+            text="Set inflows, outflows, and abstraction (Rainfall & evaporation are regional)",
+            font=('Segoe UI', 9),
+            fg='#7f8c8d',
+            bg='#f5f6fa'
+        )
+        subtitle.pack(padx=20, pady=(0, 10))
+        
+        # Notebook (tabbed interface)
+        self.notebook = ttk.Notebook(self.dialog)
+        self.notebook.pack(fill='both', expand=True, padx=20, pady=20)
+        
+        # Tab 1: Inflow
+        self._create_inflow_tab()
+        
+        # Tab 2: Outflow
+        self._create_outflow_tab()
+        
+        # Tab 3: Abstraction
+        self._create_abstraction_tab()
+        
+        # Bottom buttons
+        button_frame = tk.Frame(self.dialog, bg='white')
+        button_frame.pack(fill='x', padx=20, pady=15)
+        
+        save_btn = tk.Button(
+            button_frame,
+            text="💾 Save",
+            font=('Segoe UI', 10, 'bold'),
+            fg='white',
+            bg='#27ae60',
+            activebackground='#229954',
+            relief='flat',
+            padx=25,
+            pady=10,
+            command=self._save_data
+        )
+        save_btn.pack(side='right', padx=5)
+        
+        cancel_btn = tk.Button(
+            button_frame,
+            text="✕ Cancel",
+            font=('Segoe UI', 10),
+            fg='#7f8c8d',
+            bg='#ecf0f1',
+            activeforeground='#7f8c8d',
+            activebackground='#d5dbdb',
+            relief='flat',
+            padx=25,
+            pady=10,
+            command=self.dialog.destroy
+        )
+        cancel_btn.pack(side='right', padx=5)
+        
+    def _create_inflow_tab(self):
+        """Create tab for monthly inflow configuration"""
+        tab = tk.Frame(self.notebook, bg='white')
+        self.notebook.add(tab, text="💧 Inflow (m³)")
+        
+        # Scrollable grid
+        canvas = tk.Canvas(tab, bg='white', highlightthickness=0)
+        scrollbar = ttk.Scrollbar(tab, orient='vertical', command=canvas.yview)
+        scrollable_frame = tk.Frame(canvas, bg='white')
+        
+        scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+        
+        canvas.create_window((0, 0), window=scrollable_frame, anchor='nw')
+        canvas.configure(yscrollcommand=scrollbar.set)
+        
+        canvas.pack(side='left', fill='both', expand=True, padx=20, pady=20)
+        scrollbar.pack(side='right', fill='y')
+        
+        # Label
+        label = tk.Label(
+            scrollable_frame,
+            text="Enter inflow in cubic meters (m³) for each month",
+            font=('Segoe UI', 9),
+            fg='#7f8c8d',
+            bg='white'
+        )
+        label.pack(anchor='w', pady=(0, 15))
+        
+        # Month grid
+        months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+        for idx, month in enumerate(months, 1):
+            row_frame = tk.Frame(scrollable_frame, bg='white')
+            row_frame.pack(fill='x', pady=5)
+            
+            month_label = tk.Label(
+                row_frame,
+                text=f"{month}:",
+                font=('Segoe UI', 10),
+                fg='#2c3e50',
+                bg='white',
+                width=6,
+                anchor='w'
+            )
+            month_label.pack(side='left', padx=(0, 10))
+            
+            entry = tk.Entry(
+                row_frame,
+                font=('Segoe UI', 10),
+                width=15,
+                relief='solid',
+                borderwidth=1
+            )
+            entry.pack(side='left', padx=5)
+            self.inflow_entries[idx] = entry
+            
+            unit_label = tk.Label(
+                row_frame,
+                text="m³",
+                font=('Segoe UI', 9),
+                fg='#95a5a6',
+                bg='white'
+            )
+            unit_label.pack(side='left', padx=5)
+    
+    def _create_outflow_tab(self):
+        """Create tab for monthly outflow configuration"""
+        tab = tk.Frame(self.notebook, bg='white')
+        self.notebook.add(tab, text="🚰 Outflow (m³)")
+        
+        # Scrollable grid
+        canvas = tk.Canvas(tab, bg='white', highlightthickness=0)
+        scrollbar = ttk.Scrollbar(tab, orient='vertical', command=canvas.yview)
+        scrollable_frame = tk.Frame(canvas, bg='white')
+        
+        scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+        
+        canvas.create_window((0, 0), window=scrollable_frame, anchor='nw')
+        canvas.configure(yscrollcommand=scrollbar.set)
+        
+        canvas.pack(side='left', fill='both', expand=True, padx=20, pady=20)
+        scrollbar.pack(side='right', fill='y')
+        
+        # Label
+        label = tk.Label(
+            scrollable_frame,
+            text="Enter outflow in cubic meters (m³) for each month",
+            font=('Segoe UI', 9),
+            fg='#7f8c8d',
+            bg='white'
+        )
+        label.pack(anchor='w', pady=(0, 15))
+        
+        # Month grid
+        months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+        for idx, month in enumerate(months, 1):
+            row_frame = tk.Frame(scrollable_frame, bg='white')
+            row_frame.pack(fill='x', pady=5)
+            
+            month_label = tk.Label(
+                row_frame,
+                text=f"{month}:",
+                font=('Segoe UI', 10),
+                fg='#2c3e50',
+                bg='white',
+                width=6,
+                anchor='w'
+            )
+            month_label.pack(side='left', padx=(0, 10))
+            
+            entry = tk.Entry(
+                row_frame,
+                font=('Segoe UI', 10),
+                width=15,
+                relief='solid',
+                borderwidth=1
+            )
+            entry.pack(side='left', padx=5)
+            self.outflow_entries[idx] = entry
+            
+            unit_label = tk.Label(
+                row_frame,
+                text="m³",
+                font=('Segoe UI', 9),
+                fg='#95a5a6',
+                bg='white'
+            )
+            unit_label.pack(side='left', padx=5)
+    
+    def _create_abstraction_tab(self):
+        """Create tab for monthly abstraction configuration"""
+        tab = tk.Frame(self.notebook, bg='white')
+        self.notebook.add(tab, text="📤 Abstraction (m³)")
+        
+        # Scrollable grid
+        canvas = tk.Canvas(tab, bg='white', highlightthickness=0)
+        scrollbar = ttk.Scrollbar(tab, orient='vertical', command=canvas.yview)
+        scrollable_frame = tk.Frame(canvas, bg='white')
+        
+        scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+        
+        canvas.create_window((0, 0), window=scrollable_frame, anchor='nw')
+        canvas.configure(yscrollcommand=scrollbar.set)
+        
+        canvas.pack(side='left', fill='both', expand=True, padx=20, pady=20)
+        scrollbar.pack(side='right', fill='y')
+        
+        # Label
+        label = tk.Label(
+            scrollable_frame,
+            text="Enter abstraction in cubic meters (m³) for each month",
+            font=('Segoe UI', 9),
+            fg='#7f8c8d',
+            bg='white'
+        )
+        label.pack(anchor='w', pady=(0, 15))
+        
+        # Month grid
+        months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+        for idx, month in enumerate(months, 1):
+            row_frame = tk.Frame(scrollable_frame, bg='white')
+            row_frame.pack(fill='x', pady=5)
+            
+            month_label = tk.Label(
+                row_frame,
+                text=f"{month}:",
+                font=('Segoe UI', 10),
+                fg='#2c3e50',
+                bg='white',
+                width=6,
+                anchor='w'
+            )
+            month_label.pack(side='left', padx=(0, 10))
+            
+            entry = tk.Entry(
+                row_frame,
+                font=('Segoe UI', 10),
+                width=15,
+                relief='solid',
+                borderwidth=1
+            )
+            entry.pack(side='left', padx=5)
+            self.abstraction_entries[idx] = entry
+            
+            unit_label = tk.Label(
+                row_frame,
+                text="m³",
+                font=('Segoe UI', 9),
+                fg='#95a5a6',
+                bg='white'
+            )
+            unit_label.pack(side='left', padx=5)
+        
+
+    def _load_data(self):
+        """Load inflow, outflow, and abstraction data from DB"""
+        try:
+            # Load inflow
+            self.inflow_data = self.db.get_facility_inflow_all_months(self.facility_id)
+            for month, value in self.inflow_data.items():
+                if month in self.inflow_entries:
+                    self.inflow_entries[month].insert(0, str(value))
+            
+            # Load outflow
+            self.outflow_data = self.db.get_facility_outflow_all_months(self.facility_id)
+            for month, value in self.outflow_data.items():
+                if month in self.outflow_entries:
+                    self.outflow_entries[month].insert(0, str(value))
+            
+            # Load abstraction
+            self.abstraction_data = self.db.get_facility_abstraction_all_months(self.facility_id)
+            for month, value in self.abstraction_data.items():
+                if month in self.abstraction_entries:
+                    self.abstraction_entries[month].insert(0, str(value))
+        
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to load data: {str(e)}")
+        
+    def _save_data(self):
+        """Save inflow, outflow, and abstraction data to DB"""
+        try:
+            # Save inflow
+            for month, entry in self.inflow_entries.items():
+                value_str = entry.get().strip()
+                if value_str:
+                    try:
+                        value = float(value_str)
+                        self.db.set_facility_inflow_monthly(self.facility_id, month, value)
+                    except ValueError:
+                        messagebox.showwarning("Invalid Input", f"Month {month} inflow: please enter a number")
+                        return
+            
+            # Save outflow
+            for month, entry in self.outflow_entries.items():
+                value_str = entry.get().strip()
+                if value_str:
+                    try:
+                        value = float(value_str)
+                        self.db.set_facility_outflow_monthly(self.facility_id, month, value)
+                    except ValueError:
+                        messagebox.showwarning("Invalid Input", f"Month {month} outflow: please enter a number")
+                        return
+            
+            # Save abstraction
+            for month, entry in self.abstraction_entries.items():
+                value_str = entry.get().strip()
+                if value_str:
+                    try:
+                        value = float(value_str)
+                        self.db.set_facility_abstraction_monthly(self.facility_id, month, value)
+                    except ValueError:
+                        messagebox.showwarning("Invalid Input", f"Month {month} abstraction: please enter a number")
+                        return
+            
+            messagebox.showinfo("Success", f"Monthly flow parameters saved for {self.facility_code}")
+            self.dialog.destroy()
+        
         except Exception as e:
             messagebox.showerror("Error", f"Failed to save: {str(e)}")

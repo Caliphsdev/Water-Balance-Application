@@ -178,6 +178,10 @@ class DashboardModule:
         # Build dashboard sections
         self._create_header()
         self._create_kpi_section()
+        # Optional: new dashboard additions
+        if config.get('features.new_dashboard', False):
+            self._create_environment_kpis_section()
+            self._create_rain_evap_trend_section()
         self._create_charts_section()
         self._create_closure_error_section()
         self._create_status_section()
@@ -243,9 +247,8 @@ class DashboardModule:
         kpi_frame.pack(fill='x', pady=(0, 20))
 
         # Aggregate statistics from database metadata and Excel calculated volumes
-        # Count only ACTIVE database sources with ABSTRACTION purpose (used in water balance)
-        abstraction_sources = [s for s in self.sources if s.get('active') and s.get('source_purpose') == 'ABSTRACTION']
-        total_sources = len(abstraction_sources)
+        # Count all ACTIVE database sources (already filtered by get_water_sources(active_only=True))
+        total_sources = len(self.sources)
         total_facilities = len(self.facilities)
         total_capacity = sum(f.get('total_capacity', 0) for f in self.facilities)
         # Use closing_volume from Excel (real-time calculated) instead of database current_volume (static)
@@ -300,6 +303,123 @@ class DashboardModule:
             card.grid(row=0, column=i, padx=5, sticky='ew')
             kpi_frame.columnconfigure(i, weight=1)
             self.kpi_widgets[kpi['key']] = {'value': value_widget}
+
+    def _create_environment_kpis_section(self):
+        """Environment KPIs: rainfall, evaporation, seepage gain (latest month)."""
+        try:
+            section = tk.Frame(self.container, bg=config.get_color('bg_main'))
+            section.pack(fill='x', pady=(0, 20))
+
+            # Title
+            tk.Label(
+                section,
+                text="Environmental KPIs",
+                font=config.get_font('heading_medium'),
+                fg=config.get_color('text_primary'),
+                bg=config.get_color('bg_main'),
+                anchor='w'
+            ).pack(fill='x')
+
+            grid = tk.Frame(section, bg=config.get_color('bg_main'))
+            grid.pack(fill='x', pady=(8, 0))
+
+            # Latest month/year
+            latest = self.latest_date or date.today().replace(day=1)
+            month = latest.month
+            year = latest.year
+
+            # Rainfall and evaporation (regional)
+            rainfall_mm = self.db.get_regional_rainfall_monthly(month, year=None)
+            evaporation_mm = self.db.get_regional_evaporation_monthly(month, zone=None, year=None)
+
+            # Seepage gain (sum across active facilities)
+            # NOTE: Seepage methods were removed as seepage is now calculated automatically
+            # based on facility properties (aquifer_gain_rate_pct, is_lined flag)
+            seepage_total_m3 = 0.0
+
+            cards = [
+                {'key': 'rainfall_mm', 'title': 'Rainfall (Regional)', 'value': f"{rainfall_mm:.0f}", 'unit': 'mm', 'icon': '☔', 'color': config.get_color('primary')},
+                {'key': 'evaporation_mm', 'title': 'Evaporation (Regional)', 'value': f"{evaporation_mm:.0f}", 'unit': 'mm', 'icon': '☀', 'color': config.get_color('warning')},
+                {'key': 'seepage_gain', 'title': 'Seepage Gain (Total)', 'value': f"{seepage_total_m3/1000000:.3f}", 'unit': 'Mm³', 'icon': '↟', 'color': config.get_color('success')},
+            ]
+
+            for i, kpi in enumerate(cards):
+                card, value_widget = self._create_kpi_card(grid, kpi)
+                card.grid(row=0, column=i, padx=5, sticky='ew')
+                grid.columnconfigure(i, weight=1)
+                self.kpi_widgets[kpi['key']] = {'value': value_widget}
+        except Exception as e:
+            logger.warning(f"Environmental KPIs failed: {e}")
+
+    def _create_rain_evap_trend_section(self):
+        """Mini-trend: last 6 months rainfall vs evaporation."""
+        try:
+            section = tk.Frame(self.container, bg=config.get_color('bg_main'))
+            section.pack(fill='x', pady=(0, 20))
+
+            frame = tk.Frame(section, bg='white', relief='solid', borderwidth=1)
+            frame.pack(fill='both', expand=True)
+
+            header = tk.Frame(frame, bg='white')
+            header.pack(fill='x', padx=15, pady=(15, 10))
+            tk.Label(
+                header,
+                text="Rainfall vs Evaporation (6 months)",
+                font=config.get_font('heading_medium'),
+                fg=config.get_color('text_primary'),
+                bg='white',
+                anchor='w'
+            ).pack(side='left')
+
+            if not MATPLOTLIB_AVAILABLE:
+                self._show_no_data_message(frame)
+                return
+
+            # Build month sequence ending at latest
+            latest = self.latest_date or date.today().replace(day=1)
+            months = []
+            cur = latest
+            for _ in range(6):
+                months.append(cur)
+                # previous month
+                prev_m = cur.month - 1
+                prev_y = cur.year if prev_m >= 1 else cur.year - 1
+                prev_m = 12 if prev_m == 0 else prev_m
+                cur = cur.replace(year=prev_y, month=prev_m, day=1)
+            months.reverse()
+
+            rain = []
+            evap = []
+            labels = []
+            for d in months:
+                labels.append(d.strftime('%b %Y'))
+                rain.append(self.db.get_regional_rainfall_monthly(d.month, year=None))
+                evap.append(self.db.get_regional_evaporation_monthly(d.month, zone=None, year=None))
+
+            fig = Figure(figsize=(10, 3.8), dpi=80, facecolor='white')
+            ax = fig.add_subplot(111)
+            ax.plot(labels, rain, color='#1E88E5', linewidth=2.0, marker='o', markersize=6, label='Rainfall (mm)')
+            ax.plot(labels, evap, color='#E53935', linewidth=2.0, marker='o', markersize=6, label='Evaporation (mm)')
+            ax.fill_between(range(len(labels)), rain, [0]*len(rain), color='#1E88E5', alpha=0.08)
+            ax.fill_between(range(len(labels)), evap, [0]*len(evap), color='#E53935', alpha=0.08)
+            if apply_common_style:
+                apply_common_style(ax, 'Rainfall vs Evaporation')
+            else:
+                ax.set_title('Rainfall vs Evaporation', fontsize=11, pad=14)
+                ax.grid(axis='y', alpha=0.3, linestyle='--')
+            ax.set_ylabel('mm', fontsize=9)
+            ax.set_xlabel('Month', fontsize=9)
+            ax.tick_params(axis='x', labelrotation=0, labelsize=8)
+            ax.legend(fontsize=8, frameon=False, loc='upper left')
+            # Ensure the title isn't clipped by the figure's top margin
+            # Leave extra space at the top using the rect parameter.
+            fig.tight_layout(pad=2, rect=[0, 0.02, 1, 0.97])
+
+            canvas = FigureCanvasTkAgg(fig, frame)
+            canvas.draw()
+            canvas.get_tk_widget().pack(fill='both', expand=True, padx=10, pady=(0, 10))
+        except Exception as e:
+            logger.warning(f"Rain/Evap trend failed: {e}")
     
     def _create_kpi_card(self, parent, data):
         """Create a single KPI card"""
@@ -318,8 +438,8 @@ class DashboardModule:
         if len(icon_text.encode('utf-8')) > 4 and not icon_text.isascii():
             # Heuristic: still keep; user environment determines rendering. Offer alt label below.
             pass
-        icon_label = tk.Label(card, text=icon_text, font=('Segoe UI', 24), bg='white', fg=data['color'])
-        icon_label.pack(pady=(15, 5))
+        icon_label = tk.Label(card, text=icon_text, font=('Segoe UI', 20), bg='white', fg=data['color'])
+        icon_label.pack(pady=(10, 3))
         
         # Value
         value_label = tk.Label(
@@ -337,7 +457,7 @@ class DashboardModule:
         # Title
         title_label = tk.Label(card, text=data['title'], font=config.get_font('body_bold'),
                                 fg=config.get_color('text_primary'), bg='white')
-        title_label.pack(pady=(5, 15))
+        title_label.pack(pady=(3, 10))
         # Return card and main value label (unit/title stored visually only)
         return card, value_label
     
@@ -708,9 +828,7 @@ class DashboardModule:
             ("Storage Facilities", f"{len(facilities)} dams and tanks"),
             ("Total Storage Capacity", f"{sum(f['total_capacity'] for f in facilities) / 1000000:.2f} Mm³"),
             ("System Constants", f"{len(constants)} calculation parameters configured"),
-            ("TSF Return Rate", f"{constants.get('TSF_RETURN_RATE', 0) * 100:.0f}% recovery"),
             ("Mining Water Rate", f"{constants.get('MINING_WATER_RATE', 0)} m³/tonne"),
-            ("Annual Evaporation", f"{constants.get('MEAN_ANNUAL_EVAPORATION', 0):.0f} mm/year (Zone 4A)"),
             ("Database Status", "Connected and operational"),
         ]
         
@@ -845,9 +963,8 @@ class DashboardModule:
         """Update dashboard data from DB + Excel"""
         try:
             # Recompute stats from database and Excel
-            # Count only database sources used for abstraction
-            abstraction_sources = [s for s in self.sources if s.get('source_purpose') == 'ABSTRACTION']
-            total_sources = len(abstraction_sources)
+            # Count all active database sources (already filtered by get_water_sources(active_only=True))
+            total_sources = len(self.sources)
             total_facilities = len(self.facilities)
             total_capacity = sum(f.get('total_capacity', 0) for f in self.facilities)
             # Use closing_volume from Excel (real-time calculated) instead of database current_volume (static)

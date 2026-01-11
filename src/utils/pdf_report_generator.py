@@ -564,8 +564,6 @@ class WaterBalanceReportGenerator:
         
         const_data = [
             ('Mining Water Rate', f"{constants.get('MINING_WATER_RATE', 0):.2f} m³/tonne", 'Water usage per tonne milled'),
-            ('Mean Annual Evaporation', f"{constants.get('MEAN_ANNUAL_EVAPORATION', 0):.0f} mm/year", 'Zone 4A evaporation'),
-            ('Rainfall Factor', f"{constants.get('RAINFALL_FACTOR', 0):.2f}", 'Effective rainfall coefficient'),
         ]
         
         for name, value, desc in const_data:

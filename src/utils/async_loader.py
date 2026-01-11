@@ -53,11 +53,20 @@ class AsyncDatabaseLoader:
             # Test connection by running a simple query
             conn = self.db_manager.get_connection()
             cursor = conn.cursor()
-            cursor.execute("SELECT COUNT(*) FROM wb_structures")
-            count = cursor.fetchone()[0]
+            # Prefer wb_structures if present (topology schema); otherwise use storage_facilities
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='wb_structures'")
+            has_wb_structures = cursor.fetchone() is not None
+            if has_wb_structures:
+                cursor.execute("SELECT COUNT(*) FROM wb_structures")
+                count = cursor.fetchone()[0]
+                summary = f"{count} structures"
+            else:
+                cursor.execute("SELECT COUNT(*) FROM storage_facilities")
+                count = cursor.fetchone()[0]
+                summary = f"{count} facilities"
             
             elapsed = time.time() - start_time
-            logger.info(f"✅ Database loaded successfully in {elapsed:.2f}s ({count} structures)")
+            logger.info(f"✅ Database loaded successfully in {elapsed:.2f}s ({summary})")
             
             self.loading = False
             self.error = None

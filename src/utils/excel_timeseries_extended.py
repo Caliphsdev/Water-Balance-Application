@@ -93,7 +93,7 @@ class ExcelTimeSeriesExtended:
             # Define sheet loading tasks
             sheets_config = [
                 ("Environmental", "Environmental", None),
-                ("Storage_Facilities", "Storage_Facilities", 3),  # Skip 3 header rows
+                ("Storage_Facilities", "Storage_Facilities", None),  # 1 header row (default)
                 ("Production", "Production", None),
                 ("Consumption", "Consumption", None),
                 ("Seepage_Losses", "Seepage_Losses", None),
@@ -461,38 +461,20 @@ class ExcelTimeSeriesExtended:
         return storage_list
     
     # ==================== PRODUCTION ====================
+    # Note: Concentrate production (PGM/Chromite wet tons and moisture) now read from
+    # Meter Readings sheet. Production sheet only contains non-duplicate fields:
+    # - Slurry_Density_t_per_m3 (optional, for advanced tailings calculations)
+    # - Tailings_Moisture_Percent (primary source for tailings retention)
     
     def get_concentrate_produced(self, target_date: date) -> Optional[float]:
-        """Get concentrate produced in tonnes for the month"""
-        self._load()
-        if self._production_df is None or self._production_df.empty:
-            return None
-        
-        mask = (self._production_df['Date'].dt.year == target_date.year) & \
-               (self._production_df['Date'].dt.month == target_date.month)
-        
-        result = self._production_df[mask]
-        if result.empty:
-            return None
-        
-        conc = result.iloc[0]['Concentrate_Produced_t']
-        return float(conc) if pd.notna(conc) else None
+        """DEPRECATED: Concentrate tonnage now read from Meter Readings (PGM + Chromite).
+        Kept for backward compatibility; returns None to trigger fallback."""
+        return None
     
     def get_concentrate_moisture(self, target_date: date) -> Optional[float]:
-        """Get concentrate moisture as decimal (0.08 = 8%)"""
-        self._load()
-        if self._production_df is None or self._production_df.empty:
-            return None
-        
-        mask = (self._production_df['Date'].dt.year == target_date.year) & \
-               (self._production_df['Date'].dt.month == target_date.month)
-        
-        result = self._production_df[mask]
-        if result.empty:
-            return None
-        
-        moisture = result.iloc[0]['Concentrate_Moisture_Percent']
-        return float(moisture) if pd.notna(moisture) else None
+        """DEPRECATED: Concentrate moisture now read from Meter Readings (weighted PGM + Chromite).
+        Kept for backward compatibility; returns None to trigger fallback."""
+        return None
     
     def get_slurry_density(self, target_date: date) -> Optional[float]:
         """Get slurry density in t/m³"""
@@ -511,7 +493,7 @@ class ExcelTimeSeriesExtended:
         return float(density) if pd.notna(density) else None
     
     def get_tailings_moisture(self, target_date: date) -> Optional[float]:
-        """Get tailings moisture as decimal (0.35 = 35%)"""
+        """Get tailings moisture as percentage (32.5 for 32.5%). Divide by 100 to get decimal."""
         self._load()
         if self._production_df is None or self._production_df.empty:
             return None

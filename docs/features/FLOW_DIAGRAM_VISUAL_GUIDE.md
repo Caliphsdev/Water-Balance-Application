@@ -1,107 +1,30 @@
-# Flow Diagram - Quick Visual Guide
+# Flow Diagram - Visual Guide (Current State)
 
-## What You'll See Now
+This view reflects the current manual-segment editor, not the older auto-routed/auto-colored version.
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│ WATER FLOW DIAGRAM                                              │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  SOURCES     │  TREATMENT   │  STORAGE      │  DISTRIBUTION   │
-│  ┌─────────┐ │  ┌────────┐  │  ┌────────┐   │  ┌────────────┐ │
-│  │Borehole │─→│Softening│──→│Reservoir│───→│Guest House   │ │
-│  └─────────┘ │  └────────┘  │  └────────┘   │  └────────────┘ │
-│              │              │               │                 │
-│  ┌────────┐  │              │               │  ┌────────────┐ │
-│  │Rainfall│  │              │               │  │   Offices  │ │
-│  └────────┘  │              │               │  └────────────┘ │
-│              │  ┌────────┐  │               │                 │
-│              │  │Sewage  │  │               │  ┌────────────┐ │
-│              │  │Treat.  │  │               │  │Septic Tank │ │
-│              │  └────────┘  │               │  └────────────┘ │
-│              │              │               │                 │
-│              │              │  ┌────────┐   │                 │
-│              │              │  │  NDCD  │───→ Mining Dewater │
-│              │              │  └────────┘   │                 │
-│              │              │               │  ┌────────────┐ │
-│              │              │               │  │   Losses   │ │
-│              │              │               │  └────────────┘ │
-│                                                                 │
-│  Legend:                                                        │
-│  ─→ Blue arrow: Clean water flows                              │
-│  ─→ Red arrow: Dirty/Effluent flows                            │
-│  ─→ Black arrow: Losses                                        │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+## Layout
+- Canvas with visible grid (20 px spacing; thicker every 100 px).
+- Scrollbars for both directions; zoom in/out buttons adjust scale.
+- Zone backgrounds come from the JSON (optional); titles render per zone.
+- Components draw as rectangles/ovals with labels; locked nodes show a red outline.
 
-## Components You'll See
+## Flows
+- Flow lines are polylines you draw point by point. They stay where you place them and do not follow components if you later move nodes.
+- Arrows render on the last segment; bidirectional edges draw arrows at both ends if selected.
+- Labels sit on a white box and can be dragged; font size is per-edge.
+- Recirculation loops render as small outlined boxes next to a component; they can be locked.
 
-| Component | Color | Position | Type |
-|-----------|-------|----------|------|
-| Borehole (NDGWA 1-6) | Light Blue | Left top | SOURCE |
-| Direct Rainfall | Light Lavender | Left middle | SOURCE |
-| Softening Plant | Orange | Left-center | TREATMENT |
-| Reservoir | Dark Blue (Oval) | Center | STORAGE |
-| **Guest House** | Light Blue | **Top-left middle** | **CONSUMPTION** |
-| **Offices** | Light Blue | **Top-right middle** | **CONSUMPTION** |
-| Sewage Treatment | Orange | Center | TREATMENT |
-| NDCD 1-2/NDSWD 1 | Darker Blue (Oval) | Right-center | STORAGE |
-| North Decline | Red | Bottom center | PROCESS |
-| North Shaft | Light Red | Bottom left | PROCESS |
-| Septic Tank | White/Red border | Top right | CONSUMPTION |
-| Losses | White/Black border | Right middle | LOSS |
+## Colors (manual)
+- Defaults from the editor helper: clean/unspecified uses blue (#3498db), dirty/effluent variants use red (#e74c3c), evaporation/losses use black.
+- You can override colors per edge in the Edit dialog; there is no endpoint-based auto-coloring.
 
-## Flow Values
+## Data bindings
+- Diagram file: data/diagrams/ug2_north_decline.json (nodes, edges, segments, labels, locks, recirculation positions).
+- Excel overlays: edge excel_mapping defines sheet/column; volumes load via the Flow Volume Loader when you click Load Excel.
 
-Typical flows you'll see labeled on arrows:
-- **71,530** m³ - Borehole to Softening
-- **47,485** m³ - Softening to Reservoir
-- **16,105** m³ - Reservoir to Guest House ← NEW!
-- **14,246** m³ - Reservoir to Offices ← NEW!
-- **2,594** m³ - Offices to Septic Tank ← NEW!
-- **1,470** m³ - Guest House to Septic Tank ← NEW!
-- **947** m³ - Guest House to Losses
-
-...and more showing the complete water balance
-
-## Color Coding
-
-### Component Colors
-- **Light Blue (#8ab7e6)** - Boreholes/Sources
-- **Light Lavender (#b7d4f3)** - Natural sources (Rainfall)
-- **Orange (#e89c3d)** - Treatment facilities
-- **Dark Blue (#4b78a8)** - Main storage
-- **Darker Blue (#3f6ea3)** - Secondary storage
-- **Light Blue (#5d88b6)** - Consumption facilities
-- **Red (#a34136)** - Mining operations
-- **White + Red Border** - Septic/Special handling
-
-### Flow Arrow Colors
-- **Blue (#4b78a8)** - Clean water
-- **Red (#e74c3c)** - Dirty/Effluent water
-- **Black** - Water losses/evaporation
-
-## Interaction
-
-- **Scroll**: Use mouse wheel to pan around
-- **Horizontal scroll**: Use shift + wheel or bottom scrollbar
-- **Zoom**: Not yet, but can be added
-
-## If Something Looks Off
-
-1. Check the logs - they tell you exactly what was drawn
-2. The diagram loads JSON data - verify `data/diagrams/ug2_north_decline.json` exists
-3. All 12 components should be visible
-4. All 12 connections should show arrows with labels
-
-## If You Want to Change Positions
-
-Edit the JSON file directly:
-```
-data/diagrams/ug2_north_decline.json
-  └── nodes array: edit "x" and "y" values
-      └── Restart app to see changes
-```
-
-NO code changes needed! It's all data-driven now.
+## Quick operations
+- Draw: click Draw, then click points along the desired path, ending at the target.
+- Edit: choose a flow in the list, adjust type/color/volume/label font size, and save.
+- Components: Add/Edit/Delete nodes; lock to prevent dragging.
+- Recirculation: add/edit/lock a loop beside a component.
+- Save: writes current canvas state to the diagram JSON.

@@ -1,160 +1,43 @@
-# 🌊 Interactive Flow Diagram - Complete Guide
+# Flow Diagram Dashboard (Current Behavior)
 
-## ✨ What's New
+This guide reflects the dashboard as implemented in the Tkinter editor today. It uses manual segment drawing, JSON-backed layouts, optional Excel volume overlays, and does **not** auto-detect flow types or move flow lines when components move.
 
-### 1. **Auto-Detect Flow Types**
-When you create a connection, the system automatically detects what type of water flows through it:
+## What it does
+- Manual flow lines: draw polyline segments by clicking points; arrows render from start to end. Lines stay where you drew them and do not follow components when you drag nodes.
+- Component editing: add, edit, delete, and lock components (locked nodes draw with a red outline and cannot be dragged).
+- Recirculation boxes: add labeled recirculation loops that sit beside a component; they can be edited or locked separately.
+- Label control: flow labels render on a small white box; you can drag labels to a better position. Label font size is configurable per edge.
+- Grid and scroll: grid is shown by default (20 px spacing, thicker every 100 px); canvas supports vertical/horizontal scrolling and zoom in/out buttons.
+- Excel overlays: load volumes from Excel, validate sheet/column mappings, and auto-map via the Excel mapping registry helper.
+- Save to JSON: saving writes the current nodes/edges to the diagram JSON. Reloading the view reads from that JSON.
 
-| Flow Type | Color | Detection |
-|-----------|-------|-----------|
-| **Clean Water** | 🔵 Blue | Default for most connections |
-| **Wastewater/Effluent** | 🔴 Red | From Sewage Treatment, to Septic Tank/Losses |
-| **Underground Return** | 🟠 Orange | From North Decline/North Shaft |
+## What it does not do
+- No auto flow-type detection or auto-coloring based on endpoints.
+- No middle-click waypoints; waypoints are explicit points you click while drawing.
+- No automatic re-routing when nodes move; you must redraw or edit flow segments if a node’s position changes.
 
-**Example:** When you connect Sewage Treatment → NDCD, it automatically shows RED (effluent)
+## Toolbar reference
+- Flow lines: Draw, Edit, Delete.
+- Recirculation: Add, Edit, Lock/Unlock.
+- Components: Add Component, Edit Node, Delete Node, Lock/Unlock selection.
+- Actions: Save.
+- View: Zoom In, Zoom Out.
+- Excel: Load Excel, Validate, Auto-Map, Mappings, Excel Manager.
 
-### 2. **Control Flow Line Paths (Waypoints)**
-Create curved, bendable flow lines! Add waypoints to route connections around obstacles.
+## Typical workflow
+1) Load: open the dashboard; it loads data/diagrams/ug2_north_decline.json and resets edge volumes/labels to "-" until Excel is loaded.
+2) Move/lock components: drag nodes as needed; toggle Lock/Unlock to prevent further moves. Remember that existing flow lines do **not** follow.
+3) Draw a flow line: click Draw, then click successive points to form the path. Finish on the destination point; the arrow is placed on the final segment. Choose flow type/color/volume in Edit if needed.
+4) Edit a flow line: select a line in Edit, adjust flow type, color, volume/label, bidirectional flag, and label font size; save.
+5) Recirculation: add a recirculation box beside a component, edit its label/size/position, or lock it.
+6) Excel overlay: pick Year/Month, Load Excel to populate volumes using edge excel_mapping. Validate to check sheet/column presence; Auto-Map tries to repair missing columns using labels.
+7) Save: click Save to persist nodes/edges back to JSON. Restarting reloads from that JSON.
 
-## 🎮 How to Use
+## Data sources
+- Diagram JSON: data/diagrams/ug2_north_decline.json (nodes, edges, segments, labels, locks, recirculation positions).
+- Excel volumes: resolved by flow_volume_loader; mapping stored per edge in excel_mapping (sheet, column, enabled flag).
 
-### Moving Components
-```
-1. Click on any component
-2. Drag it to new position
-3. Click "💾 Save Changes"
-✓ Component moves, all connected flow lines update automatically!
-```
-
-### Creating Connections
-```
-1. Click "🔗 Connect Components" button
-2. Click FIRST component (turns red)
-3. Click SECOND component
-4. Enter flow value (m³)
-5. System auto-selects color based on flow type
-6. Click "💾 Save Changes"
-✓ Connection created with correct color!
-```
-
-### Adding Waypoints to Flow Lines
-Flow lines can be straight or curved. Add waypoints to create custom paths:
-
-```
-1. Move your mouse cursor over a flow line
-2. Press MIDDLE MOUSE BUTTON (scroll wheel click)
-3. Click exactly on the line where you want the waypoint
-4. System adds waypoint and shows curved line
-5. Drag the waypoint circles to reposition
-6. Click "💾 Save Changes"
-✓ Custom curved flow line saved!
-```
-
-### Deleting Waypoints
-```
-1. Right-click on a waypoint circle
-2. Confirm deletion
-3. Flow line straightens
-```
-
-## 📊 Example Workflow
-
-### Scenario: Rearrange UG2 North Decline Diagram
-
-**Step 1: Move Sewage Treatment to the right**
-- Click Sewage Treatment component
-- Drag it 200px to the right
-- All red flow lines (wastewater) follow it automatically
-
-**Step 2: Create a new connection**
-- Click "🔗 Connect"
-- Click Offices
-- Click NDCD 1-2
-- Enter value: 3000
-- System shows: RED line (wastewater detected)
-
-**Step 3: Curve the new line**
-- Middle-click on the Offices→NDCD line
-- Click on the line at a point above/below
-- Waypoint added! Blue circle appears
-- Drag the blue circle to curve the line
-- Release and save
-
-**Step 4: Verify and Save**
-- Review all connections with correct colors
-- Click "💾 Save Changes"
-- Close and reopen app
-- Changes persist!
-
-## 🎨 Color Legend
-
-```
-🔵 BLUE   = Clean water (supply, distribution)
-🔴 RED    = Wastewater/Effluent (sewage, treated waste)
-🟠 ORANGE = Underground Return (mine dewatering)
-```
-
-## 💡 Pro Tips
-
-1. **Mass Update**: Move a storage tank component → all connected lines follow
-2. **Route Around**: Use waypoints to avoid cluttered diagrams
-3. **Flow Direction**: Arrows show direction (head of arrow = destination)
-4. **Flow Value**: Hover over line label to see actual m³ values
-5. **Undo**: Click "↺ Reload" to discard unsaved changes
-
-## 🔧 Technical Details
-
-### Waypoints in JSON
-```json
-{
-  "from": "offices",
-  "to": "ndcd",
-  "value": 3000,
-  "color": "#e74c3c",
-  "flow_type": "wastewater",
-  "waypoints": [
-    {"x": 700, "y": 250},
-    {"x": 750, "y": 150}
-  ]
-}
-```
-
-### Flow Type Detection Logic
-```python
-if from_type == 'sewage' or to_id == 'septic' or to_id == 'losses':
-    color = RED (wastewater)
-elif from_id contains 'decline' or 'shaft':
-    color = ORANGE (dewatering)
-else:
-    color = BLUE (clean water)
-```
-
-## ✅ Checklist
-
-- [ ] **Move a component** → see flow lines follow
-- [ ] **Create a connection** → see auto-detected color
-- [ ] **Check flow type** → matches component types
-- [ ] **Add waypoint** → middle-click on line
-- [ ] **Save changes** → click save button
-- [ ] **Reload diagram** → verify changes persist
-
-## 📞 Troubleshooting
-
-| Issue | Solution |
-|-------|----------|
-| Flow line color wrong | Delete connection, recreate it |
-| Can't add waypoint | Middle-click exactly on the line (not near it) |
-| Waypoint won't move | Try middle-clicking the blue circle and dragging |
-| Changes didn't save | Did you click "💾 Save Changes"? |
-
-## 🎯 Next Steps
-
-1. **Experiment** with moving components
-2. **Create** custom connections between components
-3. **Add waypoints** to create curved flows
-4. **Save** your layout
-5. **Share** the diagram with your team!
-
----
-
-**Enjoy your interactive water balance diagram!** 💧
+## Troubleshooting
+- Flow line did not move with a component: redraw or edit the segments; lines are independent of node motion.
+- Colors/types not auto-set: pick them in Edit; defaults are blue for clean, red for dirty variants, black for losses/evaporation.
+- Excel validation errors: ensure the mapped sheet/column exists in the chosen workbook; use Auto-Map to repair with current labels.

@@ -40,6 +40,15 @@ class DatabaseSchema:
             self._create_borehole_details_table(cursor)
             self._create_storage_facilities_table(cursor)
             self._create_evaporation_rates_table(cursor)
+            self._create_regional_rainfall_monthly_table(cursor)
+            self._create_facility_rainfall_monthly_table(cursor)
+            self._create_facility_evaporation_monthly_table(cursor)
+            self._create_facility_inflow_monthly_table(cursor)
+            self._create_facility_outflow_monthly_table(cursor)
+            self._create_facility_abstraction_monthly_table(cursor)
+            self._create_tailings_moisture_monthly_table(cursor)
+            self._create_monthly_manual_inputs_table(cursor)
+            # NOTE: seepage_gain_monthly table removed - seepage now automatic based on facility properties
             self._create_measurements_table(cursor)
             self._create_tsf_return_table(cursor)
             self._create_calculations_table(cursor)
@@ -48,6 +57,13 @@ class DatabaseSchema:
             self._create_alert_rules_table(cursor)
             self._create_alerts_table(cursor)
             self._create_audit_log_table(cursor)
+
+            # Ensure optional wb_* topology tables exist (idempotent)
+            try:
+                from database.migrate_wb_schema import migrate as migrate_wb
+                migrate_wb()
+            except Exception as wb_err:
+                print(f"⚠️ Warning: wb_* topology migration skipped: {wb_err}")
             self._create_reports_table(cursor)
             
             # Insert initial reference data
@@ -60,6 +76,54 @@ class DatabaseSchema:
         except sqlite3.Error as e:
             conn.rollback()
             print(f"❌ Error creating database: {e}")
+            return False
+        finally:
+            conn.close()
+
+    def migrate_database(self):
+        """Apply schema migrations (add new tables to existing databases)"""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute("PRAGMA foreign_keys = ON")
+            
+            # Create regional and facility-specific monthly tables if they don't exist
+            self._create_regional_rainfall_monthly_table(cursor)
+            self._create_facility_rainfall_monthly_table(cursor)
+            self._create_facility_evaporation_monthly_table(cursor)
+            self._create_facility_inflow_monthly_table(cursor)
+            self._create_facility_outflow_monthly_table(cursor)
+            self._create_facility_abstraction_monthly_table(cursor)
+            self._create_tailings_moisture_monthly_table(cursor)
+            self._create_monthly_manual_inputs_table(cursor)
+            self._create_tsf_return_table(cursor)
+            self._create_groundwater_inflow_table(cursor)
+            self._create_data_quality_checks_table(cursor)
+            # NOTE: seepage_gain_monthly table removed - seepage now automatic based on facility properties
+
+            # Ensure system_constants has optional min/max columns for UI
+            cursor.execute("PRAGMA table_info(system_constants)")
+            cols = [row[1] for row in cursor.fetchall()]
+            if 'min_value' not in cols:
+                cursor.execute("ALTER TABLE system_constants ADD COLUMN min_value REAL")
+            if 'max_value' not in cols:
+                cursor.execute("ALTER TABLE system_constants ADD COLUMN max_value REAL")
+
+            # Ensure optional wb_* topology tables exist (idempotent)
+            try:
+                from database.migrate_wb_schema import migrate as migrate_wb
+                migrate_wb()
+            except Exception as wb_err:
+                print(f"⚠️ Warning: wb_* topology migration skipped: {wb_err}")
+            
+            conn.commit()
+            print(f"Database migrated successfully: {self.db_path}")
+            return True
+            
+        except sqlite3.Error as e:
+            conn.rollback()
+            print(f"❌ Error migrating database: {e}")
             return False
         finally:
             conn.close()
@@ -262,6 +326,196 @@ class DatabaseSchema:
                 CHECK (evaporation_mm >= 0)
             )
         """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_evaporation_rates_month ON evaporation_rates(month)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_evaporation_rates_zone ON evaporation_rates(zone)")
+
+    def _create_regional_rainfall_monthly_table(self, cursor):
+        """Regional monthly rainfall that applies to all facilities in the area.
+        This is simpler than per-facility rainfall - one value per month for the entire region.
+        """
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS regional_rainfall_monthly (
+                rainfall_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                month INTEGER NOT NULL,  -- 1-12
+                year INTEGER,  -- Optional: for multi-year planning
+                rainfall_mm REAL NOT NULL,  -- mm/month for entire region
+                data_source TEXT DEFAULT 'dashboard',
+                notes TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                
+                UNIQUE(month, year),
+                CHECK (month >= 1 AND month <= 12),
+                CHECK (rainfall_mm >= 0)
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_regional_rainfall_month ON regional_rainfall_monthly(month)")
+
+    def _create_facility_rainfall_monthly_table(self, cursor):
+        """Per-facility monthly rainfall volumes (user-configurable)
+        Allows setting facility-specific rainfall on a monthly basis via UI dashboard.
+        """
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS facility_rainfall_monthly (
+                rainfall_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                facility_id INTEGER NOT NULL,
+                month INTEGER NOT NULL,  -- 1-12
+                year INTEGER,  -- Optional: for multi-year planning
+                rainfall_mm REAL NOT NULL,  -- mm/month
+                data_source TEXT DEFAULT 'dashboard',  -- 'dashboard', 'excel', 'measurement'
+                notes TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                
+                FOREIGN KEY (facility_id) REFERENCES storage_facilities(facility_id) ON DELETE CASCADE,
+                UNIQUE(facility_id, month, year),
+                CHECK (month >= 1 AND month <= 12),
+                CHECK (rainfall_mm >= 0)
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_facility_rainfall_facility ON facility_rainfall_monthly(facility_id)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_facility_rainfall_month ON facility_rainfall_monthly(month)")
+
+    def _create_facility_evaporation_monthly_table(self, cursor):
+        """Per-facility monthly evaporation rates (user-configurable)
+        Allows setting facility-specific evaporation on a monthly basis via UI dashboard.
+        """
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS facility_evaporation_monthly (
+                evap_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                facility_id INTEGER NOT NULL,
+                month INTEGER NOT NULL,  -- 1-12
+                year INTEGER,  -- Optional: for multi-year planning
+                evaporation_mm REAL NOT NULL,  -- mm/month
+                data_source TEXT DEFAULT 'dashboard',  -- 'dashboard', 'excel', 'measurement'
+                notes TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                
+                FOREIGN KEY (facility_id) REFERENCES storage_facilities(facility_id) ON DELETE CASCADE,
+                UNIQUE(facility_id, month, year),
+                CHECK (month >= 1 AND month <= 12),
+                CHECK (evaporation_mm >= 0)
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_facility_evap_facility ON facility_evaporation_monthly(facility_id)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_facility_evap_month ON facility_evaporation_monthly(month)")
+
+    def _create_facility_inflow_monthly_table(self, cursor):
+        """Per-facility monthly inflow volumes (user-configurable)
+        Allows setting facility-specific inflow on a monthly basis via UI dashboard.
+        """
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS facility_inflow_monthly (
+                inflow_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                facility_id INTEGER NOT NULL,
+                month INTEGER NOT NULL,  -- 1-12
+                year INTEGER,  -- Optional: for multi-year planning
+                inflow_m3 REAL NOT NULL,  -- m³/month
+                data_source TEXT DEFAULT 'dashboard',  -- 'dashboard', 'excel', 'measurement'
+                notes TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                
+                FOREIGN KEY (facility_id) REFERENCES storage_facilities(facility_id) ON DELETE CASCADE,
+                UNIQUE(facility_id, month, year),
+                CHECK (month >= 1 AND month <= 12),
+                CHECK (inflow_m3 >= 0)
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_facility_inflow_facility ON facility_inflow_monthly(facility_id)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_facility_inflow_month ON facility_inflow_monthly(month)")
+
+    def _create_facility_outflow_monthly_table(self, cursor):
+        """Per-facility monthly outflow volumes (user-configurable)
+        Allows setting facility-specific outflow on a monthly basis via UI dashboard.
+        """
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS facility_outflow_monthly (
+                outflow_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                facility_id INTEGER NOT NULL,
+                month INTEGER NOT NULL,  -- 1-12
+                year INTEGER,  -- Optional: for multi-year planning
+                outflow_m3 REAL NOT NULL,  -- m³/month
+                data_source TEXT DEFAULT 'dashboard',  -- 'dashboard', 'excel', 'measurement'
+                notes TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                
+                FOREIGN KEY (facility_id) REFERENCES storage_facilities(facility_id) ON DELETE CASCADE,
+                UNIQUE(facility_id, month, year),
+                CHECK (month >= 1 AND month <= 12),
+                CHECK (outflow_m3 >= 0)
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_facility_outflow_facility ON facility_outflow_monthly(facility_id)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_facility_outflow_month ON facility_outflow_monthly(month)")
+
+    def _create_facility_abstraction_monthly_table(self, cursor):
+        """Per-facility monthly abstraction volumes (user-configurable)
+        Allows setting facility-specific abstraction on a monthly basis via UI dashboard.
+        """
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS facility_abstraction_monthly (
+                abstraction_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                facility_id INTEGER NOT NULL,
+                month INTEGER NOT NULL,  -- 1-12
+                year INTEGER,  -- Optional: for multi-year planning
+                abstraction_m3 REAL NOT NULL,  -- m³/month
+                data_source TEXT DEFAULT 'dashboard',  -- 'dashboard', 'excel', 'measurement'
+                notes TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                
+                FOREIGN KEY (facility_id) REFERENCES storage_facilities(facility_id) ON DELETE CASCADE,
+                UNIQUE(facility_id, month, year),
+                CHECK (month >= 1 AND month <= 12),
+                CHECK (abstraction_m3 >= 0)
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_facility_abstraction_facility ON facility_abstraction_monthly(facility_id)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_facility_abstraction_month ON facility_abstraction_monthly(month)")
+
+    def _create_tailings_moisture_monthly_table(self, cursor):
+        """Monthly tailings moisture percentage (user input).
+        Used in System Balance calculation for water retained in tailings.
+        Falls back to 0 if no data entered.
+        """
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS tailings_moisture_monthly (
+                moisture_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                month INTEGER NOT NULL,
+                year INTEGER NOT NULL,
+                tailings_moisture_pct REAL NOT NULL,
+                notes TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                
+                UNIQUE(month, year),
+                CHECK (month >= 1 AND month <= 12),
+                CHECK (tailings_moisture_pct >= 0 AND tailings_moisture_pct <= 100)
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_tailings_moisture_month ON tailings_moisture_monthly(month, year)")
+
+    def _create_monthly_manual_inputs_table(self, cursor):
+        """Monthly manual inputs for auxiliary/site uses and outflows."""
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS monthly_manual_inputs (
+                month_start DATE PRIMARY KEY,
+                dust_suppression_m3 REAL DEFAULT 0,
+                mining_consumption_m3 REAL DEFAULT 0,
+                domestic_consumption_m3 REAL DEFAULT 0,
+                discharge_m3 REAL DEFAULT 0,
+                product_moisture_m3 REAL DEFAULT 0,
+                tailings_retention_m3 REAL DEFAULT 0,
+                notes TEXT,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+            """
+        )
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_manual_inputs_month ON monthly_manual_inputs(month_start)")
 
     def _create_tsf_return_table(self, cursor):
         """Monthly TSF return water volumes (measured).
@@ -285,6 +539,66 @@ class DatabaseSchema:
             )
             """
         )
+
+    def _create_groundwater_inflow_table(self, cursor):
+        """Monthly groundwater inflow from MODFLOW/GMS modeling.
+
+        Stores imported groundwater model results for integration with water balance.
+        Maps model wells to database water sources for automated inflow calculation.
+        """
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS groundwater_inflow_monthly (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                source_id INTEGER NOT NULL,          -- link to water_sources table
+                month INTEGER NOT NULL,              -- 1-12
+                year INTEGER NOT NULL,               -- e.g., 2025
+                inflow_m3 REAL NOT NULL,             -- monthly groundwater inflow volume
+                model_run_date TEXT,                 -- when MODFLOW model was executed
+                modflow_scenario_name TEXT,          -- scenario identifier (e.g., 'base', 'drought', 'wet')
+                confidence_level TEXT DEFAULT 'medium', -- 'low', 'medium', 'high'
+                notes TEXT,
+                
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                
+                FOREIGN KEY (source_id) REFERENCES water_sources(source_id) ON DELETE CASCADE,
+                UNIQUE(source_id, month, year, modflow_scenario_name),
+                CHECK (month >= 1 AND month <= 12),
+                CHECK (inflow_m3 >= 0),
+                CHECK (confidence_level IN ('low', 'medium', 'high'))
+            )
+            """
+        )
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_groundwater_date ON groundwater_inflow_monthly(year, month)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_groundwater_source ON groundwater_inflow_monthly(source_id)")
+
+    def _create_data_quality_checks_table(self, cursor):
+        """Data quality check results and validation warnings.
+
+        Tracks data completeness, gaps, and quality issues for dashboard alerts.
+        """
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS data_quality_checks (
+                check_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                check_date TEXT NOT NULL,            -- ISO date when check was performed
+                check_type TEXT NOT NULL,            -- 'missing_months', 'data_gaps', 'low_confidence', 'incomplete_inputs'
+                severity TEXT NOT NULL,              -- 'info', 'warning', 'error'
+                message TEXT NOT NULL,               -- human-readable description
+                affected_dates TEXT,                 -- JSON array of affected dates or NULL
+                completeness_pct REAL,               -- optional: data completeness percentage (0-100)
+                gap_count INTEGER,                   -- optional: number of gaps detected
+                
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                
+                CHECK (severity IN ('info', 'warning', 'error')),
+                CHECK (completeness_pct IS NULL OR (completeness_pct >= 0 AND completeness_pct <= 100))
+            )
+            """
+        )
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_quality_check_date ON data_quality_checks(check_date)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_quality_severity ON data_quality_checks(severity)")
     
     def _create_measurements_table(self, cursor):
         """Daily/monthly water measurements (time-series data).
@@ -445,6 +759,10 @@ class DatabaseSchema:
                 category TEXT,  -- 'calculation', 'threshold', 'conversion'
                 description TEXT,
                 editable BOOLEAN DEFAULT 1,
+                
+                -- Optional range limits for UI validation (nullable)
+                min_value REAL,
+                max_value REAL,
                 
                 -- Audit
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -625,16 +943,12 @@ class DatabaseSchema:
         )
         
         # System constants (from our analysis)
+        # NOTE: TSF_RETURN_RATE, MEAN_ANNUAL_EVAPORATION, PUMP_START_LEVEL, PUMP_STOP_LEVEL, 
+        # BALANCE_ERROR_THRESHOLD, DEFAULT_MISSING_VALUE removed as they are not used by latest calculator
         constants = [
-            ('TSF_RETURN_RATE', 0.56, 'fraction', 'calculation', 'TSF return flow rate (56% of slurry water)'),
             ('MINING_WATER_RATE', 0.18, 'm³/tonne', 'calculation', 'Mining water requirement per tonne'),
             ('SLURRY_DENSITY', 1.4, 't/m³', 'calculation', 'Tailings slurry density'),
             ('CONCENTRATE_MOISTURE', 0.08, 'fraction', 'calculation', 'Moisture content in concentrate (8%)'),
-            ('MEAN_ANNUAL_EVAPORATION', 1950, 'mm/year', 'calculation', 'Mean annual S-pan evaporation'),
-            ('PUMP_START_LEVEL', 70.0, 'percent', 'threshold', 'Default pump start level'),
-            ('PUMP_STOP_LEVEL', 20.0, 'percent', 'threshold', 'Default pump stop level'),
-            ('BALANCE_ERROR_THRESHOLD', 5.0, 'percent', 'threshold', 'Maximum acceptable water balance error'),
-            ('DEFAULT_MISSING_VALUE', -1.0, 'dimensionless', 'calculation', 'Default value indicator for missing data'),
             # Ore processing related (added Nov 2025 for moisture inflow configurability)
             ('monthly_ore_processing', 350000.0, 't/month', 'Plant', 'Default monthly ore processed tonnage used when no entry provided'),
             ('ore_moisture_percent', 3.4, 'percent', 'Plant', 'Average moisture percent of ore feed (used to derive water inflow from wet ore)'),
@@ -700,7 +1014,8 @@ class DatabaseSchema:
                 'mine_areas', 'water_source_types', 'water_sources',
                 'storage_facilities', 'evaporation_rates', 'measurements',
                 'calculations', 'operating_rules', 'system_constants',
-                'alert_rules', 'alerts', 'audit_log', 'reports'
+                'alert_rules', 'alerts', 'audit_log', 'reports',
+                'groundwater_inflow_monthly', 'data_quality_checks'
             ]
             
             print("\n📊 Database Verification:")

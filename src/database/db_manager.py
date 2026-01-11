@@ -20,13 +20,36 @@ class DatabaseManager:
     
     # Class-level flag to avoid repeated constant checks across instances
     _constants_checked = False
+    # Class-level flag for one-time unused constants cleanup
+    _unused_cleanup_done = False
     
     def __init__(self, db_path: str = None):
-        """Initialize database manager"""
+        """Initialize database manager
+        Resolves a single, canonical database path in this order:
+        1) Explicit `db_path` argument
+        2) `config.get('database.path')` if set
+        3) `WATERBALANCE_USER_DIR` env var → `<user_dir>/data/water_balance.db`
+        4) Fallback to project `<repo>/data/water_balance.db`
+        """
         if db_path is None:
+            # Project base directory
             base_dir = Path(__file__).parent.parent.parent
-            db_path = base_dir / config.get('database.path', 'data/water_balance.db')
-        
+
+            # Config-provided path takes precedence when present
+            cfg_path = config.get('database.path', None)
+
+            if cfg_path:
+                db_path = base_dir / cfg_path if not Path(cfg_path).is_absolute() else Path(cfg_path)
+            else:
+                # If launcher set a user data directory, prefer it for DB location
+                import os
+                user_dir = os.environ.get('WATERBALANCE_USER_DIR')
+                if user_dir:
+                    db_path = Path(user_dir) / 'data' / 'water_balance.db'
+                else:
+                    # Development fallback: repo-local path
+                    db_path = base_dir / 'data' / 'water_balance.db'
+
         self.db_path = Path(db_path)
         
         # Performance optimization: cache for frequently accessed static data
@@ -41,6 +64,13 @@ class DatabaseManager:
             from database.schema import DatabaseSchema
             schema = DatabaseSchema(str(self.db_path))
             schema.create_database()
+        
+        # Log resolved DB path for visibility
+        try:
+            from utils.app_logger import logger
+            logger.info(f"Database path resolved: {self.db_path}")
+        except Exception:
+            pass
         # Ensure scenarios tables exist
         self._ensure_scenario_tables()
         # Ensure extended calculation columns (non-destructive migration)
@@ -52,6 +82,13 @@ class DatabaseManager:
                 DatabaseManager._constants_checked = True
             except Exception:
                 pass  # Non-critical
+        # Auto-remove constants not used by the latest calculation engine (once per process)
+        if not DatabaseManager._unused_cleanup_done:
+            try:
+                self._auto_remove_constants_not_used_in_calculator()
+                DatabaseManager._unused_cleanup_done = True
+            except Exception:
+                pass
     
     def get_connection(self) -> sqlite3.Connection:
         """Get database connection with row factory"""
@@ -471,9 +508,12 @@ class DatabaseManager:
             self.execute_update("DELETE FROM operating_rules WHERE facility_id = ?", (facility_id,))
             # Measurements (also covered by FK CASCADE, kept for clarity)
             self.execute_update("DELETE FROM measurements WHERE facility_id = ?", (facility_id,))
-            # Monthly rainfall/evap rows (FK CASCADE exists; explicit for completeness)
+            # Monthly rainfall/evap/flow rows (FK CASCADE exists; explicit for completeness)
             self.execute_update("DELETE FROM facility_rainfall_monthly WHERE facility_id = ?", (facility_id,))
             self.execute_update("DELETE FROM facility_evaporation_monthly WHERE facility_id = ?", (facility_id,))
+            self.execute_update("DELETE FROM facility_inflow_monthly WHERE facility_id = ?", (facility_id,))
+            self.execute_update("DELETE FROM facility_outflow_monthly WHERE facility_id = ?", (facility_id,))
+            self.execute_update("DELETE FROM facility_abstraction_monthly WHERE facility_id = ?", (facility_id,))
             # Finally delete the facility
             rows = self.execute_update("DELETE FROM storage_facilities WHERE facility_id = ?", (facility_id,))
             if rows:
@@ -549,6 +589,89 @@ class DatabaseManager:
         placeholders = ",".join(["?"] * len(measurement_ids))
         query = f"DELETE FROM measurements WHERE measurement_id IN ({placeholders})"
         return self.execute_update(query, tuple(measurement_ids))
+
+    # ==================== MONTHLY MANUAL INPUTS ====================
+
+    def upsert_monthly_manual_inputs(self, month_start: date, values: Dict) -> None:
+        """Insert or replace monthly manual inputs for auxiliary/outflow categories."""
+        record = {
+            'month_start': month_start,
+            'dust_suppression_m3': float(values.get('dust_suppression_m3', 0) or 0),
+            'mining_consumption_m3': float(values.get('mining_consumption_m3', 0) or 0),
+            'domestic_consumption_m3': float(values.get('domestic_consumption_m3', 0) or 0),
+            'discharge_m3': float(values.get('discharge_m3', 0) or 0),
+            'product_moisture_m3': float(values.get('product_moisture_m3', 0) or 0),
+            'tailings_retention_m3': float(values.get('tailings_retention_m3', 0) or 0),
+            'notes': values.get('notes'),
+        }
+        self.execute_update(
+            """
+            INSERT INTO monthly_manual_inputs (
+                month_start, dust_suppression_m3, mining_consumption_m3, domestic_consumption_m3,
+                discharge_m3, product_moisture_m3, tailings_retention_m3, notes, updated_at
+            ) VALUES (:month_start, :dust_suppression_m3, :mining_consumption_m3, :domestic_consumption_m3,
+                      :discharge_m3, :product_moisture_m3, :tailings_retention_m3, :notes, CURRENT_TIMESTAMP)
+            ON CONFLICT(month_start) DO UPDATE SET
+                dust_suppression_m3=excluded.dust_suppression_m3,
+                mining_consumption_m3=excluded.mining_consumption_m3,
+                domestic_consumption_m3=excluded.domestic_consumption_m3,
+                discharge_m3=excluded.discharge_m3,
+                product_moisture_m3=excluded.product_moisture_m3,
+                tailings_retention_m3=excluded.tailings_retention_m3,
+                notes=excluded.notes,
+                updated_at=CURRENT_TIMESTAMP
+            """,
+            record
+        )
+
+    def get_monthly_manual_inputs(self, month_start: date) -> Dict:
+        """Return monthly manual inputs; defaults to zeroed structure when missing."""
+        try:
+            row = self.execute_query(
+                "SELECT * FROM monthly_manual_inputs WHERE month_start = ? LIMIT 1",
+                (month_start,)
+            )
+            if row:
+                return row[0]
+        except Exception:
+            pass  # Table may not exist yet; caller will see zero defaults
+        return {
+            'month_start': month_start,
+            'dust_suppression_m3': 0.0,
+            'mining_consumption_m3': 0.0,
+            'domestic_consumption_m3': 0.0,
+            'discharge_m3': 0.0,
+            'product_moisture_m3': 0.0,
+            'tailings_retention_m3': 0.0,
+            'notes': None,
+        }
+
+    # ==================== METADATA HELPERS ====================
+
+    def get_latest_data_date(self) -> Optional[date]:
+        """Return the latest date present in calculations, measurements, or manual inputs."""
+        candidates: List[date] = []
+        try:
+            calc_row = self.execute_query("SELECT MAX(calc_date) as d FROM calculations")
+            if calc_row and calc_row[0].get('d'):
+                candidates.append(datetime.strptime(calc_row[0]['d'], "%Y-%m-%d").date())
+        except Exception:
+            pass
+        try:
+            meas_row = self.execute_query("SELECT MAX(measurement_date) as d FROM measurements")
+            if meas_row and meas_row[0].get('d'):
+                candidates.append(datetime.strptime(meas_row[0]['d'], "%Y-%m-%d").date())
+        except Exception:
+            pass
+        try:
+            manual_row = self.execute_query("SELECT MAX(month_start) as d FROM monthly_manual_inputs")
+            if manual_row and manual_row[0].get('d'):
+                candidates.append(datetime.strptime(manual_row[0]['d'], "%Y-%m-%d").date())
+        except Exception:
+            pass
+        if not candidates:
+            return None
+        return max(candidates)
     
     # ==================== CALCULATIONS ====================
     
@@ -666,10 +789,40 @@ class DatabaseManager:
         """
         return self.execute_query(query)
     
-    def get_evaporation_rate(self, month: int, zone: str = '4A') -> float:
+    def get_evaporation_rate(self, month: int, zone: str = None) -> float:
         """Get evaporation rate for month"""
+        if zone is None:
+            from utils.config_manager import config
+            zone = config.get('environmental.evaporation_zone', '4A')
         query = "SELECT evaporation_mm FROM evaporation_rates WHERE month = ? AND zone = ? AND year IS NULL"
         results = self.execute_query(query, (month, zone))
+        return results[0]['evaporation_mm'] if results else 0.0
+
+    def get_regional_rainfall_monthly(self, month: int, year: int = None) -> float:
+        """Get regional rainfall for month (applies to all facilities in the area).
+        Falls back to 0 if not set.
+        """
+        if year is None:
+            query = "SELECT rainfall_mm FROM regional_rainfall_monthly WHERE month = ? AND year IS NULL LIMIT 1"
+            results = self.execute_query(query, (month,))
+        else:
+            query = "SELECT rainfall_mm FROM regional_rainfall_monthly WHERE month = ? AND year = ? LIMIT 1"
+            results = self.execute_query(query, (month, year))
+        return results[0]['rainfall_mm'] if results else 0.0
+
+    def get_regional_evaporation_monthly(self, month: int, zone: str = None, year: int = None) -> float:
+        """Get regional evaporation for month (applies to all facilities).
+        Uses evaporation_rates table. Falls back to 0 if not set.
+        """
+        if zone is None:
+            from utils.config_manager import config
+            zone = config.get('environmental.evaporation_zone', '4A')
+        if year is None:
+            query = "SELECT evaporation_mm FROM evaporation_rates WHERE month = ? AND zone = ? AND year IS NULL LIMIT 1"
+            results = self.execute_query(query, (month, zone))
+        else:
+            query = "SELECT evaporation_mm FROM evaporation_rates WHERE month = ? AND zone = ? AND year = ? LIMIT 1"
+            results = self.execute_query(query, (month, zone, year))
         return results[0]['evaporation_mm'] if results else 0.0
 
     def get_facility_rainfall_monthly(self, facility_id: int, month: int, year: int = None) -> float:
@@ -696,6 +849,75 @@ class DatabaseManager:
             results = self.execute_query(query, (facility_id, month, year))
         return results[0]['evaporation_mm'] if results else 0.0
 
+    def get_facility_inflow_monthly(self, facility_id_or_code, month: int, year: int = None) -> float:
+        """Get per-facility inflow for month (from dashboard).
+        Falls back to 0 if not set in dashboard.
+        Accepts either facility_id (int) or facility_code (str).
+        """
+        # Handle facility_code -> facility_id lookup
+        if isinstance(facility_id_or_code, str):
+            lookup_query = "SELECT facility_id FROM storage_facilities WHERE facility_code = ? LIMIT 1"
+            lookup_results = self.execute_query(lookup_query, (facility_id_or_code,))
+            if not lookup_results:
+                return 0.0
+            facility_id = lookup_results[0]['facility_id']
+        else:
+            facility_id = facility_id_or_code
+        
+        if year is None:
+            query = "SELECT inflow_m3 FROM facility_inflow_monthly WHERE facility_id = ? AND month = ? AND year IS NULL LIMIT 1"
+            results = self.execute_query(query, (facility_id, month))
+        else:
+            query = "SELECT inflow_m3 FROM facility_inflow_monthly WHERE facility_id = ? AND month = ? AND year = ? LIMIT 1"
+            results = self.execute_query(query, (facility_id, month, year))
+        return results[0]['inflow_m3'] if results else 0.0
+
+    def get_facility_outflow_monthly(self, facility_id_or_code, month: int, year: int = None) -> float:
+        """Get per-facility outflow for month (from dashboard).
+        Falls back to 0 if not set in dashboard.
+        Accepts either facility_id (int) or facility_code (str).
+        """
+        # Handle facility_code -> facility_id lookup
+        if isinstance(facility_id_or_code, str):
+            lookup_query = "SELECT facility_id FROM storage_facilities WHERE facility_code = ? LIMIT 1"
+            lookup_results = self.execute_query(lookup_query, (facility_id_or_code,))
+            if not lookup_results:
+                return 0.0
+            facility_id = lookup_results[0]['facility_id']
+        else:
+            facility_id = facility_id_or_code
+        
+        if year is None:
+            query = "SELECT outflow_m3 FROM facility_outflow_monthly WHERE facility_id = ? AND month = ? AND year IS NULL LIMIT 1"
+            results = self.execute_query(query, (facility_id, month))
+        else:
+            query = "SELECT outflow_m3 FROM facility_outflow_monthly WHERE facility_id = ? AND month = ? AND year = ? LIMIT 1"
+            results = self.execute_query(query, (facility_id, month, year))
+        return results[0]['outflow_m3'] if results else 0.0
+
+    def get_facility_abstraction_monthly(self, facility_id_or_code, month: int, year: int = None) -> float:
+        """Get per-facility abstraction for month (from dashboard).
+        Falls back to 0 if not set in dashboard.
+        Accepts either facility_id (int) or facility_code (str).
+        """
+        # Handle facility_code -> facility_id lookup
+        if isinstance(facility_id_or_code, str):
+            lookup_query = "SELECT facility_id FROM storage_facilities WHERE facility_code = ? LIMIT 1"
+            lookup_results = self.execute_query(lookup_query, (facility_id_or_code,))
+            if not lookup_results:
+                return 0.0
+            facility_id = lookup_results[0]['facility_id']
+        else:
+            facility_id = facility_id_or_code
+        
+        if year is None:
+            query = "SELECT abstraction_m3 FROM facility_abstraction_monthly WHERE facility_id = ? AND month = ? AND year IS NULL LIMIT 1"
+            results = self.execute_query(query, (facility_id, month))
+        else:
+            query = "SELECT abstraction_m3 FROM facility_abstraction_monthly WHERE facility_id = ? AND month = ? AND year = ? LIMIT 1"
+            results = self.execute_query(query, (facility_id, month, year))
+        return results[0]['abstraction_m3'] if results else 0.0
+
     def get_facility_rainfall_all_months(self, facility_id: int, year: int = None) -> Dict[int, float]:
         """Get all 12 months of rainfall for facility"""
         if year is None:
@@ -716,6 +938,59 @@ class DatabaseManager:
             results = self.execute_query(query, (facility_id, year))
         return {row['month']: row['evaporation_mm'] for row in results}
 
+    def get_facility_inflow_all_months(self, facility_id: int, year: int = None) -> Dict[int, float]:
+        """Get all 12 months of inflow for facility"""
+        if year is None:
+            query = "SELECT month, inflow_m3 FROM facility_inflow_monthly WHERE facility_id = ? AND year IS NULL ORDER BY month"
+            results = self.execute_query(query, (facility_id,))
+        else:
+            query = "SELECT month, inflow_m3 FROM facility_inflow_monthly WHERE facility_id = ? AND year = ? ORDER BY month"
+            results = self.execute_query(query, (facility_id, year))
+        return {row['month']: row['inflow_m3'] for row in results}
+
+    def get_facility_outflow_all_months(self, facility_id: int, year: int = None) -> Dict[int, float]:
+        """Get all 12 months of outflow for facility"""
+        if year is None:
+            query = "SELECT month, outflow_m3 FROM facility_outflow_monthly WHERE facility_id = ? AND year IS NULL ORDER BY month"
+            results = self.execute_query(query, (facility_id,))
+        else:
+            query = "SELECT month, outflow_m3 FROM facility_outflow_monthly WHERE facility_id = ? AND year = ? ORDER BY month"
+            results = self.execute_query(query, (facility_id, year))
+        return {row['month']: row['outflow_m3'] for row in results}
+
+    def get_facility_abstraction_all_months(self, facility_id: int, year: int = None) -> Dict[int, float]:
+        """Get all 12 months of abstraction for facility"""
+        if year is None:
+            query = "SELECT month, abstraction_m3 FROM facility_abstraction_monthly WHERE facility_id = ? AND year IS NULL ORDER BY month"
+            results = self.execute_query(query, (facility_id,))
+        else:
+            query = "SELECT month, abstraction_m3 FROM facility_abstraction_monthly WHERE facility_id = ? AND year = ? ORDER BY month"
+            results = self.execute_query(query, (facility_id, year))
+        return {row['month']: row['abstraction_m3'] for row in results}
+
+    def get_regional_rainfall_all_months(self, year: int = None) -> Dict[int, float]:
+        """Get all 12 months of regional rainfall"""
+        if year is None:
+            query = "SELECT month, rainfall_mm FROM regional_rainfall_monthly WHERE year IS NULL ORDER BY month"
+            results = self.execute_query(query)
+        else:
+            query = "SELECT month, rainfall_mm FROM regional_rainfall_monthly WHERE year = ? ORDER BY month"
+            results = self.execute_query(query, (year,))
+        return {row['month']: row['rainfall_mm'] for row in results}
+
+    def get_regional_evaporation_all_months(self, zone: str = None, year: int = None) -> Dict[int, float]:
+        """Get all 12 months of regional evaporation"""
+        if zone is None:
+            from utils.config_manager import config
+            zone = config.get('environmental.evaporation_zone', '4A')
+        if year is None:
+            query = "SELECT month, evaporation_mm FROM evaporation_rates WHERE zone = ? AND year IS NULL ORDER BY month"
+            results = self.execute_query(query, (zone,))
+        else:
+            query = "SELECT month, evaporation_mm FROM evaporation_rates WHERE zone = ? AND year = ? ORDER BY month"
+            results = self.execute_query(query, (zone, year))
+        return {row['month']: row['evaporation_mm'] for row in results}
+
     def set_facility_rainfall_monthly(self, facility_id: int, month: int, rainfall_mm: float, year: int = None, user: str = 'dashboard') -> int:
         """Set per-facility rainfall for a month"""
         query = """
@@ -731,6 +1006,117 @@ class DatabaseManager:
             VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
         """
         return self.execute_update(query, (facility_id, month, year, evaporation_mm, user))
+
+    def set_facility_inflow_monthly(self, facility_id: int, month: int, inflow_m3: float, year: int = None, user: str = 'dashboard') -> int:
+        """Set per-facility inflow for a month"""
+        # Auto-capture current year if not provided for historical tracking
+        if year is None:
+            from datetime import datetime
+            year = datetime.now().year
+        query = """
+            INSERT OR REPLACE INTO facility_inflow_monthly (facility_id, month, year, inflow_m3, data_source, updated_at)
+            VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        """
+        return self.execute_update(query, (facility_id, month, year, inflow_m3, user))
+
+    def set_facility_outflow_monthly(self, facility_id: int, month: int, outflow_m3: float, year: int = None, user: str = 'dashboard') -> int:
+        """Set per-facility outflow for a month"""
+        # Auto-capture current year if not provided for historical tracking
+        if year is None:
+            from datetime import datetime
+            year = datetime.now().year
+        query = """
+            INSERT OR REPLACE INTO facility_outflow_monthly (facility_id, month, year, outflow_m3, data_source, updated_at)
+            VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        """
+        return self.execute_update(query, (facility_id, month, year, outflow_m3, user))
+
+    def set_facility_abstraction_monthly(self, facility_id: int, month: int, abstraction_m3: float, year: int = None, user: str = 'dashboard') -> int:
+        """Set per-facility abstraction for a month"""
+        # Auto-capture current year if not provided for historical tracking
+        if year is None:
+            from datetime import datetime
+            year = datetime.now().year
+        query = """
+            INSERT OR REPLACE INTO facility_abstraction_monthly (facility_id, month, year, abstraction_m3, data_source, updated_at)
+            VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        """
+        return self.execute_update(query, (facility_id, month, year, abstraction_m3, user))
+
+    def set_regional_rainfall_monthly(self, month: int, rainfall_mm: float, year: int = None, user: str = 'dashboard') -> int:
+        """Set regional rainfall for a month (applies to all facilities)"""
+        query = """
+            INSERT OR REPLACE INTO regional_rainfall_monthly (month, year, rainfall_mm, data_source, updated_at)
+            VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+        """
+        return self.execute_update(query, (month, year, rainfall_mm, user))
+
+    def set_regional_evaporation_monthly(self, month: int, evaporation_mm: float, zone: str = None, year: int = None, user: str = 'dashboard') -> int:
+        """Set regional evaporation for a month (applies to all facilities)"""
+        if zone is None:
+            from utils.config_manager import config
+            zone = config.get('environmental.evaporation_zone', '4A')
+        query = """
+            INSERT OR REPLACE INTO evaporation_rates (month, zone, year, evaporation_mm, notes)
+            VALUES (?, ?, ?, ?, ?)
+        """
+        notes = f"Set via dashboard by {user}"
+        return self.execute_update(query, (month, zone, year, evaporation_mm, notes))
+
+    def auto_generate_facility_flows_from_balance(self, facility_id: int, calculation_date, closing_volume: float, 
+                                                   opening_volume: float, rainfall_volume: float, 
+                                                   evaporation_volume: float, seepage_volume: float) -> Dict[str, float]:
+        """Auto-generate inflow/outflow/abstraction from calculated balance changes.
+        
+        This method calculates the implied flows based on observed volume changes
+        and regional environmental factors (rainfall, evap, seepage).
+        
+        Formula: closing = opening + inflows - outflows - abstraction
+        Therefore: inflows = (closing - opening) + outflows + abstraction + evap + seepage - rainfall
+        
+        Returns dict with inflow_m3, outflow_m3, abstraction_m3
+        """
+        from datetime import datetime
+        
+        # Calculate net change
+        net_change = closing_volume - opening_volume
+        
+        # Environmental impacts already accounted for
+        environmental_gain = rainfall_volume
+        environmental_loss = evaporation_volume + seepage_volume
+        
+        # Estimate flows (simplified: assume no abstraction, balance is inflow - outflow)
+        # net_change = inflow - outflow - abstraction + rainfall - evap - seepage
+        # If net_change > 0 after accounting for environmental: implies net inflow
+        # If net_change < 0: implies net outflow
+        
+        adjusted_change = net_change + environmental_loss - environmental_gain
+        
+        if adjusted_change > 0:
+            # Net positive: assume inflow, minimal outflow
+            inflow_m3 = adjusted_change
+            outflow_m3 = 0.0
+            abstraction_m3 = 0.0
+        else:
+            # Net negative: assume outflow or abstraction
+            inflow_m3 = 0.0
+            outflow_m3 = abs(adjusted_change) * 0.7  # 70% as outflow
+            abstraction_m3 = abs(adjusted_change) * 0.3  # 30% as abstraction
+        
+        # Store in DB with current year and month
+        month = calculation_date.month
+        year = calculation_date.year
+        
+        self.set_facility_inflow_monthly(facility_id, month, inflow_m3, year, user='auto-generated')
+        self.set_facility_outflow_monthly(facility_id, month, outflow_m3, year, user='auto-generated')
+        self.set_facility_abstraction_monthly(facility_id, month, abstraction_m3, year, user='auto-generated')
+        
+        return {
+            'inflow_m3': inflow_m3,
+            'outflow_m3': outflow_m3,
+            'abstraction_m3': abstraction_m3,
+            'method': 'auto-generated from balance'
+        }
 
     def get_constant(self, key: str) -> Optional[float]:
         """Get system constant value"""
@@ -907,33 +1293,65 @@ class DatabaseManager:
                 except:
                     pass  # Constant might have been added by another process
     
-    def ensure_evap_pan_coefficient(self):
-        """Ensure EVAP_PAN_COEFF constant exists with default value and metadata."""
-        existing = self.execute_query("SELECT constant_key FROM system_constants WHERE constant_key = 'EVAP_PAN_COEFF'")
-        if existing:
-            return False
-        self.execute_insert(
-            """
-            INSERT INTO system_constants (constant_key, constant_value, unit, category, description, editable, min_value, max_value)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            ('EVAP_PAN_COEFF', 0.70, 'factor', 'Evaporation', 'Pan coefficient to scale monthly S-pan evaporation to site conditions', 1, 0.3, 1.2)
-        )
-        return True
+    # Deprecated methods: ensure_evap_pan_coefficient, ensure_default_rainfall_constant, ensure_ore_processing_constants
+    # These methods are no longer called. Constants not used by the calculator are auto-removed at startup.
+    
+    def _auto_remove_constants_not_used_in_calculator(self) -> int:
+        """
+        Remove constants not referenced by the latest balance calculation engine
+        (restricted to utils/water_balance_calculator.py and utils/balance_check_engine.py).
+        Preserves Optimization-category constants.
+        """
+        # Fetch keys with categories
+        rows = self.execute_query("SELECT constant_key, category FROM system_constants")
+        if not rows:
+            return 0
+        keys = [r['constant_key'] for r in rows]
+        categories = {r['constant_key']: (r.get('category') or '') for r in rows}
 
-    def ensure_default_rainfall_constant(self):
-        """Ensure DEFAULT_MONTHLY_RAINFALL_MM constant exists (fallback rainfall depth in mm when no measurement rows)."""
-        existing = self.execute_query("SELECT constant_key FROM system_constants WHERE constant_key = 'DEFAULT_MONTHLY_RAINFALL_MM'")
-        if existing:
-            return False
-        self.execute_insert(
-            """
-            INSERT INTO system_constants (constant_key, constant_value, unit, category, description, editable, min_value, max_value)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            ('DEFAULT_MONTHLY_RAINFALL_MM', 0.0, 'mm', 'Evaporation', 'Fallback monthly rainfall (mm) used when no rainfall measurements present for period', 1, 0.0, 500.0)
-        )
-        return True
+        # Compute usage by scanning calculator files only
+        base_dir = Path(__file__).parent.parent.parent
+        calc_files = [
+            base_dir / 'src' / 'utils' / 'water_balance_calculator.py',
+            base_dir / 'src' / 'utils' / 'balance_check_engine.py'
+        ]
+        usage = {k: 0 for k in keys}
+        for path in calc_files:
+            try:
+                if not path.exists():
+                    continue
+                text = path.read_text(encoding='utf-8', errors='ignore')
+                for k in keys:
+                    cnt = text.count(k)
+                    if cnt:
+                        usage[k] += cnt
+            except Exception:
+                continue
+
+        # Build removal list: zero usage in calculator, and not Optimization category
+        removable = [k for k in keys if usage.get(k, 0) == 0 and categories.get(k, '').lower() != 'optimization']
+        if not removable:
+            return 0
+
+        deleted = 0
+        for k in removable:
+            try:
+                old_val = self.get_constant(k)
+                rows = self.execute_update("DELETE FROM system_constants WHERE constant_key = ?", (k,))
+                if rows:
+                    self.log_change('system_constants', 0, 'delete', old_values={k: old_val}, user='system')
+                    deleted += 1
+            except Exception:
+                continue
+
+        # Log summary
+        try:
+            from utils.app_logger import logger
+            preview = ", ".join(removable[:10])
+            logger.info(f"Auto-removed {deleted} constants unused by calculator: {preview}{' ...' if len(removable) > 10 else ''}")
+        except Exception:
+            pass
+        return deleted
 
     def ensure_ore_processing_constants(self):
         """Ensure ore processing related constants exist (monthly ore, moisture %, density)."""
@@ -1195,6 +1613,62 @@ class DatabaseManager:
                 fn(event_type, payload)
             except Exception:
                 continue
+
+    # ==================== TAILINGS MOISTURE ====================
+    
+    def get_tailings_moisture_monthly(self, month: int, year: int = 2025) -> Optional[float]:
+        """Get tailings moisture percentage for a specific month.
+        Returns None if no entry exists (caller should use fallback to 0).
+        """
+        try:
+            result = self.execute_query(
+                "SELECT tailings_moisture_pct FROM tailings_moisture_monthly WHERE month = ? AND year = ?",
+                (month, year)
+            )
+            return float(result[0]['tailings_moisture_pct']) if result else None
+        except Exception as e:
+            from utils.app_logger import logger
+            logger.error(f"Error getting tailings moisture: {e}")
+            return None
+    
+    def set_tailings_moisture_monthly(self, month: int, year: int = 2025, 
+                                     tailings_moisture_pct: float = None, 
+                                     notes: str = None) -> bool:
+        """Set or update tailings moisture percentage for a month."""
+        try:
+            self.execute_update(
+                """INSERT OR REPLACE INTO tailings_moisture_monthly 
+                   (month, year, tailings_moisture_pct, notes, updated_at)
+                   VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)""",
+                (month, year, tailings_moisture_pct, notes)
+            )
+            from utils.app_logger import logger
+            logger.info(f"Set tailings moisture for {month}/{year}: {tailings_moisture_pct}%")
+            return True
+        except Exception as e:
+            from utils.app_logger import logger
+            logger.error(f"Error setting tailings moisture: {e}")
+            return False
+    
+    def get_tailings_moisture_all_months(self, year: int = 2025) -> Dict[int, float]:
+        """Get tailings moisture for all months in a year.
+        Returns dict: {month: moisture_pct}
+        """
+        try:
+            results = self.execute_query(
+                "SELECT month, tailings_moisture_pct FROM tailings_moisture_monthly WHERE year = ? ORDER BY month",
+                (year,)
+            )
+            return {r['month']: float(r['tailings_moisture_pct']) for r in results}
+        except Exception as e:
+            from utils.app_logger import logger
+            logger.error(f"Error getting tailings moisture for year: {e}")
+            return {}
+
+    # NOTE: Seepage gain/loss calculation is now automatic based on facility properties
+    # (aquifer_gain_rate_pct, is_lined flag) and does not require manual database entries.
+    # Methods get_seepage_gain_monthly(), set_seepage_gain_monthly(), and
+    # get_seepage_gain_all_months() have been removed as part of facility-level seepage refactoring.
 
 
 # Global database instance

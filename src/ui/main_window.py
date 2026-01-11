@@ -791,7 +791,7 @@ class MainWindow:
         Args:
             tab: Optional tab to open ('alerts', 'constants', etc.)
         """
-        from ui.settings_revamped import SettingsModule
+        from ui.settings import SettingsModule
         module = SettingsModule(self.content_area, initial_tab=tab)
         module.load()
 

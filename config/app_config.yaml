@@ -8,23 +8,33 @@ colors:
   bg_header: '#0D47A1'
   bg_main: '#F5F7FA'
   bg_sidebar: '#1E2A38'
+  border: '#E0E0E0'
   divider: '#E0E0E0'
+  error: '#D32F2F'
+  info: '#0288D1'
   primary: '#1976D2'
   primary_dark: '#004BA0'
   primary_light: '#63A4FF'
+  success: '#2E7D32'
   text_light: '#FFFFFF'
   text_primary: '#212121'
+  text_secondary: '#607D8B'
+  warning: '#F57C00'
 data_sources:
+  dam_recirculation_path: data\templates\DAM_RECIRCULATION_TEMPLATE.txt
+  inflow_codes_path: data\templates\INFLOW_CODES_TEMPLATE.txt
   legacy_excel_path: D:/Downloads/New Water Balance  20250930 Oct.xlsx
+  outflow_codes_path: data\templates\OUTFLOW_CODES_TEMPLATE_CORRECTED.txt
   template_excel_path: new_templates\Water_Balance_TimeSeries_Template_v2.xlsx
   timeseries_excel_path: new_templates\Water_Balance_TimeSeries_Template_v2.xlsx
-  inflow_codes_path: data\templates\INFLOW_CODES_TEMPLATE.txt
-  outflow_codes_path: data\templates\OUTFLOW_CODES_TEMPLATE_CORRECTED.txt
-  dam_recirculation_path: data\templates\DAM_RECIRCULATION_TEMPLATE.txt
+database:
+  path: data/water_balance.db
+environmental:
+  evaporation_zone: 4A
 features:
   fast_startup: true
   new_calculations: false
-  new_dashboard: false
+  new_dashboard: true
 fonts:
   body:
     family: Segoe UI

@@ -20,7 +20,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from database.db_manager import DatabaseManager
 from utils.historical_averaging import HistoricalAveraging
 from utils.excel_timeseries import get_default_excel_repo
-from utils.excel_timeseries_extended import get_extended_excel_repo
 from utils.app_logger import logger
 from utils.alert_manager import alert_manager
 
@@ -34,7 +33,6 @@ class WaterBalanceCalculator:
         self.historical_avg = HistoricalAveraging(self.db)
         # Excel repositories - initialized lazily on first use
         self._excel_repo = None
-        self._extended_repo = None
         # Performance optimization: cache for balance calculations
         self._balance_cache = {}
         self._kpi_cache = {}
@@ -49,11 +47,6 @@ class WaterBalanceCalculator:
             self._excel_repo = get_default_excel_repo()
         return self._excel_repo
     
-    def _get_extended_repo(self):
-        """Lazy-load extended Excel repository on first access"""
-        if self._extended_repo is None:
-            self._extended_repo = get_extended_excel_repo()
-        return self._extended_repo
     
     def _validate_facility_flows(self, facility_code: str, capacity: float,
                                 inflow_total: float, outflow_total: float,
@@ -209,10 +202,22 @@ class WaterBalanceCalculator:
         if header_name:
             try:
                 val = self._get_excel_repo().get_monthly_value(calculation_date, header_name)
-                if val is not None and val > 0:
+                # Accept explicit zeros from Excel; only fall back when truly missing (None)
+                if val is not None:
                     return float(val)
             except Exception:
                 pass
+        # If Excel provided no value, force zero defaults for specified categories
+        # per user request: Groundwater (boreholes), Underground (dewatering),
+        # and Rivers/Transfers (surface water, river/stream/dam, transfer/portal/plant).
+        stype = (source.get('type_name', '') or '').lower()
+        if (
+            'borehole' in stype or 'groundwater' in stype or
+            'underground' in stype or 'dewater' in stype or
+            'surface' in stype or 'river' in stype or 'stream' in stype or 'dam' in stype or
+            'transfer' in stype or 'portal' in stype or 'plant' in stype
+        ):
+            return 0.0
         
         # Fallback to source default from metadata
         avg_flow = source.get('average_flow_rate', 0.0) or 0.0
@@ -347,16 +352,16 @@ class WaterBalanceCalculator:
         if ore_source_present:
             inflows['total'] += ore_moisture
         
-        # TSF return water (Excel RWD):
-        # - When Excel RWD exists for the month, display as inflow but
+        # RWD (Return Water Dam) - Excel column AO
+        # - When Excel RWD exists for the month, display as dirty water inflow
         #   do NOT use it to reduce plant consumption (net = gross).
         # - When no Excel RWD, TSF is calculated automatically in outflows.
         if not skip_measurements and calculation_date is not None:
             try:
                 excel_rwd = self._get_excel_repo().get_monthly_value(calculation_date, "RWD")
                 if excel_rwd and excel_rwd > 0:
-                    inflows['tsf_return'] = float(excel_rwd)
-                    inflows['total'] += inflows['tsf_return']
+                    inflows['rwd_inflow'] = float(excel_rwd)
+                    inflows['total'] += inflows['rwd_inflow']
             except Exception:
                 pass
         
@@ -371,53 +376,57 @@ class WaterBalanceCalculator:
             inflows['returns_to_pit'] = returns_to_pit
             if ore_tonnes is not None:
                 inflows['total'] += returns_to_pit
-
-        seepage_gain, _ = self.calculate_seepage_losses(calculation_date,
-                                   skip_measurements=skip_measurements,
-                                   preloaded_facilities=preloaded_facilities)
-        inflows['seepage_gain'] = seepage_gain
-        if ore_tonnes is not None:
-            inflows['total'] += seepage_gain
+        
+        # NOTE: Seepage gain is NOT included in mine-level inflows
+        # It is handled at the facility level (storage balance) as an automatic calculation
+        # based on dam properties (lining, geology, aquifer conditions)
         
         return inflows
     
     def _get_rainfall_inflow(self, calculation_date: date, preloaded_facilities: Optional[List[Dict]] = None) -> float:
-        """Calculate rainfall contribution to storage"""
-        # Priority: 1) Extended Excel, 2) Default constant
-        rainfall_mm = self._get_extended_repo().get_rainfall(calculation_date)
-        if rainfall_mm is None:
-            rainfall_mm = self.get_constant('DEFAULT_MONTHLY_RAINFALL_MM', 60.0)
-        
-        # Get total surface area of storage facilities
+        """Calculate rainfall contribution to storage using database regional rainfall"""
+        # Use database regional rainfall (per-facility calculation handles this now)
+        # Sum up all facility rainfall from calculate_facility_balance
         facilities = preloaded_facilities if preloaded_facilities is not None else self.db.get_storage_facilities()
-        # Only include facilities explicitly marked evap_active (default True
-        # for legacy rows where the column may not exist yet).
-        total_surface_area = 0.0
+        
+        month = calculation_date.month
+        total_rainfall_volume = 0.0
+        
         for f in facilities:
+            # Get regional rainfall for this month
+            regional_rainfall_mm = self.db.get_regional_rainfall_monthly(month)
+            if regional_rainfall_mm is None or regional_rainfall_mm <= 0:
+                continue
+                
+            # Check if evaporation is active for this facility
             evap_flag = f.get('evap_active', 1)
             if evap_flag in (None, ''):
                 evap_flag = 1
-            if int(evap_flag) == 1:
-                total_surface_area += f.get('surface_area', 0) or 0.0
+            if int(evap_flag) != 1:
+                continue
+                
+            # Calculate rainfall volume for this facility
+            surface_area = f.get('surface_area', 0) or 0.0
+            if surface_area > 0:
+                facility_rainfall_volume = (regional_rainfall_mm / 1000.0) * surface_area
+                total_rainfall_volume += facility_rainfall_volume
         
-        # Convert mm rainfall to m³: (mm / 1000) * m²
-        rainfall_volume = (rainfall_mm / 1000.0) * total_surface_area
-        
-        return rainfall_volume
+        return total_rainfall_volume
     
     def calculate_ore_moisture_water(self, ore_tonnes: float = None, calculation_date: date = None) -> tuple:
         """Calculate water from ore moisture.
         Priority order for ore tonnage source:
-          1. Explicit ore_tonnes argument
-          2. Excel monthly value 'Tonnes Milled' (by year+month)
-          3. Constant 'monthly_ore_processing'
+          1. Excel monthly value 'Tonnes Milled' (by year+month)
+          2. Explicit ore_tonnes argument (only if > 0)
+          3. Constant 'monthly_ore_processing' — REMOVED per user request for zero-defaults
+        
         Returns: (ore_moisture_water_m3, source_present_bool)
-        source_present_bool True if came from explicit argument or Excel data.
+        source_present_bool True only if data came from Excel or explicit positive tonnage.
         """
-        source_present = ore_tonnes is not None
-
-        if ore_tonnes is None and calculation_date is not None:
-            # Try Excel monthly tonnes milled
+        source_present = False
+        
+        # Priority 1: Try Excel monthly tonnes milled
+        if calculation_date is not None:
             try:
                 excel_tonnes = self._get_excel_repo().get_monthly_value(calculation_date, "Tonnes Milled")
                 if excel_tonnes and excel_tonnes > 0:
@@ -425,145 +434,93 @@ class WaterBalanceCalculator:
                     source_present = True
             except Exception:
                 pass
-
-        if ore_tonnes is None:
-            # Constant fallback
-            ore_tonnes = self.get_constant('monthly_ore_processing', 350000.0)
+        
+        # Priority 2: Use explicit ore_tonnes only if > 0
+        if ore_tonnes is None or ore_tonnes <= 0:
+            # No data from Excel or explicit positive tonnage → default to zero
+            ore_tonnes = 0.0
+            source_present = False
 
         ore_moisture_pct = self.get_constant('ore_moisture_percent', 3.4)
         ore_density = self.get_constant('ore_density', 2.7)
         ore_moisture_water = (ore_tonnes * (ore_moisture_pct / 100.0)) / ore_density
         return (ore_moisture_water, source_present)
     
-    def calculate_tailings_retention(self, plant_consumption: float, calculation_date: date = None) -> float:
-        """Calculate water retained in tailings solids (moisture lockup).
-        This is the water physically locked in tailings due to moisture content,
-        independent of how much water is returned to the plant.
-        
-        Formula: tailings_dry_mass * tailings_moisture_content
-        Where tailings = ore_processed - concentrate_produced
+    def calculate_tailings_retention(self, plant_consumption: float, calculation_date: date = None,
+                                     manual_inputs: Optional[Dict] = None) -> float:
+        """Water locked in tailings solids.
+        Always auto-calculated: (Ore - Concentrate) × Tailings Moisture %.
+        Uses TRP Excel ore/concentrate + DB tailings moisture, else zero.
         """
-        if calculation_date:
-            # Get ore tonnage for the month
-            try:
-                ore_tonnes = self._get_excel_repo().get_monthly_value(calculation_date, "Tonnes Milled")
-                if not ore_tonnes:
-                    ore_tonnes = self.get_constant('monthly_ore_processing', 350000.0)
-            except:
-                ore_tonnes = self.get_constant('monthly_ore_processing', 350000.0)
-            
-            # Get concentrate production from extended Excel
-            concentrate_tonnes = self._get_extended_repo().get_concentrate_produced(calculation_date)
-            if concentrate_tonnes is None:
-                concentrate_tonnes = self.get_constant('monthly_concentrate_production', 12000.0)
-            
-            # Tailings dry mass = ore - concentrate
-            tailings_dry_mass = ore_tonnes - concentrate_tonnes
-            
-            # Get tailings moisture from extended Excel
-            tailings_moisture_pct = self._get_extended_repo().get_tailings_moisture(calculation_date)
-            if tailings_moisture_pct is None:
-                tailings_moisture_pct = self.get_constant('tailings_moisture_retention_pct', 20.0) / 100.0
-            else:
-                # Excel stores percentages as values (32.5 for 32.5%), convert to decimal
-                tailings_moisture_pct = float(tailings_moisture_pct) / 100.0
-            
-            # Water retained in tailings = dry_mass * moisture_content
-            # Assuming moisture is on dry basis: water = dry_mass * moisture / (1 - moisture)
-            # Or if moisture is total basis: water = total_mass * moisture
-            # Using typical industry approach: water_m3 = dry_tonnes * moisture_pct (approximation)
-            tailings_retention = tailings_dry_mass * tailings_moisture_pct
-            
-            return tailings_retention
-        
-        # Fallback: percentage of plant consumption (legacy approach)
-        tailings_moisture_pct = self.get_constant('tailings_moisture_retention_pct', 20.0) / 100.0
-        return plant_consumption * tailings_moisture_pct * 0.1  # Conservative 10% of plant water
+        if not calculation_date:
+            return 0.0
+
+        # Source ore tonnage from TRP Excel only; no synthetic constants
+        try:
+            ore_tonnes = self._get_excel_repo().get_monthly_value(calculation_date, "Tonnes Milled") or 0.0
+        except Exception:
+            ore_tonnes = 0.0
+
+        # Concentrate tonnage from TRP Excel meter readings (PGM + Chromite)
+        concentrate_tonnes = 0.0
+        try:
+            pgm_wet = self._get_excel_repo().get_monthly_value(calculation_date, "PGM Concentrate Wet tons dispatched") or 0
+            chr_wet = self._get_excel_repo().get_monthly_value(calculation_date, "Chromite Concentrate Wet tons dispatched") or 0
+            concentrate_tonnes = float(pgm_wet) + float(chr_wet)
+        except Exception:
+            concentrate_tonnes = 0.0
+
+        tailings_dry_mass = max(ore_tonnes - concentrate_tonnes, 0.0)
+
+        # Tailings moisture from DB only (monthly), else zero
+        tailings_moisture_pct = 0.0
+        try:
+            db_moisture = self.db.get_tailings_moisture_monthly(calculation_date.month, calculation_date.year)
+            if db_moisture is not None:
+                tailings_moisture_pct = max(float(db_moisture), 0.0) / 100.0
+        except Exception:
+            tailings_moisture_pct = 0.0
+
+        return tailings_dry_mass * tailings_moisture_pct
     
     def calculate_seepage_losses(self, calculation_date: date, skip_measurements: bool = False, preloaded_facilities: Optional[List[Dict]] = None) -> Tuple[float, float]:
-        """Calculate seepage gains and losses.
-        Priority: 1) Extended Excel, 2) Modeled from facility volumes
+        """Calculate seepage gains and losses at FACILITY LEVEL.
+        
+        NOTE: This is maintained for backward compatibility but seepage is now calculated
+        per-facility in calculate_facility_balance() based on dam lining status and aquifer properties.
+        Mine-level balance does NOT include seepage as an inflow source.
+        
+        Priority: 1) Database per-facility monthly input, 2) Zero fallback
         Returns: (seepage_gain, seepage_loss)
         """
-        # Check extended Excel first
-        seepage_data = self._get_extended_repo().get_seepage(calculation_date)
-        if seepage_data:
-            seepage_gain = seepage_data.get('seepage_gain') or 0.0
-            seepage_loss = seepage_data.get('seepage_loss') or 0.0
-            return (seepage_gain, seepage_loss)
-        
-        # Fallback: model from facility volumes
-        seepage_gain = 0.0
-        seepage_loss = 0.0
-        
-        # Apply default seepage rate from facilities
-        facilities = preloaded_facilities if preloaded_facilities is not None else self.db.get_storage_facilities()
-        for facility in facilities:
-            # Check if facility is lined (negligible seepage) or unlined
-            is_lined = facility.get('is_lined', 0)  # 0 = unlined (default), 1 = lined
-            
-            if is_lined:
-                # Lined facilities: negligible seepage (~0%)
-                seepage_rate = 0.0
-            else:
-                # Unlined facilities: default seepage 0.5% of current volume per month
-                seepage_rate = self.get_constant('default_seepage_rate_pct', 0.5) / 100.0
-            
-            current_vol = facility.get('current_volume', 0)
-            seepage_loss += current_vol * seepage_rate
-        
-        return (seepage_gain, seepage_loss)
+        # Seepage methods were removed as seepage is now calculated automatically
+        # based on facility properties (aquifer_gain_rate_pct, is_lined flag)
+        # For backward compatibility, return zero for mine-level seepage
+        return (0.0, 0.0)
     
     def calculate_returns_to_pit(self, calculation_date: date) -> float:
         """Calculate water returned to pit.
-        This is site-specific and would come from pit dewatering returns.
-        Priority: 1) Extended Excel (in Consumption sheet as 'irrigation' or separate tracking)
+        Currently not tracked; default to zero.
         """
-        # Check if site tracks returns to pit in consumption data
-        consumption_data = self._get_extended_repo().get_consumption(calculation_date)
-        if consumption_data and consumption_data.get('irrigation'):
-            # Some sites may use 'irrigation' field for pit returns
-            # Or this could be a separate field in future
-            pass
-        return 0.0  # Default: site-specific, not typically significant
-    
+        return 0.0
+
     def calculate_plant_returns(self, calculation_date: date) -> float:
         """Calculate direct plant returns (internal plant recirculation).
-        Typically 5-10% of plant consumption recirculates internally.
-        Priority: 1) Extended Excel, 2) Percentage of plant consumption
+        Typically netted within plant consumption; default to zero to avoid double-counting.
         """
-        # Check if explicitly tracked in consumption data
-        consumption_data = self._get_extended_repo().get_consumption(calculation_date)
-        if consumption_data and consumption_data.get('other'):
-            # 'Other' consumption could include plant returns
-            # In practice, plant returns are usually netted in plant consumption
-            pass
-        
-        # Plant returns are typically already netted in the plant consumption
-        # calculation, so we return 0 to avoid double-counting
         return 0.0
     
     def calculate_pump_transfers(self, calculation_date: date) -> Dict[str, float]:
         """Calculate inter-facility pump transfers (not in Excel - always empty)"""
         return {}
     
-    def calculate_dust_suppression(self, calculation_date: date, ore_tonnes: float = None) -> float:
-        """Calculate dust suppression water usage with caching.
-        Priority: 1) Extended Excel, 2) DB measurements, 3) Estimate from ore tonnage
-        Always returns a float value, never None.
+    def calculate_dust_suppression(self, calculation_date: date, ore_tonnes: float = None,
+                                   manual_inputs: Optional[Dict] = None) -> float:
+        """Dust suppression water use.
+        Always auto-calculated: Ore Tonnes × Dust Suppression Rate (from settings).
+        Priority: 1) Measurements (DB), 2) Ore tonnage estimate (TRP Excel or parameter).
         """
-        cache_key = f"dust:{calculation_date}"
-        if cache_key in self._misc_cache:
-            return self._misc_cache[cache_key]['value']
-
-        # Check extended Excel first
-        consumption_data = self._get_extended_repo().get_consumption(calculation_date)
-        if consumption_data and consumption_data.get('dust_suppression') is not None:
-            val = float(consumption_data['dust_suppression'])
-            self._misc_cache[cache_key] = {'value': val}
-            return val
-
-        # Check DB measurements
+        # Measurements (daily/monthly) by type
         dust_water = self.db.execute_query(
             """
             SELECT SUM(volume) as total FROM measurements
@@ -572,16 +529,21 @@ class WaterBalanceCalculator:
             (calculation_date,)
         )
         if dust_water and dust_water[0]['total']:
-            val = float(dust_water[0]['total'])
-            self._misc_cache[cache_key] = {'value': val}
-            return val
+            return float(dust_water[0]['total'])
 
-        # Fallback estimate - always returns a value
-        ore_val = ore_tonnes if ore_tonnes is not None else self.get_constant('monthly_ore_processing', 350000.0)
+        # Auto-calculate from ore tonnage and dust suppression rate
+        ore_val = 0.0
+        if ore_tonnes is not None and ore_tonnes > 0:
+            ore_val = ore_tonnes
+        else:
+            try:
+                excel_ore = self._get_excel_repo().get_monthly_value(calculation_date, "Tonnes Milled")
+                ore_val = float(excel_ore or 0.0)
+            except Exception:
+                ore_val = 0.0
+
         dust_rate = self.get_constant('dust_suppression_rate', 0.02)
-        val = ore_val * dust_rate
-        self._misc_cache[cache_key] = {'value': val}
-        return val
+        return ore_val * dust_rate
     
     # ==================== OUTFLOWS ====================
     
@@ -626,31 +588,12 @@ class WaterBalanceCalculator:
     
     def calculate_tsf_return(self, plant_consumption: float, calculation_date: date = None) -> float:
         """Calculate TSF return water (recycled water from tailings back to plant).
-        
-        Water Flow:
-        Plant → TSF (with tailings) → TSF Return (recycled back to plant)
-        
+
         Priority:
-        1. Excel RWD (Return Water Dam) - actual measured return flow
-        2. Percentage of plant consumption (estimated when no measurement)
-        
-        The TSF return is RECYCLED water, not fresh water. It's counted as:
-        - INFLOW: Water returning to the system from TSF
-        - Used to calculate NET plant consumption: Net = Gross - TSF Return
-        
-        Net plant consumption represents the fresh water consumed by the plant.
+        1) DB monthly entry (tsf_return_monthly)
+        2) Estimated % of plant consumption
         """
         if calculation_date is not None:
-            # Check Excel for actual measured TSF return (RWD)
-            try:
-                excel_rwd = self._get_excel_repo().get_monthly_value(calculation_date, "RWD")
-                if excel_rwd and excel_rwd > 0:
-                    # Use actual measured return from Excel
-                    return float(excel_rwd)
-            except Exception:
-                pass
-            
-            # Check DB for monthly override (backward compatibility)
             try:
                 month_start = date(calculation_date.year, calculation_date.month, 1)
                 rows = self.db.execute_query(
@@ -666,9 +609,7 @@ class WaterBalanceCalculator:
                     return float(rows[0]['tsf_return_m3'])
             except Exception:
                 pass
-        
-        # Fallback: estimate TSF return as percentage of plant consumption
-        # Typical range: 30-60% for mining operations
+
         return_percentage = self.get_constant('tsf_return_percentage', 36.0) / 100.0
         return plant_consumption * return_percentage
 
@@ -716,11 +657,29 @@ class WaterBalanceCalculator:
         
         return total_evap_volume
     
-    def calculate_discharge(self, calculation_date: date) -> float:
-        """Calculate controlled discharge/releases.
-        Priority: 1) Extended Excel, 2) Always 0
+    def calculate_discharge(self, calculation_date: date, manual_inputs: Optional[Dict] = None) -> float:
+        """Controlled discharge/releases.
+        Priority: 1) Manual monthly input, 2) Measurements, 3) Zero.
         """
-        return self._get_extended_repo().get_total_discharge(calculation_date)
+        month_start = date(calculation_date.year, calculation_date.month, 1)
+        if manual_inputs is None:
+            manual_inputs = self.db.get_monthly_manual_inputs(month_start)
+
+        manual_val = manual_inputs.get('discharge_m3') if manual_inputs else None
+        if manual_val is not None:
+            return float(manual_val or 0.0)
+
+        discharge_rows = self.db.execute_query(
+            """
+            SELECT SUM(volume) as total FROM measurements
+            WHERE measurement_date = ? AND measurement_type = 'discharge'
+            """,
+            (calculation_date,)
+        )
+        if discharge_rows and discharge_rows[0]['total']:
+            return float(discharge_rows[0]['total'])
+
+        return 0.0
     
     def calculate_total_outflows(self, calculation_date: date,
                                  ore_tonnes: float = None,
@@ -779,6 +738,9 @@ class WaterBalanceCalculator:
         
         Returns breakdown by category matching legacy model
         """
+        month_start = date(calculation_date.year, calculation_date.month, 1)
+        manual_inputs = self.db.get_monthly_manual_inputs(month_start)
+
         # Calculate TSF return FIRST (needed for plant consumption calculation)
         # Use ore-based estimate for initial calculation
         plant_consumption_estimate = self.calculate_plant_consumption(ore_tonnes=ore_tonnes)
@@ -786,44 +748,57 @@ class WaterBalanceCalculator:
         
         # Calculate plant consumption (gross water circulation)
         # If we have fresh_water_to_plant, use mass balance approach
-        # Include internal storage abstraction feeding the plant (optional)
+        # Abstraction to plant not tracked without extended Excel; assume 0
         abstraction_to_plant = 0.0
-        try:
-            abstraction_to_plant = self._get_extended_repo().get_total_abstraction_to_plant(calculation_date) or 0.0
-        except Exception:
-            abstraction_to_plant = 0.0
 
         if fresh_water_to_plant is not None:
-            # Gross = fresh_to_plant + abstraction_from_storage + TSF return
-            plant_consumption = fresh_water_to_plant + abstraction_to_plant + tsf_return
+            # Gross = fresh_to_plant + TSF return
+            plant_consumption = fresh_water_to_plant + tsf_return
         else:
             # Fallback to ore-based calculation (gross estimated from tonnes)
-            # Add TSF return and abstraction to reflect operational feed
-            plant_consumption = plant_consumption_estimate + tsf_return + abstraction_to_plant
+            # Add TSF return to reflect operational feed
+            plant_consumption = plant_consumption_estimate + tsf_return
         
         # Calculate environmental losses from storage facilities
         evaporation = self.calculate_evaporation_loss(calculation_date, preloaded_facilities=preloaded_facilities)
 
-        # Discharge from extended Excel (controlled releases)
-        discharge = self.calculate_discharge(calculation_date)
+        # Discharge from manual inputs or measurements
+        discharge = self.calculate_discharge(calculation_date, manual_inputs=manual_inputs)
 
         # Additional categories (for detailed reporting - included in plant consumption)
-        tailings_retention = self.calculate_tailings_retention(plant_consumption, calculation_date)
+        tailings_retention = self.calculate_tailings_retention(plant_consumption, calculation_date, manual_inputs=manual_inputs)
         _, seepage_loss = self.calculate_seepage_losses(calculation_date,
                                 skip_measurements=skip_measurements,
                                 preloaded_facilities=preloaded_facilities)
 
         # Dust suppression - check Excel first (part of plant operations)
-        dust_suppression = self.calculate_dust_suppression(calculation_date, ore_tonnes=ore_tonnes)
+        dust_suppression = self.calculate_dust_suppression(calculation_date, ore_tonnes=ore_tonnes, manual_inputs=manual_inputs)
 
-        # Mining & domestic consumption - check extended Excel (part of site water use)
-        consumption_data = self._get_extended_repo().get_consumption(calculation_date)
-        if consumption_data:
-            mining_use = consumption_data.get('mining') or 0.0
-            domestic_use = consumption_data.get('domestic') or 0.0
-        else:
-            mining_use = 0.0
-            domestic_use = 0.0
+        # Mining & domestic consumption - manual inputs or measurements; zero if missing
+        mining_use = float(manual_inputs.get('mining_consumption_m3', 0.0) or 0.0)
+        domestic_use = float(manual_inputs.get('domestic_consumption_m3', 0.0) or 0.0)
+
+        if mining_use == 0.0:
+            mining_rows = self.db.execute_query(
+                """
+                SELECT SUM(volume) as total FROM measurements
+                WHERE measurement_date = ? AND measurement_type = 'mining_consumption'
+                """,
+                (calculation_date,)
+            )
+            if mining_rows and mining_rows[0]['total']:
+                mining_use = float(mining_rows[0]['total'])
+
+        if domestic_use == 0.0:
+            domestic_rows = self.db.execute_query(
+                """
+                SELECT SUM(volume) as total FROM measurements
+                WHERE measurement_date = ? AND measurement_type = 'domestic_consumption'
+                """,
+                (calculation_date,)
+            )
+            if domestic_rows and domestic_rows[0]['total']:
+                domestic_use = float(domestic_rows[0]['total'])
 
         # Product moisture (concentrate moisture) - PRIORITY: Meter Readings → Production sheet
         concentrate_tonnes = None
@@ -855,20 +830,12 @@ class WaterBalanceCalculator:
         except Exception:
             pass
         
-        # PRIORITY 2: Production sheet (fallback)
+        # No extended Excel fallback; default to zero when missing
         if concentrate_tonnes is None:
-            concentrate_tonnes = self._get_extended_repo().get_concentrate_produced(calculation_date)
+            concentrate_tonnes = 0.0
         if concentrate_moisture_pct is None:
-            conc_moist_raw = self._get_extended_repo().get_concentrate_moisture(calculation_date)
-            if conc_moist_raw is not None:
-                concentrate_moisture_pct = float(conc_moist_raw) / 100.0
-        
-        # Final fallback to constants
-        if concentrate_tonnes is None:
-            concentrate_tonnes = self.get_constant('monthly_concentrate_production', 0)
-        if concentrate_moisture_pct is None:
-            concentrate_moisture_pct = self.get_constant('concentrate_moisture', 8.0) / 100.0
-        
+            concentrate_moisture_pct = 0.0
+
         product_moisture = (concentrate_tonnes * concentrate_moisture_pct) if concentrate_tonnes > 0 else 0.0
 
         # Net plant consumption (fresh water actually consumed by main plant)
@@ -921,8 +888,8 @@ class WaterBalanceCalculator:
     def calculate_storage_change(self, calculation_date: date,
                                  skip_measurements: bool = False,
                                  preloaded_facilities: Optional[List[Dict]] = None) -> Dict[str, float]:
-        """"Calculate storage change across all facilities.
-        Priority for volumes: 1) Extended Excel, 2) Calculated from facility balance
+        """Calculate storage change across all facilities.
+        Uses DB measurements/inputs; no extended Excel dependency.
         Returns opening volumes, closing volumes, and net change
         """
         facilities = preloaded_facilities if preloaded_facilities is not None else self.db.get_storage_facilities()
@@ -939,22 +906,16 @@ class WaterBalanceCalculator:
         )
         preloaded_evap_mm = evap_rate_rows[0]['evaporation_mm'] if evap_rate_rows else 0.0
         
-        # Check extended Excel for custom rainfall
-        excel_rainfall = self._get_extended_repo().get_rainfall(calculation_date)
-        if excel_rainfall is not None:
-            total_rainfall_mm = excel_rainfall
+        rainfall_rows = self.db.execute_query(
+            "SELECT rainfall_mm FROM measurements WHERE measurement_date = ? AND measurement_type = 'rainfall'",
+            (calculation_date,)
+        )
+        if rainfall_rows:
+            total_rainfall_mm = sum(r['rainfall_mm'] for r in rainfall_rows if r.get('rainfall_mm'))
         else:
-            rainfall_rows = self.db.execute_query(
-                "SELECT rainfall_mm FROM measurements WHERE measurement_date = ? AND measurement_type = 'rainfall'",
-                (calculation_date,)
-            )
-            if rainfall_rows:
-                total_rainfall_mm = sum(r['rainfall_mm'] for r in rainfall_rows if r.get('rainfall_mm'))
-            else:
-                # Fallback to constant when no measurement rows
-                total_rainfall_mm = self.get_constant('DEFAULT_MONTHLY_RAINFALL_MM', 60.0)
+            # Fallback to constant when no measurement rows
+            total_rainfall_mm = self.get_constant('DEFAULT_MONTHLY_RAINFALL_MM', 60.0)
 
-        # Facility measurements map is now always empty (no DB time-series)
         facility_measurements_map = {}
         
         for facility in facilities:
@@ -963,91 +924,25 @@ class WaterBalanceCalculator:
             facility_capacity = facility.get('total_capacity', 0)
             facility_surface_area = facility.get('surface_area', 0)
 
-            # Check extended Excel first for this facility's volumes (with auto-calculation support)
-            excel_storage = self._get_extended_repo().get_storage_data(facility_code, calculation_date, facility_capacity, facility_surface_area, self.db)
+            # Database-driven path only
+            opening_vol = facility.get('current_volume', 0.0)
 
-            if excel_storage and excel_storage.get('opening_volume') is not None and excel_storage.get('closing_volume') is not None:
-                # Excel provides drivers (inflow/outflow/rain/evap/abstraction) and volumes
-                opening_excel = float(excel_storage['opening_volume'])
-                closing_excel = float(excel_storage['closing_volume'])
-                inflow_manual = float(excel_storage.get('inflow_manual', 0.0) or 0.0)
-                outflow_manual = float(excel_storage.get('outflow_manual', 0.0) or 0.0)
-                rain = float(excel_storage.get('rainfall_volume', 0.0) or 0.0)
-                # Extended repo may use 'evaporation_volume' or 'evaporation'
-                evap = float((excel_storage.get('evaporation_volume', None) if excel_storage.get('evaporation_volume', None) is not None else excel_storage.get('evaporation', 0.0)) or 0.0)
-                abstr = float(excel_storage.get('abstraction_to_plant', 0.0) or 0.0)
-
-                inflow_total = inflow_manual + rain
-                outflow_total = outflow_manual + evap + abstr
-
-                # Validate flows don't exceed capacity
-                self._validate_facility_flows(
-                    facility_code, facility_capacity,
-                    inflow_total, outflow_total, opening_excel
-                )
-
-                # Config-driven preference: use DB opening when recent
-                try:
-                    from utils.config_manager import config as app_config
-                    prefer_db_opening = bool(app_config.get('features.use_db_opening_when_recent', True))
-                    recency_days = int(app_config.get('features.db_opening_recency_days', 10))
-                except Exception:
-                    prefer_db_opening, recency_days = True, 10
-
-                opening_db = float(facility.get('current_volume', 0.0) or 0.0)
-                if opening_db <= 0 and facility_capacity and facility.get('current_level_percent'):
-                    opening_db = float(facility_capacity) * (float(facility.get('current_level_percent')) / 100.0)
-
-                # Determine recency based on last_updated vs month start
-                last_updated = facility.get('last_updated')
-                recent_enough = False
-                try:
-                    if isinstance(last_updated, datetime):
-                        lu_date = last_updated.date()
-                    elif isinstance(last_updated, str):
-                        for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d", "%m/%d/%Y %H:%M", "%m/%d/%Y"):
-                            try:
-                                lu_date = datetime.strptime(last_updated, fmt).date()
-                                break
-                            except Exception:
-                                lu_date = None
-                        # lu_date is set by break above or None
-                    else:
-                        lu_date = None
-                    month_start = date(calculation_date.year, calculation_date.month, 1)
-                    if lu_date:
-                        recent_enough = abs((lu_date - month_start).days) <= recency_days
-                except Exception:
-                    recent_enough = False
-
-                if prefer_db_opening and recent_enough and opening_db > 0:
-                    opening_vol = opening_db
-                    unclamped_closing = opening_vol + inflow_total - outflow_total
-                    if facility_capacity and facility_capacity > 0:
-                        closing_vol = min(max(unclamped_closing, 0.0), float(facility_capacity))
-                    else:
-                        closing_vol = max(unclamped_closing, 0.0)
-                    data_source = 'Excel+DB opening'
-                else:
-                    opening_vol = opening_excel
-                    closing_vol = closing_excel
-                    data_source = 'Excel'
-            else:
-                # Calculate from facility balance
-                opening_vol = facility.get('current_volume', 0.0)
-
-                # IMPORTANT: Do NOT apply evaporation to Database-sourced facilities
-                # Evaporation should only be counted when there's measured makeup water
-                # to replace it. Otherwise it creates a balance error.
-                facility_balance = self.calculate_facility_balance(
-                    facility_id, calculation_date,
-                    preloaded_facility=facility,
-                    preloaded_rainfall_mm=0.0 if skip_measurements else total_rainfall_mm,
-                    preloaded_evap_mm=0.0,  # Force zero evap for unmeasured facilities
-                    preloaded_facility_measurements=facility_measurements_map if not skip_measurements else {}
-                )
-                closing_vol = facility_balance['closing_volume'] if facility_balance else opening_vol
-                data_source = 'Database'
+            facility_balance = self.calculate_facility_balance(
+                facility_id, calculation_date,
+                preloaded_facility=facility,
+                preloaded_rainfall_mm=total_rainfall_mm,
+                preloaded_evap_mm=preloaded_evap_mm,
+                preloaded_facility_measurements=facility_measurements_map if not skip_measurements else {}
+            )
+            closing_vol = facility_balance['closing_volume'] if facility_balance else opening_vol
+            
+            inflow_manual = float(facility_balance.get('facility_inflow_m3', 0.0) or 0.0) if facility_balance else 0.0
+            outflow_manual = float(facility_balance.get('facility_outflow_m3', 0.0) or 0.0) if facility_balance else 0.0
+            rain = float(facility_balance.get('rainfall_volume', 0.0) or 0.0) if facility_balance else 0.0
+            evap = float(facility_balance.get('evaporation', 0.0) or 0.0) if facility_balance else 0.0
+            abstr = float(facility_balance.get('facility_abstraction_m3', 0.0) or 0.0) if facility_balance else 0.0
+            
+            data_source = 'Database'
             
             change = closing_vol - opening_vol
             
@@ -1061,11 +956,14 @@ class WaterBalanceCalculator:
                 'change': change,
                 'source': data_source,
                 'drivers': {
-                    'inflow_manual': inflow_manual if 'inflow_manual' in locals() else 0.0,
-                    'outflow_manual': outflow_manual if 'outflow_manual' in locals() else 0.0,
-                    'rainfall': rain if 'rain' in locals() else 0.0,
-                    'evaporation': evap if 'evap' in locals() else 0.0,
-                    'abstraction': abstr if 'abstr' in locals() else 0.0
+                    'inflow_manual': inflow_manual,
+                    'outflow_manual': outflow_manual,
+                    'rainfall': rain,
+                    'evaporation': evap,
+                    'abstraction': abstr,
+                    # Automatic seepage factors (facility-level only)
+                    'seepage_gain': float(facility_balance.get('seepage_gain', 0.0) or 0.0) if facility_balance else 0.0,
+                    'seepage_loss': float(facility_balance.get('seepage_loss', 0.0) or 0.0) if facility_balance else 0.0
                 }
             }
         
@@ -1122,7 +1020,7 @@ class WaterBalanceCalculator:
         empty_day = False
 
         # If ore_tonnes not explicitly provided, prefer Excel Tonnes Milled
-        # for this month before falling back to constants.
+        # for this month before falling back to zero (no synthetic defaults).
         ore_val = ore_tonnes
         if ore_val is None and calculation_date is not None:
             try:
@@ -1132,9 +1030,10 @@ class WaterBalanceCalculator:
             if excel_tonnes and excel_tonnes > 0:
                 ore_val = float(excel_tonnes)
 
-        # Final fallback to constant when no explicit or Excel tonnes provided
+        # Final fallback to zero when no explicit or Excel tonnes provided
+        # (aligns with user preference for zero-defaults when data is missing)
         if ore_val is None:
-            ore_val = self.get_constant('monthly_ore_processing', 350000.0)
+            ore_val = 0.0
 
         # Calculate all components (skip measurement queries if empty day)
         # Prefetch static datasets once per calculation to avoid repeated queries
@@ -1163,11 +1062,36 @@ class WaterBalanceCalculator:
         # Subtract auxiliary uses (dust, mining, domestic) from fresh water
         # These are separate from main plant processing
         # We need to get these values first
-        dust_suppression_prelim = self.calculate_dust_suppression(calculation_date, ore_tonnes=ore_val) or 0.0
-        consumption_data_prelim = self._get_extended_repo().get_consumption(calculation_date)
-        mining_use_prelim = consumption_data_prelim.get('mining', 0) if consumption_data_prelim else 0.0
-        domestic_use_prelim = consumption_data_prelim.get('domestic', 0) if consumption_data_prelim else 0.0
-        
+        month_start = date(calculation_date.year, calculation_date.month, 1)
+        manual_inputs = self.db.get_monthly_manual_inputs(month_start)
+
+        dust_suppression_prelim = self.calculate_dust_suppression(calculation_date, ore_tonnes=ore_val, manual_inputs=manual_inputs) or 0.0
+
+        mining_use_prelim = float(manual_inputs.get('mining_consumption_m3', 0.0) or 0.0)
+        domestic_use_prelim = float(manual_inputs.get('domestic_consumption_m3', 0.0) or 0.0)
+
+        if mining_use_prelim == 0.0:
+            mining_rows = self.db.execute_query(
+                """
+                SELECT SUM(volume) as total FROM measurements
+                WHERE measurement_date = ? AND measurement_type = 'mining_consumption'
+                """,
+                (calculation_date,)
+            )
+            if mining_rows and mining_rows[0]['total']:
+                mining_use_prelim = float(mining_rows[0]['total'])
+
+        if domestic_use_prelim == 0.0:
+            domestic_rows = self.db.execute_query(
+                """
+                SELECT SUM(volume) as total FROM measurements
+                WHERE measurement_date = ? AND measurement_type = 'domestic_consumption'
+                """,
+                (calculation_date,)
+            )
+            if domestic_rows and domestic_rows[0]['total']:
+                domestic_use_prelim = float(domestic_rows[0]['total'])
+
         auxiliary_uses = dust_suppression_prelim + mining_use_prelim + domestic_use_prelim
         fresh_water_to_plant = fresh_water_total - auxiliary_uses
         
@@ -1248,31 +1172,11 @@ class WaterBalanceCalculator:
         return len(rows) == 0
     
     def _get_storage_statistics(self, preloaded_facilities: Optional[List[Dict]] = None, calculation_date: Optional[date] = None) -> Dict:
-        """Get current storage statistics
-        Priority: 1) Excel opening volumes for calculation_date, 2) Database current_volume
-        """
+        """Get current storage statistics using database values only."""
         facilities = preloaded_facilities if preloaded_facilities is not None else self.db.get_storage_facilities()
         
         total_capacity = sum(f.get('total_capacity', 0) for f in facilities)
-        current_volume = 0.0
-        
-        # Try to get volumes from Excel first (if calculation_date provided)
-        if calculation_date:
-            for facility in facilities:
-                facility_code = facility['facility_code']
-                facility_capacity = facility.get('total_capacity', 0)
-                facility_surface_area = facility.get('surface_area', 0)
-                excel_storage = self._get_extended_repo().get_storage_data(facility_code, calculation_date, facility_capacity, facility_surface_area, self.db)
-                
-                if excel_storage and excel_storage.get('opening_volume') is not None:
-                    # Use Excel opening volume as current volume for this date
-                    current_volume += excel_storage['opening_volume']
-                else:
-                    # Fallback to database current_volume
-                    current_volume += facility.get('current_volume', 0)
-        else:
-            # No date provided, use database values
-            current_volume = sum(f.get('current_volume', 0) for f in facilities)
+        current_volume = sum(f.get('current_volume', 0) for f in facilities)
         
         utilization = (current_volume / total_capacity * 100) if total_capacity > 0 else 0
         
@@ -1298,8 +1202,16 @@ class WaterBalanceCalculator:
         if not facility:
             return None
         
-        inflows = 0.0
-        outflows = 0.0
+        # Per-facility monthly inflows/outflows/abstraction from dashboard DB
+        month = calculation_date.month
+        facility_inflow_m3 = self.db.get_facility_inflow_monthly(facility_id, month)
+        facility_outflow_m3 = self.db.get_facility_outflow_monthly(facility_id, month)
+        facility_abstraction_m3 = self.db.get_facility_abstraction_monthly(facility_id, month)
+        
+        inflows = facility_inflow_m3
+        outflows = facility_outflow_m3 + facility_abstraction_m3
+        
+        # Optionally add legacy measurements (if preloaded or from DB)
         if preloaded_facility_measurements and facility_id in preloaded_facility_measurements:
             mtypes = preloaded_facility_measurements[facility_id]
             inflows += sum(mtypes.get(mt, 0.0) for mt in ['facility_inflow','pump_inflow','transfer_in'])
@@ -1320,72 +1232,51 @@ class WaterBalanceCalculator:
                 elif m['measurement_type'] in ['facility_outflow', 'pump_outflow', 'transfer_out', 'discharge']:
                     outflows += m['total_volume'] or 0
         
-        # Per-facility rainfall (Priority: 1) Dashboard DB, 2) Excel storage sheets, 3) Global rainfall_mm)
+        # Regional rainfall and evaporation (apply to all facilities in the area)
         surface_area = facility.get('surface_area', 0)
-        # Respect evap_active flag: if disabled, skip rainfall/evap for this
-        # facility in the detailed facility balance.
+        # Respect evap_active flag: if disabled, skip rainfall/evap for this facility
         evap_flag = facility.get('evap_active', 1)
         if evap_flag in (None, ''):
             evap_flag = 1
         evap_enabled = int(evap_flag) == 1
         
-        month = calculation_date.month
-        
-        # Get rainfall for the date - Priority 1: Per-facility DB dashboard
-        facility_rainfall_mm = self.db.get_facility_rainfall_monthly(facility_id, month)
-        
-        if facility_rainfall_mm > 0:
-            rainfall_mm = facility_rainfall_mm
-        elif preloaded_rainfall_mm is not None:
-            rainfall_mm = preloaded_rainfall_mm
-            measurement_found = preloaded_rainfall_mm > 0
-        else:
-            # Fallback to global measurement or constant
-            rainfall_data = self.db.execute_query(
-                "SELECT rainfall_mm FROM measurements WHERE measurement_date = ? AND measurement_type = 'rainfall'",
-                (calculation_date,)
-            )
-            measurement_found = len(rainfall_data) > 0
-            if measurement_found:
-                rainfall_mm = sum(r['rainfall_mm'] for r in rainfall_data if r.get('rainfall_mm'))
-            else:
-                rainfall_mm = self.get_constant('DEFAULT_MONTHLY_RAINFALL_MM', 60.0)
-        if rainfall_mm is None:
-            rainfall_mm = 0.0
+        # Use regional rainfall (applies to all facilities)
+        regional_rainfall_mm = self.db.get_regional_rainfall_monthly(month)
+        rainfall_mm = regional_rainfall_mm if regional_rainfall_mm > 0 else 0.0
         
         # Rainfall volume on this facility
         rainfall_volume = (rainfall_mm / 1000.0) * surface_area if evap_enabled else 0.0
         inflows += rainfall_volume
         
-        # Per-facility evaporation - Priority 1) Dashboard DB, 2) Excel, 3) Global evaporation_mm
-        month = calculation_date.month
+        # Regional evaporation (applies to all facilities)
         evap_loss = 0.0
         
         if evap_enabled and surface_area > 0:
-            # Try per-facility dashboard evaporation first
-            facility_evap_mm = self.db.get_facility_evaporation_monthly(facility_id, month)
-            
-            if facility_evap_mm and facility_evap_mm > 0:
-                evap_loss = (facility_evap_mm / 1000.0) * surface_area
-            elif preloaded_evap_mm is not None and preloaded_evap_mm > 0:
-                evap_loss = (preloaded_evap_mm / 1000.0) * surface_area
-            else:
-                # Fallback to global evaporation rates
-                evap_rate = self.db.execute_query(
-                    "SELECT evaporation_mm FROM evaporation_rates WHERE month = ?",
-                    (month,)
-                )
-                if evap_rate:
-                    evap_mm = evap_rate[0]['evaporation_mm']
-                    evap_loss = (evap_mm / 1000.0) * surface_area
+            regional_evap_mm = self.db.get_regional_evaporation_monthly(month)
+            if regional_evap_mm and regional_evap_mm > 0:
+                evap_loss = (regional_evap_mm / 1000.0) * surface_area
         
         outflows += evap_loss
         
-        # Per-facility seepage (Excel: seepage as % of volume)
-        seepage_rate_pct = self.get_constant('default_seepage_rate_pct', 0.5) / 100.0
+        # Per-facility seepage loss (Excel: seepage as % of volume)
+        # Loss rate depends on dam lining status:
+        # - Lined dams: 0.1% per month (minimal loss)
+        # - Unlined dams: 0.5% per month (natural seepage)
+        is_lined = facility.get('is_lined', 0)
+        if is_lined:
+            seepage_loss_rate_pct = self.get_constant('lined_seepage_rate_pct', 0.1) / 100.0
+        else:
+            seepage_loss_rate_pct = self.get_constant('unlined_seepage_rate_pct', 0.5) / 100.0
+        
         current_vol = facility.get('current_volume', 0)
-        facility_seepage = current_vol * seepage_rate_pct
-        outflows += facility_seepage
+        facility_seepage_loss = current_vol * seepage_loss_rate_pct
+        outflows += facility_seepage_loss
+        
+        # Per-facility seepage gain (water seeping INTO dam from aquifer)
+        # Automatic calculation based on facility aquifer properties
+        aquifer_gain_rate_pct = facility.get('aquifer_gain_rate_pct', 0.0)
+        facility_seepage_gain = current_vol * aquifer_gain_rate_pct / 100.0
+        inflows += facility_seepage_gain
         
         # Calculate balance (pre-clamp)
         net_balance_pre = inflows - outflows
@@ -1416,7 +1307,11 @@ class WaterBalanceCalculator:
             'outflows': outflows,
             'rainfall_volume': rainfall_volume,
             'evaporation': evap_loss,
-            'seepage': facility_seepage,
+            'seepage_gain': facility_seepage_gain,
+            'seepage_loss': facility_seepage_loss,
+            'facility_inflow_m3': facility_inflow_m3,
+            'facility_outflow_m3': facility_outflow_m3,
+            'facility_abstraction_m3': facility_abstraction_m3,
             'net_balance': net_balance,
             'closing_volume': new_volume,
             'capacity': capacity,
@@ -1915,8 +1810,8 @@ class WaterBalanceCalculator:
                 facility_balance = self.calculate_facility_balance(
                     facility_id, calculation_date,
                     preloaded_facility=facility,
-                    preloaded_rainfall_mm=total_rainfall_mm,
-                    preloaded_evap_mm=preloaded_evap_mm,
+                    preloaded_rainfall_mm=None,
+                    preloaded_evap_mm=None,
                     preloaded_facility_measurements=facility_measurements_map
                 )
                 

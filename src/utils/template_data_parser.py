@@ -35,9 +35,25 @@ class TemplateDataParser:
             project_root = Path(__file__).parent.parent.parent
         
         self.project_root = project_root
-        self.inflows_file = project_root / "INFLOW_CODES_TEMPLATE.txt"
-        self.outflows_file = project_root / "OUTFLOW_CODES_TEMPLATE_CORRECTED.txt"
-        self.recirculation_file = project_root / "DAM_RECIRCULATION_TEMPLATE.txt"
+        # Use config paths if provided; fall back to project root files
+        try:
+            from utils.config_manager import config
+            inflow_path = config.get('data_sources.inflow_codes_path', 'INFLOW_CODES_TEMPLATE.txt')
+            outflow_path = config.get('data_sources.outflow_codes_path', 'OUTFLOW_CODES_TEMPLATE_CORRECTED.txt')
+            recirc_path = config.get('data_sources.dam_recirculation_path', 'DAM_RECIRCULATION_TEMPLATE.txt')
+        except Exception:
+            inflow_path = 'INFLOW_CODES_TEMPLATE.txt'
+            outflow_path = 'OUTFLOW_CODES_TEMPLATE_CORRECTED.txt'
+            recirc_path = 'DAM_RECIRCULATION_TEMPLATE.txt'
+
+        inflow_p = Path(inflow_path)
+        outflow_p = Path(outflow_path)
+        recirc_p = Path(recirc_path)
+
+        # Resolve relative paths against project root
+        self.inflows_file = inflow_p if inflow_p.is_absolute() else (project_root / inflow_p)
+        self.outflows_file = outflow_p if outflow_p.is_absolute() else (project_root / outflow_p)
+        self.recirculation_file = recirc_p if recirc_p.is_absolute() else (project_root / recirc_p)
         
         self.inflows: List[BalanceEntry] = []
         self.outflows: List[BalanceEntry] = []

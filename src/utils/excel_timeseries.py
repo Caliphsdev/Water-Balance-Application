@@ -95,6 +95,31 @@ class ExcelTimeSeriesRepository:
         assert self._df is not None
         return self._df[self._df["Date"] == calculation_date]
 
+    def get_matched_row_date(self, calculation_date: date) -> Optional[date]:
+        """Return the actual Date in the sheet that matches the given month.
+
+        Matches by year and month (ignoring day) and returns the first row's
+        Date if present; otherwise returns None. This is useful for UI audit
+        displays where the UI uses end-of-month dates that may not match the
+        sheet's exact day-of-month.
+        """
+        self._load()
+        assert self._df is not None
+        y, m = calculation_date.year, calculation_date.month
+        rows = self._df[(self._df["Year"] == y) & (self._df["Month"] == m)]
+        if rows.empty:
+            return None
+        try:
+            return rows.iloc[0]["Date"]
+        except Exception:
+            return None
+
+    def has_header(self, header_name: str) -> bool:
+        """Return True if the provided header exists in the sheet columns."""
+        self._load()
+        assert self._df is not None
+        return header_name in list(self._df.columns)
+
     def _lookup_row(self, calculation_date: date, header_name: str) -> tuple[float, Optional[date]]:
         """Internal helper: find the value and the actual row date used."""
         assert self._df is not None

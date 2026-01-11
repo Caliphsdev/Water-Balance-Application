@@ -1,14 +1,22 @@
+"""
+Settings & Configuration UI - Revamped
+Modern, clean interface with better organization and visual hierarchy
+"""
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 from pathlib import Path
+from datetime import datetime
 
 from database.db_manager import DatabaseManager
 from utils.backup_manager import BackupManager
 from utils.config_manager import config
 from utils.alert_manager import alert_manager
+from utils.app_logger import logger
+
 
 class SettingsModule:
-    """Settings & Configuration UI"""
+    """Revamped Settings & Configuration UI"""
+    
     def __init__(self, parent, initial_tab=None):
         self.parent = parent
         self.container = ttk.Frame(parent)
@@ -18,211 +26,348 @@ class SettingsModule:
         self.notebook = None
 
     def load(self):
-        self.container.pack(fill='both', expand=True, padx=20, pady=20)
+        self.container.pack(fill='both', expand=True)
         self._build_ui()
 
     def _build_ui(self):
-        title = ttk.Label(self.container, text="Settings & Configuration", style='Heading1.TLabel')
-        title.pack(anchor='w')
-        subtitle = ttk.Label(self.container, text="Manage system constants and database backups", style='Body.TLabel')
-        subtitle.pack(anchor='w', pady=(0,15))
-
-        self.notebook = ttk.Notebook(self.container)
-        self.notebook.pack(fill='both', expand=True)
-
-        self.constants_frame = ttk.Frame(self.notebook)
-        self.scenarios_frame = ttk.Frame(self.notebook)
-        self.branding_frame = ttk.Frame(self.notebook)
-        self.backup_frame = ttk.Frame(self.notebook)
-        self.alerts_frame = ttk.Frame(self.notebook)
-        self.data_quality_frame = ttk.Frame(self.notebook)
+        """Build modern settings interface"""
+        # Header with icon and description
+        header = ttk.Frame(self.container)
+        header.pack(fill='x', padx=20, pady=(20, 10))
         
-        self.notebook.add(self.branding_frame, text='Branding')
-        self.notebook.add(self.constants_frame, text='Constants')
-        self.notebook.add(self.scenarios_frame, text='Scenarios')
-        self.notebook.add(self.data_quality_frame, text='📊 Data Quality')
-        self.notebook.add(self.alerts_frame, text='⚠️ Alerts')
-        self.notebook.add(self.backup_frame, text='Backup & Restore')
-
+        title_label = ttk.Label(
+            header, 
+            text="⚙️ Settings & Configuration",
+            font=('Segoe UI', 20, 'bold')
+        )
+        title_label.pack(anchor='w')
+        
+        subtitle = ttk.Label(
+            header,
+            text="Manage application settings, constants, backups, and system configuration",
+            font=('Segoe UI', 10),
+            foreground='#666'
+        )
+        subtitle.pack(anchor='w', pady=(5, 0))
+        
+        # Separator
+        ttk.Separator(self.container, orient='horizontal').pack(fill='x', padx=20, pady=10)
+        
+        # Notebook with modern tabs
+        self.notebook = ttk.Notebook(self.container)
+        self.notebook.pack(fill='both', expand=True, padx=20, pady=(0, 20))
+        
+        # Create tab frames
+        self.branding_frame = ttk.Frame(self.notebook)
+        self.constants_frame = ttk.Frame(self.notebook)
+        self.environmental_frame = ttk.Frame(self.notebook)
+        self.data_sources_frame = ttk.Frame(self.notebook)
+        self.backup_frame = ttk.Frame(self.notebook)
+        
+        # Add tabs with icons
+        self.notebook.add(self.branding_frame, text='  🎨 Branding  ')
+        self.notebook.add(self.constants_frame, text='  📊 Constants  ')
+        self.notebook.add(self.environmental_frame, text='  🌦️ Environmental  ')
+        self.notebook.add(self.data_sources_frame, text='  📂 Data Sources  ')
+        self.notebook.add(self.backup_frame, text='  💾 Backup  ')
+        
+        # Build each tab
         self._build_branding_tab()
         self._build_constants_tab()
-        self._build_scenarios_tab()
-        self._build_data_quality_tab()
-        self._build_alerts_tab()
+        self._build_environmental_tab()
+        self._build_data_sources_tab()
         self._build_backup_tab()
         
-        # Switch to initial tab if specified
-        if self.initial_tab == 'alerts':
-            self.notebook.select(self.alerts_frame)
-        elif self.initial_tab == 'data_quality':
-            self.notebook.select(self.data_quality_frame)
+
 
     def _build_branding_tab(self):
-        frame = ttk.LabelFrame(self.branding_frame, text='Report Branding', padding=15)
-        frame.pack(fill='both', expand=True, padx=10, pady=10)
+        """Build branding configuration with modern card layout"""
+        scroll_container = ttk.Frame(self.branding_frame)
+        scroll_container.pack(fill='both', expand=True, padx=15, pady=15)
         
-        # Company name
-        ttk.Label(frame, text='Company Name:').grid(row=0, column=0, sticky='w', pady=5)
-        self.company_name_entry = ttk.Entry(frame, width=40)
+        # Company Information Card
+        company_card = ttk.LabelFrame(scroll_container, text='  📝 Company Information  ', padding=20)
+        company_card.pack(fill='x', pady=(0, 15))
+        
+        # Company name with better layout
+        name_frame = ttk.Frame(company_card)
+        name_frame.pack(fill='x', pady=(0, 15))
+        
+        ttk.Label(name_frame, text='Company Name', font=('Segoe UI', 10, 'bold')).pack(anchor='w')
+        ttk.Label(name_frame, text='This name will appear on all reports and exports', 
+                 font=('Segoe UI', 9), foreground='#666').pack(anchor='w', pady=(2, 5))
+        
+        name_entry_frame = ttk.Frame(name_frame)
+        name_entry_frame.pack(fill='x')
+        
+        self.company_name_entry = ttk.Entry(name_entry_frame, font=('Segoe UI', 10), width=50)
         self.company_name_entry.insert(0, config.get_company_name())
-        self.company_name_entry.grid(row=0, column=1, sticky='w', pady=5)
-        ttk.Button(frame, text='Save', command=self._save_company_name).grid(row=0, column=2, padx=5)
+        self.company_name_entry.pack(side='left', fill='x', expand=True)
         
-        # Logo
-        ttk.Label(frame, text='Company Logo:').grid(row=1, column=0, sticky='w', pady=5)
-        self.logo_path_label = ttk.Label(frame, text=config.get_logo_path() or 'No logo selected', 
-                                         foreground='gray', wraplength=300)
-        self.logo_path_label.grid(row=1, column=1, sticky='w', pady=5)
+        ttk.Button(name_entry_frame, text='💾 Save', command=self._save_company_name, 
+                  style='Accent.TButton').pack(side='left', padx=(10, 0))
         
-        logo_btn_frame = ttk.Frame(frame)
-        logo_btn_frame.grid(row=2, column=1, sticky='w', pady=5)
-        ttk.Button(logo_btn_frame, text='📁 Select Logo', command=self._select_logo).pack(side='left', padx=(0,5))
+        # Logo Configuration Card
+        logo_card = ttk.LabelFrame(scroll_container, text='  🖼️ Company Logo  ', padding=20)
+        logo_card.pack(fill='x', pady=(0, 15))
+        
+        ttk.Label(logo_card, text='Logo Image', font=('Segoe UI', 10, 'bold')).pack(anchor='w')
+        ttk.Label(logo_card, text='Upload your company logo to display in the application toolbar and reports',
+                 font=('Segoe UI', 9), foreground='#666').pack(anchor='w', pady=(2, 10))
+        
+        # Logo preview with border
+        preview_frame = ttk.Frame(logo_card, relief='solid', borderwidth=1)
+        preview_frame.pack(fill='x', pady=(0, 10))
+        
+        self.logo_preview_label = ttk.Label(preview_frame, text='No logo selected', 
+                                           foreground='#999', padding=40)
+        self.logo_preview_label.pack()
+        self._update_logo_preview()
+        
+        # Logo path display
+        path_frame = ttk.Frame(logo_card)
+        path_frame.pack(fill='x', pady=(0, 10))
+        
+        ttk.Label(path_frame, text='Current Path:', font=('Segoe UI', 9)).pack(side='left')
+        self.logo_path_label = ttk.Label(path_frame, text=config.get_logo_path() or 'None', 
+                                        foreground='#666', font=('Segoe UI', 9, 'italic'))
+        self.logo_path_label.pack(side='left', padx=(5, 0))
+        
+        # Logo action buttons
+        logo_btn_frame = ttk.Frame(logo_card)
+        logo_btn_frame.pack(fill='x')
+        
+        ttk.Button(logo_btn_frame, text='📁 Choose Logo File', command=self._select_logo).pack(side='left', padx=(0, 10))
         ttk.Button(logo_btn_frame, text='❌ Remove Logo', command=self._remove_logo).pack(side='left')
         
-        # Logo preview
-        self.logo_preview_label = ttk.Label(frame, text='')
-        self.logo_preview_label.grid(row=3, column=0, columnspan=3, pady=10)
-        self._update_logo_preview()
+        # Recommendations Card
+        tips_card = ttk.LabelFrame(scroll_container, text='  💡 Recommendations  ', padding=15)
+        tips_card.pack(fill='x')
         
-        ttk.Label(frame, text='Recommended: PNG format, 200x80 pixels or similar aspect ratio', 
-                 foreground='gray').grid(row=4, column=0, columnspan=3, sticky='w', pady=5)
+        tips = [
+            "• Use PNG format with transparent background for best results",
+            "• Recommended dimensions: 200×80 pixels (or similar 2.5:1 ratio)",
+            "• Logo will be automatically resized to fit the toolbar",
+            "• Supported formats: PNG, JPG, JPEG"
+        ]
+        
+        for tip in tips:
+            ttk.Label(tips_card, text=tip, font=('Segoe UI', 9), foreground='#555').pack(anchor='w', pady=2)
     
     def _save_company_name(self):
+        """Save company name with validation"""
         name = self.company_name_entry.get().strip()
-        if name:
-            config.set_company_name(name)
-            messagebox.showinfo('Saved', f'Company name updated to: {name}')
+        if not name:
+            messagebox.showwarning('Validation Error', 'Company name cannot be empty')
+            return
+        
+        config.set_company_name(name)
+        messagebox.showinfo('✓ Saved', f'Company name updated to: {name}\n\nChanges will appear in reports and exports.')
     
     def _select_logo(self):
+        """Select and copy logo file"""
         filename = filedialog.askopenfilename(
             title='Select Company Logo',
-            filetypes=[('Image files', '*.png *.jpg *.jpeg'), ('All files', '*.*')]
+            filetypes=[
+                ('PNG Images', '*.png'),
+                ('JPEG Images', '*.jpg *.jpeg'),
+                ('All Images', '*.png *.jpg *.jpeg')
+            ]
         )
         if filename:
-            # Copy to branding folder
-            import shutil
-            from pathlib import Path
-            dest_dir = Path(__file__).parent.parent.parent / 'config' / 'branding'
-            dest_dir.mkdir(parents=True, exist_ok=True)
-            dest_file = dest_dir / Path(filename).name
-            shutil.copy2(filename, dest_file)
-            
-            config.set_logo_path(str(dest_file))
-            self.logo_path_label.config(text=str(dest_file))
-            self._update_logo_preview()
-            messagebox.showinfo('Logo Set', f'Logo updated: {dest_file.name}')
+            try:
+                import shutil
+                dest_dir = Path(__file__).parent.parent.parent / 'config' / 'branding'
+                dest_dir.mkdir(parents=True, exist_ok=True)
+                dest_file = dest_dir / Path(filename).name
+                shutil.copy2(filename, dest_file)
+                
+                config.set_logo_path(str(dest_file))
+                self.logo_path_label.config(text=str(dest_file))
+                self._update_logo_preview()
+                messagebox.showinfo('✓ Logo Updated', 
+                                   f'Logo successfully uploaded: {dest_file.name}\n\n'
+                                   'Restart the application to see it in the toolbar.')
+            except Exception as ex:
+                messagebox.showerror('Upload Error', f'Failed to copy logo file:\n{str(ex)}')
     
     def _remove_logo(self):
+        """Remove current logo"""
+        if not config.get_logo_path():
+            messagebox.showinfo('No Logo', 'No logo is currently set.')
+            return
+        
+        confirm = messagebox.askyesno('Confirm Removal', 
+                                     'Remove the current logo?\n\n'
+                                     'This will remove it from the toolbar and reports.')
+        if not confirm:
+            return
+        
         config.set_logo_path('')
-        self.logo_path_label.config(text='No logo selected')
+        self.logo_path_label.config(text='None')
         self._update_logo_preview()
-        messagebox.showinfo('Logo Removed', 'Logo has been removed from reports.')
+        messagebox.showinfo('✓ Logo Removed', 'Logo has been removed.')
     
     def _update_logo_preview(self):
+        """Update logo preview with better styling"""
         logo_path = config.get_logo_path()
         if logo_path and Path(logo_path).exists():
             try:
                 from PIL import Image, ImageTk
                 img = Image.open(logo_path)
-                img.thumbnail((150, 60), Image.Resampling.LANCZOS)
+                
+                # Create thumbnail maintaining aspect ratio
+                img.thumbnail((200, 100), Image.Resampling.LANCZOS)
                 photo = ImageTk.PhotoImage(img)
+                
                 self.logo_preview_label.config(image=photo, text='')
-                self.logo_preview_label.image = photo  # Keep reference
+                self.logo_preview_label.image = photo
             except Exception as ex:
-                self.logo_preview_label.config(text=f'Preview unavailable: {ex}')
+                self.logo_preview_label.config(
+                    text=f'⚠️ Preview unavailable\n{str(ex)}',
+                    foreground='#dc3545'
+                )
         else:
-            self.logo_preview_label.config(text='No preview', image='')
+            self.logo_preview_label.config(
+                text='📷\nNo logo uploaded',
+                foreground='#999',
+                image=''
+            )
 
     def _build_constants_tab(self):
-        # Category filter
-        filter_frame = ttk.Frame(self.constants_frame)
-        filter_frame.pack(fill='x', pady=(0,10))
-        ttk.Label(filter_frame, text='Category:').pack(side='left', padx=(0,5))
-        self.category_filter = ttk.Combobox(filter_frame, values=['All', 'Plant', 'Evaporation', 'Operating'], state='readonly', width=15)
+        """Build constants management with enhanced UI"""
+        container = ttk.Frame(self.constants_frame)
+        container.pack(fill='both', expand=True, padx=15, pady=15)
+        
+        # Filter and search bar
+        filter_bar = ttk.Frame(container)
+        filter_bar.pack(fill='x', pady=(0, 15))
+        
+        ttk.Label(filter_bar, text='Category:', font=('Segoe UI', 10)).pack(side='left', padx=(0, 5))
+        self.category_filter = ttk.Combobox(
+            filter_bar,
+               values=['All', 'Plant', 'Evaporation', 'Operating', 'Optimization', 'calculation'],
+            state='readonly',
+            width=15
+        )
         self.category_filter.set('All')
-        self.category_filter.pack(side='left')
+        self.category_filter.pack(side='left', padx=(0, 20))
         self.category_filter.bind('<<ComboboxSelected>>', lambda e: self._load_constants())
 
-        top = ttk.Frame(self.constants_frame)
-        top.pack(fill='both', expand=True)
-
-        cols = ('Category', 'Key', 'Value', 'Unit', 'Range', 'Description')
-        self.tree = ttk.Treeview(top, columns=cols, show='headings', height=10)
-        widths = {'Category': 90, 'Key': 140, 'Value': 80, 'Unit': 80, 'Range': 100, 'Description': 180}
+        # Search input
+        ttk.Label(filter_bar, text='Search:', font=('Segoe UI', 10)).pack(side='left', padx=(0, 5))
+        self.search_var = tk.StringVar()
+        search_entry = ttk.Entry(filter_bar, textvariable=self.search_var, width=24)
+        search_entry.pack(side='left', padx=(0, 10))
+        search_entry.bind('<Return>', lambda e: self._load_constants())
+        
+        # Note: Unused constants are auto-removed at startup; no UI action.
+        
+        ttk.Button(filter_bar, text='🔄 Refresh', command=self._load_constants).pack(side='left', padx=(0, 10))
+        ttk.Button(filter_bar, text='📊 Export to Excel', command=self._export_constants).pack(side='left', padx=(0, 10))
+        ttk.Button(filter_bar, text='📜 View History', command=self._view_history).pack(side='left')
+        
+        # Constants table with improved styling
+        table_frame = ttk.LabelFrame(container, text='  System Constants  ', padding=10)
+        table_frame.pack(fill='both', expand=True, pady=(0, 15))
+        
+        cols = ('Category', 'Key', 'Value', 'Unit', 'Usage', 'Range', 'Description')
+        self.tree = ttk.Treeview(table_frame, columns=cols, show='headings', height=12)
+        
+        widths = {'Category': 100, 'Key': 180, 'Value': 90, 'Unit': 90, 'Usage': 70, 'Range': 120, 'Description': 250}
         for c in cols:
             self.tree.heading(c, text=c)
             self.tree.column(c, width=widths[c], anchor='w')
-        self.tree.pack(side='left', fill='both', expand=True)
-
-        scrollbar = ttk.Scrollbar(top, orient='vertical', command=self.tree.yview)
+        
+        scrollbar = ttk.Scrollbar(table_frame, orient='vertical', command=self.tree.yview)
         self.tree.configure(yscrollcommand=scrollbar.set)
+        
+        self.tree.pack(side='left', fill='both', expand=True)
         scrollbar.pack(side='right', fill='y')
-
-        # Load constants
+        
         self._load_constants()
+        
+        # Edit panel with modern card design
+        edit_card = ttk.LabelFrame(container, text='  ✏️ Edit Selected Constant  ', padding=20)
+        edit_card.pack(fill='x')
+        
+        # Selected constant info
+        info_frame = ttk.Frame(edit_card)
+        info_frame.pack(fill='x', pady=(0, 15))
+        
+        ttk.Label(info_frame, text='Constant:', font=('Segoe UI', 9)).grid(row=0, column=0, sticky='w', pady=2)
+        self.selected_key = ttk.Label(info_frame, text='(None selected)', 
+                                      font=('Segoe UI', 10, 'bold'), foreground='#0066cc')
+        self.selected_key.grid(row=0, column=1, sticky='w', padx=10, pady=2)
+        
+        ttk.Label(info_frame, text='Description:', font=('Segoe UI', 9)).grid(row=1, column=0, sticky='nw', pady=2)
+        self.selected_desc = ttk.Label(info_frame, text='', wraplength=500, 
+                                       font=('Segoe UI', 9), foreground='#666')
+        self.selected_desc.grid(row=1, column=1, sticky='w', padx=10, pady=2)
+        
+        # Value editor
+        editor_frame = ttk.Frame(edit_card)
+        editor_frame.pack(fill='x')
+        
+        ttk.Label(editor_frame, text='New Value:', font=('Segoe UI', 10, 'bold')).pack(side='left', padx=(0, 10))
+        self.new_value = ttk.Entry(editor_frame, font=('Segoe UI', 11), width=20)
+        self.new_value.pack(side='left', padx=(0, 10))
+        
+        self.value_range_label = ttk.Label(editor_frame, text='', foreground='#17a2b8', 
+                                           font=('Segoe UI', 9))
+        self.value_range_label.pack(side='left', padx=(0, 15))
+        
+        ttk.Button(editor_frame, text='💾 Update Constant', command=self._update_constant,
+              style='Accent.TButton').pack(side='left', padx=(0, 8))
 
-        # Edit form
-        form = ttk.LabelFrame(self.constants_frame, text='Edit Selected Constant', padding=10)
-        form.pack(fill='x', pady=10)
+        # Add/Delete actions
+        ttk.Button(editor_frame, text='➕ Add Constant', command=self._add_constant).pack(side='left', padx=(0, 8))
+        ttk.Button(editor_frame, text='🗑️ Delete Constant', command=self._delete_constant).pack(side='left')
         
-        ttk.Label(form, text='Key:').grid(row=0, column=0, sticky='w', padx=5)
-        self.selected_key = ttk.Label(form, text='—', font=('TkDefaultFont', 9, 'bold'))
-        self.selected_key.grid(row=0, column=1, sticky='w', padx=5)
-        
-        ttk.Label(form, text='Description:').grid(row=1, column=0, sticky='w', padx=5, pady=5)
-        self.selected_desc = ttk.Label(form, text='—', wraplength=400)
-        self.selected_desc.grid(row=1, column=1, columnspan=3, sticky='w', padx=5)
-        
-        ttk.Label(form, text='New Value:').grid(row=2, column=0, sticky='w', padx=5)
-        self.new_value = ttk.Entry(form, width=15)
-        self.new_value.grid(row=2, column=1, sticky='w', padx=5)
-        
-        self.value_range_label = ttk.Label(form, text='', foreground='gray')
-        self.value_range_label.grid(row=2, column=2, sticky='w', padx=5)
-        
-        update_btn = ttk.Button(form, text='Update Constant', command=self._update_constant)
-        update_btn.grid(row=2, column=3, padx=10)
-        
-        # Export/Import actions
-        actions_frame = ttk.Frame(self.constants_frame)
-        actions_frame.pack(fill='x', pady=5)
-        
-        ttk.Button(actions_frame, text='📋 Export Constants to Excel', command=self._export_constants).pack(side='left', padx=5)
-        ttk.Button(actions_frame, text='📜 View Change History', command=self._view_history).pack(side='left', padx=5)
-
-        def on_select(event):
-            sel = self.tree.selection()
-            if not sel:
-                return
-            item = self.tree.item(sel[0])
-            cat, key, value, unit, range_str, desc = item['values']
-            self.selected_key.config(text=key)
-            self.selected_desc.config(text=desc if desc else 'No description')
-            self.value_range_label.config(text=f'({range_str})' if range_str != '—' else '')
-            self.new_value.delete(0,'end')
-            self.new_value.insert(0,str(value))
-            # Store current metadata for validation
-            self.current_constant = self._get_constant_metadata(key)
-        self.tree.bind('<<TreeviewSelect>>', on_select)
-        
+        # Bind selection event
+        self.tree.bind('<<TreeviewSelect>>', self._on_constant_select)
         self.current_constant = None
+        self._usage_cache = None
+
+    def _on_constant_select(self, event):
+        """Handle constant selection"""
+        sel = self.tree.selection()
+        if not sel:
+            return
+        
+        item = self.tree.item(sel[0])
+        # We ignore range limits now; range_str kept for column compatibility
+        cat, key, value, unit, _usage, _range_str, desc = item['values']
+        
+        self.selected_key.config(text=key)
+        self.selected_desc.config(text=desc if desc and desc != '—' else 'No description available')
+        # Limits removed – clear any previous range display
+        self.value_range_label.config(text='')
+        
+        self.new_value.delete(0, 'end')
+        self.new_value.insert(0, str(value))
+        
+        # Load metadata for validation
+        self.current_constant = self._get_constant_metadata(key)
 
     def _get_constant_metadata(self, key):
-        """Get full constant metadata including validation ranges"""
+        """Get full constant metadata"""
         result = self.db.execute_query(
             'SELECT * FROM system_constants WHERE constant_key = ?', (key,)
         )
         return result[0] if result else None
 
     def _load_constants(self):
+        """Load constants into table"""
         for i in self.tree.get_children():
             self.tree.delete(i)
         
-        # Get category filter
-        cat_filter = self.category_filter.get() if hasattr(self, 'category_filter') else 'All'
+        cat_filter = self.category_filter.get()
+        search_text = (self.search_var.get() or '').strip().lower()
+        usage_map = self._compute_constant_usage()
         
-        # Load all constants with metadata
-        query = 'SELECT constant_key, constant_value, unit, category, description, min_value, max_value FROM system_constants ORDER BY category, constant_key'
+        query = '''SELECT constant_key, constant_value, unit, category, description, 
+                   min_value, max_value FROM system_constants ORDER BY category, constant_key'''
         results = self.db.execute_query(query)
         
         for row in results:
@@ -230,111 +375,91 @@ class SettingsModule:
             value = row['constant_value']
             unit = row.get('unit') or '—'
             category = row.get('category') or 'Other'
-            desc = row.get('description') or ''
-            min_val = row.get('min_value')
-            max_val = row.get('max_value')
+            desc = row.get('description') or '—'
+            # Previously used for range validation; now ignored
+            # min_val = row.get('min_value')
+            # max_val = row.get('max_value')
             
-            # Apply category filter
             if cat_filter != 'All' and category != cat_filter:
                 continue
-            
-            # Format range
-            if min_val is not None and max_val is not None:
-                range_str = f'{min_val} - {max_val}'
-            else:
-                range_str = '—'
-            
-            self.tree.insert('', 'end', values=(category, key, value, unit, range_str, desc))
 
-        # Ensure EVAP_PAN_COEFF appears under Evaporation category filter mapping
-        # Provide shortcut selection button if present
-        if any(r['constant_key'] == 'EVAP_PAN_COEFF' for r in results):
-            if not hasattr(self, 'evap_coeff_button'):
-                btn_frame = ttk.Frame(self.constants_frame)
-                btn_frame.pack(fill='x', pady=(0,5))
-                self.evap_coeff_button = ttk.Button(btn_frame, text='Edit Evaporation Pan Coefficient', command=lambda: self._select_constant_row('EVAP_PAN_COEFF'))
-                self.evap_coeff_button.pack(anchor='w')
-
-    def _select_constant_row(self, key: str):
-        for item in self.tree.get_children():
-            vals = self.tree.item(item)['values']
-            if vals and vals[1] == key:
-                self.tree.selection_set(item)
-                self.tree.focus(item)
-                self.tree.event_generate('<<TreeviewSelect>>')
-                break
+            # Search filter
+            if search_text:
+                hay = f"{key} {desc} {category}".lower()
+                if search_text not in hay:
+                    continue
+            
+            usage_count = usage_map.get(key, 0)
+            
+            # Always show em dash since limits removed
+            range_str = '—'
+            
+            self.tree.insert('', 'end', values=(category, key, value, unit, usage_count, range_str, desc))
 
     def _update_constant(self):
+        """Update selected constant with validation"""
         key = self.selected_key.cget('text')
-        if key == '—':
-            messagebox.showwarning('No Selection','Please select a constant to update.')
+        if key == '(None selected)':
+            messagebox.showwarning('No Selection', 'Please select a constant to update.')
             return
         
         try:
             value = float(self.new_value.get())
         except ValueError:
-            messagebox.showerror('Invalid Value','Please enter a numeric value.')
+            messagebox.showerror('Invalid Value', 'Please enter a valid numeric value.')
             return
         
-        # Validate against min/max if available
-        if self.current_constant:
-            min_val = self.current_constant.get('min_value')
-            max_val = self.current_constant.get('max_value')
-            unit = self.current_constant.get('unit') or ''
-            
-            if min_val is not None and value < min_val:
-                messagebox.showerror('Validation Error', 
-                    f'Value {value} is below minimum {min_val} {unit}.\nPlease enter a value between {min_val} and {max_val}.')
-                return
-            
-            if max_val is not None and value > max_val:
-                messagebox.showerror('Validation Error',
-                    f'Value {value} exceeds maximum {max_val} {unit}.\nPlease enter a value between {min_val} and {max_val}.')
-                return
+        # Range validation removed per request – any numeric value allowed
         
-        # Update with confirmation for critical constants
-        critical = ['TSF_RETURN_RATE', 'MINING_WATER_RATE', 'SLURRY_DENSITY']
+        # Critical constant warning
+        critical = ['MINING_WATER_RATE', 'SLURRY_DENSITY']
         if key in critical:
-            confirm = messagebox.askyesno('Confirm Change',
-                f'You are changing a critical constant: {key}\n\n'
-                f'Old value: {self.current_constant["constant_value"]}\n'
+            confirm = messagebox.askyesno('⚠️ Critical Constant',
+                f'You are modifying a critical system constant: {key}\n\n'
+                f'Current value: {self.current_constant["constant_value"]}\n'
                 f'New value: {value}\n\n'
-                f'This will affect all future calculations. Continue?')
+                f'This will affect all future water balance calculations.\n\n'
+                'Do you want to proceed?')
             if not confirm:
                 return
         
         self.db.update_constant(key, value, user='user')
         self._load_constants()
-        messagebox.showinfo('Updated', f'Constant {key} updated to {value}.')
+        messagebox.showinfo('✓ Updated', f'Constant {key} has been updated to {value}.')
 
     def _export_constants(self):
-        """Export constants to Excel file"""
+        """Export constants to Excel"""
         try:
             from openpyxl import Workbook
-            from openpyxl.styles import Font
+            from openpyxl.styles import Font, PatternFill
             from datetime import datetime
             
             filename = filedialog.asksaveasfilename(
                 defaultextension='.xlsx',
                 filetypes=[('Excel files', '*.xlsx')],
-                initialfile=f'constants_export_{datetime.now().strftime("%Y%m%d")}.xlsx'
+                initialfile=f'water_balance_constants_{datetime.now().strftime("%Y%m%d")}.xlsx'
             )
             if not filename:
                 return
             
             wb = Workbook()
             ws = wb.active
-            ws.title = 'Constants'
+            ws.title = 'System Constants'
             
-            # Headers
-            headers = ['Category', 'Key', 'Value', 'Unit', 'Min', 'Max', 'Description']
+            # Headers with styling
+            headers = ['Category', 'Constant Key', 'Value', 'Unit', 'Min', 'Max', 'Description']
             ws.append(headers)
+            
+            header_fill = PatternFill(start_color='0066CC', end_color='0066CC', fill_type='solid')
             for cell in ws[1]:
-                cell.font = Font(bold=True)
+                cell.font = Font(bold=True, color='FFFFFF')
+                cell.fill = header_fill
             
             # Data
-            query = 'SELECT category, constant_key, constant_value, unit, min_value, max_value, description FROM system_constants ORDER BY category, constant_key'
+            query = '''SELECT category, constant_key, constant_value, unit, min_value, max_value, description 
+                      FROM system_constants ORDER BY category, constant_key'''
             results = self.db.execute_query(query)
+            
             for row in results:
                 ws.append([
                     row.get('category') or '',
@@ -346,36 +471,54 @@ class SettingsModule:
                     row.get('description') or ''
                 ])
             
+            # Auto-size columns
+            for column in ws.columns:
+                max_length = 0
+                column = [cell for cell in column]
+                for cell in column:
+                    try:
+                        if len(str(cell.value)) > max_length:
+                            max_length = len(cell.value)
+                    except:
+                        pass
+                adjusted_width = min(max_length + 2, 50)
+                ws.column_dimensions[column[0].column_letter].width = adjusted_width
+            
             wb.save(filename)
-            messagebox.showinfo('Export Complete', f'Constants exported to:\n{filename}')
+            messagebox.showinfo('✓ Export Complete', f'Constants exported successfully to:\n\n{filename}')
         except Exception as ex:
-            messagebox.showerror('Export Error', str(ex))
+            messagebox.showerror('Export Error', f'Failed to export constants:\n{str(ex)}')
 
     def _view_history(self):
         """Show audit log of constant changes"""
         history_window = tk.Toplevel(self.parent)
         history_window.title('Constants Change History')
-        history_window.geometry('800x400')
+        history_window.geometry('900x500')
         
-        frame = ttk.Frame(history_window, padding=10)
+        frame = ttk.Frame(history_window, padding=15)
         frame.pack(fill='both', expand=True)
         
-        ttk.Label(frame, text='Recent Changes', font=('TkDefaultFont', 10, 'bold')).pack(anchor='w')
+        ttk.Label(frame, text='📜 Recent Constant Changes', 
+                 font=('Segoe UI', 12, 'bold')).pack(anchor='w', pady=(0, 10))
         
         cols = ('Timestamp', 'Constant', 'Old Value', 'New Value', 'User')
-        tree = ttk.Treeview(frame, columns=cols, show='headings', height=15)
-        widths = {'Timestamp': 150, 'Constant': 180, 'Old Value': 100, 'New Value': 100, 'User': 80}
+        tree = ttk.Treeview(frame, columns=cols, show='headings', height=18)
+        
+        widths = {'Timestamp': 180, 'Constant': 200, 'Old Value': 120, 'New Value': 120, 'User': 100}
         for c in cols:
             tree.heading(c, text=c)
             tree.column(c, width=widths[c])
-        tree.pack(fill='both', expand=True, pady=5)
         
-        # Load audit log
+        tree.pack(fill='both', expand=True, pady=(0, 10))
+        
+        # Load history
         try:
             import json
             logs = self.db.execute_query(
-                "SELECT * FROM audit_log WHERE table_name = 'system_constants' ORDER BY changed_at DESC LIMIT 50"
+                "SELECT * FROM audit_log WHERE table_name = 'system_constants' "
+                "ORDER BY changed_at DESC LIMIT 100"
             )
+            
             for log in logs:
                 timestamp = log['changed_at']
                 old_vals = json.loads(log['old_values']) if log['old_values'] else {}
@@ -386,461 +529,695 @@ class SettingsModule:
                     new_val = new_vals[key]
                     tree.insert('', 'end', values=(timestamp, key, old_val, new_val, log['changed_by']))
         except Exception as ex:
-            ttk.Label(frame, text=f'Error loading history: {ex}').pack()
+            ttk.Label(frame, text=f'⚠️ Error loading history: {ex}', 
+                     foreground='#dc3545').pack()
         
-        ttk.Button(frame, text='Close', command=history_window.destroy).pack(pady=5)
+        ttk.Button(frame, text='Close', command=history_window.destroy).pack(pady=(10, 0))
 
-    # ============ Alerts Tab ============
-    def _build_alerts_tab(self):
-        """Build the alerts dashboard and management UI"""
-        # Summary section
-        summary_frame = ttk.LabelFrame(self.alerts_frame, text='Alert Summary', padding=10)
-        summary_frame.pack(fill='x', padx=10, pady=10)
-        
-        # Get current alert summary
-        summary = alert_manager.get_alert_summary()
-        
-        # Create summary labels with colors
-        sum_grid = ttk.Frame(summary_frame)
-        sum_grid.pack(fill='x')
-        
-        # Critical alerts
-        critical_frame = ttk.Frame(sum_grid)
-        critical_frame.pack(side='left', padx=15)
-        tk.Label(critical_frame, text='🚨 Critical', font=('TkDefaultFont', 10, 'bold'), 
-                fg='#dc3545').pack()
-        self.critical_count_label = tk.Label(critical_frame, text=str(summary['critical']), 
-                                            font=('TkDefaultFont', 24, 'bold'), fg='#dc3545')
-        self.critical_count_label.pack()
-        
-        # Warning alerts
-        warning_frame = ttk.Frame(sum_grid)
-        warning_frame.pack(side='left', padx=15)
-        tk.Label(warning_frame, text='⚠️ Warning', font=('TkDefaultFont', 10, 'bold'), 
-                fg='#ffc107').pack()
-        self.warning_count_label = tk.Label(warning_frame, text=str(summary['warning']), 
-                                           font=('TkDefaultFont', 24, 'bold'), fg='#ffc107')
-        self.warning_count_label.pack()
-        
-        # Info alerts
-        info_frame = ttk.Frame(sum_grid)
-        info_frame.pack(side='left', padx=15)
-        tk.Label(info_frame, text='ℹ️ Info', font=('TkDefaultFont', 10, 'bold'), 
-                fg='#17a2b8').pack()
-        self.info_count_label = tk.Label(info_frame, text=str(summary['info']), 
-                                         font=('TkDefaultFont', 24, 'bold'), fg='#17a2b8')
-        self.info_count_label.pack()
-        
-        # Active alerts list
-        alerts_list_frame = ttk.LabelFrame(self.alerts_frame, text='Active Alerts', padding=10)
-        alerts_list_frame.pack(fill='both', expand=True, padx=10, pady=10)
-        
-        # Action buttons
-        alert_actions = ttk.Frame(alerts_list_frame)
-        alert_actions.pack(fill='x', pady=(0,10))
-        ttk.Button(alert_actions, text='🔄 Refresh', command=self._refresh_alerts).pack(side='left', padx=5)
-        ttk.Button(alert_actions, text='✅ Acknowledge Selected', command=self._acknowledge_alert).pack(side='left', padx=5)
-        ttk.Button(alert_actions, text='✔️ Resolve Selected', command=self._resolve_alert).pack(side='left', padx=5)
-        ttk.Button(alert_actions, text='🗑️ Clear All Resolved', command=self._clear_resolved).pack(side='left', padx=5)
-        
-        # Alerts table
-        columns = ('Severity', 'Title', 'Message', 'Triggered', 'Status')
-        self.alerts_tree = ttk.Treeview(alerts_list_frame, columns=columns, show='headings', height=8)
-        
-        widths = {'Severity': 80, 'Title': 180, 'Message': 300, 'Triggered': 150, 'Status': 100}
-        for col in columns:
-            self.alerts_tree.heading(col, text=col)
-            self.alerts_tree.column(col, width=widths[col], anchor='w')
-        
-        # Scrollbar
-        scrollbar = ttk.Scrollbar(alerts_list_frame, orient='vertical', command=self.alerts_tree.yview)
-        self.alerts_tree.configure(yscrollcommand=scrollbar.set)
-        
-        self.alerts_tree.pack(side='left', fill='both', expand=True)
-        scrollbar.pack(side='right', fill='y')
-        
-        # Alert Rules section
-        rules_frame = ttk.LabelFrame(self.alerts_frame, text='Alert Rules Configuration', padding=10)
-        rules_frame.pack(fill='both', expand=True, padx=10, pady=10)
-        
-        # Rules action buttons
-        rules_actions = ttk.Frame(rules_frame)
-        rules_actions.pack(fill='x', pady=(0,10))
-        ttk.Button(rules_actions, text='➕ Add Rule', command=self._add_alert_rule).pack(side='left', padx=5)
-        ttk.Button(rules_actions, text='✏️ Edit Selected', command=self._edit_alert_rule).pack(side='left', padx=5)
-        ttk.Button(rules_actions, text='🔄 Toggle Enable/Disable', command=self._toggle_rule).pack(side='left', padx=5)
-        
-        # Rules table
-        rule_columns = ('Enabled', 'Name', 'Severity', 'Metric', 'Condition', 'Threshold', 'Notify')
-        self.rules_tree = ttk.Treeview(rules_frame, columns=rule_columns, show='headings', height=8)
-        
-        rule_widths = {'Enabled': 70, 'Name': 180, 'Severity': 80, 'Metric': 150, 
-                      'Condition': 80, 'Threshold': 100, 'Notify': 80}
-        for col in rule_columns:
-            self.rules_tree.heading(col, text=col)
-            self.rules_tree.column(col, width=rule_widths[col], anchor='w')
-        
-        # Rules scrollbar
-        rules_scrollbar = ttk.Scrollbar(rules_frame, orient='vertical', command=self.rules_tree.yview)
-        self.rules_tree.configure(yscrollcommand=rules_scrollbar.set)
-        
-        self.rules_tree.pack(side='left', fill='both', expand=True)
-        rules_scrollbar.pack(side='right', fill='y')
-        
-        # Load data
-        self._refresh_alerts()
-        self._load_alert_rules()
-
-    def _refresh_alerts(self):
-        """Refresh the alerts list and summary"""
-        # Update summary
-        summary = alert_manager.get_alert_summary()
-        self.critical_count_label.config(text=str(summary['critical']))
-        self.warning_count_label.config(text=str(summary['warning']))
-        self.info_count_label.config(text=str(summary['info']))
-        
-        # Clear and reload alerts table
-        for item in self.alerts_tree.get_children():
-            self.alerts_tree.delete(item)
-        
-        # Load active alerts
-        alerts = alert_manager.get_active_alerts(limit=50)
-        for alert in alerts:
-            severity_icon = {'critical': '🚨', 'warning': '⚠️', 'info': 'ℹ️'}.get(alert['severity'], '•')
-            status = 'Acknowledged' if alert.get('acknowledged_at') else 'Active'
-            
-            values = (
-                f"{severity_icon} {alert['severity'].upper()}",
-                alert['title'],
-                alert['message'][:80] + '...' if len(alert['message']) > 80 else alert['message'],
-                alert['triggered_at'],
-                status
-            )
-            
-            # Color code by severity
-            tag = f"severity_{alert['severity']}"
-            self.alerts_tree.insert('', 'end', values=values, iid=str(alert['alert_id']), tags=(tag,))
-        
-        # Configure tags for color coding
-        self.alerts_tree.tag_configure('severity_critical', foreground='#dc3545')
-        self.alerts_tree.tag_configure('severity_warning', foreground='#ffc107')
-        self.alerts_tree.tag_configure('severity_info', foreground='#17a2b8')
-
-    def _load_alert_rules(self):
-        """Load alert rules into the rules table"""
-        # Clear existing
-        for item in self.rules_tree.get_children():
-            self.rules_tree.delete(item)
-        
-        # Load rules
-        rules = alert_manager.load_rules(include_disabled=True)
-        for rule in rules:
-            enabled = '✅' if rule.active else '❌'
-            notify = '🔔' if rule.show_popup else '—'
-            
-            values = (
-                enabled,
-                rule.rule_name,
-                rule.severity.upper(),
-                rule.metric_name,
-                rule.condition_operator,
-                str(rule.threshold_value),
-                notify
-            )
-            
-            self.rules_tree.insert('', 'end', values=values, iid=str(rule.rule_id))
-
-    def _acknowledge_alert(self):
-        """Acknowledge the selected alert"""
-        selection = self.alerts_tree.selection()
-        if not selection:
-            messagebox.showwarning('No Selection', 'Please select an alert to acknowledge.')
-            return
-        
-        alert_id = int(selection[0])
-        alert_manager.acknowledge_alert(alert_id)
-        self._refresh_alerts()
-        self._trigger_badge_update()
-        messagebox.showinfo('Alert Acknowledged', 'Alert has been acknowledged.')
-
-    def _resolve_alert(self):
-        """Manually resolve the selected alert"""
-        selection = self.alerts_tree.selection()
-        if not selection:
-            messagebox.showwarning('No Selection', 'Please select an alert to resolve.')
-            return
-        
-        confirm = messagebox.askyesno('Confirm Resolution', 
-                                     'Mark this alert as resolved? This cannot be undone.')
-        if not confirm:
-            return
-        
-        alert_id = int(selection[0])
-        alert_manager.resolve_alert(alert_id)
-        self._refresh_alerts()
-        self._trigger_badge_update()
-        messagebox.showinfo('Alert Resolved', 'Alert has been resolved.')
-
-    def _clear_resolved(self):
-        """Clear all resolved alerts from the database"""
-        confirm = messagebox.askyesno('Confirm Clear', 
-                                     'Clear all resolved alerts from history? This cannot be undone.')
-        if not confirm:
-            return
-        
-        # Delete resolved alerts
-        query = "DELETE FROM alerts WHERE status = 'resolved'"
-        self.db.execute(query)
-        self._refresh_alerts()
-        self._trigger_badge_update()
-        messagebox.showinfo('Cleared', 'All resolved alerts have been removed from history.')
-    
-    def _trigger_badge_update(self):
-        """Trigger main window badge update by posting a virtual event"""
+    def _compute_constant_usage(self) -> dict:
+        """Compute usage count of constants across src/ python files.
+        Returns a dict mapping constant_key -> occurrence count.
+        Caches results for the session; refresh with the Refresh button.
+        """
         try:
-            # Post a virtual event that the main window can listen for
-            self.parent.event_generate('<<AlertsChanged>>')
-        except:
-            pass  # Silently fail if event generation doesn't work
+            # Use cached result when available
+            if isinstance(self._usage_cache, dict):
+                return self._usage_cache
+            # Gather keys
+            rows = self.db.execute_query("SELECT constant_key FROM system_constants")
+            keys = [r['constant_key'] for r in rows]
+            usage = {k: 0 for k in keys}
+            base_dir = Path(__file__).parent.parent.parent
+            src_dir = base_dir / 'src'
+            for path in src_dir.rglob('*.py'):
+                try:
+                    text = path.read_text(encoding='utf-8', errors='ignore')
+                except Exception:
+                    continue
+                for k in keys:
+                    # Simple substring count; fast and adequate for references
+                    cnt = text.count(k)
+                    if cnt:
+                        usage[k] += cnt
+            self._usage_cache = usage
+            return usage
+        except Exception:
+            return {}
 
-    def _toggle_rule(self):
-        """Toggle the selected rule's enabled status"""
-        selection = self.rules_tree.selection()
-        if not selection:
-            messagebox.showwarning('No Selection', 'Please select a rule to toggle.')
+    def _add_constant(self):
+        """Open a dialog to add a new constant."""
+        dlg = tk.Toplevel(self.parent)
+        dlg.title('Add Constant')
+        dlg.geometry('520x360')
+        frame = ttk.Frame(dlg, padding=15)
+        frame.pack(fill='both', expand=True)
+
+        ttk.Label(frame, text='Key:', font=('Segoe UI', 10)).grid(row=0, column=0, sticky='e', pady=6)
+        ttk.Label(frame, text='Value:', font=('Segoe UI', 10)).grid(row=1, column=0, sticky='e', pady=6)
+        ttk.Label(frame, text='Unit:', font=('Segoe UI', 10)).grid(row=2, column=0, sticky='e', pady=6)
+        ttk.Label(frame, text='Category:', font=('Segoe UI', 10)).grid(row=3, column=0, sticky='e', pady=6)
+        ttk.Label(frame, text='Description:', font=('Segoe UI', 10)).grid(row=4, column=0, sticky='ne', pady=6)
+
+        key_var = tk.StringVar()
+        val_var = tk.StringVar()
+        unit_var = tk.StringVar()
+        cat_var = tk.StringVar(value='calculation')
+        desc_txt = tk.Text(frame, height=5, width=40)
+
+        ttk.Entry(frame, textvariable=key_var, width=32).grid(row=0, column=1, sticky='w', padx=8)
+        ttk.Entry(frame, textvariable=val_var, width=20).grid(row=1, column=1, sticky='w', padx=8)
+        ttk.Entry(frame, textvariable=unit_var, width=20).grid(row=2, column=1, sticky='w', padx=8)
+        ttk.Entry(frame, textvariable=cat_var, width=20).grid(row=3, column=1, sticky='w', padx=8)
+        desc_txt.grid(row=4, column=1, sticky='w', padx=8)
+
+        btns = ttk.Frame(frame)
+        btns.grid(row=5, column=0, columnspan=2, pady=12)
+        
+        def do_add():
+            key = key_var.get().strip()
+            if not key:
+                messagebox.showwarning('Validation', 'Key is required')
+                return
+            try:
+                val = float(val_var.get().strip())
+            except ValueError:
+                messagebox.showerror('Validation', 'Value must be a number')
+                return
+            unit = unit_var.get().strip() or None
+            cat = cat_var.get().strip() or 'calculation'
+            desc = desc_txt.get('1.0', 'end').strip() or None
+            try:
+                self.db.execute_insert(
+                    """
+                    INSERT INTO system_constants (constant_key, constant_value, unit, category, description, editable, updated_by)
+                    VALUES (?, ?, ?, ?, ?, 1, 'user')
+                    """,
+                    (key, val, unit, cat, desc)
+                )
+                # Reset usage cache and reload
+                self._usage_cache = None
+                self._load_constants()
+                messagebox.showinfo('✓ Added', f'Constant {key} created.')
+                dlg.destroy()
+            except Exception as ex:
+                messagebox.showerror('Error', f'Failed to add constant:\n{ex}')
+
+        ttk.Button(btns, text='Create', style='Accent.TButton', command=do_add).pack(side='left', padx=6)
+        ttk.Button(btns, text='Cancel', command=dlg.destroy).pack(side='left', padx=6)
+
+    def _delete_constant(self):
+        """Delete the selected constant with confirmation."""
+        key = self.selected_key.cget('text')
+        if not key or key == '(None selected)':
+            messagebox.showwarning('No Selection', 'Please select a constant to delete.')
             return
-        
-        rule_id = int(selection[0])
-        
-        # Get current status
-        query = "SELECT active FROM alert_rules WHERE rule_id = ?"
-        result = self.db.fetch_one(query, (rule_id,))
-        current_status = result[0]
-        new_status = 0 if current_status else 1
-        
-        # Update
-        update_query = "UPDATE alert_rules SET active = ? WHERE rule_id = ?"
-        self.db.execute(update_query, (new_status, rule_id))
-        
-        # Reload rules in alert manager
-        alert_manager.load_rules()
-        
-        self._load_alert_rules()
-        status_text = 'enabled' if new_status else 'disabled'
-        messagebox.showinfo('Rule Updated', f'Alert rule has been {status_text}.')
-
-    def _add_alert_rule(self):
-        """Open dialog to add a new alert rule"""
-        messagebox.showinfo('Coming Soon', 'Rule creation dialog will be added in the next update.')
-
-    def _edit_alert_rule(self):
-        """Open dialog to edit the selected rule"""
-        selection = self.rules_tree.selection()
-        if not selection:
-            messagebox.showwarning('No Selection', 'Please select a rule to edit.')
+        # Extra safety: block deletion of core constants
+        protected = {'TSF_RETURN_RATE', 'MINING_WATER_RATE', 'SLURRY_DENSITY'}
+        if key in protected:
+            messagebox.showwarning('Protected', f'{key} is protected and cannot be deleted.')
             return
-        
-        messagebox.showinfo('Coming Soon', 'Rule editing dialog will be added in the next update.')
+        confirm = messagebox.askyesno('Confirm Delete', f'Delete constant {key}?\nThis cannot be undone.')
+        if not confirm:
+            return
+        try:
+            # Fetch old value for audit
+            old_val = self.db.get_constant(key)
+            rows = self.db.execute_update("DELETE FROM system_constants WHERE constant_key = ?", (key,))
+            if rows:
+                self.db.log_change('system_constants', 0, 'delete', old_values={key: old_val}, user='user')
+            # Reset usage cache and reload
+            self._usage_cache = None
+            self._load_constants()
+            self.selected_key.config(text='(None selected)')
+            self.selected_desc.config(text='')
+            messagebox.showinfo('✓ Deleted', f'Constant {key} removed.')
+        except Exception as ex:
+            messagebox.showerror('Error', f'Failed to delete constant:\n{ex}')
+
+    
+
 
     def _build_backup_tab(self):
-        frame = ttk.Frame(self.backup_frame)
-        frame.pack(fill='both', expand=True, pady=10)
-
-        btn_backup = ttk.Button(frame, text='Create Backup', command=self._create_backup)
-        btn_backup.pack(anchor='w')
-
-        btn_refresh = ttk.Button(frame, text='Refresh List', command=self._load_backups)
-        btn_refresh.pack(anchor='w', pady=(5,0))
-
-        self.backups_list = tk.Listbox(frame, height=10)
-        self.backups_list.pack(fill='x', pady=10)
-
-        btn_restore = ttk.Button(frame, text='Restore Selected', command=self._restore_selected)
-        btn_restore.pack(anchor='w', pady=(0,10))
-
+        """Build backup management with modern UI"""
+        container = ttk.Frame(self.backup_frame)
+        container.pack(fill='both', expand=True, padx=15, pady=15)
+        
+        # Info card
+        info_card = ttk.LabelFrame(container, text='  💾 Database Backup & Restore  ', padding=20)
+        info_card.pack(fill='x', pady=(0, 15))
+        
+        ttk.Label(info_card, text='Regular backups protect your water balance data',
+                 font=('Segoe UI', 10), foreground='#666').pack(anchor='w', pady=(0, 10))
+        
+        # Actions
+        actions = ttk.Frame(info_card)
+        actions.pack(fill='x')
+        
+        ttk.Button(actions, text='💾 Create Backup Now', command=self._create_backup,
+                  style='Accent.TButton').pack(side='left', padx=(0, 10))
+        ttk.Button(actions, text='🔄 Refresh List', command=self._load_backups).pack(side='left')
+        
+        # Backups list
+        list_card = ttk.LabelFrame(container, text='  📂 Available Backups  ', padding=15)
+        list_card.pack(fill='both', expand=True, pady=(0, 15))
+        
+        self.backups_list = tk.Listbox(list_card, height=12, font=('Consolas', 9))
+        self.backups_list.pack(fill='both', expand=True)
+        
         self._load_backups()
+        
+        # Restore section
+        restore_card = ttk.LabelFrame(container, text='  ⚠️ Restore from Backup  ', padding=15)
+        restore_card.pack(fill='x')
+        
+        ttk.Label(restore_card, text='⚠️ Warning: Restoring will overwrite the current database',
+                 font=('Segoe UI', 9), foreground='#dc3545').pack(anchor='w', pady=(0, 10))
+        
+        ttk.Button(restore_card, text='🔙 Restore Selected Backup', 
+                  command=self._restore_selected).pack(anchor='w')
 
-    # ============ Scenarios Tab ============
-    def _build_scenarios_tab(self):
-        frame = ttk.LabelFrame(self.scenarios_frame, text='Calculation Scenarios', padding=10)
-        frame.pack(fill='both', expand=True, padx=10, pady=10)
+    def _build_environmental_tab(self):
+        """Build environmental parameters tab"""
+        # Scrollable container to adapt to smaller screens
+        container = ttk.Frame(self.environmental_frame)
+        container.pack(fill='both', expand=True)
 
-        actions = ttk.Frame(frame)
-        actions.pack(fill='x', pady=(0,10))
-        ttk.Button(actions, text='➕ Create Scenario', command=self._create_scenario).pack(side='left')
-        ttk.Button(actions, text='✅ Apply Selected', command=self._apply_selected_scenario).pack(side='left', padx=5)
-        ttk.Button(actions, text='🗑️ Delete Selected', command=self._delete_selected_scenario).pack(side='left', padx=5)
-        ttk.Button(actions, text='✳️ Clear Active', command=self._clear_active_scenario).pack(side='left', padx=5)
-        ttk.Button(actions, text='🔍 View Diff', command=self._view_selected_diff).pack(side='left', padx=5)
+        canvas = tk.Canvas(container, highlightthickness=0)
+        vscroll = ttk.Scrollbar(container, orient='vertical', command=canvas.yview)
+        scroll_container = ttk.Frame(canvas)
 
-        # Comparison controls
-        cmp_frame = ttk.Frame(frame)
-        cmp_frame.pack(fill='x', pady=(0,5))
-        ttk.Label(cmp_frame, text='Compare Scenario A (selected) with:').pack(side='left')
-        self.compare_target = ttk.Combobox(cmp_frame, state='readonly', width=18)
-        self.compare_target.pack(side='left', padx=5)
-        ttk.Button(cmp_frame, text='📄 Comparison PDF', command=self._generate_comparison_pdf).pack(side='left')
+        scroll_container.bind(
+            '<Configure>',
+            lambda e: canvas.configure(scrollregion=canvas.bbox('all'))
+        )
 
-        self.active_scenario_label = ttk.Label(frame, text='Active: None', foreground='gray')
-        self.active_scenario_label.pack(anchor='w', pady=(0,5))
+        canvas.create_window((0, 0), window=scroll_container, anchor='nw')
+        canvas.configure(yscrollcommand=vscroll.set)
 
-        cols = ('Name','Description','Created','Constants')
-        self.scenario_tree = ttk.Treeview(frame, columns=cols, show='headings', height=10)
-        widths = {'Name':160,'Description':280,'Created':140,'Constants':90}
-        for c in cols:
-            self.scenario_tree.heading(c, text=c)
-            self.scenario_tree.column(c, width=widths[c], anchor='w')
-        self.scenario_tree.pack(fill='both', expand=True)
+        canvas.pack(side='left', fill='both', expand=True, padx=15, pady=15)
+        vscroll.pack(side='right', fill='y', pady=15)
 
-        scrollbar = ttk.Scrollbar(frame, orient='vertical', command=self.scenario_tree.yview)
-        self.scenario_tree.configure(yscrollcommand=scrollbar.set)
-        scrollbar.pack(side='right', fill='y')
+        # Year selector card
+        year_card = ttk.LabelFrame(scroll_container, text='  📅 Historical Data  ', padding=20)
+        year_card.pack(fill='x', pady=(0, 15))
 
-        self._load_scenarios()
-        self._refresh_compare_targets()
+        year_controls = ttk.Frame(year_card)
+        year_controls.pack(fill='x', pady=(0, 10))
 
-    def _load_scenarios(self):
-        for i in self.scenario_tree.get_children():
-            self.scenario_tree.delete(i)
-        scenarios = self.db.list_scenarios()
-        for sc in scenarios:
-            const_count = len(self.db.get_scenario_constants(sc['scenario_id']))
-            self.scenario_tree.insert('', 'end', iid=str(sc['scenario_id']), values=(sc['name'], sc.get('description',''), sc.get('created_at',''), const_count))
-        # Active label
-        active_id = config.get_active_scenario_id()
-        if active_id:
-            active = next((s for s in scenarios if s['scenario_id']==active_id), None)
-            if active:
-                self.active_scenario_label.config(text=f"Active: {active['name']} (ID {active_id})", foreground='green')
-            else:
-                self.active_scenario_label.config(text='Active: None', foreground='gray')
-        else:
-            self.active_scenario_label.config(text='Active: None', foreground='gray')
-        self._refresh_compare_targets()
+        ttk.Label(year_controls, text='Select Year:', font=('Segoe UI', 10)).pack(side='left', padx=(0, 10))
+        
+        # Year spinbox
+        self.env_year_var = tk.StringVar(value=str(datetime.now().year))
+        year_spinbox = ttk.Spinbox(year_controls, from_=2020, to=2050, textvariable=self.env_year_var,
+                                   width=8, font=('Segoe UI', 10))
+        year_spinbox.pack(side='left', padx=5)
+        
+        ttk.Button(year_controls, text='Load Data', command=self._load_environmental_params).pack(side='left', padx=5)
+        
+        # Quick year buttons
+        ttk.Label(year_controls, text='Quick: ', font=('Segoe UI', 9)).pack(side='left', padx=(10, 5))
+        current_year = datetime.now().year
+        for year in [current_year, current_year-1, current_year-2]:
+            ttk.Button(year_controls, text=str(year), width=6,
+                      command=lambda y=year: self._set_env_year(y)).pack(side='left', padx=2)
 
-    def _refresh_compare_targets(self):
-        scenarios = self.db.list_scenarios()
-        names = ['(Base Constants)'] + [f"{s['scenario_id']}: {s['name']}" for s in scenarios]
-        self.compare_target['values'] = names
-        if not self.compare_target.get():
-            self.compare_target.set('(Base Constants)')
+        # Zone info (fixed to 4A)
+        zone_card = ttk.LabelFrame(scroll_container, text='  🌍 Evaporation Zone  ', padding=20)
+        zone_card.pack(fill='x', pady=(0, 15))
 
-    def _create_scenario(self):
-        win = tk.Toplevel(self.parent); win.title('Create Scenario'); win.geometry('400x220')
-        ttk.Label(win, text='Scenario Name:').pack(anchor='w', padx=10, pady=(10,2))
-        name_entry = ttk.Entry(win); name_entry.pack(fill='x', padx=10)
-        ttk.Label(win, text='Description:').pack(anchor='w', padx=10, pady=(10,2))
-        desc_entry = ttk.Entry(win); desc_entry.pack(fill='x', padx=10)
-        status_label = ttk.Label(win, text='', foreground='gray'); status_label.pack(anchor='w', padx=10, pady=5)
+        current_zone = config.get('environmental.evaporation_zone', '4A')
+        ttk.Label(zone_card, text=f'Current Zone: {current_zone}',
+                 font=('Segoe UI', 11, 'bold')).pack(anchor='w', pady=(0, 5))
+        ttk.Label(zone_card, text='This zone applies to all regional evaporation calculations',
+                 font=('Segoe UI', 9), foreground='#666').pack(anchor='w')
 
-        def do_create():
-            name = name_entry.get().strip()
-            if not name:
-                messagebox.showwarning('Validation','Name required.'); return
-            try:
-                sid = self.db.create_scenario(name, desc_entry.get().strip())
-                status_label.config(text=f'Scenario created (ID {sid})', foreground='green')
-                self._load_scenarios()
-            except Exception as ex:
-                messagebox.showerror('Create Error', str(ex))
-        ttk.Button(win, text='Create', command=do_create).pack(pady=10)
-        ttk.Button(win, text='Close', command=win.destroy).pack()
+        # Rainfall Card
+        rainfall_card = ttk.LabelFrame(scroll_container, text='  🌧️ Regional Rainfall (mm/month)  ', padding=20)
+        rainfall_card.pack(fill='x', pady=(0, 15))
 
-    def _apply_selected_scenario(self):
-        sel = self.scenario_tree.selection()
-        if not sel:
-            messagebox.showwarning('No Selection','Select a scenario first.'); return
-        scenario_id = int(sel[0])
-        config.set_active_scenario(scenario_id)
-        self._load_scenarios()
-        messagebox.showinfo('Scenario Applied','Active scenario set. Calculations now use these constants.')
+        self.rainfall_entries = {}
+        months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
-    def _clear_active_scenario(self):
-        config.clear_active_scenario(); self._load_scenarios()
-        messagebox.showinfo('Cleared','Active scenario cleared.')
+        rainfall_grid = ttk.Frame(rainfall_card)
+        rainfall_grid.pack(fill='x')
 
-    def _delete_selected_scenario(self):
-        sel = self.scenario_tree.selection()
-        if not sel:
-            messagebox.showwarning('No Selection','Select a scenario first.'); return
-        scenario_id = int(sel[0])
-        confirm = messagebox.askyesno('Confirm Delete','Delete selected scenario? This cannot be undone.')
-        if not confirm: return
-        self.db.delete_scenario(scenario_id)
-        self._load_scenarios()
-        messagebox.showinfo('Deleted','Scenario removed.')
+        for idx, month in enumerate(months, 1):
+            row = (idx - 1) // 4
+            col = (idx - 1) % 4
 
-    def _view_selected_diff(self):
-        sel = self.scenario_tree.selection()
-        if not sel:
-            messagebox.showwarning('No Selection','Select a scenario first.'); return
-        scenario_id = int(sel[0])
-        diffs = self.db.get_scenario_diff(scenario_id)
-        win = tk.Toplevel(self.parent); win.title('Scenario Differences'); win.geometry('700x400')
-        cols = ('Key','Base Value','Scenario Value','Delta','% Change')
-        tree = ttk.Treeview(win, columns=cols, show='headings', height=15)
-        widths = {'Key':170,'Base Value':110,'Scenario Value':120,'Delta':90,'% Change':100}
-        for c in cols:
-            tree.heading(c, text=c)
-            tree.column(c, width=widths[c], anchor='w')
-        tree.pack(fill='both', expand=True, padx=10, pady=10)
-        for d in diffs:
-            pc = f"{d['percent_change']:.2f}%" if d['percent_change'] is not None else '—'
-            tree.insert('', 'end', values=(d['constant_key'], d['base_value'], d['scenario_value'], d['delta'], pc))
-        if not diffs:
-            ttk.Label(win, text='No differences detected.', foreground='gray').pack(pady=5)
-        ttk.Button(win, text='Close', command=win.destroy).pack(pady=5)
+            month_frame = ttk.Frame(rainfall_grid)
+            month_frame.grid(row=row, column=col, padx=8, pady=8, sticky='ew')
 
-    def _generate_comparison_pdf(self):
-        sel = self.scenario_tree.selection()
-        if not sel:
-            messagebox.showwarning('No Selection','Select scenario A first.'); return
-        scenario_a = int(sel[0])
-        # Parse target
-        val = self.compare_target.get()
-        scenario_b = None
-        if val != '(Base Constants)' and ':' in val:
-            scenario_b = int(val.split(':')[0])
-        from datetime import date
-        from utils.report_generator import ReportGenerator
-        rg = ReportGenerator()
-        start = date.today().replace(day=1)
-        end = start
+            ttk.Label(month_frame, text=f"{month}:", width=4, font=('Segoe UI', 9)).pack(side='left')
+            entry = ttk.Entry(month_frame, width=12, font=('Segoe UI', 10))
+            entry.pack(side='left', padx=5)
+            self.rainfall_entries[idx] = entry
+            ttk.Label(month_frame, text='mm', foreground='#888', font=('Segoe UI', 9)).pack(side='left')
+
+        # Evaporation Card
+        evap_card = ttk.LabelFrame(scroll_container, text='  ☀️ Regional Evaporation (mm/month)  ', padding=20)
+        evap_card.pack(fill='x', pady=(0, 15))
+
+        self.evap_entries = {}
+
+        evap_grid = ttk.Frame(evap_card)
+        evap_grid.pack(fill='x')
+
+        for idx, month in enumerate(months, 1):
+            row = (idx - 1) // 4
+            col = (idx - 1) % 4
+
+            month_frame = ttk.Frame(evap_grid)
+            month_frame.grid(row=row, column=col, padx=8, pady=8, sticky='ew')
+
+            ttk.Label(month_frame, text=f"{month}:", width=4, font=('Segoe UI', 9)).pack(side='left')
+            entry = ttk.Entry(month_frame, width=12, font=('Segoe UI', 10))
+            entry.pack(side='left', padx=5)
+            self.evap_entries[idx] = entry
+            ttk.Label(month_frame, text='mm', foreground='#888', font=('Segoe UI', 9)).pack(side='left')
+
+        # Buttons (action bar)
+        ttk.Separator(scroll_container, orient='horizontal').pack(fill='x', pady=(5, 10))
+        btn_frame = ttk.Frame(scroll_container)
+        btn_frame.pack(fill='x', pady=(0, 10))
+
+        ttk.Button(btn_frame, text='💾 Save Regional Parameters', width=28,
+              command=self._save_environmental_params).pack(side='left', padx=(0, 8))
+        ttk.Button(btn_frame, text='🔄 Load Current Values', width=24,
+              command=self._load_environmental_params).pack(side='left')
+
+        # Load initial values
+        self._load_environmental_params()
+
+    def _load_environmental_params(self):
+        """Load regional rainfall and evaporation from DB for selected year"""
         try:
-            path = rg.generate_scenario_comparison_pdf(scenario_a, start, end, scenario_b)
-            messagebox.showinfo('Comparison PDF Generated', f'Report saved to:\n{path}')
+            year = int(self.env_year_var.get())
+        except ValueError:
+            year = None
+        
+        try:
+            # Load rainfall
+            rainfall_data = self.db.get_regional_rainfall_all_months(year=year)
+            for month, value in rainfall_data.items():
+                if month in self.rainfall_entries:
+                    self.rainfall_entries[month].delete(0, 'end')
+                    if value > 0:
+                        self.rainfall_entries[month].insert(0, str(value))
+
+            # Load evaporation
+            evap_data = self.db.get_regional_evaporation_all_months(year=year)
+            for month, value in evap_data.items():
+                if month in self.evap_entries:
+                    self.evap_entries[month].delete(0, 'end')
+                    if value > 0:
+                        self.evap_entries[month].insert(0, str(value))
+        except Exception as e:
+            logger.error(f"Failed to load environmental data: {e}")
+            messagebox.showerror('Error', f'Failed to load environmental data: {str(e)}')
+
+    def _save_environmental_params(self):
+        """Save regional rainfall and evaporation to DB for selected year"""
+        try:
+            year = int(self.env_year_var.get())
+        except ValueError:
+            year = None
+        
+        try:
+            saved_count = 0
+
+            # Save rainfall
+            for month, entry in self.rainfall_entries.items():
+                value_str = entry.get().strip()
+                if value_str:
+                    try:
+                        value = float(value_str)
+                        if value >= 0:
+                            self.db.set_regional_rainfall_monthly(month, value, year=year)
+                            saved_count += 1
+                    except ValueError:
+                        pass
+
+            # Save evaporation
+            for month, entry in self.evap_entries.items():
+                value_str = entry.get().strip()
+                if value_str:
+                    try:
+                        value = float(value_str)
+                        if value >= 0:
+                            self.db.set_regional_evaporation_monthly(month, value, year=year)
+                            saved_count += 1
+                    except ValueError:
+                        pass
+
+            year_label = f'({year})' if year else '(default)'
+            messagebox.showinfo('✓ Success',
+                f'Regional environmental parameters saved successfully {year_label}!\n'
+                f'{saved_count} values updated\n\n'
+                f'These values will apply to all storage facilities.')
+
+            # Reload to confirm
+            self._load_environmental_params()
+
+        except Exception as e:
+            logger.error(f"Failed to save environmental data: {e}")
+            messagebox.showerror('Error', f'Failed to save environmental data: {str(e)}')
+
+    def _set_env_year(self, year: int):
+        """Set the environmental year to a specific year and reload data"""
+        self.env_year_var.set(str(year))
+        self._load_environmental_params()
+
+
+
+
+    def _build_data_sources_tab(self):
+        """Build data sources configuration tab for Excel file paths"""
+        container = ttk.Frame(self.data_sources_frame)
+        container.pack(fill='both', expand=True, padx=15, pady=15)
+
+        # Info card
+        info_card = ttk.LabelFrame(container, text='  📂 Excel Data Source Configuration  ', padding=20)
+        info_card.pack(fill='x', pady=(0, 15))
+
+        ttk.Label(info_card, text='Configure paths to Excel files used by the application',
+                 font=('Segoe UI', 10), foreground='#666').pack(anchor='w', pady=(0, 10))
+
+        ttk.Label(info_card, text='💡 If you move Excel files to a different location, update the paths here.',
+                 font=('Segoe UI', 9), foreground='#0066cc').pack(anchor='w')
+
+        # Legacy Excel file
+        legacy_card = ttk.LabelFrame(container, text='  📊 TRP Water Balance Excel  ', padding=20)
+        legacy_card.pack(fill='x', pady=(0, 15))
+
+        ttk.Label(legacy_card, text='TRP historical water balance data (optional)',
+                 font=('Segoe UI', 10, 'bold')).pack(anchor='w')
+        ttk.Label(legacy_card, text='Used for historical analysis and legacy charts. App works without this file.',
+                 font=('Segoe UI', 9), foreground='#666').pack(anchor='w', pady=(2, 10))
+
+        legacy_path_frame = ttk.Frame(legacy_card)
+        legacy_path_frame.pack(fill='x', pady=(0, 10))
+
+        ttk.Label(legacy_path_frame, text='Current Path:', font=('Segoe UI', 9)).pack(side='left')
+
+        legacy_path = config.get('data_sources.legacy_excel_path', 'data/New Water Balance  20250930 Oct.xlsx')
+        self.legacy_path_label = ttk.Label(legacy_path_frame, text=legacy_path,
+                                          foreground='#0066cc', font=('Segoe UI', 9, 'italic'))
+        self.legacy_path_label.pack(side='left', padx=(5, 10))
+
+        # Status indicator
+        base_dir = Path(__file__).parent.parent.parent
+        legacy_full = base_dir / legacy_path if not Path(legacy_path).is_absolute() else Path(legacy_path)
+        status_text = '✓ Found' if legacy_full.exists() else '❌ Missing'
+        status_color = '#28a745' if legacy_full.exists() else '#dc3545'
+        self.legacy_status_label = ttk.Label(legacy_path_frame, text=status_text,
+                                             foreground=status_color, font=('Segoe UI', 9, 'bold'))
+        self.legacy_status_label.pack(side='left')
+
+        legacy_btn_frame = ttk.Frame(legacy_card)
+        legacy_btn_frame.pack(fill='x')
+
+        ttk.Button(legacy_btn_frame, text='📁 Browse...',
+                  command=self._select_legacy_excel).pack(side='left', padx=(0, 10))
+        ttk.Button(legacy_btn_frame, text='🔄 Reset to Default',
+                  command=self._reset_legacy_path).pack(side='left')
+
+        # Template Excel file
+        template_card = ttk.LabelFrame(container, text='  📝 Application Inputs Excel  ', padding=20)
+        template_card.pack(fill='x', pady=(0, 15))
+
+        ttk.Label(template_card, text='Primary data input file (required)',
+                 font=('Segoe UI', 10, 'bold')).pack(anchor='w')
+        ttk.Label(template_card, text='This file is monitored for changes and auto-reloaded. App requires this file to function.',
+                 font=('Segoe UI', 9), foreground='#666').pack(anchor='w', pady=(2, 10))
+
+        template_path_frame = ttk.Frame(template_card)
+        template_path_frame.pack(fill='x', pady=(0, 10))
+
+        ttk.Label(template_path_frame, text='Current Path:', font=('Segoe UI', 9)).pack(side='left')
+
+        template_path = config.get('data_sources.template_excel_path', 'templates/Water_Balance_TimeSeries_Template.xlsx')
+        self.template_path_label = ttk.Label(template_path_frame, text=template_path,
+                                            foreground='#0066cc', font=('Segoe UI', 9, 'italic'))
+        self.template_path_label.pack(side='left', padx=(5, 10))
+
+        # Status indicator
+        base_dir = Path(__file__).parent.parent.parent
+        template_full = base_dir / template_path if not Path(template_path).is_absolute() else Path(template_path)
+        status_text = '✓ Found' if template_full.exists() else '❌ Missing'
+        status_color = '#28a745' if template_full.exists() else '#dc3545'
+        self.template_status_label = ttk.Label(template_path_frame, text=status_text,
+                                              foreground=status_color, font=('Segoe UI', 9, 'bold'))
+        self.template_status_label.pack(side='left')
+
+        template_btn_frame = ttk.Frame(template_card)
+        template_btn_frame.pack(fill='x')
+
+        ttk.Button(template_btn_frame, text='📁 Browse...',
+                  command=self._select_template_excel).pack(side='left', padx=(0, 10))
+        ttk.Button(template_btn_frame, text='🔄 Reset to Default',
+                  command=self._reset_template_path).pack(side='left', padx=(0, 10))
+        ttk.Button(template_btn_frame, text='📂 Open Folder',
+                  command=self._open_template_folder).pack(side='left')
+
+        # Warning card
+        warning_card = ttk.LabelFrame(container, text='  ⚠️ Important Notes  ', padding=15)
+        warning_card.pack(fill='x')
+
+        warnings = [
+            "• Changes take effect immediately but require app restart for full reload",
+            "• Ensure Excel files exist at the specified paths",
+            "• Use absolute paths or paths relative to application root",
+            "• Backup your Excel files before making path changes",
+            "• Template file should be accessible for read/write operations"
+        ]
+
+        for warning in warnings:
+            ttk.Label(warning_card, text=warning, font=('Segoe UI', 9), foreground='#666').pack(anchor='w', pady=2)
+    
+    def _select_legacy_excel(self):
+        """Select legacy Excel file"""
+        current_path = config.get('data_sources.legacy_excel_path', 'data/New Water Balance  20250930 Oct.xlsx')
+        initial_dir = Path(current_path).parent if Path(current_path).exists() else Path.cwd()
+        
+        filename = filedialog.askopenfilename(
+            title='Select TRP Water Balance Excel File',
+            initialdir=initial_dir,
+            filetypes=[
+                ('Excel Files', '*.xlsx *.xls'),
+                ('All Files', '*.*')
+            ]
+        )
+        
+        if filename:
+            # Convert to relative path if inside project
+            try:
+                rel_path = Path(filename).relative_to(Path.cwd())
+                path_str = str(rel_path)
+            except ValueError:
+                path_str = filename
+            
+            config.set('data_sources.legacy_excel_path', path_str)
+            self.legacy_path_label.config(text=path_str)
+            
+            # Update status indicator
+            base_dir = Path.cwd()
+            full_path = base_dir / path_str if not Path(path_str).is_absolute() else Path(path_str)
+            if full_path.exists():
+                self.legacy_status_label.config(text='✓ Found', foreground='#28a745')
+            else:
+                self.legacy_status_label.config(text='❌ Missing', foreground='#dc3545')
+            
+            # Trigger automatic reload
+            self._reload_excel_data()
+            
+            messagebox.showinfo('✓ Path Updated', 
+                               f'TRP Excel path updated to:\n{path_str}\n\n'
+                               'Data has been reloaded from the new location.')
+    
+    def _select_template_excel(self):
+        """Select template Excel file"""
+        current_path = config.get('data_sources.template_excel_path', 'templates/Water_Balance_TimeSeries_Template.xlsx')
+        initial_dir = Path(current_path).parent if Path(current_path).exists() else Path.cwd()
+        
+        filename = filedialog.askopenfilename(
+            title='Select Application Inputs Excel File',
+            initialdir=initial_dir,
+            filetypes=[
+                ('Excel Files', '*.xlsx *.xls'),
+                ('All Files', '*.*')
+            ]
+        )
+        
+        if filename:
+            # Convert to relative path if inside project
+            try:
+                rel_path = Path(filename).relative_to(Path.cwd())
+                path_str = str(rel_path)
+            except ValueError:
+                path_str = filename
+            
+            config.set('data_sources.template_excel_path', path_str)
+            # Also update timeseries_excel_path so flow loader picks it up
+            config.set('data_sources.timeseries_excel_path', path_str)
+            
+            # Reset flow volume loader singleton to force path reload
+            try:
+                from utils.flow_volume_loader import reset_flow_volume_loader
+                reset_flow_volume_loader()
+                logger.info(f"🔄 Flow loader reset after path change to: {path_str}")
+            except Exception as e:
+                logger.warning(f"Could not reset flow volume loader: {e}")
+            
+            self.template_path_label.config(text=path_str)
+            
+            # Update status indicator
+            base_dir = Path.cwd()
+            full_path = base_dir / path_str if not Path(path_str).is_absolute() else Path(path_str)
+            if full_path.exists():
+                self.template_status_label.config(text='✓ Found', foreground='#28a745')
+            else:
+                self.template_status_label.config(text='❌ Missing', foreground='#dc3545')
+            
+            # Trigger automatic reload
+            self._reload_excel_data()
+            
+            messagebox.showinfo('✓ Path Updated', 
+                               f'Application Inputs Excel path updated to:\n{path_str}\n\n'
+                               'Data has been reloaded from the new location.')
+    
+    def _reset_legacy_path(self):
+        """Reset legacy path to default"""
+        default_path = 'data/New Water Balance  20250930 Oct.xlsx'
+        config.set('data_sources.legacy_excel_path', default_path)
+        self.legacy_path_label.config(text=default_path)
+        
+        # Update status
+        base_dir = Path.cwd()
+        full_path = base_dir / default_path
+        if full_path.exists():
+            self.legacy_status_label.config(text='✓ Found', foreground='#28a745')
+        else:
+            self.legacy_status_label.config(text='❌ Missing', foreground='#dc3545')
+        
+        self._reload_excel_data()
+        messagebox.showinfo('✓ Reset', f'TRP Excel path reset to default:\n{default_path}\n\nData reloaded.')
+    
+    def _reset_template_path(self):
+        """Reset template path to default"""
+        default_path = 'templates/Water_Balance_TimeSeries_Template.xlsx'
+        config.set('data_sources.template_excel_path', default_path)
+        self.template_path_label.config(text=default_path)
+        
+        # Update status
+        base_dir = Path.cwd()
+        full_path = base_dir / default_path
+        if full_path.exists():
+            self.template_status_label.config(text='✓ Found', foreground='#28a745')
+        else:
+            self.template_status_label.config(text='❌ Missing', foreground='#dc3545')
+        
+        self._reload_excel_data()
+        messagebox.showinfo('✓ Reset', f'Application Inputs Excel path reset to default:\n{default_path}\n\nData reloaded.')
+    
+    def _open_template_folder(self):
+        """Open the folder containing the template file"""
+        import subprocess
+        import platform
+        
+        template_path = config.get('data_sources.template_excel_path', 'templates/Water_Balance_TimeSeries_Template.xlsx')
+        folder_path = Path(template_path).parent
+        
+        try:
+            if platform.system() == 'Windows':
+                subprocess.run(['explorer', str(folder_path.resolve())])
+            elif platform.system() == 'Darwin':  # macOS
+                subprocess.run(['open', str(folder_path.resolve())])
+            else:  # Linux
+                subprocess.run(['xdg-open', str(folder_path.resolve())])
         except Exception as ex:
-            messagebox.showerror('Comparison Error', str(ex))
+            messagebox.showerror('Error', f'Failed to open folder:\n{str(ex)}')
+    
+    def _reload_excel_data(self):
+        """Force reload Excel data after path change"""
+        try:
+            from utils.app_logger import logger
+            logger.info("🔄 Excel path changed - forcing data reload...")
+            
+            # Clear singleton instances to force reload
+            from utils.excel_timeseries_extended import ExcelTimeSeriesExtended
+            
+            # Reset singleton
+            if ExcelTimeSeriesExtended._instance is not None:
+                ExcelTimeSeriesExtended._instance._loaded = False
+                ExcelTimeSeriesExtended._instance._initialized = False
+                ExcelTimeSeriesExtended._instance = None
+                logger.info("✓ Excel singleton reset")
+            
+            # Recreate with new path
+            _ = ExcelTimeSeriesExtended()
+            logger.info("✓ Excel data reloaded from new path")
+            
+            # Notify user
+            from utils.ui_notify import notifier
+            notifier.success("Excel data reloaded successfully", title="Data Refresh")
+            
+        except Exception as ex:
+            from utils.app_logger import logger
+            logger.error(f"Failed to reload Excel data: {ex}")
+            messagebox.showerror('Reload Error', 
+                               f'Failed to reload Excel data:\n{str(ex)}\n\n'
+                               'You may need to restart the application.')
 
     def _create_backup(self):
-        path = self.backup.create_backup()
-        messagebox.showinfo('Backup Created', f'Backup saved: {path}')
-        self._load_backups()
+        """Create database backup"""
+        try:
+            path = self.backup.create_backup()
+            messagebox.showinfo('✓ Backup Created', 
+                               f'Database backup created successfully:\n\n{path}')
+            self._load_backups()
+        except Exception as ex:
+            messagebox.showerror('Backup Error', f'Failed to create backup:\n{str(ex)}')
 
     def _load_backups(self):
-        self.backups_list.delete(0,'end')
-        for f in self.backup.list_backups():
-            self.backups_list.insert('end', f.name)
+        """Load available backups"""
+        self.backups_list.delete(0, 'end')
+        backups = self.backup.list_backups()
+        
+        if not backups:
+            self.backups_list.insert('end', '(No backups found)')
+        else:
+            for f in backups:
+                self.backups_list.insert('end', f.name)
 
     def _restore_selected(self):
+        """Restore from selected backup"""
         sel = self.backups_list.curselection()
         if not sel:
-            messagebox.showwarning('No Selection','Select a backup first.')
+            messagebox.showwarning('No Selection', 'Please select a backup file to restore.')
             return
+        
         name = self.backups_list.get(sel[0])
+        if name == '(No backups found)':
+            return
+        
         backup_path = self.backup.backup_dir / name
-        confirm = messagebox.askyesno('Confirm Restore', f'Restore backup {name}? This will overwrite current database.')
+        
+        confirm = messagebox.askyesno('⚠️ Confirm Restore',
+            f'Restore database from backup:\n\n{name}\n\n'
+            'This will OVERWRITE the current database.\n'
+            'Current data will be lost unless backed up.\n\n'
+            'Continue with restore?')
+        
         if not confirm:
             return
-        self.backup.restore_backup(backup_path)
-        messagebox.showinfo('Restored', f'Restored from {name}.')
-        # Reload constants if open
-        self._load_constants()
-    
-    def _build_data_quality_tab(self):
-        """Build the data quality management tab"""
-        from ui.data_quality_manager import DataQualityManager
         
-        # Create the data quality manager directly in the frame
-        manager = DataQualityManager(self.data_quality_frame)
-        manager.pack(fill='both', expand=True)
+        try:
+            self.backup.restore_backup(backup_path)
+            messagebox.showinfo('✓ Restore Complete', 
+                               f'Database successfully restored from:\n{name}\n\n'
+                               'Please restart the application for changes to take effect.')
+        except Exception as ex:
+            messagebox.showerror('Restore Error', f'Failed to restore backup:\n{str(ex)}')
+
+

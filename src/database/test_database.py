@@ -74,10 +74,8 @@ def test_database():
     constants = db.get_all_constants()
     print(f"   ✅ Constants loaded: {len(constants)}")
     print("\n   Key calculation constants:")
-    print(f"   • TSF Return Rate: {constants.get('TSF_RETURN_RATE', 0)*100:.0f}%")
     print(f"   • Mining Water Rate: {constants.get('MINING_WATER_RATE', 0)} m³/tonne")
     print(f"   • Slurry Density: {constants.get('SLURRY_DENSITY', 0)} t/m³")
-    print(f"   • Concentrate Moisture: {constants.get('CONCENTRATE_MOISTURE', 0)*100:.0f}%")
     
     # Test 5: Get evaporation rates
     print("\n5️⃣ Testing Evaporation Rates...")

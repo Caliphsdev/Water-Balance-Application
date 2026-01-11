@@ -18,6 +18,23 @@ APP_LOG = LOGS_DIR / 'water_balance.log'
 ERROR_LOG = LOGS_DIR / 'errors.log'
 
 
+class SafeConsoleHandler(logging.StreamHandler):
+    def emit(self, record):
+        try:
+            msg = self.format(record)
+            try:
+                self.stream.write(msg)
+                self.stream.write(self.terminator)
+            except UnicodeEncodeError:
+                enc = getattr(self.stream, 'encoding', None) or sys.getdefaultencoding()
+                safe = msg.encode(enc, errors='replace').decode(enc, errors='replace')
+                self.stream.write(safe)
+                self.stream.write(self.terminator)
+            self.flush()
+        except Exception:
+            self.handleError(record)
+
+
 class AppLogger:
     """Centralized application logger"""
     
@@ -79,8 +96,8 @@ class AppLogger:
         error_file_handler.setLevel(logging.ERROR)
         error_file_handler.setFormatter(detailed_formatter)
         
-        # Console handler (INFO and above)
-        console_handler = logging.StreamHandler(sys.stdout)
+        # Console handler (INFO and above) with safe Unicode fallback
+        console_handler = SafeConsoleHandler(sys.stdout)
         console_handler.setLevel(logging.INFO)
         console_handler.setFormatter(simple_formatter)
         
