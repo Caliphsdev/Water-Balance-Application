@@ -793,6 +793,8 @@ class FacilityDialog:
         self.is_active_var = tk.BooleanVar(value=facility['active'] if facility else True)
         # Evaporation participation flag (defaults to True if missing)
         self.evap_active_var = tk.BooleanVar(value=(facility.get('evap_active', 1) == 1) if facility else True)
+        # Lined facility flag (defaults to False/0 if missing - unlined)
+        self.is_lined_var = tk.BooleanVar(value=(facility.get('is_lined', 0) == 1) if facility else False)
         
         self._create_form()
         
@@ -941,7 +943,28 @@ class FacilityDialog:
             font=config.get_font('body'),
             bg='white'
         )
-        evap_check.pack(anchor='w', pady=(0, 20))
+        evap_check.pack(anchor='w', pady=(0, 5))
+
+        # Lined facility checkbox
+        lined_check = tk.Checkbutton(
+            container,
+            text="Lined facility (reduces seepage loss)",
+            variable=self.is_lined_var,
+            font=config.get_font('body'),
+            bg='white'
+        )
+        lined_check.pack(anchor='w', pady=(0, 20))
+        
+        # Info label for seepage rates
+        seepage_info = tk.Label(
+            container,
+            text="Seepage: Lined facilities = 0.1%/month, Unlined = 0.5%/month (editable in Settings > Constants)",
+            font=config.get_font('body_small'),
+            fg=config.get_color('text_secondary'),
+            bg='white',
+            anchor='w'
+        )
+        seepage_info.pack(fill='x', pady=(0, 20))
         
         # Required field note
         note = tk.Label(
@@ -1124,7 +1147,8 @@ class FacilityDialog:
             'maximum_operating_level': max_level,
             'description': self.description_text.get('1.0', 'end-1c').strip() or None,
             'active': self.is_active_var.get(),
-            'evap_active': 1 if self.evap_active_var.get() else 0
+            'evap_active': 1 if self.evap_active_var.get() else 0,
+            'is_lined': 1 if self.is_lined_var.get() else 0
         }
         
         try:
