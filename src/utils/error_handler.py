@@ -124,6 +124,14 @@ class ErrorHandler:
             logger.warning(full_context)
         else:
             logger.info(full_context)
+
+        # Ensure errors are visible in the terminal for fast debugging
+        if severity in (ErrorSeverity.ERROR, ErrorSeverity.CRITICAL):
+            tb_snippet = traceback.format_exc(limit=1).strip()
+            sys.stderr.write(f"ERROR: {full_context}\n")
+            if tb_snippet and tb_snippet != 'NoneType: None':
+                sys.stderr.write(f"TRACE: {tb_snippet}\n")
+            sys.stderr.flush()
         
         # Store in history
         self._add_to_history(error, context, category, severity, user_message)

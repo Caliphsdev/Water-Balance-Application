@@ -75,6 +75,8 @@ class DatabaseManager:
         self._ensure_scenario_tables()
         # Ensure extended calculation columns (non-destructive migration)
         self._ensure_extended_calculation_columns()
+        # Ensure storage facilities table has newer columns (evap_active, is_lined)
+        self._ensure_storage_facility_columns()
         # Ensure new environmental constants (only check once per process)
         if not DatabaseManager._constants_checked:
             try:
@@ -1262,6 +1264,27 @@ class DatabaseManager:
         finally:
             conn.close()
 
+    def _ensure_storage_facility_columns(self):
+        """Non-destructive migration: add newer storage_facilities columns if missing."""
+        conn = self.get_connection()
+        try:
+            cur = conn.cursor()
+            cur.execute("PRAGMA table_info(storage_facilities)")
+            existing = {row[1] for row in cur.fetchall()}
+            migrations = {
+                'evap_active': "ALTER TABLE storage_facilities ADD COLUMN evap_active BOOLEAN DEFAULT 1",
+                'is_lined': "ALTER TABLE storage_facilities ADD COLUMN is_lined BOOLEAN DEFAULT 0",
+            }
+            for col, stmt in migrations.items():
+                if col not in existing:
+                    cur.execute(stmt)
+            conn.commit()
+        except sqlite3.Error:
+            conn.rollback()
+            # Silent fail; will retry on next startup
+        finally:
+            conn.close()
+
     def _ensure_all_constants(self):
         """Batch-check and create missing constants (called once per process)"""
         # Get all existing constant keys in one query
@@ -1284,6 +1307,8 @@ class DatabaseManager:
              'Average moisture percent of ore feed (used to derive water inflow from wet ore)', 1, 1.0, 8.0),
             ('ore_density', 2.7, 't/m³', 'Plant', 
              'Bulk density of run-of-mine ore used for moisture volume conversion', 1, 2.4, 3.2),
+            ('dust_suppression_rate', 0.02, 'm³/t', 'Plant', 
+             'Dust suppression water requirement per tonne of ore processed', 1, 0.01, 0.05),
         ]
         
         # Insert only missing constants

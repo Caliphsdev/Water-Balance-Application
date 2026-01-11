@@ -368,6 +368,19 @@ class StorageFacilitiesModule:
             anchor='w'
         )
         header_label.pack(side='left', padx=20)
+
+        # Brief helper text for utilization and monthly roll-forward behavior
+        helper_label = tk.Label(
+            grid_header,
+            text="Utilization = current volume ÷ capacity. End-of-month volume rolls into the next month per facility; it only moves when an explicit inter-facility transfer is defined.",
+            font=('Segoe UI', 9),
+            fg='#ecf0f1',
+            bg='#2c3e50',
+            anchor='w',
+            wraplength=680,
+            justify='left'
+        )
+        helper_label.pack(side='right', padx=16)
         
         # Create Treeview with scrollbars
         tree_frame = tk.Frame(grid_container, bg='white')

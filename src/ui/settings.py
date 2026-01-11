@@ -271,10 +271,10 @@ class SettingsModule:
         table_frame = ttk.LabelFrame(container, text='  System Constants  ', padding=10)
         table_frame.pack(fill='both', expand=True, pady=(0, 15))
         
-        cols = ('Category', 'Key', 'Value', 'Unit', 'Usage', 'Range', 'Description')
+        cols = ('Category', 'Key', 'Value', 'Unit', 'Used In', 'Formula/Impact', 'Description')
         self.tree = ttk.Treeview(table_frame, columns=cols, show='headings', height=12)
         
-        widths = {'Category': 100, 'Key': 180, 'Value': 90, 'Unit': 90, 'Usage': 70, 'Range': 120, 'Description': 250}
+        widths = {'Category': 100, 'Key': 180, 'Value': 90, 'Unit': 90, 'Used In': 120, 'Formula/Impact': 250, 'Description': 220}
         for c in cols:
             self.tree.heading(c, text=c)
             self.tree.column(c, width=widths[c], anchor='w')
@@ -358,13 +358,13 @@ class SettingsModule:
         return result[0] if result else None
 
     def _load_constants(self):
-        """Load constants into table"""
+        """Load constants into table with usage and formula information"""
         for i in self.tree.get_children():
             self.tree.delete(i)
         
         cat_filter = self.category_filter.get()
         search_text = (self.search_var.get() or '').strip().lower()
-        usage_map = self._compute_constant_usage()
+        usage_map = self._get_constant_usage_info()
         
         query = '''SELECT constant_key, constant_value, unit, category, description, 
                    min_value, max_value FROM system_constants ORDER BY category, constant_key'''
@@ -376,9 +376,6 @@ class SettingsModule:
             unit = row.get('unit') or '—'
             category = row.get('category') or 'Other'
             desc = row.get('description') or '—'
-            # Previously used for range validation; now ignored
-            # min_val = row.get('min_value')
-            # max_val = row.get('max_value')
             
             if cat_filter != 'All' and category != cat_filter:
                 continue
@@ -389,12 +386,12 @@ class SettingsModule:
                 if search_text not in hay:
                     continue
             
-            usage_count = usage_map.get(key, 0)
+            # Get usage info (module and formula)
+            usage_info = usage_map.get(key, {'module': '—', 'formula': '—'})
+            used_in = usage_info['module']
+            formula = usage_info['formula']
             
-            # Always show em dash since limits removed
-            range_str = '—'
-            
-            self.tree.insert('', 'end', values=(category, key, value, unit, usage_count, range_str, desc))
+            self.tree.insert('', 'end', values=(category, key, value, unit, used_in, formula, desc))
 
     def _update_constant(self):
         """Update selected constant with validation"""
@@ -426,6 +423,63 @@ class SettingsModule:
         self.db.update_constant(key, value, user='user')
         self._load_constants()
         messagebox.showinfo('✓ Updated', f'Constant {key} has been updated to {value}.')
+
+    def _get_constant_usage_info(self) -> Dict[str, Dict[str, str]]:
+        """Get detailed usage information for each constant (where and how it's used)"""
+        return {
+            'DEFAULT_MONTHLY_RAINFALL_MM': {
+                'module': 'Rainfall calc',
+                'formula': 'Fallback when no measurements exist'
+            },
+            'evaporation_mitigation_factor': {
+                'module': 'Optimization',
+                'formula': 'Evap × (1 - factor) = Reduced evap'
+            },
+            'plant_water_recovery_rate': {
+                'module': 'Optimization',
+                'formula': 'Recovered = Consumption × rate'
+            },
+            'tailings_moisture_pct': {
+                'module': 'Tailings retention',
+                'formula': '(Ore - Conc) × moisture% = Retained water'
+            },
+            'MINING_WATER_RATE': {
+                'module': 'Mining water',
+                'formula': 'Ore tonnage × rate = Mining water used'
+            },
+            'monthly_ore_processing': {
+                'module': 'Plant calc',
+                'formula': 'Default ore tonnage when Excel has no data'
+            },
+            'ore_density': {
+                'module': 'Moisture calc',
+                'formula': 'Volume (m³) = Mass (t) / density'
+            },
+            'ore_moisture_percent': {
+                'module': 'Ore moisture',
+                'formula': 'Ore tonnage × density × moisture% = Inflow'
+            },
+            'lined_seepage_rate_pct': {
+                'module': 'Seepage calc',
+                'formula': 'Volume × 0.1%/month (lined facilities)'
+            },
+            'unlined_seepage_rate_pct': {
+                'module': 'Seepage calc',
+                'formula': 'Volume × 0.5%/month (unlined facilities)'
+            },
+            'dust_suppression_rate': {
+                'module': 'Dust control',
+                'formula': 'Ore tonnage × rate (m³/t) = Dust water'
+            },
+            'pump_stop_level': {
+                'module': 'Pump control',
+                'formula': 'Pumps stop when level < stop%'
+            },
+            'slurry_density': {
+                'module': 'Slurry calc',
+                'formula': 'Used in slurry volume conversions'
+            },
+        }
 
     def _export_constants(self):
         """Export constants to Excel"""
