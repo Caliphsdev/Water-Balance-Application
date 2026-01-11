@@ -274,16 +274,25 @@ class SettingsModule:
         cols = ('Category', 'Key', 'Value', 'Unit', 'Used In', 'Formula/Impact', 'Description')
         self.tree = ttk.Treeview(table_frame, columns=cols, show='headings', height=12)
         
-        widths = {'Category': 100, 'Key': 180, 'Value': 90, 'Unit': 90, 'Used In': 120, 'Formula/Impact': 250, 'Description': 220}
+        # Adjusted widths for better fit with scrolling
+        widths = {'Category': 90, 'Key': 150, 'Value': 70, 'Unit': 70, 'Used In': 110, 'Formula/Impact': 280, 'Description': 200}
         for c in cols:
             self.tree.heading(c, text=c)
-            self.tree.column(c, width=widths[c], anchor='w')
+            self.tree.column(c, width=widths[c], anchor='w', minwidth=60)
         
-        scrollbar = ttk.Scrollbar(table_frame, orient='vertical', command=self.tree.yview)
-        self.tree.configure(yscrollcommand=scrollbar.set)
+        # Vertical scrollbar
+        scrollbar_y = ttk.Scrollbar(table_frame, orient='vertical', command=self.tree.yview)
+        # Horizontal scrollbar
+        scrollbar_x = ttk.Scrollbar(table_frame, orient='horizontal', command=self.tree.xview)
+        self.tree.configure(yscrollcommand=scrollbar_y.set, xscrollcommand=scrollbar_x.set)
         
-        self.tree.pack(side='left', fill='both', expand=True)
-        scrollbar.pack(side='right', fill='y')
+        self.tree.grid(row=0, column=0, sticky='nsew')
+        scrollbar_y.grid(row=0, column=1, sticky='ns')
+        scrollbar_x.grid(row=1, column=0, sticky='ew')
+        
+        # Configure grid weights for proper resizing
+        table_frame.grid_rowconfigure(0, weight=1)
+        table_frame.grid_columnconfigure(0, weight=1)
         
         self._load_constants()
         
@@ -336,13 +345,18 @@ class SettingsModule:
             return
         
         item = self.tree.item(sel[0])
-        # We ignore range limits now; range_str kept for column compatibility
-        cat, key, value, unit, _usage, _range_str, desc = item['values']
+        values = item['values']
+        
+        # Unpack: Category, Key, Value, Unit, Used In, Formula/Impact, Description
+        if len(values) >= 7:
+            cat, key, value, unit, used_in, formula, desc = values[:7]
+        else:
+            return  # Invalid row
         
         self.selected_key.config(text=key)
         self.selected_desc.config(text=desc if desc and desc != '—' else 'No description available')
-        # Limits removed – clear any previous range display
-        self.value_range_label.config(text='')
+        # Show formula/usage as additional context
+        self.value_range_label.config(text=f'Used in: {used_in}')
         
         self.new_value.delete(0, 'end')
         self.new_value.insert(0, str(value))
