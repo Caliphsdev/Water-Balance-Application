@@ -146,7 +146,7 @@ area_map = {
     'UG2N': 'Flows_UG2N',
     'UG2S': 'Flows_UG2S',
     'UG2P': 'Flows_UG2P',
-    'MERN': 'Flows_MERN',
+    'MERN': 'Flows_Merensky North',
     'MERP': 'Flows_MERP',
     'MERS': 'Flows_MERENSKY_SOUTH',
     'OLDTSF': 'Flows_OLDTSF',

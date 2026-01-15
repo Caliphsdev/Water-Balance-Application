@@ -49,32 +49,31 @@ def update_existing_data():
         
         # Update storage facilities with operating levels (as percentages)
         facility_updates = [
-            ('INYONI', 20, 90),           # Inyoni Dam - 20% min, 90% max
-            ('DEBROCHEN', 15, 85),        # Debrochen Dam - 15% min, 85% max
-            ('PLANT_RWD', 30, 95),        # Plant Return Water Dam - 30% min, 95% max
-            ('OLD_TSF', 10, 80),          # Old TSF - 10% min, 80% max
-            ('NEW_TSF', 10, 80),          # New TSF - 10% min, 80% max
-            ('NDCD1', 25, 90),            # North Decline Clean Dam 1
-            ('NDCD2', 25, 90),            # North Decline Clean Dam 2
-            ('NDCD3', 25, 90),            # North Decline Clean Dam 3
-            ('NDCD4', 25, 90),            # North Decline Clean Dam 4
-            ('NDSWD1', 20, 85),           # North Decline Slimes Water Dam 1
-            ('NDSWD2', 20, 85),           # North Decline Slimes Water Dam 2
-            ('SPCD1', 25, 90),            # Sandsloot Pit Clean Dam 1
-            ('MDCD5', 25, 90),            # Merensky Decline Clean Dam 5
-            ('MDCD6', 25, 90),            # Merensky Decline Clean Dam 6
-            ('MDSWD3', 20, 85),           # Merensky Decline Slimes Water Dam 3
-            ('MDSWD4', 20, 85),           # Merensky Decline Slimes Water Dam 4
+            ('INYONI', 20),           # Inyoni Dam - estimated max depth
+            ('DEBROCHEN', 15),        # Debrochen Dam
+            ('PLANT_RWD', 30),        # Plant Return Water Dam
+            ('OLD_TSF', 10),          # Old TSF
+            ('NEW_TSF', 10),          # New TSF
+            ('NDCD1', 25),            # North Decline Clean Dam 1
+            ('NDCD2', 25),            # North Decline Clean Dam 2
+            ('NDCD3', 25),            # North Decline Clean Dam 3
+            ('NDCD4', 25),            # North Decline Clean Dam 4
+            ('NDSWD1', 20),           # North Decline Slimes Water Dam 1
+            ('NDSWD2', 20),           # North Decline Slimes Water Dam 2
+            ('SPCD1', 25),            # Sandsloot Pit Clean Dam 1
+            ('MDCD5', 25),            # Merensky Decline Clean Dam 5
+            ('MDCD6', 45.0),          # Merensky Decline Clean Dam 6
+            ('MDSWD3', 32.0),         # Merensky Decline Slimes Water Dam 3
+            ('MDSWD4', 32.0),         # Merensky Decline Slimes Water Dam 4
         ]
         
-        for fac_code, min_level, max_level in facility_updates:
+        for fac_code, max_depth in facility_updates:
             cursor.execute("""
                 UPDATE storage_facilities 
-                SET minimum_operating_level = ?,
-                    maximum_operating_level = ?
+                SET max_depth = ?
                 WHERE facility_code = ?
-            """, (min_level, max_level, fac_code))
-            print(f"  Updated {fac_code}: min {min_level}%, max {max_level}%")
+            """, (max_depth, fac_code))
+            print(f"  Updated {fac_code}: max_depth {max_depth}m")
         
         conn.commit()
         print("\n✅ Data update completed successfully!")

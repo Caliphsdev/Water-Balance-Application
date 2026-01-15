@@ -111,7 +111,7 @@ KEY CONCEPTS:
   • Low production: More water FROM plant TO dam (negative/return)
 
 ================================================================================
-📍 UG2_SOUTH - UG2 South Decline Area
+📍 UG2_SOUTH - UG2 Main Decline Area
 ================================================================================
 
 🔄 DAM SELF-LOOPS:

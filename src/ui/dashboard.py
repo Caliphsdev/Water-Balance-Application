@@ -181,10 +181,9 @@ class DashboardModule:
         # Optional: new dashboard additions
         if config.get('features.new_dashboard', False):
             self._create_environment_kpis_section()
-            self._create_rain_evap_trend_section()
-        self._create_charts_section()
-        self._create_closure_error_section()
-        self._create_status_section()
+            # Rainfall chart removed - not needed
+        # self._create_charts_section()  # Commented out - charts not needed
+        # Closure error section removed - user has a plan for it
 
         # Update data in widgets
         self._update_data()
@@ -221,25 +220,6 @@ class DashboardModule:
             fg='#666'
         )
         subtitle.pack(side='left', padx=(5, 0))
-        
-        # Refresh button
-        btn_refresh = ttk.Button(
-            header_frame,
-            text="Refresh",
-            command=self.refresh_data,
-            style='Accent.TButton'
-        )
-        btn_refresh.pack(side='right', padx=5)
-        
-        # Date range info
-        self.timestamp_label = tk.Label(
-            header_frame,
-            text=f"Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
-            font=config.get_font('body'),
-            fg=config.get_color('text_secondary'),
-            bg=config.get_color('bg_main')
-        )
-        self.timestamp_label.pack(side='right', padx=10)
     
     def _create_kpi_section(self):
         """Create KPI cards section (DB metadata + Excel flows)"""
@@ -340,7 +320,6 @@ class DashboardModule:
             cards = [
                 {'key': 'rainfall_mm', 'title': 'Rainfall (Regional)', 'value': f"{rainfall_mm:.0f}", 'unit': 'mm', 'icon': '☔', 'color': config.get_color('primary')},
                 {'key': 'evaporation_mm', 'title': 'Evaporation (Regional)', 'value': f"{evaporation_mm:.0f}", 'unit': 'mm', 'icon': '☀', 'color': config.get_color('warning')},
-                {'key': 'seepage_gain', 'title': 'Seepage Gain (Total)', 'value': f"{seepage_total_m3/1000000:.3f}", 'unit': 'Mm³', 'icon': '↟', 'color': config.get_color('success')},
             ]
 
             for i, kpi in enumerate(cards):
@@ -417,7 +396,7 @@ class DashboardModule:
 
             canvas = FigureCanvasTkAgg(fig, frame)
             canvas.draw()
-            canvas.get_tk_widget().pack(fill='both', expand=True, padx=10, pady=(0, 10))
+            canvas.get_tk_widget().pack(fill='both', expand=True, padx=10, pady=10)
         except Exception as e:
             logger.warning(f"Rain/Evap trend failed: {e}")
     
@@ -428,36 +407,32 @@ class DashboardModule:
             bg='white',
             relief='solid',
             borderwidth=1,
-            highlightbackground=config.get_color('border'),
+            highlightbackground='#e0e0e0',
             highlightthickness=1
         )
         
-        # Icon
+        # Icon - simple and clean
         icon_text = data['icon']
-        # Fallback: if emoji renders as square (common on limited fonts), provide short code label
-        if len(icon_text.encode('utf-8')) > 4 and not icon_text.isascii():
-            # Heuristic: still keep; user environment determines rendering. Offer alt label below.
-            pass
-        icon_label = tk.Label(card, text=icon_text, font=('Segoe UI', 20), bg='white', fg=data['color'])
-        icon_label.pack(pady=(10, 3))
+        icon_label = tk.Label(card, text=icon_text, font=('Segoe UI', 28, 'bold'), bg='white', fg=data['color'])
+        icon_label.pack(pady=(12, 5))
         
         # Value
         value_label = tk.Label(
             card,
             text=str(data['value']),
-            font=config.get_font('heading_large'),
+            font=('Segoe UI', 18, 'bold'),
             fg=data['color'],
             bg='white'
         )
         value_label.pack()
         # Unit
-        unit_label = tk.Label(card, text=data['unit'], font=config.get_font('caption'),
-                               fg=config.get_color('text_secondary'), bg='white')
-        unit_label.pack()
+        unit_label = tk.Label(card, text=data['unit'], font=('Segoe UI', 8),
+                               fg='#757575', bg='white')
+        unit_label.pack(pady=(0, 5))
         # Title
-        title_label = tk.Label(card, text=data['title'], font=config.get_font('body_bold'),
-                                fg=config.get_color('text_primary'), bg='white')
-        title_label.pack(pady=(3, 10))
+        title_label = tk.Label(card, text=data['title'], font=('Segoe UI', 10, 'bold'),
+                                fg='#2c3e50', bg='white')
+        title_label.pack(pady=(0, 10))
         # Return card and main value label (unit/title stored visually only)
         return card, value_label
     
@@ -479,41 +454,42 @@ class DashboardModule:
         self._create_sources_chart(right_chart)
 
     def _create_closure_error_section(self):
-        """Create closure error trend section with compact sparkline and controls"""
+        """Create closure error trend section with enhanced styling"""
         try:
             section = tk.Frame(self.container, bg=config.get_color('bg_main'))
-            section.pack(fill='x', pady=(0, 20))
+            section.pack(fill='x', pady=(0, 20), padx=0)
 
-            frame = tk.Frame(section, bg='white', relief='solid', borderwidth=1)
-            frame.pack(fill='both', expand=True)
+            frame = tk.Frame(section, bg='white', relief='solid', borderwidth=2)
+            frame.pack(fill='both', expand=True, padx=15)
 
-            header = tk.Frame(frame, bg='white')
-            header.pack(fill='x', padx=15, pady=(15, 10))
+            header = tk.Frame(frame, bg='#f5f7fa', relief='solid', borderwidth=0)
+            header.pack(fill='x', padx=15, pady=(0, 0))
             title = tk.Label(
                 header,
                 text="Closure Error Trend",
                 font=config.get_font('heading_medium'),
-                fg=config.get_color('text_primary'),
-                bg='white',
-                anchor='w'
+                fg='#2c3e50',
+                bg='#f5f7fa',
+                anchor='w',
+                pady=12
             )
             title.pack(side='left')
             # Controls: timeframe and smoothing
-            controls = tk.Frame(header, bg='white')
-            controls.pack(side='right')
+            controls = tk.Frame(header, bg='#f5f7fa')
+            controls.pack(side='right', padx=15)
             view_var = tk.StringVar(value='sparkline')
             timeframe_var = tk.StringVar(value='90')
             smoothing_var = tk.BooleanVar(value=True)
             # View mode toggle
-            tk.Label(controls, text="View:", bg='white').pack(side='left', padx=(0,4))
+            tk.Label(controls, text="View:", bg='#f5f7fa', font=('Segoe UI', 9), fg='#2c3e50').pack(side='left', padx=(0,6))
             for mode,label in (("sparkline","Sparkline"),("heatmap","Heatmap")):
-                rbv = tk.Radiobutton(controls, text=label, variable=view_var, value=mode, bg='white', indicatoron=False)
-                rbv.pack(side='left', padx=2)
-            tk.Label(controls, text="Range:", bg='white').pack(side='left', padx=(0,4))
-            for days in ('30','90','180'):
-                rb = tk.Radiobutton(controls, text=f"{days}d", variable=timeframe_var, value=days, bg='white', indicatoron=False)
+                rbv = tk.Radiobutton(controls, text=label, variable=view_var, value=mode, bg='#f5f7fa', fg='#2c3e50', indicatoron=False, activebackground='#3498db', activeforeground='white', selectcolor='#3498db', relief='raised', bd=1, padx=8, pady=3)
+                rbv.pack(side='left', padx=3)
+            tk.Label(controls, text="Range:", bg='#f5f7fa', font=('Segoe UI', 9), fg='#2c3e50').pack(side='left', padx=(10,6))
+            for days in ('30d','90d','180d'):
+                rb = tk.Radiobutton(controls, text=days, variable=timeframe_var, value=days[:-1], bg='#f5f7fa', fg='#2c3e50', indicatoron=False, activebackground='#3498db', activeforeground='white', selectcolor='#3498db', relief='raised', bd=1, padx=6, pady=3)
                 rb.pack(side='left', padx=2)
-            chk = tk.Checkbutton(controls, text='Smooth', variable=smoothing_var, bg='white')
+            chk = tk.Checkbutton(controls, text='Smooth', variable=smoothing_var, bg='#f5f7fa', fg='#2c3e50', activebackground='#f5f7fa', activeforeground='#2c3e50', selectcolor='#3498db')
             chk.pack(side='left', padx=(8,0))
 
             if not MATPLOTLIB_AVAILABLE:
@@ -535,7 +511,7 @@ class DashboardModule:
         colors_line = '#1E88E5'
 
         # Choose visualization by view mode
-        fig = Figure(figsize=(10, 2.6), dpi=80, facecolor='white')
+        fig = Figure(figsize=(10, 2.8), dpi=80, facecolor='white')
         ax = fig.add_subplot(111)
         view_mode = view_var.get()
         if view_mode == 'heatmap':
@@ -828,7 +804,6 @@ class DashboardModule:
             ("Storage Facilities", f"{len(facilities)} dams and tanks"),
             ("Total Storage Capacity", f"{sum(f['total_capacity'] for f in facilities) / 1000000:.2f} Mm³"),
             ("System Constants", f"{len(constants)} calculation parameters configured"),
-            ("Mining Water Rate", f"{constants.get('MINING_WATER_RATE', 0)} m³/tonne"),
             ("Database Status", "Connected and operational"),
         ]
         
@@ -981,9 +956,6 @@ class DashboardModule:
                 self.kpi_widgets['total_volume']['value'].config(text=f"{total_volume / 1000000:.2f}")
             if 'utilization' in self.kpi_widgets:
                 self.kpi_widgets['utilization']['value'].config(text=f"{utilization:.1f}%")
-
-            if hasattr(self, 'timestamp_label'):
-                self.timestamp_label.config(text=f"Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         except Exception as e:
             logger.error(f"Error updating dashboard data: {e}")
     

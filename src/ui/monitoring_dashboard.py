@@ -349,7 +349,7 @@ class MonitoringDashboard:
         for label, value, accent in kpis:
             self._create_kpi_card(kpi_row, label, value, accent)
         # Placeholder summary table
-        table_frame = tk.Frame(frame, bg='white', relief='solid', borderwidth=1)
+        table_frame = tk.Frame(frame, bg='#e8eef5', relief='solid', borderwidth=1)
         table_frame.pack(fill='both', expand=True)
         cols = ('Item', 'Detail', 'Severity')
         tree = ttk.Treeview(table_frame, columns=cols, show='headings', height=8)
@@ -378,7 +378,7 @@ class MonitoringDashboard:
     def _render_data(self):
         frame = tk.Frame(self._content_area, bg=config.get_color('bg_main'))
         # Table
-        table_frame = tk.Frame(frame, bg='white', relief='solid', borderwidth=1)
+        table_frame = tk.Frame(frame, bg='#e8eef5', relief='solid', borderwidth=1)
         table_frame.pack(fill='both', expand=True)
         columns, rows = self._get_placeholder_data_table()
         # Add horizontal + vertical scrollbars for wide parameter sets
@@ -403,10 +403,10 @@ class MonitoringDashboard:
 
     # -------- Helpers / Data Placeholders --------
     def _create_kpi_card(self, parent, label, value, accent):
-        card = tk.Frame(parent, bg='white', relief='solid', borderwidth=1)
+        card = tk.Frame(parent, bg='#e8eef5', relief='solid', borderwidth=1)
         card.pack(side='left', padx=8, ipadx=10, ipady=8)
-        tk.Label(card, text=label, font=config.get_font('caption'), fg=config.get_color('text_secondary'), bg='white').pack(anchor='w')
-        tk.Label(card, text=value, font=config.get_font('heading_medium'), fg=accent, bg='white').pack(anchor='w')
+        tk.Label(card, text=label, font=config.get_font('caption'), fg=config.get_color('text_secondary'), bg='#e8eef5').pack(anchor='w')
+        tk.Label(card, text=value, font=config.get_font('heading_medium'), fg=accent, bg='#e8eef5').pack(anchor='w')
 
     def _get_placeholder_kpis(self):
         if self.active_category == 'borehole_levels':

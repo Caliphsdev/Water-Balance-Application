@@ -44,7 +44,7 @@ for edge in edges:
         edge['excel_mapping'] = {
             'enabled': True,
             'column': potential_col,
-            'sheet': 'Flows_MERN'
+            'sheet': 'Flows_Merensky North'
         }
         print(f"✓ Mapped: {from_id} → {to_id}")
         print(f"  Column: {potential_col}")

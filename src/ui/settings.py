@@ -19,7 +19,7 @@ class SettingsModule:
     
     def __init__(self, parent, initial_tab=None):
         self.parent = parent
-        self.container = ttk.Frame(parent)
+        self.container = tk.Frame(parent, bg='#f5f6f7')
         self.db = DatabaseManager()
         self.backup = BackupManager()
         self.initial_tab = initial_tab
@@ -27,35 +27,60 @@ class SettingsModule:
 
     def load(self):
         self.container.pack(fill='both', expand=True)
+        self.container.configure(bg='#f5f6f7')
         self._build_ui()
 
     def _build_ui(self):
         """Build modern settings interface"""
         # Header with icon and description
-        header = ttk.Frame(self.container)
-        header.pack(fill='x', padx=20, pady=(20, 10))
+        header = tk.Frame(self.container, bg='white', relief=tk.FLAT, bd=0)
+        header.pack(fill='x', padx=0, pady=(0, 0))
         
-        title_label = ttk.Label(
-            header, 
+        inner_header = tk.Frame(header, bg='white')
+        inner_header.pack(fill='x', padx=20, pady=20)
+        
+        title_label = tk.Label(
+            inner_header, 
             text="⚙️ Settings & Configuration",
-            font=('Segoe UI', 20, 'bold')
+            font=('Segoe UI', 22, 'bold'),
+            bg='white', fg='#2c3e50'
         )
         title_label.pack(anchor='w')
         
-        subtitle = ttk.Label(
-            header,
+        subtitle = tk.Label(
+            inner_header,
             text="Manage application settings, constants, backups, and system configuration",
-            font=('Segoe UI', 10),
-            foreground='#666'
+            font=('Segoe UI', 11),
+            foreground='#7f8c8d',
+            bg='white'
         )
-        subtitle.pack(anchor='w', pady=(5, 0))
+        subtitle.pack(anchor='w', pady=(3, 0))
         
-        # Separator
-        ttk.Separator(self.container, orient='horizontal').pack(fill='x', padx=20, pady=10)
+        # Modern tab styling with improved UX
+        style = ttk.Style()
+        style.theme_use('clam')
+        style.configure('SettingsNotebook.TNotebook', background='#f5f6f7', borderwidth=0)
+        # Enhanced tab styling: larger font, more padding for better visibility
+        style.configure('SettingsNotebook.TNotebook.Tab', 
+                       background='#d6dde8', 
+                       foreground='#2c3e50',
+                       padding=[24, 16],  # Increased from [20, 12] for larger tab size
+                       font=('Segoe UI', 11, 'bold'),  # Increased from 10 to 11, added bold
+                       relief='flat',
+                       borderwidth=0)
+        # Enhanced map with better visual feedback on interaction
+        style.map('SettingsNotebook.TNotebook.Tab',
+                 background=[('selected', '#3498db'), ('active', '#5dade2'), ('!active', '#d6dde8')],
+                 foreground=[('selected', '#ffffff'), ('active', '#ffffff'), ('!active', '#2c3e50')],
+                 lightcolor=[('selected', '#3498db')],
+                 darkcolor=[('selected', '#3498db')])
         
         # Notebook with modern tabs
-        self.notebook = ttk.Notebook(self.container)
-        self.notebook.pack(fill='both', expand=True, padx=20, pady=(0, 20))
+        tab_container = tk.Frame(self.container, bg='#f5f6f7')
+        tab_container.pack(fill='both', expand=True, padx=20, pady=(0, 20))
+        
+        self.notebook = ttk.Notebook(tab_container, style='SettingsNotebook.TNotebook')
+        self.notebook.pack(fill='both', expand=True)
         
         # Create tab frames
         self.branding_frame = ttk.Frame(self.notebook)
@@ -82,67 +107,110 @@ class SettingsModule:
 
     def _build_branding_tab(self):
         """Build branding configuration with modern card layout"""
-        scroll_container = ttk.Frame(self.branding_frame)
-        scroll_container.pack(fill='both', expand=True, padx=15, pady=15)
+        # Create scrollable content area
+        scroll_container = tk.Frame(self.branding_frame, bg='#f5f6f7')
+        scroll_container.pack(fill='both', expand=True)
+        
+        # Create canvas and scrollbar
+        canvas = tk.Canvas(scroll_container, bg='#f5f6f7', highlightthickness=0)
+        scrollbar = tk.Scrollbar(scroll_container, orient='vertical', command=canvas.yview)
+        scrollable_frame = tk.Frame(canvas, bg='#f5f6f7')
+        
+        scrollable_frame.bind(
+            '<Configure>',
+            lambda e: canvas.configure(scrollregion=canvas.bbox('all'))
+        )
+        
+        canvas.create_window((0, 0), window=scrollable_frame, anchor='nw')
+        canvas.configure(yscrollcommand=scrollbar.set)
+        
+        # Enable mousewheel scrolling
+        def _on_mousewheel(event):
+            canvas.yview_scroll(int(-1*(event.delta/120)), 'units')
+        canvas.bind_all('<MouseWheel>', _on_mousewheel)
+        
+        canvas.pack(side='left', fill='both', expand=True, padx=20, pady=20)
+        scrollbar.pack(side='right', fill='y', padx=0, pady=20)
+        
+        scroll_container = scrollable_frame  # Reuse variable for content
         
         # Company Information Card
-        company_card = ttk.LabelFrame(scroll_container, text='  📝 Company Information  ', padding=20)
-        company_card.pack(fill='x', pady=(0, 15))
+        company_card = tk.Frame(scroll_container, bg='#e8eef5', relief=tk.FLAT, bd=1, highlightbackground='#c5d3e6', highlightthickness=1)
+        company_card.pack(fill='x', pady=(0, 20))
+        
+        inner = tk.Frame(company_card, bg='#e8eef5')
+        inner.pack(fill='x', padx=20, pady=16)
+        
+        tk.Label(inner, text='📝 Company Information', font=('Segoe UI', 12, 'bold'), bg='#e8eef5', fg='#2c3e50').pack(anchor='w', pady=(0, 15))
         
         # Company name with better layout
-        name_frame = ttk.Frame(company_card)
+        name_frame = tk.Frame(inner, bg='#e8eef5')
         name_frame.pack(fill='x', pady=(0, 15))
         
-        ttk.Label(name_frame, text='Company Name', font=('Segoe UI', 10, 'bold')).pack(anchor='w')
-        ttk.Label(name_frame, text='This name will appear on all reports and exports', 
-                 font=('Segoe UI', 9), foreground='#666').pack(anchor='w', pady=(2, 5))
+        tk.Label(name_frame, text='Company Name', font=('Segoe UI', 10, 'bold'), bg='#e8eef5', fg='#2c3e50').pack(anchor='w')
+        tk.Label(name_frame, text='This name will appear on all reports and exports', 
+                 font=('Segoe UI', 9), fg='#7f8c8d', bg='#e8eef5').pack(anchor='w', pady=(2, 5))
         
-        name_entry_frame = ttk.Frame(name_frame)
-        name_entry_frame.pack(fill='x')
+        name_entry_frame = tk.Frame(inner, bg='#e8eef5')
+        name_entry_frame.pack(fill='x', pady=(0, 0))
         
-        self.company_name_entry = ttk.Entry(name_entry_frame, font=('Segoe UI', 10), width=50)
+        self.company_name_entry = tk.Entry(name_entry_frame, font=('Segoe UI', 10), bg='white', relief=tk.FLAT, bd=1, highlightbackground='#d9e6f4', highlightthickness=1)
         self.company_name_entry.insert(0, config.get_company_name())
-        self.company_name_entry.pack(side='left', fill='x', expand=True)
+        self.company_name_entry.pack(side='left', fill='x', expand=True, ipady=6, padx=(0, 10))
         
-        ttk.Button(name_entry_frame, text='💾 Save', command=self._save_company_name, 
-                  style='Accent.TButton').pack(side='left', padx=(10, 0))
+        save_btn = tk.Button(name_entry_frame, text='💾 Save', command=self._save_company_name, 
+                  font=('Segoe UI', 10), bg='#0066cc', fg='white', relief=tk.FLAT, bd=0, padx=20, pady=6, cursor='hand2')
+        save_btn.pack(side='left')
         
         # Logo Configuration Card
-        logo_card = ttk.LabelFrame(scroll_container, text='  🖼️ Company Logo  ', padding=20)
-        logo_card.pack(fill='x', pady=(0, 15))
+        logo_card = tk.Frame(scroll_container, bg='#e8eef5', relief=tk.FLAT, bd=1, highlightbackground='#c5d3e6', highlightthickness=1)
+        logo_card.pack(fill='x', pady=(0, 20))
         
-        ttk.Label(logo_card, text='Logo Image', font=('Segoe UI', 10, 'bold')).pack(anchor='w')
-        ttk.Label(logo_card, text='Upload your company logo to display in the application toolbar and reports',
-                 font=('Segoe UI', 9), foreground='#666').pack(anchor='w', pady=(2, 10))
+        inner_logo = tk.Frame(logo_card, bg='#e8eef5')
+        inner_logo.pack(fill='x', padx=20, pady=16)
+        
+        tk.Label(inner_logo, text='🖼️ Company Logo', font=('Segoe UI', 12, 'bold'), bg='#e8eef5', fg='#2c3e50').pack(anchor='w')
+        tk.Label(inner_logo, text='Upload your company logo to display in the application toolbar and reports',
+                 font=('Segoe UI', 9), fg='#7f8c8d', bg='#e8eef5').pack(anchor='w', pady=(2, 10))
         
         # Logo preview with border
-        preview_frame = ttk.Frame(logo_card, relief='solid', borderwidth=1)
+        preview_frame = tk.Frame(inner_logo, bg='white', relief=tk.FLAT, bd=1, highlightbackground='#d9e6f4', highlightthickness=1)
         preview_frame.pack(fill='x', pady=(0, 10))
         
-        self.logo_preview_label = ttk.Label(preview_frame, text='No logo selected', 
-                                           foreground='#999', padding=40)
+        self.logo_preview_label = tk.Label(preview_frame, text='No logo selected', 
+                                           fg='#999', bg='white', padx=40, pady=40, font=('Segoe UI', 10))
         self.logo_preview_label.pack()
         self._update_logo_preview()
         
         # Logo path display
-        path_frame = ttk.Frame(logo_card)
+        path_frame = tk.Frame(inner_logo, bg='#e8eef5')
         path_frame.pack(fill='x', pady=(0, 10))
         
-        ttk.Label(path_frame, text='Current Path:', font=('Segoe UI', 9)).pack(side='left')
-        self.logo_path_label = ttk.Label(path_frame, text=config.get_logo_path() or 'None', 
-                                        foreground='#666', font=('Segoe UI', 9, 'italic'))
+        tk.Label(path_frame, text='Current Path:', font=('Segoe UI', 9), bg='#e8eef5', fg='#2c3e50').pack(side='left')
+        self.logo_path_label = tk.Label(path_frame, text=config.get_logo_path() or 'None', 
+                                        fg='#7f8c8d', bg='#e8eef5', font=('Segoe UI', 9, 'italic'))
         self.logo_path_label.pack(side='left', padx=(5, 0))
         
         # Logo action buttons
-        logo_btn_frame = ttk.Frame(logo_card)
+        logo_btn_frame = tk.Frame(inner_logo, bg='#e8eef5')
         logo_btn_frame.pack(fill='x')
         
-        ttk.Button(logo_btn_frame, text='📁 Choose Logo File', command=self._select_logo).pack(side='left', padx=(0, 10))
-        ttk.Button(logo_btn_frame, text='❌ Remove Logo', command=self._remove_logo).pack(side='left')
+        choose_btn = tk.Button(logo_btn_frame, text='📁 Choose Logo File', command=self._select_logo, 
+                             font=('Segoe UI', 10), bg='#0066cc', fg='white', relief=tk.FLAT, bd=0, padx=15, pady=6, cursor='hand2')
+        choose_btn.pack(side='left', padx=(0, 10))
+        
+        remove_btn = tk.Button(logo_btn_frame, text='❌ Remove Logo', command=self._remove_logo,
+                              font=('Segoe UI', 10), bg='#cc3333', fg='white', relief=tk.FLAT, bd=0, padx=15, pady=6, cursor='hand2')
+        remove_btn.pack(side='left')
         
         # Recommendations Card
-        tips_card = ttk.LabelFrame(scroll_container, text='  💡 Recommendations  ', padding=15)
-        tips_card.pack(fill='x')
+        tips_card = tk.Frame(scroll_container, bg='#e8eef5', relief=tk.FLAT, bd=1, highlightbackground='#c5d3e6', highlightthickness=1)
+        tips_card.pack(fill='x', pady=(10, 0))
+        
+        inner_tips = tk.Frame(tips_card, bg='#e8eef5')
+        inner_tips.pack(fill='x', padx=20, pady=16)
+        
+        tk.Label(inner_tips, text='💡 Recommendations', font=('Segoe UI', 12, 'bold'), bg='#e8eef5', fg='#2c3e50').pack(anchor='w', pady=(0, 10))
         
         tips = [
             "• Use PNG format with transparent background for best results",
@@ -152,7 +220,7 @@ class SettingsModule:
         ]
         
         for tip in tips:
-            ttk.Label(tips_card, text=tip, font=('Segoe UI', 9), foreground='#555').pack(anchor='w', pady=2)
+            tk.Label(inner_tips, text=tip, font=('Segoe UI', 9), fg='#7f8c8d', bg='#e8eef5').pack(anchor='w', pady=2)
     
     def _save_company_name(self):
         """Save company name with validation"""
@@ -220,123 +288,158 @@ class SettingsModule:
                 img.thumbnail((200, 100), Image.Resampling.LANCZOS)
                 photo = ImageTk.PhotoImage(img)
                 
-                self.logo_preview_label.config(image=photo, text='')
+                self.logo_preview_label.config(image=photo, text='', bg='white')
                 self.logo_preview_label.image = photo
             except Exception as ex:
                 self.logo_preview_label.config(
                     text=f'⚠️ Preview unavailable\n{str(ex)}',
-                    foreground='#dc3545'
+                    foreground='#cc3333',
+                    bg='white'
                 )
         else:
             self.logo_preview_label.config(
                 text='📷\nNo logo uploaded',
                 foreground='#999',
-                image=''
+                image='',
+                bg='white'
             )
 
     def _build_constants_tab(self):
         """Build constants management with enhanced UI"""
-        container = ttk.Frame(self.constants_frame)
-        container.pack(fill='both', expand=True, padx=15, pady=15)
+        # Create scrollable container
+        scroll_container = tk.Frame(self.constants_frame, bg='#f5f6f7')
+        scroll_container.pack(fill='both', expand=True)
         
-        # Filter and search bar
-        filter_bar = ttk.Frame(container)
-        filter_bar.pack(fill='x', pady=(0, 15))
+        # Create canvas and scrollbar
+        canvas = tk.Canvas(scroll_container, bg='#f5f6f7', highlightthickness=0)
+        scrollbar = tk.Scrollbar(scroll_container, orient='vertical', command=canvas.yview)
+        scrollable_frame = tk.Frame(canvas, bg='#f5f6f7')
         
-        ttk.Label(filter_bar, text='Category:', font=('Segoe UI', 10)).pack(side='left', padx=(0, 5))
-        self.category_filter = ttk.Combobox(
-            filter_bar,
-               values=['All', 'Plant', 'Evaporation', 'Operating', 'Optimization', 'calculation'],
+        scrollable_frame.bind(
+            '<Configure>',
+            lambda e: canvas.configure(scrollregion=canvas.bbox('all'))
+        )
+        
+        canvas.create_window((0, 0), window=scrollable_frame, anchor='nw')
+        canvas.configure(yscrollcommand=scrollbar.set)
+        
+        # Enable mousewheel scrolling
+        def _on_mousewheel(event):
+            canvas.yview_scroll(int(-1*(event.delta/120)), 'units')
+        canvas.bind_all('<MouseWheel>', _on_mousewheel)
+        
+        canvas.pack(side='left', fill='both', expand=True)
+        scrollbar.pack(side='right', fill='y')
+        
+        container = scrollable_frame  # Use scrollable frame as container
+        container.configure(padx=20, pady=20)
+        
+        # Filter and search bar (modern card)
+        filter_card = tk.Frame(container, bg='#e8eef5', relief=tk.FLAT, bd=1, highlightbackground='#c5d3e6', highlightthickness=1)
+        filter_card.pack(fill='x', pady=(0, 20))
+        
+        filter_inner = tk.Frame(filter_card, bg='#e8eef5')
+        filter_inner.pack(fill='x', padx=20, pady=12)
+        
+        tk.Label(filter_inner, text='Category:', font=('Segoe UI', 10), bg='#e8eef5', fg='#2c3e50').pack(side='left', padx=(0, 5))
+        self.category_filter = tk.StringVar(master=filter_inner, value='All')
+        category_combo = ttk.Combobox(
+            filter_inner,
+            textvariable=self.category_filter,
+            values=['All', 'Plant', 'Evaporation', 'Operating', 'Optimization', 'calculation'],
             state='readonly',
             width=15
         )
-        self.category_filter.set('All')
-        self.category_filter.pack(side='left', padx=(0, 20))
-        self.category_filter.bind('<<ComboboxSelected>>', lambda e: self._load_constants())
+        category_combo.pack(side='left', padx=(0, 20))
+        category_combo.bind('<<ComboboxSelected>>', lambda e: self._load_constants())
 
         # Search input
-        ttk.Label(filter_bar, text='Search:', font=('Segoe UI', 10)).pack(side='left', padx=(0, 5))
-        self.search_var = tk.StringVar()
-        search_entry = ttk.Entry(filter_bar, textvariable=self.search_var, width=24)
-        search_entry.pack(side='left', padx=(0, 10))
+        tk.Label(filter_inner, text='Search:', font=('Segoe UI', 10), bg='#e8eef5', fg='#2c3e50').pack(side='left', padx=(0, 5))
+        self.search_var = tk.StringVar(master=filter_inner)
+        search_entry = tk.Entry(filter_inner, textvariable=self.search_var, font=('Segoe UI', 10), bg='white', relief=tk.FLAT, bd=1, highlightbackground='#d9e6f4', highlightthickness=1)
+        search_entry.pack(side='left', fill='x', expand=True, ipady=5, padx=(0, 10))
         search_entry.bind('<Return>', lambda e: self._load_constants())
         
-        # Note: Unused constants are auto-removed at startup; no UI action.
+        # Action buttons
+        refresh_btn = tk.Button(filter_inner, text='🔄 Refresh', command=self._load_constants, font=('Segoe UI', 10), bg='#0066cc', fg='white', relief=tk.FLAT, bd=0, padx=12, pady=5, cursor='hand2')
+        refresh_btn.pack(side='left', padx=(0, 8))
         
-        ttk.Button(filter_bar, text='🔄 Refresh', command=self._load_constants).pack(side='left', padx=(0, 10))
-        ttk.Button(filter_bar, text='📊 Export to Excel', command=self._export_constants).pack(side='left', padx=(0, 10))
-        ttk.Button(filter_bar, text='📜 View History', command=self._view_history).pack(side='left')
+        export_btn = tk.Button(filter_inner, text='📊 Export', command=self._export_constants, font=('Segoe UI', 10), bg='#28a745', fg='white', relief=tk.FLAT, bd=0, padx=12, pady=5, cursor='hand2')
+        export_btn.pack(side='left', padx=(0, 8))
         
-        # Constants table with improved styling
-        table_frame = ttk.LabelFrame(container, text='  System Constants  ', padding=10)
-        table_frame.pack(fill='both', expand=True, pady=(0, 15))
+        history_btn = tk.Button(filter_inner, text='📜 History', command=self._view_history, font=('Segoe UI', 10), bg='#6c3fb5', fg='white', relief=tk.FLAT, bd=0, padx=12, pady=5, cursor='hand2')
+        history_btn.pack(side='left')
         
-        cols = ('Category', 'Key', 'Value', 'Unit', 'Used In', 'Formula/Impact', 'Description')
-        self.tree = ttk.Treeview(table_frame, columns=cols, show='headings', height=12)
+        # Constants table (modern card)
+        table_card = tk.Frame(container, bg='#e8eef5', relief=tk.FLAT, bd=1, highlightbackground='#c5d3e6', highlightthickness=1)
+        table_card.pack(fill='both', expand=True, pady=(0, 20))
         
-        # Adjusted widths for better fit with scrolling
-        widths = {'Category': 90, 'Key': 150, 'Value': 70, 'Unit': 70, 'Used In': 110, 'Formula/Impact': 280, 'Description': 200}
+        table_header = tk.Frame(table_card, bg='#e8eef5')
+        table_header.pack(fill='x', padx=20, pady=(12, 0))
+        
+        tk.Label(table_header, text='System Constants', font=('Segoe UI', 12, 'bold'), bg='#e8eef5', fg='#2c3e50').pack(anchor='w')
+        
+        # Simple scrollable frame with vertical scrollbar only
+        tree_container = tk.Frame(table_card, bg='#e8eef5')
+        tree_container.pack(fill='both', expand=True, padx=20, pady=12)
+        
+        # Compact 5-column layout that fits on any screen
+        cols = ('Cat', 'Constant', 'Value', 'Unit', 'Usage')
+        self.tree = ttk.Treeview(tree_container, columns=cols, show='headings', height=12)
+        
+        # Compact widths - total ~800px fits on all screens
+        widths = {'Cat': 80, 'Constant': 180, 'Value': 80, 'Unit': 70, 'Usage': 390}
+        headings = {'Cat': 'Category', 'Constant': 'Constant Key', 'Value': 'Value', 
+                   'Unit': 'Unit', 'Usage': 'Used In / Formula'}
+        
         for c in cols:
-            self.tree.heading(c, text=c)
-            self.tree.column(c, width=widths[c], anchor='w', minwidth=60)
+            self.tree.heading(c, text=headings[c])
+            self.tree.column(c, width=widths[c], anchor='w', minwidth=50, stretch=True)
         
-        # Vertical scrollbar
-        scrollbar_y = ttk.Scrollbar(table_frame, orient='vertical', command=self.tree.yview)
-        # Horizontal scrollbar
-        scrollbar_x = ttk.Scrollbar(table_frame, orient='horizontal', command=self.tree.xview)
-        self.tree.configure(yscrollcommand=scrollbar_y.set, xscrollcommand=scrollbar_x.set)
+        # Vertical scrollbar only
+        scrollbar = ttk.Scrollbar(tree_container, orient='vertical', command=self.tree.yview)
+        self.tree.configure(yscrollcommand=scrollbar.set)
         
-        self.tree.grid(row=0, column=0, sticky='nsew')
-        scrollbar_y.grid(row=0, column=1, sticky='ns')
-        scrollbar_x.grid(row=1, column=0, sticky='ew')
-        
-        # Configure grid weights for proper resizing
-        table_frame.grid_rowconfigure(0, weight=1)
-        table_frame.grid_columnconfigure(0, weight=1)
+        self.tree.pack(side='left', fill='both', expand=True)
+        scrollbar.pack(side='right', fill='y')
         
         self._load_constants()
         
-        # Edit panel with modern card design
-        edit_card = ttk.LabelFrame(container, text='  ✏️ Edit Selected Constant  ', padding=20)
-        edit_card.pack(fill='x')
+        # Edit controls (modern card)
+        edit_card = tk.Frame(container, bg='#e8eef5', relief=tk.FLAT, bd=1, highlightbackground='#c5d3e6', highlightthickness=1)
+        edit_card.pack(fill='x', pady=(0, 0))
         
-        # Selected constant info
-        info_frame = ttk.Frame(edit_card)
-        info_frame.pack(fill='x', pady=(0, 15))
+        edit_inner = tk.Frame(edit_card, bg='#e8eef5')
+        edit_inner.pack(fill='x', padx=20, pady=12)
         
-        ttk.Label(info_frame, text='Constant:', font=('Segoe UI', 9)).grid(row=0, column=0, sticky='w', pady=2)
-        self.selected_key = ttk.Label(info_frame, text='(None selected)', 
-                                      font=('Segoe UI', 10, 'bold'), foreground='#0066cc')
-        self.selected_key.grid(row=0, column=1, sticky='w', padx=10, pady=2)
+        tk.Label(edit_inner, text='Quick Edit:', font=('Segoe UI', 10, 'bold'), bg='#e8eef5', fg='#2c3e50').pack(side='left', padx=(0, 10))
         
-        ttk.Label(info_frame, text='Description:', font=('Segoe UI', 9)).grid(row=1, column=0, sticky='nw', pady=2)
-        self.selected_desc = ttk.Label(info_frame, text='', wraplength=500, 
-                                       font=('Segoe UI', 9), foreground='#666')
-        self.selected_desc.grid(row=1, column=1, sticky='w', padx=10, pady=2)
+        self.selected_key = tk.Label(edit_inner, text='(Select a constant)', 
+                                      font=('Segoe UI', 10), fg='#7f8c8d', bg='#e8eef5')
+        self.selected_key.pack(side='left', padx=(0, 20))
         
-        # Value editor
-        editor_frame = ttk.Frame(edit_card)
-        editor_frame.pack(fill='x')
+        tk.Label(edit_inner, text='Value:', font=('Segoe UI', 10), bg='#e8eef5', fg='#2c3e50').pack(side='left', padx=(0, 5))
+        self.new_value = tk.Entry(edit_inner, font=('Segoe UI', 10), bg='white', relief=tk.FLAT, bd=1, highlightbackground='#d9e6f4', highlightthickness=1)
+        self.new_value.pack(side='left', fill='x', expand=True, ipady=5, padx=(0, 10))
         
-        ttk.Label(editor_frame, text='New Value:', font=('Segoe UI', 10, 'bold')).pack(side='left', padx=(0, 10))
-        self.new_value = ttk.Entry(editor_frame, font=('Segoe UI', 11), width=20)
-        self.new_value.pack(side='left', padx=(0, 10))
+        save_btn = tk.Button(edit_inner, text='💾 Save', command=self._update_constant, font=('Segoe UI', 10), bg='#0066cc', fg='white', relief=tk.FLAT, bd=0, padx=15, pady=5, cursor='hand2')
+        save_btn.pack(side='left', padx=(0, 5))
         
-        self.value_range_label = ttk.Label(editor_frame, text='', foreground='#17a2b8', 
-                                           font=('Segoe UI', 9))
-        self.value_range_label.pack(side='left', padx=(0, 15))
+        details_btn = tk.Button(edit_inner, text='📝 Details', command=self._show_edit_dialog, font=('Segoe UI', 10), bg='#00a886', fg='white', relief=tk.FLAT, bd=0, padx=15, pady=5, cursor='hand2')
+        details_btn.pack(side='left', padx=(0, 5))
         
-        ttk.Button(editor_frame, text='💾 Update Constant', command=self._update_constant,
-              style='Accent.TButton').pack(side='left', padx=(0, 8))
-
-        # Add/Delete actions
-        ttk.Button(editor_frame, text='➕ Add Constant', command=self._add_constant).pack(side='left', padx=(0, 8))
-        ttk.Button(editor_frame, text='🗑️ Delete Constant', command=self._delete_constant).pack(side='left')
+        add_btn = tk.Button(edit_inner, text='➕ Add', command=self._add_constant, font=('Segoe UI', 10), bg='#28a745', fg='white', relief=tk.FLAT, bd=0, padx=15, pady=5, cursor='hand2')
+        add_btn.pack(side='left', padx=(0, 5))
+        
+        delete_btn = tk.Button(edit_inner, text='🗑️ Delete', command=self._delete_constant, font=('Segoe UI', 10), bg='#cc3333', fg='white', relief=tk.FLAT, bd=0, padx=15, pady=5, cursor='hand2')
+        delete_btn.pack(side='left')
         
         # Bind selection event
         self.tree.bind('<<TreeviewSelect>>', self._on_constant_select)
         self.current_constant = None
         self._usage_cache = None
+        self.selected_desc = None  # Will show in dialog
+        self.value_range_label = None  # Will show in dialog
 
     def _on_constant_select(self, event):
         """Handle constant selection"""
@@ -347,22 +450,81 @@ class SettingsModule:
         item = self.tree.item(sel[0])
         values = item['values']
         
-        # Unpack: Category, Key, Value, Unit, Used In, Formula/Impact, Description
-        if len(values) >= 7:
-            cat, key, value, unit, used_in, formula, desc = values[:7]
+        # Unpack new format: Cat, Constant, Value, Unit, Usage
+        if len(values) >= 5:
+            cat, key, value, unit, usage = values[:5]
         else:
             return  # Invalid row
         
-        self.selected_key.config(text=key)
-        self.selected_desc.config(text=desc if desc and desc != '—' else 'No description available')
-        # Show formula/usage as additional context
-        self.value_range_label.config(text=f'Used in: {used_in}')
+        # Get full metadata
+        meta = self._get_constant_metadata(key)
         
+        # Update compact edit bar
+        self.selected_key.config(text=key, foreground='#0066cc')
         self.new_value.delete(0, 'end')
         self.new_value.insert(0, str(value))
         
-        # Load metadata for validation
-        self.current_constant = self._get_constant_metadata(key)
+        self.current_constant = meta
+    
+    def _show_edit_dialog(self):
+        """Show detailed constant information and editing in a popup dialog"""
+        key = self.selected_key.cget('text')
+        if key == '(Select a constant)':
+            messagebox.showinfo('No Selection', 'Please select a constant first.')
+            return
+        
+        meta = self.current_constant
+        if not meta:
+            return
+        
+        # Create dialog
+        dlg = tk.Toplevel(self.parent)
+        dlg.title(f'Edit Constant: {key}')
+        dlg.geometry('600x400')
+        dlg.transient(self.parent)
+        dlg.grab_set()
+        
+        # Content frame
+        content = ttk.Frame(dlg, padding=20)
+        content.pack(fill='both', expand=True)
+        
+        # Constant details
+        ttk.Label(content, text=key, font=('Segoe UI', 14, 'bold'), foreground='#0066cc').pack(anchor='w', pady=(0, 10))
+        
+        details_frame = ttk.Frame(content)
+        details_frame.pack(fill='x', pady=(0, 15))
+        
+        ttk.Label(details_frame, text=f"Category: {meta.get('category', '—')}", font=('Segoe UI', 10)).pack(anchor='w', pady=2)
+        ttk.Label(details_frame, text=f"Unit: {meta.get('unit', '—')}", font=('Segoe UI', 10)).pack(anchor='w', pady=2)
+        ttk.Label(details_frame, text=f"Current Value: {meta.get('constant_value', '—')}", font=('Segoe UI', 10, 'bold')).pack(anchor='w', pady=2)
+        
+        desc_label = ttk.Label(details_frame, text=f"Description:\n{meta.get('description', 'No description')}", 
+                              font=('Segoe UI', 9), foreground='#666', wraplength=550, justify='left')
+        desc_label.pack(anchor='w', pady=(5, 10))
+        
+        # Edit section
+        edit_frame = ttk.LabelFrame(content, text='Update Value', padding=15)
+        edit_frame.pack(fill='x', pady=(0, 10))
+        
+        ttk.Label(edit_frame, text='New Value:', font=('Segoe UI', 10)).pack(side='left', padx=(0, 10))
+        value_entry = ttk.Entry(edit_frame, font=('Segoe UI', 11), width=20)
+        value_entry.insert(0, str(meta.get('constant_value', '')))
+        value_entry.pack(side='left', padx=(0, 10))
+        
+        def save_from_dialog():
+            try:
+                new_val = float(value_entry.get())
+                self.new_value.delete(0, 'end')
+                self.new_value.insert(0, str(new_val))
+                self._update_constant()
+                dlg.destroy()
+            except ValueError:
+                messagebox.showerror('Invalid Value', 'Please enter a valid number.')
+        
+        ttk.Button(edit_frame, text='💾 Save', command=save_from_dialog).pack(side='left')
+        
+        # Close button
+        ttk.Button(content, text='Close', command=dlg.destroy).pack(pady=(10, 0))
 
     def _get_constant_metadata(self, key):
         """Get full constant metadata"""
@@ -371,6 +533,13 @@ class SettingsModule:
         )
         return result[0] if result else None
 
+    def _toggle_edit_panel(self):
+        """Toggle visibility of edit panel to save screen space"""
+        if self.edit_visible.get():
+            self.edit_card.pack(fill='x')
+        else:
+            self.edit_card.pack_forget()
+    
     def _load_constants(self):
         """Load constants into table with usage and formula information"""
         for i in self.tree.get_children():
@@ -400,12 +569,15 @@ class SettingsModule:
                 if search_text not in hay:
                     continue
             
-            # Get usage info (module and formula)
+            # Get usage info and combine module + formula
             usage_info = usage_map.get(key, {'module': '—', 'formula': '—'})
             used_in = usage_info['module']
             formula = usage_info['formula']
+            # Combine: "Module: formula" for compact display
+            usage_display = f"{used_in}: {formula}" if formula != '—' else used_in
             
-            self.tree.insert('', 'end', values=(category, key, value, unit, used_in, formula, desc))
+            # Insert with 5 columns: Cat, Constant, Value, Unit, Usage
+            self.tree.insert('', 'end', values=(category, key, value, unit, usage_display))
 
     def _update_constant(self):
         """Update selected constant with validation"""
@@ -423,7 +595,7 @@ class SettingsModule:
         # Range validation removed per request – any numeric value allowed
         
         # Critical constant warning
-        critical = ['MINING_WATER_RATE', 'SLURRY_DENSITY']
+        critical = ['SLURRY_DENSITY']
         if key in critical:
             confirm = messagebox.askyesno('⚠️ Critical Constant',
                 f'You are modifying a critical system constant: {key}\n\n'
@@ -441,29 +613,9 @@ class SettingsModule:
     def _get_constant_usage_info(self) -> Dict[str, Dict[str, str]]:
         """Get detailed usage information for each constant (where and how it's used)"""
         return {
-            'DEFAULT_MONTHLY_RAINFALL_MM': {
-                'module': 'Rainfall calc',
-                'formula': 'Fallback when no measurements exist'
-            },
-            'evaporation_mitigation_factor': {
-                'module': 'Optimization',
-                'formula': 'Evap × (1 - factor) = Reduced evap'
-            },
-            'plant_water_recovery_rate': {
-                'module': 'Optimization',
-                'formula': 'Recovered = Consumption × rate'
-            },
             'tailings_moisture_pct': {
                 'module': 'Tailings retention',
                 'formula': '(Ore - Conc) × moisture% = Retained water'
-            },
-            'MINING_WATER_RATE': {
-                'module': 'Mining water',
-                'formula': 'Ore tonnage × rate = Mining water used'
-            },
-            'monthly_ore_processing': {
-                'module': 'Plant calc',
-                'formula': 'Default ore tonnage when Excel has no data'
             },
             'ore_density': {
                 'module': 'Moisture calc',
@@ -646,10 +798,10 @@ class SettingsModule:
         ttk.Label(frame, text='Category:', font=('Segoe UI', 10)).grid(row=3, column=0, sticky='e', pady=6)
         ttk.Label(frame, text='Description:', font=('Segoe UI', 10)).grid(row=4, column=0, sticky='ne', pady=6)
 
-        key_var = tk.StringVar()
-        val_var = tk.StringVar()
-        unit_var = tk.StringVar()
-        cat_var = tk.StringVar(value='calculation')
+        key_var = tk.StringVar(master=frame)
+        val_var = tk.StringVar(master=frame)
+        unit_var = tk.StringVar(master=frame)
+        cat_var = tk.StringVar(master=frame, value='calculation')
         desc_txt = tk.Text(frame, height=5, width=40)
 
         ttk.Entry(frame, textvariable=key_var, width=32).grid(row=0, column=1, sticky='w', padx=8)
@@ -700,7 +852,7 @@ class SettingsModule:
             messagebox.showwarning('No Selection', 'Please select a constant to delete.')
             return
         # Extra safety: block deletion of core constants
-        protected = {'TSF_RETURN_RATE', 'MINING_WATER_RATE', 'SLURRY_DENSITY'}
+        protected = {'TSF_RETURN_RATE', 'SLURRY_DENSITY'}
         if key in protected:
             messagebox.showwarning('Protected', f'{key} is protected and cannot be deleted.')
             return
@@ -727,52 +879,71 @@ class SettingsModule:
 
     def _build_backup_tab(self):
         """Build backup management with modern UI"""
-        container = ttk.Frame(self.backup_frame)
-        container.pack(fill='both', expand=True, padx=15, pady=15)
+        container = tk.Frame(self.backup_frame, bg='#f5f6f7')
+        container.pack(fill='both', expand=True, padx=20, pady=20)
         
         # Info card
-        info_card = ttk.LabelFrame(container, text='  💾 Database Backup & Restore  ', padding=20)
-        info_card.pack(fill='x', pady=(0, 15))
+        info_card = tk.Frame(container, bg='#e8eef5', relief=tk.FLAT, bd=1, highlightbackground='#c5d3e6', highlightthickness=1)
+        info_card.pack(fill='x', pady=(0, 20))
         
-        ttk.Label(info_card, text='Regular backups protect your water balance data',
-                 font=('Segoe UI', 10), foreground='#666').pack(anchor='w', pady=(0, 10))
+        info_inner = tk.Frame(info_card, bg='#e8eef5')
+        info_inner.pack(fill='x', padx=20, pady=16)
+        
+        tk.Label(info_inner, text='💾 Database Backup & Restore', font=('Segoe UI', 12, 'bold'), bg='#e8eef5', fg='#2c3e50').pack(anchor='w')
+        tk.Label(info_inner, text='Regular backups protect your water balance data',
+                 font=('Segoe UI', 10), fg='#7f8c8d', bg='#e8eef5').pack(anchor='w', pady=(5, 12))
         
         # Actions
-        actions = ttk.Frame(info_card)
+        actions = tk.Frame(info_inner, bg='#e8eef5')
         actions.pack(fill='x')
         
-        ttk.Button(actions, text='💾 Create Backup Now', command=self._create_backup,
-                  style='Accent.TButton').pack(side='left', padx=(0, 10))
-        ttk.Button(actions, text='🔄 Refresh List', command=self._load_backups).pack(side='left')
+        backup_btn = tk.Button(actions, text='💾 Create Backup Now', command=self._create_backup,
+                  font=('Segoe UI', 10), bg='#28a745', fg='white', relief=tk.FLAT, bd=0, padx=15, pady=6, cursor='hand2')
+        backup_btn.pack(side='left', padx=(0, 10))
+        
+        refresh_btn = tk.Button(actions, text='🔄 Refresh List', command=self._load_backups,
+                               font=('Segoe UI', 10), bg='#0066cc', fg='white', relief=tk.FLAT, bd=0, padx=15, pady=6, cursor='hand2')
+        refresh_btn.pack(side='left')
         
         # Backups list
-        list_card = ttk.LabelFrame(container, text='  📂 Available Backups  ', padding=15)
-        list_card.pack(fill='both', expand=True, pady=(0, 15))
+        list_card = tk.Frame(container, bg='#e8eef5', relief=tk.FLAT, bd=1, highlightbackground='#c5d3e6', highlightthickness=1)
+        list_card.pack(fill='both', expand=True, pady=(0, 20))
         
-        self.backups_list = tk.Listbox(list_card, height=12, font=('Consolas', 9))
-        self.backups_list.pack(fill='both', expand=True)
+        list_header = tk.Frame(list_card, bg='#e8eef5')
+        list_header.pack(fill='x', padx=20, pady=(12, 0))
+        
+        tk.Label(list_header, text='📂 Available Backups', font=('Segoe UI', 12, 'bold'), bg='#e8eef5', fg='#2c3e50').pack(anchor='w')
+        
+        self.backups_list = tk.Listbox(list_card, height=10, font=('Consolas', 10), bg='white', relief=tk.FLAT, bd=0)
+        self.backups_list.pack(fill='both', expand=True, padx=20, pady=12)
         
         self._load_backups()
         
         # Restore section
-        restore_card = ttk.LabelFrame(container, text='  ⚠️ Restore from Backup  ', padding=15)
-        restore_card.pack(fill='x')
+        restore_card = tk.Frame(container, bg='#e8eef5', relief=tk.FLAT, bd=1, highlightbackground='#c5d3e6', highlightthickness=1)
+        restore_card.pack(fill='x', pady=(0, 0))
         
-        ttk.Label(restore_card, text='⚠️ Warning: Restoring will overwrite the current database',
-                 font=('Segoe UI', 9), foreground='#dc3545').pack(anchor='w', pady=(0, 10))
+        restore_inner = tk.Frame(restore_card, bg='#e8eef5')
+        restore_inner.pack(fill='x', padx=20, pady=16)
         
-        ttk.Button(restore_card, text='🔙 Restore Selected Backup', 
-                  command=self._restore_selected).pack(anchor='w')
+        tk.Label(restore_inner, text='⚠️ Restore from Backup', font=('Segoe UI', 12, 'bold'), bg='#e8eef5', fg='#2c3e50').pack(anchor='w')
+        tk.Label(restore_inner, text='⚠️ Warning: Restoring will overwrite the current database',
+                 font=('Segoe UI', 10), fg='#cc3333', bg='#e8eef5').pack(anchor='w', pady=(5, 12))
+        
+        restore_btn = tk.Button(restore_inner, text='🔙 Restore Selected Backup', 
+                  command=self._restore_selected,
+                  font=('Segoe UI', 10), bg='#cc3333', fg='white', relief=tk.FLAT, bd=0, padx=15, pady=6, cursor='hand2')
+        restore_btn.pack(anchor='w')
 
     def _build_environmental_tab(self):
         """Build environmental parameters tab"""
         # Scrollable container to adapt to smaller screens
-        container = ttk.Frame(self.environmental_frame)
+        container = tk.Frame(self.environmental_frame, bg='#f5f6f7')
         container.pack(fill='both', expand=True)
 
-        canvas = tk.Canvas(container, highlightthickness=0)
+        canvas = tk.Canvas(container, bg='#f5f6f7', highlightthickness=0)
         vscroll = ttk.Scrollbar(container, orient='vertical', command=canvas.yview)
-        scroll_container = ttk.Frame(canvas)
+        scroll_container = tk.Frame(canvas, bg='#f5f6f7')
 
         scroll_container.bind(
             '<Configure>',
@@ -780,89 +951,111 @@ class SettingsModule:
         )
 
         canvas.create_window((0, 0), window=scroll_container, anchor='nw')
-        canvas.configure(yscrollcommand=vscroll.set)
+        canvas.configure(yscrollcommand=vscroll.set, bg='#f5f6f7')
 
-        canvas.pack(side='left', fill='both', expand=True, padx=15, pady=15)
-        vscroll.pack(side='right', fill='y', pady=15)
+        canvas.pack(side='left', fill='both', expand=True, padx=20, pady=20)
+        vscroll.pack(side='right', fill='y', padx=0, pady=20)
 
         # Year selector card
-        year_card = ttk.LabelFrame(scroll_container, text='  📅 Historical Data  ', padding=20)
-        year_card.pack(fill='x', pady=(0, 15))
+        year_card = tk.Frame(scroll_container, bg='#e8eef5', relief=tk.FLAT, bd=1, highlightbackground='#c5d3e6', highlightthickness=1)
+        year_card.pack(fill='x', pady=(0, 20))
 
-        year_controls = ttk.Frame(year_card)
-        year_controls.pack(fill='x', pady=(0, 10))
+        year_inner = tk.Frame(year_card, bg='#e8eef5')
+        year_inner.pack(fill='x', padx=20, pady=16)
 
-        ttk.Label(year_controls, text='Select Year:', font=('Segoe UI', 10)).pack(side='left', padx=(0, 10))
+        tk.Label(year_inner, text='📅 Historical Data', font=('Segoe UI', 12, 'bold'), bg='#e8eef5', fg='#2c3e50').pack(anchor='w', pady=(0, 12))
+
+        year_controls = tk.Frame(year_inner, bg='#e8eef5')
+        year_controls.pack(fill='x', pady=(0, 0))
+
+        tk.Label(year_controls, text='Select Year:', font=('Segoe UI', 10), bg='#e8eef5', fg='#2c3e50').pack(side='left', padx=(0, 10))
         
         # Year spinbox
-        self.env_year_var = tk.StringVar(value=str(datetime.now().year))
+        self.env_year_var = tk.StringVar(master=year_controls, value=str(datetime.now().year))
         year_spinbox = ttk.Spinbox(year_controls, from_=2020, to=2050, textvariable=self.env_year_var,
                                    width=8, font=('Segoe UI', 10))
         year_spinbox.pack(side='left', padx=5)
         
-        ttk.Button(year_controls, text='Load Data', command=self._load_environmental_params).pack(side='left', padx=5)
+        load_btn = tk.Button(year_controls, text='Load Data', command=self._load_environmental_params, font=('Segoe UI', 10), bg='#0066cc', fg='white', relief=tk.FLAT, bd=0, padx=15, pady=5, cursor='hand2')
+        load_btn.pack(side='left', padx=5)
         
         # Quick year buttons
-        ttk.Label(year_controls, text='Quick: ', font=('Segoe UI', 9)).pack(side='left', padx=(10, 5))
+        tk.Label(year_controls, text='Quick: ', font=('Segoe UI', 9), bg='#e8eef5', fg='#2c3e50').pack(side='left', padx=(10, 5))
         current_year = datetime.now().year
         for year in [current_year, current_year-1, current_year-2]:
-            ttk.Button(year_controls, text=str(year), width=6,
-                      command=lambda y=year: self._set_env_year(y)).pack(side='left', padx=2)
+            year_btn = tk.Button(year_controls, text=str(year), font=('Segoe UI', 9), bg='#d9e6f4', fg='#2c3e50', relief=tk.FLAT, bd=0, padx=10, pady=4, cursor='hand2',
+                      command=lambda y=year: self._set_env_year(y))
+            year_btn.pack(side='left', padx=2)
 
         # Zone info (fixed to 4A)
-        zone_card = ttk.LabelFrame(scroll_container, text='  🌍 Evaporation Zone  ', padding=20)
-        zone_card.pack(fill='x', pady=(0, 15))
+        zone_card = tk.Frame(scroll_container, bg='#e8eef5', relief=tk.FLAT, bd=1, highlightbackground='#c5d3e6', highlightthickness=1)
+        zone_card.pack(fill='x', pady=(0, 20))
+
+        zone_inner = tk.Frame(zone_card, bg='#e8eef5')
+        zone_inner.pack(fill='x', padx=20, pady=16)
 
         current_zone = config.get('environmental.evaporation_zone', '4A')
-        ttk.Label(zone_card, text=f'Current Zone: {current_zone}',
-                 font=('Segoe UI', 11, 'bold')).pack(anchor='w', pady=(0, 5))
-        ttk.Label(zone_card, text='This zone applies to all regional evaporation calculations',
-                 font=('Segoe UI', 9), foreground='#666').pack(anchor='w')
+        tk.Label(zone_inner, text='🌍 Evaporation Zone',
+                 font=('Segoe UI', 12, 'bold'), bg='#e8eef5', fg='#2c3e50').pack(anchor='w')
+        tk.Label(zone_inner, text=f'Current Zone: {current_zone}',
+                 font=('Segoe UI', 11), bg='#e8eef5', fg='#00a886', pady=5).pack(anchor='w')
+        tk.Label(zone_inner, text='This zone applies to all regional evaporation calculations',
+                 font=('Segoe UI', 9), fg='#7f8c8d', bg='#e8eef5').pack(anchor='w')
 
         # Rainfall Card
-        rainfall_card = ttk.LabelFrame(scroll_container, text='  🌧️ Regional Rainfall (mm/month)  ', padding=20)
-        rainfall_card.pack(fill='x', pady=(0, 15))
+        rainfall_card = tk.Frame(scroll_container, bg='#e8eef5', relief=tk.FLAT, bd=1, highlightbackground='#c5d3e6', highlightthickness=1)
+        rainfall_card.pack(fill='x', pady=(0, 20))
+
+        rainfall_inner = tk.Frame(rainfall_card, bg='#e8eef5')
+        rainfall_inner.pack(fill='x', padx=20, pady=16)
+
+        tk.Label(rainfall_inner, text='🌧️ Regional Rainfall (mm/month)', font=('Segoe UI', 12, 'bold'), bg='#e8eef5', fg='#2c3e50').pack(anchor='w', pady=(0, 12))
 
         self.rainfall_entries = {}
         months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
-        rainfall_grid = ttk.Frame(rainfall_card)
+        rainfall_grid = tk.Frame(rainfall_inner, bg='#e8eef5')
         rainfall_grid.pack(fill='x')
 
         for idx, month in enumerate(months, 1):
             row = (idx - 1) // 4
             col = (idx - 1) % 4
 
-            month_frame = ttk.Frame(rainfall_grid)
+            month_frame = tk.Frame(rainfall_grid, bg='#e8eef5')
             month_frame.grid(row=row, column=col, padx=8, pady=8, sticky='ew')
 
-            ttk.Label(month_frame, text=f"{month}:", width=4, font=('Segoe UI', 9)).pack(side='left')
-            entry = ttk.Entry(month_frame, width=12, font=('Segoe UI', 10))
-            entry.pack(side='left', padx=5)
+            tk.Label(month_frame, text=f"{month}:", width=4, font=('Segoe UI', 9), bg='#e8eef5', fg='#2c3e50').pack(side='left')
+            entry = tk.Entry(month_frame, font=('Segoe UI', 10), bg='white', relief=tk.FLAT, bd=1, highlightbackground='#d9e6f4', highlightthickness=1)
+            entry.pack(side='left', padx=5, ipady=4)
             self.rainfall_entries[idx] = entry
-            ttk.Label(month_frame, text='mm', foreground='#888', font=('Segoe UI', 9)).pack(side='left')
+            tk.Label(month_frame, text='mm', fg='#7f8c8d', font=('Segoe UI', 9), bg='#e8eef5').pack(side='left')
 
         # Evaporation Card
-        evap_card = ttk.LabelFrame(scroll_container, text='  ☀️ Regional Evaporation (mm/month)  ', padding=20)
-        evap_card.pack(fill='x', pady=(0, 15))
+        evap_card = tk.Frame(scroll_container, bg='#e8eef5', relief=tk.FLAT, bd=1, highlightbackground='#c5d3e6', highlightthickness=1)
+        evap_card.pack(fill='x', pady=(0, 0))
+
+        evap_inner = tk.Frame(evap_card, bg='#e8eef5')
+        evap_inner.pack(fill='x', padx=20, pady=16)
+
+        tk.Label(evap_inner, text='☀️ Regional Evaporation (mm/month)', font=('Segoe UI', 12, 'bold'), bg='#e8eef5', fg='#2c3e50').pack(anchor='w', pady=(0, 12))
 
         self.evap_entries = {}
 
-        evap_grid = ttk.Frame(evap_card)
+        evap_grid = tk.Frame(evap_inner, bg='#e8eef5')
         evap_grid.pack(fill='x')
 
         for idx, month in enumerate(months, 1):
             row = (idx - 1) // 4
             col = (idx - 1) % 4
 
-            month_frame = ttk.Frame(evap_grid)
+            month_frame = tk.Frame(evap_grid, bg='#e8eef5')
             month_frame.grid(row=row, column=col, padx=8, pady=8, sticky='ew')
 
-            ttk.Label(month_frame, text=f"{month}:", width=4, font=('Segoe UI', 9)).pack(side='left')
-            entry = ttk.Entry(month_frame, width=12, font=('Segoe UI', 10))
-            entry.pack(side='left', padx=5)
+            tk.Label(month_frame, text=f"{month}:", width=4, font=('Segoe UI', 9), bg='#e8eef5', fg='#2c3e50').pack(side='left')
+            entry = tk.Entry(month_frame, font=('Segoe UI', 10), bg='white', relief=tk.FLAT, bd=1, highlightbackground='#d9e6f4', highlightthickness=1)
+            entry.pack(side='left', padx=5, ipady=4)
             self.evap_entries[idx] = entry
-            ttk.Label(month_frame, text='mm', foreground='#888', font=('Segoe UI', 9)).pack(side='left')
+            tk.Label(month_frame, text='mm', fg='#7f8c8d', font=('Segoe UI', 9), bg='#e8eef5').pack(side='left')
 
         # Buttons (action bar)
         ttk.Separator(scroll_container, orient='horizontal').pack(fill='x', pady=(5, 10))
@@ -961,36 +1154,71 @@ class SettingsModule:
 
     def _build_data_sources_tab(self):
         """Build data sources configuration tab for Excel file paths"""
-        container = ttk.Frame(self.data_sources_frame)
-        container.pack(fill='both', expand=True, padx=15, pady=15)
+        # Create scrollable container
+        scroll_container = tk.Frame(self.data_sources_frame, bg='#f5f6f7')
+        scroll_container.pack(fill='both', expand=True)
+        
+        # Create canvas and scrollbar
+        canvas = tk.Canvas(scroll_container, bg='#f5f6f7', highlightthickness=0)
+        scrollbar = tk.Scrollbar(scroll_container, orient='vertical', command=canvas.yview)
+        scrollable_frame = tk.Frame(canvas, bg='#f5f6f7')
+        
+        scrollable_frame.bind(
+            '<Configure>',
+            lambda e: canvas.configure(scrollregion=canvas.bbox('all'))
+        )
+        
+        canvas.create_window((0, 0), window=scrollable_frame, anchor='nw')
+        canvas.configure(yscrollcommand=scrollbar.set)
+        
+        # Enable mousewheel scrolling
+        def _on_mousewheel(event):
+            canvas.yview_scroll(int(-1*(event.delta/120)), 'units')
+        canvas.bind_all('<MouseWheel>', _on_mousewheel)
+        
+        canvas.pack(side='left', fill='both', expand=True)
+        scrollbar.pack(side='right', fill='y')
+        
+        container = scrollable_frame  # Use scrollable frame as container
+        
+        # Add padding to container
+        container.configure(padx=20, pady=20)
 
         # Info card
-        info_card = ttk.LabelFrame(container, text='  📂 Excel Data Source Configuration  ', padding=20)
-        info_card.pack(fill='x', pady=(0, 15))
+        info_card = tk.Frame(container, bg='#e8eef5', relief=tk.FLAT, bd=1, highlightbackground='#c5d3e6', highlightthickness=1)
+        info_card.pack(fill='x', pady=(0, 20))
 
-        ttk.Label(info_card, text='Configure paths to Excel files used by the application',
-                 font=('Segoe UI', 10), foreground='#666').pack(anchor='w', pady=(0, 10))
+        info_inner = tk.Frame(info_card, bg='#e8eef5')
+        info_inner.pack(fill='x', padx=20, pady=16)
 
-        ttk.Label(info_card, text='💡 If you move Excel files to a different location, update the paths here.',
-                 font=('Segoe UI', 9), foreground='#0066cc').pack(anchor='w')
+        tk.Label(info_inner, text='📂 Excel Data Source Configuration', font=('Segoe UI', 12, 'bold'), bg='#e8eef5', fg='#2c3e50').pack(anchor='w')
+        tk.Label(info_inner, text='Configure paths to Excel files used by the application',
+                 font=('Segoe UI', 10), fg='#7f8c8d', bg='#e8eef5').pack(anchor='w', pady=(5, 10))
+
+        tk.Label(info_inner, text='💡 If you move Excel files to a different location, update the paths here.',
+                 font=('Segoe UI', 9), fg='#0066cc', bg='#e8eef5').pack(anchor='w')
 
         # Legacy Excel file
-        legacy_card = ttk.LabelFrame(container, text='  📊 TRP Water Balance Excel  ', padding=20)
-        legacy_card.pack(fill='x', pady=(0, 15))
+        legacy_card = tk.Frame(container, bg='#e8eef5', relief=tk.FLAT, bd=1, highlightbackground='#c5d3e6', highlightthickness=1)
+        legacy_card.pack(fill='x', pady=(0, 20))
 
-        ttk.Label(legacy_card, text='TRP historical water balance data (optional)',
-                 font=('Segoe UI', 10, 'bold')).pack(anchor='w')
-        ttk.Label(legacy_card, text='Used for historical analysis and legacy charts. App works without this file.',
-                 font=('Segoe UI', 9), foreground='#666').pack(anchor='w', pady=(2, 10))
+        legacy_inner = tk.Frame(legacy_card, bg='#e8eef5')
+        legacy_inner.pack(fill='x', padx=20, pady=16)
 
-        legacy_path_frame = ttk.Frame(legacy_card)
+        tk.Label(legacy_inner, text='📊 TRP Water Balance Excel', font=('Segoe UI', 12, 'bold'), bg='#e8eef5', fg='#2c3e50').pack(anchor='w')
+        tk.Label(legacy_inner, text='TRP historical water balance data (optional)',
+                 font=('Segoe UI', 10), bg='#e8eef5', fg='#7f8c8d').pack(anchor='w', pady=(3, 0))
+        tk.Label(legacy_inner, text='Used for historical analysis and legacy charts. App works without this file.',
+                 font=('Segoe UI', 9), fg='#7f8c8d', bg='#e8eef5').pack(anchor='w', pady=(2, 10))
+
+        legacy_path_frame = tk.Frame(legacy_inner, bg='#e8eef5')
         legacy_path_frame.pack(fill='x', pady=(0, 10))
 
-        ttk.Label(legacy_path_frame, text='Current Path:', font=('Segoe UI', 9)).pack(side='left')
+        tk.Label(legacy_path_frame, text='Current Path:', font=('Segoe UI', 9), bg='#e8eef5', fg='#2c3e50').pack(side='left')
 
         legacy_path = config.get('data_sources.legacy_excel_path', 'data/New Water Balance  20250930 Oct.xlsx')
-        self.legacy_path_label = ttk.Label(legacy_path_frame, text=legacy_path,
-                                          foreground='#0066cc', font=('Segoe UI', 9, 'italic'))
+        self.legacy_path_label = tk.Label(legacy_path_frame, text=legacy_path,
+                                          fg='#0066cc', bg='#e8eef5', font=('Segoe UI', 9, 'italic'))
         self.legacy_path_label.pack(side='left', padx=(5, 10))
 
         # Status indicator
@@ -998,35 +1226,41 @@ class SettingsModule:
         legacy_full = base_dir / legacy_path if not Path(legacy_path).is_absolute() else Path(legacy_path)
         status_text = '✓ Found' if legacy_full.exists() else '❌ Missing'
         status_color = '#28a745' if legacy_full.exists() else '#dc3545'
-        self.legacy_status_label = ttk.Label(legacy_path_frame, text=status_text,
-                                             foreground=status_color, font=('Segoe UI', 9, 'bold'))
+        self.legacy_status_label = tk.Label(legacy_path_frame, text=status_text,
+                                            fg=status_color, bg='#e8eef5', font=('Segoe UI', 9, 'bold'))
         self.legacy_status_label.pack(side='left')
 
-        legacy_btn_frame = ttk.Frame(legacy_card)
-        legacy_btn_frame.pack(fill='x')
+        legacy_btn_frame = tk.Frame(legacy_inner, bg='#e8eef5')
+        legacy_btn_frame.pack(fill='x', pady=(10, 0))
 
-        ttk.Button(legacy_btn_frame, text='📁 Browse...',
-                  command=self._select_legacy_excel).pack(side='left', padx=(0, 10))
-        ttk.Button(legacy_btn_frame, text='🔄 Reset to Default',
-                  command=self._reset_legacy_path).pack(side='left')
+        tk.Button(legacy_btn_frame, text='📁 Browse...', command=self._select_legacy_excel,
+                  bg='#0066cc', fg='white', font=('Segoe UI', 9), relief=tk.FLAT, padx=10, pady=6, cursor='hand2',
+                  activebackground='#0052a3', activeforeground='white').pack(side='left', padx=(0, 10))
+        tk.Button(legacy_btn_frame, text='🔄 Reset to Default', command=self._reset_legacy_path,
+                  bg='#0066cc', fg='white', font=('Segoe UI', 9), relief=tk.FLAT, padx=10, pady=6, cursor='hand2',
+                  activebackground='#0052a3', activeforeground='white').pack(side='left')
 
         # Template Excel file
-        template_card = ttk.LabelFrame(container, text='  📝 Application Inputs Excel  ', padding=20)
+        template_card = tk.Frame(container, bg='#e8eef5', relief=tk.FLAT, bd=1, highlightbackground='#c5d3e6', highlightthickness=1)
         template_card.pack(fill='x', pady=(0, 15))
 
-        ttk.Label(template_card, text='Primary data input file (required)',
-                 font=('Segoe UI', 10, 'bold')).pack(anchor='w')
-        ttk.Label(template_card, text='This file is monitored for changes and auto-reloaded. App requires this file to function.',
-                 font=('Segoe UI', 9), foreground='#666').pack(anchor='w', pady=(2, 10))
+        template_inner = tk.Frame(template_card, bg='#e8eef5')
+        template_inner.pack(fill='x', padx=20, pady=16)
 
-        template_path_frame = ttk.Frame(template_card)
+        tk.Label(template_inner, text='📝 Application Inputs Excel', font=('Segoe UI', 12, 'bold'), bg='#e8eef5', fg='#2c3e50').pack(anchor='w')
+        tk.Label(template_inner, text='Primary data input file (required)',
+                 font=('Segoe UI', 10), fg='#7f8c8d', bg='#e8eef5').pack(anchor='w', pady=(3, 0))
+        tk.Label(template_inner, text='This file is monitored for changes and auto-reloaded. App requires this file to function.',
+                 font=('Segoe UI', 9), fg='#7f8c8d', bg='#e8eef5').pack(anchor='w', pady=(2, 10))
+
+        template_path_frame = tk.Frame(template_inner, bg='#e8eef5')
         template_path_frame.pack(fill='x', pady=(0, 10))
 
-        ttk.Label(template_path_frame, text='Current Path:', font=('Segoe UI', 9)).pack(side='left')
+        tk.Label(template_path_frame, text='Current Path:', font=('Segoe UI', 9), bg='#e8eef5', fg='#2c3e50').pack(side='left')
 
         template_path = config.get('data_sources.template_excel_path', 'templates/Water_Balance_TimeSeries_Template.xlsx')
-        self.template_path_label = ttk.Label(template_path_frame, text=template_path,
-                                            foreground='#0066cc', font=('Segoe UI', 9, 'italic'))
+        self.template_path_label = tk.Label(template_path_frame, text=template_path,
+                                            fg='#0066cc', bg='#e8eef5', font=('Segoe UI', 9, 'italic'))
         self.template_path_label.pack(side='left', padx=(5, 10))
 
         # Status indicator
@@ -1034,23 +1268,31 @@ class SettingsModule:
         template_full = base_dir / template_path if not Path(template_path).is_absolute() else Path(template_path)
         status_text = '✓ Found' if template_full.exists() else '❌ Missing'
         status_color = '#28a745' if template_full.exists() else '#dc3545'
-        self.template_status_label = ttk.Label(template_path_frame, text=status_text,
-                                              foreground=status_color, font=('Segoe UI', 9, 'bold'))
+        self.template_status_label = tk.Label(template_path_frame, text=status_text,
+                                              fg=status_color, bg='#e8eef5', font=('Segoe UI', 9, 'bold'))
         self.template_status_label.pack(side='left')
 
-        template_btn_frame = ttk.Frame(template_card)
-        template_btn_frame.pack(fill='x')
+        template_btn_frame = tk.Frame(template_inner, bg='#e8eef5')
+        template_btn_frame.pack(fill='x', pady=(10, 0))
 
-        ttk.Button(template_btn_frame, text='📁 Browse...',
-                  command=self._select_template_excel).pack(side='left', padx=(0, 10))
-        ttk.Button(template_btn_frame, text='🔄 Reset to Default',
-                  command=self._reset_template_path).pack(side='left', padx=(0, 10))
-        ttk.Button(template_btn_frame, text='📂 Open Folder',
-                  command=self._open_template_folder).pack(side='left')
+        tk.Button(template_btn_frame, text='📁 Browse...', command=self._select_template_excel,
+                  bg='#0066cc', fg='white', font=('Segoe UI', 9), relief=tk.FLAT, padx=10, pady=6, cursor='hand2',
+                  activebackground='#0052a3', activeforeground='white').pack(side='left', padx=(0, 10))
+        tk.Button(template_btn_frame, text='🔄 Reset to Default', command=self._reset_template_path,
+                  bg='#0066cc', fg='white', font=('Segoe UI', 9), relief=tk.FLAT, padx=10, pady=6, cursor='hand2',
+                  activebackground='#0052a3', activeforeground='white').pack(side='left', padx=(0, 10))
+        tk.Button(template_btn_frame, text='📂 Open Folder', command=self._open_template_folder,
+                  bg='#0066cc', fg='white', font=('Segoe UI', 9), relief=tk.FLAT, padx=10, pady=6, cursor='hand2',
+                  activebackground='#0052a3', activeforeground='white').pack(side='left')
 
         # Warning card
-        warning_card = ttk.LabelFrame(container, text='  ⚠️ Important Notes  ', padding=15)
+        warning_card = tk.Frame(container, bg='#e8eef5', relief=tk.FLAT, bd=1, highlightbackground='#c5d3e6', highlightthickness=1)
         warning_card.pack(fill='x')
+
+        warning_inner = tk.Frame(warning_card, bg='#e8eef5')
+        warning_inner.pack(fill='x', padx=20, pady=16)
+
+        tk.Label(warning_inner, text='⚠️ Important Notes', font=('Segoe UI', 12, 'bold'), bg='#e8eef5', fg='#2c3e50').pack(anchor='w', pady=(0, 10))
 
         warnings = [
             "• Changes take effect immediately but require app restart for full reload",
@@ -1061,7 +1303,7 @@ class SettingsModule:
         ]
 
         for warning in warnings:
-            ttk.Label(warning_card, text=warning, font=('Segoe UI', 9), foreground='#666').pack(anchor='w', pady=2)
+            tk.Label(warning_inner, text=warning, font=('Segoe UI', 9), fg='#7f8c8d', bg='#e8eef5').pack(anchor='w', pady=2)
     
     def _select_legacy_excel(self):
         """Select legacy Excel file"""

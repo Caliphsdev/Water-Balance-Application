@@ -21,13 +21,13 @@ COLUMN_REFERENCE = [
     ('Flows_UG2N', 'SPILLAGE_LOSS', 'Water lost through spillage/overflow', 'Loss'),
     ('Flows_UG2N', 'SEEPAGE_LOSS', 'Water lost through seepage into ground', 'Loss'),
     
-    # Flows_MERN
-    ('Flows_MERN', 'RAINFALL_MERN', 'Rainwater collected in Merensky North area', 'Inflow'),
-    ('Flows_MERN', 'MERENSKY_PLANT_INFLOW', 'Inflow to Merensky North processing plant', 'Inflow'),
-    ('Flows_MERN', 'TREATMENT_PLANT', 'Water from treatment plant facility', 'Inflow'),
-    ('Flows_MERN', 'DISCHARGE_POINT', 'Water discharged from the area', 'Outflow'),
-    ('Flows_MERN', 'EVAPORATION_LOSS', 'Water lost through evaporation', 'Loss'),
-    ('Flows_MERN', 'CONSERVATION_POOL', 'Water stored in conservation pool', 'Storage'),
+    # Flows_Merensky North
+    ('Flows_Merensky North', 'RAINFALL_MERN', 'Rainwater collected in Merensky North area', 'Inflow'),
+    ('Flows_Merensky North', 'MERENSKY_PLANT_INFLOW', 'Inflow to Merensky North processing plant', 'Inflow'),
+    ('Flows_Merensky North', 'TREATMENT_PLANT', 'Water from treatment plant facility', 'Inflow'),
+    ('Flows_Merensky North', 'DISCHARGE_POINT', 'Water discharged from the area', 'Outflow'),
+    ('Flows_Merensky North', 'EVAPORATION_LOSS', 'Water lost through evaporation', 'Loss'),
+    ('Flows_Merensky North', 'CONSERVATION_POOL', 'Water stored in conservation pool', 'Storage'),
     
     # Flows_MERENSKY_SOUTH
     ('Flows_MERENSKY_SOUTH', 'RAINFALL_MERENSKY_SOUTH', 'Rainwater collected in Merensky South area', 'Inflow'),

@@ -29,9 +29,6 @@ CHART_COLORS = {
     'recycled': '#6610f2',     # Purple
     'fresh': '#007bff',        # Primary blue
     'projection': '#ffc107',   # Yellow/Gold
-    'scenario1': '#20c997',    # Teal
-    'scenario2': '#e83e8c',    # Pink
-    'scenario3': '#17a2b8',    # Info blue
 }
 
 
@@ -105,7 +102,7 @@ def create_storage_runway_chart(projection_days: List[int],
     ax.set_xlabel('Days from Now', fontsize=11, fontweight='bold')
     ax.set_ylabel('Storage Volume (m³)', fontsize=11, fontweight='bold')
     ax.set_title(title, fontsize=13, fontweight='bold', pad=15)
-    ax.legend(loc='best', fontsize=9, framealpha=0.9)
+    ax.legend(loc='upper right', fontsize=7, framealpha=0.9, ncol=2)
     ax.grid(True, alpha=0.3, linestyle=':', linewidth=0.8)
     ax.set_xlim(left=0)
     ax.set_ylim(bottom=0)
@@ -204,50 +201,6 @@ def create_outflow_breakdown_chart(dates: List[date],
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
     ax.xaxis.set_major_locator(mdates.MonthLocator(interval=max(1, len(dates)//12)))
     fig.autofmt_xdate()
-    
-    # Format y-axis with commas
-    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, p: f'{x:,.0f}'))
-    
-    fig.tight_layout()
-    return fig
-
-
-def create_scenario_comparison_chart(scenario_results: Dict[str, Dict],
-                                     title: str = 'Scenario Comparison - Storage Projection') -> Figure:
-    """
-    Create overlay chart comparing multiple scenarios.
-    
-    Args:
-        scenario_results: Dict of {scenario_name: {'months': [0,1,2,...], 'storage': [values]}}
-        title: Chart title
-        
-    Returns:
-        Matplotlib Figure
-    """
-    fig, ax = plt.subplots(figsize=(12, 6))
-    
-    # Define distinct colors for scenarios
-    scenario_colors = [CHART_COLORS['scenario1'], CHART_COLORS['scenario2'], 
-                       CHART_COLORS['scenario3'], CHART_COLORS['critical'], 
-                       CHART_COLORS['projection']]
-    
-    for i, (scenario_name, data) in enumerate(scenario_results.items()):
-        months = data['months']
-        storage = data['storage']
-        color = scenario_colors[i % len(scenario_colors)]
-        linestyle = '-' if scenario_name.lower() == 'baseline' else '--'
-        linewidth = 2.5 if scenario_name.lower() == 'baseline' else 2.0
-        
-        ax.plot(months, storage, label=scenario_name, linewidth=linewidth, 
-                color=color, linestyle=linestyle, marker='o', markersize=4)
-    
-    ax.set_xlabel('Months from Now', fontsize=11, fontweight='bold')
-    ax.set_ylabel('Storage Volume (m³)', fontsize=11, fontweight='bold')
-    ax.set_title(title, fontsize=13, fontweight='bold', pad=15)
-    ax.legend(loc='best', fontsize=10, framealpha=0.9)
-    ax.grid(True, alpha=0.3, linestyle=':', linewidth=0.8)
-    ax.set_xlim(left=0)
-    ax.set_ylim(bottom=0)
     
     # Format y-axis with commas
     ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, p: f'{x:,.0f}'))

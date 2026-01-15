@@ -32,6 +32,6 @@ df.to_excel(writer, sheet_name='Flows_MERN', index=False)
 writer.save()
 writer.close()
 
-print('✅ Created Flows_MERN sheet with sample data')
+print('✅ Created Flows_Merensky North sheet with sample data')
 print(f'   Columns: {list(df.columns)}')
 print(f'   Rows: {len(df)}')

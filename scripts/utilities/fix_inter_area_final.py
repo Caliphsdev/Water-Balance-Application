@@ -7,7 +7,7 @@ with open('data/diagrams/ug2_north_decline.json', 'r') as f:
 edges = master.get('edges', [])
 
 area_map = {
-    'mern': 'Flows_MERN',
+    'mern': 'Flows_Merensky North',
     'mers': 'Flows_MERS',
     'merplant': 'Flows_MERPLANT',
     'ug2n': 'Flows_UG2N',

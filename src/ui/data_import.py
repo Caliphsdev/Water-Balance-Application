@@ -130,8 +130,9 @@ class DataImportModule:
                 'facility_type': ['facility_type', 'type'],
                 'total_capacity': ['total_capacity', 'capacity'],
                 'surface_area': ['surface_area', 'area'],
-                'minimum_operating_level': ['minimum_operating_level', 'min_level', 'min_operating_level'],
-                'maximum_operating_level': ['maximum_operating_level', 'max_level', 'max_operating_level'],
+                'max_depth': ['max_depth', 'depth', 'maximum_depth'],
+                'purpose': ['purpose', 'type_purpose'],
+                'water_quality': ['water_quality', 'quality'],
                 'description': ['description', 'notes', 'details'],
                 'active': ['active', 'is_active', 'enabled']
             },
@@ -311,7 +312,7 @@ class DataImportModule:
         file_frame.pack(fill=tk.X, pady=10)
         
         ttk.Label(file_frame, text="Excel File:", width=15).pack(side=tk.LEFT, padx=(0, 10))
-        self.file_path_var = tk.StringVar()
+        self.file_path_var = tk.StringVar(master=file_frame)
         file_entry = ttk.Entry(file_frame, textvariable=self.file_path_var, width=50)
         file_entry.pack(side=tk.LEFT, padx=(0, 10))
         
@@ -341,7 +342,7 @@ class DataImportModule:
         progress_frame = ttk.Frame(self.main_frame)
         progress_frame.pack(fill=tk.X, pady=(0, 15))
         
-        self.progress_var = tk.DoubleVar()
+        self.progress_var = tk.DoubleVar(master=progress_frame)
         progress_bar = ttk.Progressbar(progress_frame, variable=self.progress_var, 
                                        maximum=100, mode='determinate')
         progress_bar.pack(fill=tk.X, pady=5)
@@ -658,9 +659,10 @@ class DataImportModule:
             'facility_name': str(row.get('facility_name', '')),
             'facility_type': str(row.get('facility_type', 'Dam')),
             'total_capacity': float(row.get('total_capacity', 0)),
-            'surface_area': float(row.get('surface_area', 0)),
-            'minimum_operating_level': float(row.get('minimum_operating_level', 0)),
-            'maximum_operating_level': float(row.get('maximum_operating_level', 100)),
+            'surface_area': float(row.get('surface_area', 0)) if row.get('surface_area') else None,
+            'max_depth': float(row.get('max_depth', 0)) if row.get('max_depth') else None,
+            'purpose': str(row.get('purpose', 'raw_water')),
+            'water_quality': str(row.get('water_quality', 'process')),
             'description': str(row.get('description', '')),
             'active': int(row.get('active', 1))
         }

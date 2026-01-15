@@ -2,7 +2,7 @@
   "area_code": "UG2N",
   "title": "UG2 North Decline Area",
   "stockpile_title": "Stockpile Area",
-  "ug2south_title": "UG2 South Decline Area",
+  "ug2south_title": "UG2 Main Decline Area",
   "merenskysouth_title": "Merensky South Area",
   "oldtsf_title": "Old TSF",
   "newtsf_title": "New TSF",
@@ -27,7 +27,7 @@
       "color": "#f9e79f"
     },
     {
-      "name": "UG2 South Decline Area",
+      "name": "UG2 Main Decline Area",
       "x": 40,
       "y": 920,
       "width": 1800,
@@ -1980,8 +1980,8 @@
       "label_offset": 0.36455696202531646,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_OLDTSF",
-        "column": "OLDTSF_OLD_TSF_RAINRUN → OLDTSF_OLD_TSF"
+        "sheet": "Flows_Old TSF",
+        "column": "Old TSF Rainfall & Runoff → Old Tailings Storage Facility"
       },
       "label_pos": {
         "x": 353.0,
@@ -2008,8 +2008,8 @@
       "label_offset": 0.10158013544018059,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_OLDTSF",
-        "column": "OLDTSF_TRTD_RAIN → OLDTSF_TRTD"
+        "sheet": "Flows_Old TSF",
+        "column": "TRTD Rainfall → TSF Return Water Dams (TRTD)"
       },
       "label_pos": {
         "x": 247.0,
@@ -2040,8 +2040,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_NEWTSF",
-        "column": "OLDTSF_NEW_TSF_RAINRUN → OLDTSF_NEW_TSF"
+        "sheet": "Flows_New TSF",
+        "column": "New TSF Rainfall & Runoff → New Tailings Storage Facility"
       }
     },
     {
@@ -2064,8 +2064,8 @@
       "label_offset": 0.41228070175438597,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_MERP",
-        "column": "MERPLANT_MERP_ORE_WATER → MERPLANT_MERP_PLANT"
+        "sheet": "Flows_Merensky Plant",
+        "column": "Water in Merensky Ore → Merensky Concentrator Plant"
       },
       "label_pos": {
         "x": 526.0,
@@ -2092,8 +2092,8 @@
       "label_offset": 0.4338025020390413,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_MERP",
-        "column": "MERPLANT_MERP_ORE_WATER → MERPLANT_MERP_PLANT"
+        "sheet": "Flows_Merensky Plant",
+        "column": "Water in Merensky Ore → Merensky Concentrator Plant"
       },
       "label_pos": {
         "x": 566.996916725029,
@@ -2120,8 +2120,8 @@
       "label_offset": 0.2876712328767123,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_MERP",
-        "column": "MERPLANT_MERP_ORE_WATER → MERPLANT_MERP_PLANT"
+        "sheet": "Flows_Merensky Plant",
+        "column": "Water in Merensky Ore → Merensky Concentrator Plant"
       },
       "label_pos": {
         "x": 238.0,
@@ -2152,8 +2152,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_MERP",
-        "column": "MERPLANT_MERP_ORE_WATER → MERPLANT_MERP_PLANT"
+        "sheet": "Flows_Merensky Plant",
+        "column": "Water in Merensky Ore → Merensky Concentrator Plant"
       }
     },
     {
@@ -2184,8 +2184,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_MERP",
-        "column": "MERPLANT_MERP_ORE_WATER → MERPLANT_MERP_PLANT"
+        "sheet": "Flows_Merensky Plant",
+        "column": "Water in Merensky Ore → Merensky Concentrator Plant"
       }
     },
     {
@@ -2211,8 +2211,8 @@
       "label": "-",
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_MERP",
-        "column": "MERPLANT_MERP_ORE_WATER → MERPLANT_MERP_PLANT"
+        "sheet": "Flows_Merensky Plant",
+        "column": "Water in Merensky Ore → Merensky Concentrator Plant"
       }
     },
     {
@@ -2235,8 +2235,8 @@
       "label_offset": 0.8402860292807608,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_MERP",
-        "column": "MERPLANT_MERP_ORE_WATER → MERPLANT_MERP_PLANT"
+        "sheet": "Flows_Merensky Plant",
+        "column": "Water in Merensky Ore → Merensky Concentrator Plant"
       },
       "label_pos": {
         "x": 1320.0035646492886,
@@ -2263,8 +2263,8 @@
       "label_offset": 0.8857142857142857,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_MERP",
-        "column": "MERPLANT_MERP_ORE_WATER → MERPLANT_MERP_PLANT"
+        "sheet": "Flows_Merensky Plant",
+        "column": "Water in Merensky Ore → Merensky Concentrator Plant"
       },
       "label_pos": {
         "x": 1313.0,
@@ -2291,8 +2291,8 @@
       "label_offset": 0.9151982378854625,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_MERP",
-        "column": "MERPLANT_MERP_ORE_WATER → MERPLANT_MERP_PLANT"
+        "sheet": "Flows_Merensky Plant",
+        "column": "Water in Merensky Ore → Merensky Concentrator Plant"
       },
       "label_pos": {
         "x": 1313.0,
@@ -2319,8 +2319,8 @@
       "label_offset": 0.6457008514216211,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_MERP",
-        "column": "MERPLANT_MPSWD12 → MERPLANT_MPSWD12_DUST"
+        "sheet": "Flows_Merensky Plant",
+        "column": "Merensky Storm Water Dams → Merensky Dam Dust Suppression"
       },
       "label_pos": {
         "x": 1308.9976489987837,
@@ -2347,8 +2347,8 @@
       "label_offset": 0.5824742268041238,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_MERP",
-        "column": "MERPLANT_MPSWD12 → MERPLANT_MPSWD12_EVAP"
+        "sheet": "Flows_Merensky Plant",
+        "column": "Merensky Storm Water Dams → Merensky Dam Evaporation"
       },
       "label_pos": {
         "x": 1309.0,
@@ -2384,8 +2384,8 @@
       "bidirectional": false,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_MERP",
-        "column": "MERPLANT_MPSWD12 → MERPLANT_MPSWD12_DUST"
+        "sheet": "Flows_Merensky Plant",
+        "column": "Merensky Storm Water Dams → Merensky Dam Dust Suppression"
       },
       "label_pos": {
         "x": 1310.0,
@@ -2412,8 +2412,8 @@
       "label_offset": 0.8282352941176471,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_MERP",
-        "column": "MERPLANT_MERP_ORE_WATER → MERPLANT_MERP_PLANT"
+        "sheet": "Flows_Merensky Plant",
+        "column": "Water in Merensky Ore → Merensky Concentrator Plant"
       },
       "label_pos": {
         "x": 1315.0,
@@ -2440,8 +2440,8 @@
       "label_offset": 0.8524590163934426,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_MERP",
-        "column": "MERPLANT_MERP_ORE_WATER → MERPLANT_MERP_PLANT"
+        "sheet": "Flows_Merensky Plant",
+        "column": "Water in Merensky Ore → Merensky Concentrator Plant"
       },
       "label_pos": {
         "x": 1327.0,
@@ -2477,8 +2477,8 @@
       "bidirectional": false,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_MERP",
-        "column": "MERPLANT_MERP_ORE_WATER → MERPLANT_MERP_PLANT"
+        "sheet": "Flows_Merensky Plant",
+        "column": "Water in Merensky Ore → Merensky Concentrator Plant"
       }
     },
     {
@@ -2500,8 +2500,8 @@
       "label_offset": 0.10930232558139535,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_NEWTSF",
-        "column": "NEW_TSF_RAINRUN → NEW_TSF_NT_RWD"
+        "sheet": "Flows_New TSF",
+        "column": "New Tsf Rainrun → New Tsf Nt Rwd"
       },
       "label": "-",
       "label_pos": {
@@ -2528,8 +2528,8 @@
       "label_offset": 0.8875538131474323,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_NEWTSF",
-        "column": "OLDTSF_NT_RWD → OLDTSF_EVAP"
+        "sheet": "Flows_New TSF",
+        "column": "New TSF Return Water Dams → Oldtsf Evap"
       },
       "label": "-",
       "label_pos": {
@@ -2557,8 +2557,8 @@
       "bidirectional": false,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_NEWTSF",
-        "column": "OLDTSF_NT_RWD → OLDTSF_SPILL"
+        "sheet": "Flows_New TSF",
+        "column": "New TSF Return Water Dams → Oldtsf Spill"
       },
       "label": "-"
     },
@@ -2582,8 +2582,8 @@
       "label_offset": 0.8565737051792829,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_NEWTSF",
-        "column": "OLDTSF_NEW_TSF → OLDTSF_NEW_TSF_SEEPAGE"
+        "sheet": "Flows_New TSF",
+        "column": "New Tailings Storage Facility → Oldtsf New Tsf Seepage"
       },
       "label_pos": {
         "x": 1297.0,
@@ -2610,8 +2610,8 @@
       "label_offset": 0.8565737051792829,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_NEWTSF",
-        "column": "OLDTSF_NEW_TSF → OLDTSF_NEW_TSF_INTERSTITIAL"
+        "sheet": "Flows_New TSF",
+        "column": "New Tailings Storage Facility → Oldtsf New Tsf Interstitial"
       },
       "label_pos": {
         "x": 1297.0,
@@ -2638,8 +2638,8 @@
       "label_offset": 0.8628230616302187,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_NEWTSF",
-        "column": "OLDTSF_NEW_TSF → OLDTSF_NEW_TSF_EVAP"
+        "sheet": "Flows_New TSF",
+        "column": "New Tailings Storage Facility → Oldtsf New Tsf Evap"
       },
       "label_pos": {
         "x": 1301.0,
@@ -2667,8 +2667,8 @@
       "bidirectional": false,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_NEWTSF",
-        "column": "OLDTSF_NEW_TSF → OLDTSF_NT_RWD(Return)"
+        "sheet": "Flows_New TSF",
+        "column": "New Tailings Storage Facility → New TSF Return Water Dams (Return Flow)"
       },
       "label_pos": {
         "x": 792.0,
@@ -2695,8 +2695,8 @@
       "label_offset": 0.6442477876106195,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_OLDTSF",
-        "column": "OLDTSF_TRTD → OLDTSF_TRTD_EVAP"
+        "sheet": "Flows_Old TSF",
+        "column": "TSF Return Water Dams (TRTD) → Oldtsf Trtd Evap"
       },
       "label_pos": {
         "x": 1169.0,
@@ -2723,8 +2723,8 @@
       "bidirectional": false,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_OLDTSF",
-        "column": "OLDTSF_TRTD → OLDTSF_TRTD_SPILL"
+        "sheet": "Flows_Old TSF",
+        "column": "TSF Return Water Dams (TRTD) → Oldtsf Trtd Spill"
       },
       "label": "-"
     },
@@ -2748,8 +2748,8 @@
       "label_offset": 0.6857749469214437,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_OLDTSF",
-        "column": "OLDTSF_OLD_TSF → OLDTSF_OLD_TSF_INTERSTITIAL"
+        "sheet": "Flows_Old TSF",
+        "column": "Old Tailings Storage Facility → Oldtsf Old Tsf Interstitial"
       },
       "label_pos": {
         "x": 1222.0,
@@ -2780,8 +2780,8 @@
       "label_offset": 0.8404255319148937,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_OLDTSF",
-        "column": "OLDTSF_OLD_TSF → OLDTSF_OLD_TSF_SEEPAGE"
+        "sheet": "Flows_Old TSF",
+        "column": "Old Tailings Storage Facility → Oldtsf Old Tsf Seepage"
       },
       "label_pos": {
         "x": 1219.0,
@@ -2817,8 +2817,8 @@
       "bidirectional": false,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_OLDTSF",
-        "column": "OLDTSF_OLD_TSF → OLDTSF_TRTD(Drainage)"
+        "sheet": "Flows_Old TSF",
+        "column": "Old Tailings Storage Facility → TSF Return Water Dams (TRTD) (Drainage)"
       },
       "label_pos": {
         "x": 749.0,
@@ -2845,8 +2845,8 @@
       "label_offset": 0.4426877470355731,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_MERS",
-        "column": "MERS_BOREHOLE → MERS_SOFT"
+        "sheet": "Flows_Merensky South",
+        "column": "Merensky Borehole (MERS1-2) → Merensky Softening Plant"
       },
       "label_pos": {
         "x": 309.0,
@@ -2873,8 +2873,8 @@
       "label_offset": 0.4381443298969072,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_MERS",
-        "column": "MERS_SOFT → MERS_OFFICES"
+        "sheet": "Flows_Merensky South",
+        "column": "Merensky Softening Plant → Merensky Offices"
       },
       "label_pos": {
         "x": 635.0,
@@ -2901,8 +2901,8 @@
       "label_offset": 0.8693069306930693,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_MERS",
-        "column": "MERS_OFFICES → MERS_CONSUMPTION"
+        "sheet": "Flows_Merensky South",
+        "column": "Merensky Offices → Merensky Consumption"
       },
       "label_pos": {
         "x": 1303.0,
@@ -2933,8 +2933,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_MERS",
-        "column": "MERS_RAINFALL → MERS_MDCDG"
+        "sheet": "Flows_Merensky South",
+        "column": "Merensky South Rainfall → Merensky Decline Dams (Group)"
       }
     },
     {
@@ -2957,8 +2957,8 @@
       "label_offset": 0.6486486486486487,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_MERS",
-        "column": "MERS_MDCDG → MERS_MDCD_DUST"
+        "sheet": "Flows_Merensky South",
+        "column": "Merensky Decline Dams (Group) → Merensky Dust Suppression"
       },
       "label_pos": {
         "x": 1305.0,
@@ -2985,8 +2985,8 @@
       "label_offset": 0.5821917808219178,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_MERS",
-        "column": "MERS_MDCDG → MERS_MDCD_EVAP"
+        "sheet": "Flows_Merensky South",
+        "column": "Merensky Decline Dams (Group) → Merensky Dam Evaporation"
       },
       "label_pos": {
         "x": 1310.0,
@@ -3017,8 +3017,8 @@
       "bidirectional": false,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_MERS",
-        "column": "MERS_MDCDG → MERS_MDCD_SPILL"
+        "sheet": "Flows_Merensky South",
+        "column": "Merensky Decline Dams (Group) → Merensky Dam Spill"
       },
       "label_pos": {
         "x": 1313.0,
@@ -3054,8 +3054,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_MERS",
-        "column": "MERS_SD → MERS_MDCDG"
+        "sheet": "Flows_Merensky South",
+        "column": "Merensky South Decline → Merensky Decline Dams (Group)"
       }
     },
     {
@@ -3086,8 +3086,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_MERS",
-        "column": "MERS_MDCDG → MERS_SD"
+        "sheet": "Flows_Merensky South",
+        "column": "Merensky Decline Dams (Group) → Merensky South Decline"
       }
     },
     {
@@ -3110,8 +3110,8 @@
       "label_offset": 0.40625,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2S",
-        "column": "UG2S_BOREHOLE → UG2S_SOFT"
+        "sheet": "Flows_UG2 Main",
+        "column": "UG2 Main Borehole (MGDWA) → UG2 Main Softening Plant"
       }
     },
     {
@@ -3134,8 +3134,8 @@
       "label_offset": 0.086685552407932,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2S",
-        "column": "UG2S_SOFT → UG2S_RES"
+        "sheet": "Flows_UG2 Main",
+        "column": "UG2 Main Softening Plant → UG2 Main Reservoir"
       },
       "label_pos": {
         "x": 375.0866855524079,
@@ -3166,8 +3166,8 @@
       "label_offset": 0.6521739130434783,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2S",
-        "column": "UG2S_RES → UG2S_OFFICES"
+        "sheet": "Flows_UG2 Main",
+        "column": "UG2 Main Reservoir → UG2 Main Offices"
       },
       "label_pos": {
         "x": 533.0,
@@ -3194,8 +3194,8 @@
       "label_offset": 0.9056338028169014,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2S",
-        "column": "UG2S_OFFICES → UG2S_CONSUMPTION"
+        "sheet": "Flows_UG2 Main",
+        "column": "UG2 Main Offices → UG2 Main Consumption"
       },
       "label_pos": {
         "x": 1296.0,
@@ -3222,8 +3222,8 @@
       "label_offset": 0.8653500897666068,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2S",
-        "column": "UG2S_STP → UG2S_SOFT_LOSSES"
+        "sheet": "Flows_UG2 Main",
+        "column": "UG2 Main Sewage Treatment → Softening Losses"
       },
       "label_pos": {
         "x": 1322.0,
@@ -3250,8 +3250,8 @@
       "label_offset": 0.6818181818181818,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2S",
-        "column": "UG2S_MDCDG → UG2S_MDCD_DUST"
+        "sheet": "Flows_UG2 Main",
+        "column": "Main Decline Clean Dams (Group) → MDCD Dust Suppression"
       },
       "label_pos": {
         "x": 1301.0,
@@ -3278,8 +3278,8 @@
       "label_offset": 0.6033519553072626,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2S",
-        "column": "UG2S_MDCDG → UG2S_MDCD_EVAP"
+        "sheet": "Flows_UG2 Main",
+        "column": "Main Decline Clean Dams (Group) → MDCD Evaporation"
       },
       "label_pos": {
         "x": 1299.0,
@@ -3310,8 +3310,8 @@
       "label_offset": 0.854251012145749,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2S",
-        "column": "UG2S_MDCDG → UG2S_MDCD_SPILL"
+        "sheet": "Flows_UG2 Main",
+        "column": "Main Decline Clean Dams (Group) → MDCD Spill"
       },
       "label_pos": {
         "x": 1326.0,
@@ -3338,8 +3338,8 @@
       "label_offset": 0.3458823529411765,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2S",
-        "column": "UG2S_RAINFALL → UG2S_MDCDG"
+        "sheet": "Flows_UG2 Main",
+        "column": "UG2 Main Rainfall → Main Decline Clean Dams (Group)"
       },
       "label_pos": {
         "x": 475.0,
@@ -3370,8 +3370,8 @@
       "label_offset": 0.24109263657957244,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2S",
-        "column": "UG2S_MDCDG → UG2S_SD"
+        "sheet": "Flows_UG2 Main",
+        "column": "Main Decline Clean Dams (Group) → South Decline"
       },
       "label_pos": {
         "x": 868.0,
@@ -3398,8 +3398,8 @@
       "bidirectional": false,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_MERS",
-        "column": "MERS_SDSA → UG2S_MDCDG"
+        "sheet": "Flows_Merensky South",
+        "column": "Merensky Decline Shaft Area → Main Decline Clean Dams (Group)"
       },
       "label_pos": {
         "x": 1111.0,
@@ -3431,8 +3431,8 @@
       "label_offset": 0.08536585365853659,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_MERS",
-        "column": "MERS_MDCDG → UG2S_MDCDG"
+        "sheet": "Flows_Merensky South",
+        "column": "Merensky Decline Dams (Group) → Main Decline Clean Dams (Group)"
       },
       "label_pos": {
         "x": 1145.0,
@@ -3462,8 +3462,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_STOCKPILE",
-        "column": "STOCKPILE_BH_GWA → STOCKPILE_OFFICES"
+        "sheet": "Flows_Stockpile1",
+        "column": "Stockpile Borehole (SPGWA) → Stockpile Offices"
       },
       "label": "-"
     },
@@ -3490,8 +3490,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_STOCKPILE",
-        "column": "STOCKPILE_OFFICES → STOCKPILE_CONSUMPTION"
+        "sheet": "Flows_Stockpile1",
+        "column": "Stockpile Offices → Stockpile Consumption"
       },
       "label": "-"
     },
@@ -3518,8 +3518,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_STOCKPILE",
-        "column": "STOCKPILE_OFFICES → STOCKPILE_SEPTIC"
+        "sheet": "Flows_Stockpile1",
+        "column": "Stockpile Offices → Stockpile Septic"
       },
       "label": "-"
     },
@@ -3546,8 +3546,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_STOCKPILE",
-        "column": "STOCKPILE_RAINFALL_SPCD1 → SPCD1"
+        "sheet": "Flows_Stockpile1",
+        "column": "SPCD1 Rainfall → Stockpile Clean Dam 1"
       },
       "label": "-"
     },
@@ -3574,8 +3574,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_STOCKPILE",
-        "column": "SPCD1 → STOCKPILE_DUST_SUPPRESSION"
+        "sheet": "Flows_Stockpile1",
+        "column": "Stockpile Clean Dam 1 → Stockpile Dust Suppression"
       },
       "label": "-"
     },
@@ -3603,8 +3603,8 @@
       "bidirectional": false,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_STOCKPILE",
-        "column": "SPCD1 → STOCKPILE_SPILL"
+        "sheet": "Flows_Stockpile1",
+        "column": "Stockpile Clean Dam 1 → Stockpile Spill"
       },
       "label": "-"
     },
@@ -3635,8 +3635,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_STOCKPILE",
-        "column": "SPCD1 → STOCKPILE_EVAPORATION2"
+        "sheet": "Flows_Stockpile1",
+        "column": "Stockpile Clean Dam 1 → Stockpile Evaporation2"
       },
       "label": "-"
     },
@@ -3663,8 +3663,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_STOCKPILE",
-        "column": "STOCKPILE_RAINFALL → STOCKPILE_AREA"
+        "sheet": "Flows_Stockpile1",
+        "column": "Stockpile Rainfall → Stockpile Area"
       },
       "label": "-"
     },
@@ -3691,8 +3691,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_STOCKPILE",
-        "column": "STOCKPILE_AREA → STOCKPILE_EVAPORATION"
+        "sheet": "Flows_Stockpile1",
+        "column": "Stockpile Area → Stockpile Evaporation"
       },
       "label": "-"
     },
@@ -3722,8 +3722,8 @@
       "color": "#e74c3c",
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_STOCKPILE",
-        "column": "STOCKPILE_AREA → SPCD1"
+        "sheet": "Flows_Stockpile1",
+        "column": "Stockpile Area → Stockpile Clean Dam 1"
       },
       "label": "-"
     },
@@ -3751,8 +3751,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2N",
-        "column": "RAINFALL → NDCD"
+        "sheet": "Flows_UG2 North",
+        "column": "Rainfall → North Decline Clean Dams"
       }
     },
     {
@@ -3779,8 +3779,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2N",
-        "column": "NDCD → SPILL"
+        "sheet": "Flows_UG2 North",
+        "column": "North Decline Clean Dams → Spill"
       }
     },
     {
@@ -3807,8 +3807,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2N",
-        "column": "NDCD → EVAPORATION"
+        "sheet": "Flows_UG2 North",
+        "column": "North Decline Clean Dams → Evaporation"
       }
     },
     {
@@ -3839,8 +3839,8 @@
       "bidirectional": false,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2N",
-        "column": "NDCD → DUST_SUPPRESSION"
+        "sheet": "Flows_UG2 North",
+        "column": "North Decline Clean Dams → Dust Suppression"
       },
       "label": "-"
     },
@@ -3868,8 +3868,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2N",
-        "column": "BH_NDGWA → SOFTENING"
+        "sheet": "Flows_UG2 North",
+        "column": "Borehole Abstraction (NDGWA) → Softening Plant"
       }
     },
     {
@@ -3896,8 +3896,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2N",
-        "column": "SOFTENING → RESERVOIR"
+        "sheet": "Flows_UG2 North",
+        "column": "Softening Plant → Reservoir"
       }
     },
     {
@@ -3932,8 +3932,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2N",
-        "column": "RESERVOIR → OFFICES"
+        "sheet": "Flows_UG2 North",
+        "column": "Reservoir → Offices"
       }
     },
     {
@@ -3964,8 +3964,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2N",
-        "column": "SOFTENING → TRP_CLINIC"
+        "sheet": "Flows_UG2 North",
+        "column": "Softening Plant → TRP Clinic"
       }
     },
     {
@@ -3992,8 +3992,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2N",
-        "column": "TRP_CLINIC → SEPTIC"
+        "sheet": "Flows_UG2 North",
+        "column": "TRP Clinic → Septic Tank"
       }
     },
     {
@@ -4024,8 +4024,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2N",
-        "column": "TRP_CLINIC → CONSUMPTION"
+        "sheet": "Flows_UG2 North",
+        "column": "TRP Clinic → Consumption"
       }
     },
     {
@@ -4052,8 +4052,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2N",
-        "column": "SOFTENING → LOSSES"
+        "sheet": "Flows_UG2 North",
+        "column": "Softening Plant → Losses"
       }
     },
     {
@@ -4088,8 +4088,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2N",
-        "column": "OFFICES → CONSUMPTION2"
+        "sheet": "Flows_UG2 North",
+        "column": "Offices → Consumption2"
       }
     },
     {
@@ -4116,8 +4116,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2N",
-        "column": "OFFICES → SEWAGE"
+        "sheet": "Flows_UG2 North",
+        "column": "Offices → Sewage Treatment"
       }
     },
     {
@@ -4144,8 +4144,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2N",
-        "column": "SEWAGE → LOSSES2"
+        "sheet": "Flows_UG2 North",
+        "column": "Sewage Treatment → Losses2"
       }
     },
     {
@@ -4173,8 +4173,8 @@
       "bidirectional": false,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2N",
-        "column": "NORTH_SHAFT → NDCD"
+        "sheet": "Flows_UG2 North",
+        "column": "North Decline Shaft Area → North Decline Clean Dams"
       }
     },
     {
@@ -4205,8 +4205,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2N",
-        "column": "NORTH_DECLINE → NDCD"
+        "sheet": "Flows_UG2 North",
+        "column": "North Decline → North Decline Clean Dams"
       }
     },
     {
@@ -4237,8 +4237,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2N",
-        "column": "NDCD → NORTH_DECLINE"
+        "sheet": "Flows_UG2 North",
+        "column": "North Decline Clean Dams → North Decline"
       }
     },
     {
@@ -4269,8 +4269,8 @@
       "label_offset": 0.2971887550200803,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_MERS",
-        "column": "MERS_OFFICES → UG2S_STP"
+        "sheet": "Flows_Merensky South",
+        "column": "Merensky Offices → UG2 Main Sewage Treatment"
       },
       "label_pos": {
         "x": 744.0,
@@ -4315,8 +4315,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2N",
-        "column": "SEWAGE → JUNCTION_127_1208_365"
+        "sheet": "Flows_UG2 North",
+        "column": "Sewage Treatment → Junction 127 1208 365"
       }
     },
     {
@@ -4364,8 +4364,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_STOCKPILE",
-        "column": "SPCD1 → JUNCTION_129_1140_1242"
+        "sheet": "Flows_Stockpile1",
+        "column": "Stockpile Clean Dam 1 → Junction 129 1140 1242"
       },
       "label": "-"
     },
@@ -4390,8 +4390,8 @@
       "is_junction": false,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_NEWTSF",
-        "column": "JUNCTION_132_288_2496 → OLDTSF_NEW_TSF"
+        "sheet": "Flows_New TSF",
+        "column": "Junction 132 288 2496 → New Tailings Storage Facility"
       }
     },
     {
@@ -4424,8 +4424,8 @@
       "label_offset": 0.08974358974358974,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_MERP",
-        "column": "MERPLANT_MERP_ORE_WATER → MERPLANT_MERP_PLANT"
+        "sheet": "Flows_Merensky Plant",
+        "column": "Water in Merensky Ore → Merensky Concentrator Plant"
       },
       "label_pos": {
         "x": 963.0,
@@ -4462,8 +4462,8 @@
       "label_offset": 0.810126582278481,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_MERP",
-        "column": "MERPLANT_MERP_ORE_WATER → MERPLANT_MERP_PLANT"
+        "sheet": "Flows_Merensky Plant",
+        "column": "Water in Merensky Ore → Merensky Concentrator Plant"
       },
       "label_pos": {
         "x": 1053.0,
@@ -4495,8 +4495,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_MERP",
-        "column": "MERPLANT_MERP_ORE_WATER → MERPLANT_MERP_PLANT"
+        "sheet": "Flows_Merensky Plant",
+        "column": "Water in Merensky Ore → Merensky Concentrator Plant"
       }
     },
     {
@@ -4523,8 +4523,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_NEWTSF",
-        "column": "OLDTSF_NT_RWD → OLDTSF_NT_RWD"
+        "sheet": "Flows_New TSF",
+        "column": "New TSF Return Water Dams → New TSF Return Water Dams"
       },
       "label": "-",
       "label_font_size": 7.0,
@@ -4556,8 +4556,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_NEWTSF",
-        "column": "OLDTSF_NEW_TSF → OLDTSF_NEW_TSF"
+        "sheet": "Flows_New TSF",
+        "column": "New Tailings Storage Facility → New Tailings Storage Facility"
       },
       "label_font_size": 8.0,
       "box_width": 40,
@@ -4588,8 +4588,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_OLDTSF",
-        "column": "OLDTSF_TRTD → OLDTSF_TRTD"
+        "sheet": "Flows_Old TSF",
+        "column": "TSF Return Water Dams (TRTD) → TSF Return Water Dams (TRTD)"
       },
       "label_font_size": 7.0,
       "box_width": 40,
@@ -4620,8 +4620,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_OLDTSF",
-        "column": "OLDTSF_OLD_TSF → OLDTSF_OLD_TSF"
+        "sheet": "Flows_Old TSF",
+        "column": "Old Tailings Storage Facility → Old Tailings Storage Facility"
       },
       "label_font_size": 7.0,
       "box_width": 40,
@@ -4652,8 +4652,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_MERS",
-        "column": "MERS_MDCDG → MERS_MDCDG"
+        "sheet": "Flows_Merensky South",
+        "column": "Merensky Decline Dams (Group) → Merensky Decline Dams (Group)"
       }
     },
     {
@@ -4681,8 +4681,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2S",
-        "column": "UG2S_MDCDG → UG2S_MDCDG"
+        "sheet": "Flows_UG2 Main",
+        "column": "Main Decline Clean Dams (Group) → Main Decline Clean Dams (Group)"
       }
     },
     {
@@ -4710,8 +4710,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_STOCKPILE",
-        "column": "SPCD1 → SPCD1"
+        "sheet": "Flows_Stockpile1",
+        "column": "SPCD1 Rainfall → Stockpile Clean Dam 1"
       },
       "label_font_size": 8.0,
       "box_width": 45,
@@ -4741,8 +4741,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_STOCKPILE",
-        "column": "STOCKPILE_AREA → STOCKPILE_AREA"
+        "sheet": "Flows_Stockpile1",
+        "column": "Stockpile Area → Stockpile Area"
       },
       "label": "-"
     },
@@ -4771,8 +4771,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2N",
-        "column": "NDCD → EVAPORATION"
+        "sheet": "Flows_UG2 North",
+        "column": "North Decline Clean Dams → Evaporation"
       }
     },
     {
@@ -4805,8 +4805,8 @@
       "label_offset": 0.9740163325909429,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_MERS",
-        "column": "MERS_SOFT → MERS_SOFT_LOSSES"
+        "sheet": "Flows_Merensky South",
+        "column": "Merensky Softening Plant → Merensky Softening Losses"
       },
       "label_pos": {
         "x": 1328.0,
@@ -4848,8 +4848,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2S",
-        "column": "UG2S_SOFT → UG2S_STP_LOSSES"
+        "sheet": "Flows_UG2 Main",
+        "column": "UG2 Main Softening Plant → Sewage Treatment Losses"
       }
     },
     {
@@ -4887,8 +4887,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2S",
-        "column": "UG2S_OFFICES → UG2S_STP"
+        "sheet": "Flows_UG2 Main",
+        "column": "UG2 Main Offices → UG2 Main Sewage Treatment"
       }
     },
     {
@@ -4918,8 +4918,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2S",
-        "column": "UG2S_SDSA → UG2S_MDCDG"
+        "sheet": "Flows_UG2 Main",
+        "column": "South Decline Shaft Area → Main Decline Clean Dams (Group)"
       }
     },
     {
@@ -4949,8 +4949,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2S",
-        "column": "UG2S_SD → UG2S_MDCDG"
+        "sheet": "Flows_UG2 Main",
+        "column": "South Decline → Main Decline Clean Dams (Group)"
       }
     },
     {
@@ -4992,8 +4992,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2S",
-        "column": "UG2S_MDCDG → JUNCTION_130_1229_1793"
+        "sheet": "Flows_UG2 Main",
+        "column": "Main Decline Clean Dams (Group) → Junction 130 1229 1793"
       }
     },
     {
@@ -5019,8 +5019,8 @@
       "label_offset": 0.7148217636022514,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_OLDTSF",
-        "column": "OLDTSF_OFFICES → OLDTSF_OFF_CONSUMPTION"
+        "sheet": "Flows_Old TSF",
+        "column": "Old TSF Offices → Oldtsf Off Consumption"
       },
       "label_pos": {
         "x": 1218.0,
@@ -5050,8 +5050,8 @@
       "label_offset": 0.7779850746268657,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_OLDTSF",
-        "column": "OLDTSF_OFFICES → OLDTSF_OFF_SEPTIC"
+        "sheet": "Flows_Old TSF",
+        "column": "Old TSF Offices → Oldtsf Off Septic"
       }
     },
     {
@@ -5077,8 +5077,8 @@
       "label_offset": 0.6963906581740976,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_OLDTSF",
-        "column": "OLDTSF_OLD_TSF → OLDTSF_OLD_TSF_EVAP"
+        "sheet": "Flows_Old TSF",
+        "column": "Old Tailings Storage Facility → Oldtsf Old Tsf Evap"
       },
       "label_pos": {
         "x": 1227.0,
@@ -5128,8 +5128,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_OLDTSF",
-        "column": "OLDTSF_OLD_TSF → OLDTSF_TRTD(Return)"
+        "sheet": "Flows_Old TSF",
+        "column": "Old Tailings Storage Facility → TSF Return Water Dams (TRTD) (Return Flow)"
       }
     },
     {
@@ -5170,8 +5170,8 @@
       "is_junction": false,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_OLDTSF",
-        "column": "OLDTSF_TRTD → OLDTSF_OLD_TSF"
+        "sheet": "Flows_Old TSF",
+        "column": "TSF Return Water Dams (TRTD) → Old Tailings Storage Facility"
       }
     },
     {
@@ -5217,8 +5217,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_NEWTSF",
-        "column": "OLDTSF_NT_RWD → OLDTSF_NEW_TSF"
+        "sheet": "Flows_New TSF",
+        "column": "New TSF Return Water Dams → New Tailings Storage Facility"
       }
     },
     {
@@ -5264,8 +5264,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_NEWTSF",
-        "column": "OLDTSF_NEW_TSF → OLDTSF_NT_RWD(Drainage)"
+        "sheet": "Flows_New TSF",
+        "column": "New Tailings Storage Facility → New TSF Return Water Dams (Drainage)"
       }
     },
     {
@@ -5312,8 +5312,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2P",
-        "column": "UG2PLANT_UG2P_DWARSRIVIER → UG2PLANT_CPRWSD1"
+        "sheet": "Flows_UG2 Plant",
+        "column": "Ug2Plant Ug2P Dwarsrivier → UG2 Plant River Water Dam"
       }
     },
     {
@@ -5356,8 +5356,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2P",
-        "column": "UG2PLANT_UG2P_KLEINDWARS → UG2PLANT_CPRWSD1"
+        "sheet": "Flows_UG2 Plant",
+        "column": "Ug2Plant Ug2P Kleindwars → UG2 Plant River Water Dam"
       }
     },
     {
@@ -5388,8 +5388,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2P",
-        "column": "UG2PLANT_UG2P_ORE_WATER → UG2PLANT_UG2P_PLANT"
+        "sheet": "Flows_UG2 Plant",
+        "column": "Water in UG2 Ore → UG2 Concentrator Plant"
       }
     },
     {
@@ -5428,8 +5428,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2P",
-        "column": "UG2PLANT_CPRWSD1 → UG2PLANT_UG2P_PLANT"
+        "sheet": "Flows_UG2 Plant",
+        "column": "UG2 Plant River Water Dam → UG2 Concentrator Plant"
       }
     },
     {
@@ -5460,8 +5460,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2P",
-        "column": "UG2PLANT_UG2P_PLANT → UG2PLANT_UG2P_PLANT_PRODUCT"
+        "sheet": "Flows_UG2 Plant",
+        "column": "UG2 Concentrator Plant → Water in UG2 Concentrate"
       }
     },
     {
@@ -5492,8 +5492,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2P",
-        "column": "UG2PLANT_UG2P_PLANT → UG2PLANT_UG2P_PLANT_LOSSES"
+        "sheet": "Flows_UG2 Plant",
+        "column": "UG2 Concentrator Plant → UG2 Plant Losses"
       }
     },
     {
@@ -5524,8 +5524,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2P",
-        "column": "UG2PLANT_UG2PCD1 → UG2PLANT_UG2PCD1_SPILL"
+        "sheet": "Flows_UG2 Plant",
+        "column": "UG2 Plant Clean Dam 1 → UG2 Dam Spill"
       }
     },
     {
@@ -5556,8 +5556,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2P",
-        "column": "UG2PLANT_UG2PCD1 → UG2PLANT_UG2PCD1_EVAP"
+        "sheet": "Flows_UG2 Plant",
+        "column": "UG2 Plant Clean Dam 1 → UG2 Dam Evaporation"
       }
     },
     {
@@ -5588,8 +5588,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2P",
-        "column": "UG2PLANT_UG2PCD1 → UG2PLANT_UG2PCD1_DUST"
+        "sheet": "Flows_UG2 Plant",
+        "column": "UG2 Plant Clean Dam 1 → UG2 Dam Dust Suppression"
       }
     },
     {
@@ -5620,8 +5620,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2P",
-        "column": "UG2PLANT_UG2PCD1_RAIN → UG2PLANT_UG2PCD1"
+        "sheet": "Flows_UG2 Plant",
+        "column": "UG2 Plant Dam Rainfall → UG2 Plant Clean Dam 1"
       }
     },
     {
@@ -5652,8 +5652,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2P",
-        "column": "UG2PLANT_CPGWA_BOREHOLES → UG2PLANT_UG2P_SOFT"
+        "sheet": "Flows_UG2 Plant",
+        "column": "UG2 Plant Borehole (CPGWA) → UG2 Plant Softening"
       }
     },
     {
@@ -5684,8 +5684,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2P",
-        "column": "UG2PLANT_UG2P_OFF → UG2PLANT_UG2P_OFF_CONSUMPTION"
+        "sheet": "Flows_UG2 Plant",
+        "column": "UG2 Plant Offices → UG2 Office Consumption"
       }
     },
     {
@@ -5720,8 +5720,8 @@
       "label_offset": 0.15768261964735514,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2P",
-        "column": "UG2PLANT_UG2P_OFF → UG2PLANT_UG2P_STP"
+        "sheet": "Flows_UG2 Plant",
+        "column": "UG2 Plant Offices → UG2 Plant Sewage Treatment"
       }
     },
     {
@@ -5760,8 +5760,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2P",
-        "column": "UG2PLANT_UG2P_RES → UG2PLANT_UG2P_OFF"
+        "sheet": "Flows_UG2 Plant",
+        "column": "UG2 Plant Reservoir → UG2 Plant Offices"
       }
     },
     {
@@ -5799,8 +5799,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2P",
-        "column": "UG2PLANT_UG2P_SOFT → UG2PLANT_UG2P_RES"
+        "sheet": "Flows_UG2 Plant",
+        "column": "UG2 Plant Softening → UG2 Plant Reservoir"
       },
       "label": "-"
     },
@@ -5832,8 +5832,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2P",
-        "column": "UG2PLANT_UG2P_STP → UG2PLANT_UG2P_SOFT_LOSSES"
+        "sheet": "Flows_UG2 Plant",
+        "column": "UG2 Plant Sewage Treatment → UG2 Softening Losses"
       }
     },
     {
@@ -5872,8 +5872,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2P",
-        "column": "UG2PLANT_UG2P_SOFT → UG2PLANT_UG2P_STP_LOSSES"
+        "sheet": "Flows_UG2 Plant",
+        "column": "UG2 Plant Softening → UG2 Sewage Losses"
       }
     },
     {
@@ -5904,8 +5904,8 @@
       "box_height": 20,
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2P",
-        "column": "UG2PLANT_UG2PCD1 → UG2PLANT_UG2PCD1"
+        "sheet": "Flows_UG2 Plant",
+        "column": "UG2 Plant Clean Dam 1 → UG2 Plant Clean Dam 1"
       }
     },
     {
@@ -5952,8 +5952,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2P",
-        "column": "UG2PLANT_UG2P_STP → UG2PLANT_UG2P_PLANT"
+        "sheet": "Flows_UG2 Plant",
+        "column": "UG2 Plant Sewage Treatment → UG2 Concentrator Plant"
       }
     },
     {
@@ -5992,8 +5992,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2P",
-        "column": "UG2PCD1_to_Plant"
+        "sheet": "Flows_UG2 Plant",
+        "column": "Ug2Pcd1 To Plant"
       }
     },
     {
@@ -6032,8 +6032,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2P",
-        "column": "UG2PLANT_UG2P_PLANT → UG2PLANT_UG2PCD1"
+        "sheet": "Flows_UG2 Plant",
+        "column": "UG2 Concentrator Plant → UG2 Plant Clean Dam 1"
       }
     },
     {
@@ -6079,8 +6079,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_MERP",
-        "column": "MERPLANT_KLEINDWARS → MERPLANT_MPRWSD1"
+        "sheet": "Flows_Merensky Plant",
+        "column": "Merplant Kleindwars → Merensky River Water Dam"
       },
       "label": "-"
     },
@@ -6123,8 +6123,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_MERP",
-        "column": "MERPLANT_DWARSRIVIER → MERPLANT_MPRWSD1"
+        "sheet": "Flows_Merensky Plant",
+        "column": "Merplant Dwarsrivier → Merensky River Water Dam"
       },
       "label": "-"
     },
@@ -6163,8 +6163,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_MERP",
-        "column": "MERPLANT_MERP_PLANT →  MERPLANT_MPRWSD1"
+        "sheet": "Flows_Merensky Plant",
+        "column": "Merensky Concentrator Plant → Merensky River Water Dam"
       },
       "label": "-"
     },
@@ -6220,8 +6220,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_MERP",
-        "column": "MERPLANT_MERP_PLANT → OLDTSF_OLD_TSF"
+        "sheet": "Flows_Merensky Plant",
+        "column": "Merensky Concentrator Plant → Old Tailings Storage Facility"
       }
     },
     {
@@ -6251,8 +6251,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2P",
-        "column": "UG2PLANT_UG2P_PLANT → JUNCTION_133_288_2922"
+        "sheet": "Flows_UG2 Plant",
+        "column": "UG2 Concentrator Plant → Junction 133 288 2922"
       }
     },
     {
@@ -6307,8 +6307,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_OLDTSF",
-        "column": "OLDTSF_TRTD → MRP_MPRWSD1"
+        "sheet": "Flows_Old TSF",
+        "column": "TSF Return Water Dams (TRTD) → Mrp Mprwsd1"
       }
     },
     {
@@ -6363,8 +6363,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_MERP",
-        "column": "NDCD → MERPLANT_MPRWSD1"
+        "sheet": "Flows_Merensky Plant",
+        "column": "North Decline Clean Dams → Merensky River Water Dam"
       }
     },
     {
@@ -6399,8 +6399,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2P",
-        "column": "UG2PLANT_UG2P_PLANT → JUNCTION_135_1229_2857"
+        "sheet": "Flows_UG2 Plant",
+        "column": "UG2 Concentrator Plant → Junction 135 1229 2857"
       }
     },
     {
@@ -6431,8 +6431,8 @@
       },
       "excel_mapping": {
         "enabled": true,
-        "sheet": "Flows_UG2P",
-        "column": "JUNCTION_134_1193_2880 → UG2PLANT_UG2P_PLANT"
+        "sheet": "Flows_UG2 Plant",
+        "column": "Junction 134 1193 2880 → UG2 Concentrator Plant"
       }
     },
     {
@@ -6472,6 +6472,11 @@
       "label_pos": {
         "x": 1113.0,
         "y": 2241.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_New TSF",
+        "column": "New TSF Return Water Dams → Junction"
       }
     },
     {
@@ -6511,6 +6516,11 @@
       "label_pos": {
         "x": 1185.0,
         "y": 1631.0
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_Merensky South",
+        "column": "Merensky Decline Dams (Group) → Junction 131 1229 2072"
       }
     },
     {
@@ -6538,7 +6548,6 @@
       "flow_type": "clean",
       "volume": "-",
       "color": "#4b78a8",
-      "label": "-",
       "label_font_size": 8.0,
       "bidirectional": false,
       "is_junction": false,
@@ -6546,7 +6555,13 @@
       "label_pos": {
         "x": 261.0,
         "y": 2234.0
-      }
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_New TSF",
+        "column": "Scavenger Boreholes(1-6) → NT RWD 1&2"
+      },
+      "label": "-"
     }
   ],
   "merplant_title": "Merensky Plant Area"

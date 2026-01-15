@@ -218,7 +218,6 @@ class WaterBalanceReportGenerator:
         # Extract input parameters
         params = [
             ('Tonnes Milled', inputs.get('tonnes_milled', 0), 'tonnes'),
-            ('Mining Water Rate', inputs.get('mining_water_rate', 0), 'm³/tonne'),
             ('Rainfall', inputs.get('rainfall', 0), 'mm'),
             ('Evaporation', inputs.get('evaporation', 0), 'mm'),
         ]
@@ -563,7 +562,6 @@ class WaterBalanceReportGenerator:
         ]
         
         const_data = [
-            ('Mining Water Rate', f"{constants.get('MINING_WATER_RATE', 0):.2f} m³/tonne", 'Water usage per tonne milled'),
         ]
         
         for name, value, desc in const_data:

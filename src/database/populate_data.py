@@ -202,7 +202,6 @@ def populate_storage_facilities(db: DatabaseManager):
             'purpose': 'return_water',
             'water_quality': 'process',
             'description': 'Old TSF with return water collection',
-            'siltation_percentage': 20.0,
             'active': 1
         },
         {

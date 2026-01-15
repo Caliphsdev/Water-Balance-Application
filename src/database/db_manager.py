@@ -71,8 +71,7 @@ class DatabaseManager:
             logger.debug(f"Database connected: {self.db_path}")
         except Exception:
             pass
-        # Ensure scenarios tables exist
-        self._ensure_scenario_tables()
+
         # Ensure extended calculation columns (non-destructive migration)
         self._ensure_extended_calculation_columns()
         # Ensure storage facilities table has newer columns (evap_active, is_lined)
@@ -393,11 +392,11 @@ class DatabaseManager:
         query = """
             INSERT INTO storage_facilities (
                 facility_code, facility_name, facility_type, area_id,
-                total_capacity, working_capacity, dead_storage, surface_area,
-                pump_start_level, pump_stop_level, high_level_alarm, low_level_alarm,
-                current_volume, minimum_operating_level, maximum_operating_level,
-                description, purpose, active, commissioned_date
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                total_capacity, working_capacity, surface_area,
+                pump_start_level, pump_stop_level, high_level_alarm,
+                max_depth, purpose, water_quality,
+                current_volume, description, active, commissioned_date, feeds_to
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """
         # Ensure pump_start > pump_stop for constraint
         pump_start = data.get('pump_start_level', 70.0)
@@ -409,14 +408,15 @@ class DatabaseManager:
         params = (
             data['facility_code'], data['facility_name'], data['facility_type'],
             data.get('area_id'), data.get('total_capacity'),
-            data.get('working_capacity'), data.get('dead_storage'),
+            data.get('working_capacity'),
             data.get('surface_area'), pump_start, pump_stop,
-            data.get('high_level_alarm', 90.0), data.get('low_level_alarm', 10.0),
+            data.get('high_level_alarm', 90.0),
+            data.get('max_depth'),
+            data.get('purpose', 'raw_water'), data.get('water_quality', 'process'),
             data.get('current_volume', 0),
-            data.get('minimum_operating_level', 0),
-            data.get('maximum_operating_level', 100),
             data.get('description'),
-            data.get('purpose'), data.get('active', 1), data.get('commissioned_date')
+            data.get('active', 1), data.get('commissioned_date'),
+            data.get('feeds_to')
         )
         result = self.execute_insert(query, params)
         self._invalidate_facilities_cache()
@@ -429,10 +429,10 @@ class DatabaseManager:
                 facility_code = ?, facility_name = ?, facility_type = ?,
                 total_capacity = ?, current_volume = ?, surface_area = ?,
                 pump_start_level = ?, pump_stop_level = ?,
-                high_level_alarm = ?, low_level_alarm = ?,
-                minimum_operating_level = ?, maximum_operating_level = ?,
-                description = ?, active = ?, evap_active = ?, is_lined = ?,
-                updated_at = CURRENT_TIMESTAMP
+                high_level_alarm = ?,
+                max_depth = ?,
+                description = ?, active = ?, purpose = ?, water_quality = ?,
+                feeds_to = ?, updated_at = CURRENT_TIMESTAMP
             WHERE facility_id = ?
         """
         # Ensure pump_start > pump_stop
@@ -447,10 +447,10 @@ class DatabaseManager:
             data.get('total_capacity'),
             data.get('current_volume', 0), data.get('surface_area'),
             pump_start, pump_stop,
-            data.get('high_level_alarm', 90.0), data.get('low_level_alarm', 10.0),
-            data.get('minimum_operating_level', 0), data.get('maximum_operating_level', 100),
-            data.get('description'), data.get('active', 1), data.get('evap_active', 1), 
-            data.get('is_lined', 0), facility_id
+            data.get('high_level_alarm', 90.0),
+            data.get('max_depth'),
+            data.get('description'), data.get('active', 1), data.get('purpose', 'raw_water'),
+            data.get('water_quality', 'process'), data.get('feeds_to'), facility_id
         )
         result = self.execute_update(query, params)
         self._invalidate_facilities_cache()
@@ -1201,33 +1201,6 @@ class DatabaseManager:
 
         return stats
 
-    # ==================== SCENARIOS ====================
-    def _ensure_scenario_tables(self):
-        """Create scenario tables if they do not exist"""
-        conn = self.get_connection()
-        try:
-            cur = conn.cursor()
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS scenarios (
-                    scenario_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    name TEXT UNIQUE NOT NULL,
-                    description TEXT,
-                    created_at TEXT DEFAULT CURRENT_TIMESTAMP
-                )
-            """)
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS scenario_constants (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    scenario_id INTEGER NOT NULL,
-                    constant_key TEXT NOT NULL,
-                    constant_value REAL NOT NULL,
-                    FOREIGN KEY (scenario_id) REFERENCES scenarios(scenario_id) ON DELETE CASCADE
-                )
-            """)
-            conn.commit()
-        finally:
-            conn.close()
-
     def _ensure_extended_calculation_columns(self):
         """Non-destructive migration: add extended calculation columns if missing."""
         conn = self.get_connection()
@@ -1299,10 +1272,6 @@ class DatabaseManager:
         required_constants = [
             ('EVAP_PAN_COEFF', 0.70, 'factor', 'Evaporation', 
              'Pan coefficient to scale monthly S-pan evaporation to site conditions', 1, 0.3, 1.2),
-            ('DEFAULT_MONTHLY_RAINFALL_MM', 60.0, 'mm', 'Evaporation', 
-             'Fallback monthly rainfall (mm) used when no rainfall measurements present for period', 1, 0.0, 500.0),
-            ('monthly_ore_processing', 350000.0, 't/month', 'Plant', 
-             'Default monthly ore processed tonnage used when no entry provided', 1, 100000.0, 1000000.0),
             ('ore_moisture_percent', 3.4, 'percent', 'Plant', 
              'Average moisture percent of ore feed (used to derive water inflow from wet ore)', 1, 1.0, 8.0),
             ('ore_density', 2.7, 't/m³', 'Plant', 
@@ -1391,7 +1360,6 @@ class DatabaseManager:
     def ensure_ore_processing_constants(self):
         """Ensure ore processing related constants exist (monthly ore, moisture %, density)."""
         specs = [
-            ('monthly_ore_processing', 350000.0, 't/month', 'Plant', 'Default monthly ore processed tonnage', 1, 100000.0, 1000000.0),
             ('ore_moisture_percent', 3.4, 'percent', 'Plant', 'Ore feed moisture percent', 1, 1.0, 8.0),
             ('ore_density', 2.7, 't/m³', 'Plant', 'Bulk ore density for moisture volume conversion', 1, 2.4, 3.2),
         ]
@@ -1498,113 +1466,6 @@ class DatabaseManager:
         finally:
             conn.close()
 
-    def create_scenario(self, name: str, description: str = '') -> int:
-        """Create scenario capturing current constants snapshot"""
-        scenario_id = self.execute_insert(
-            "INSERT INTO scenarios (name, description) VALUES (?, ?)",
-            (name, description)
-        )
-        constants = self.execute_query("SELECT constant_key, constant_value FROM system_constants")
-        for row in constants:
-            self.execute_insert(
-                "INSERT INTO scenario_constants (scenario_id, constant_key, constant_value) VALUES (?, ?, ?)",
-                (scenario_id, row['constant_key'], row['constant_value'])
-            )
-        self.log_change('scenarios', scenario_id, 'create', new_values={'name': name})
-        return scenario_id
-
-    def list_scenarios(self) -> List[Dict]:
-        return self.execute_query("SELECT * FROM scenarios ORDER BY created_at DESC")
-
-    def get_scenario_constants(self, scenario_id: int) -> Dict[str, float]:
-        rows = self.execute_query(
-            "SELECT constant_key, constant_value FROM scenario_constants WHERE scenario_id = ?",
-            (scenario_id,)
-        )
-        return {r['constant_key']: r['constant_value'] for r in rows}
-
-    def delete_scenario(self, scenario_id: int) -> int:
-        rows = self.execute_update("DELETE FROM scenarios WHERE scenario_id = ?", (scenario_id,))
-        if rows:
-            self.log_change('scenarios', scenario_id, 'delete', old_values={'scenario_id': scenario_id})
-        return rows
-
-    def rename_scenario(self, scenario_id: int, new_name: str, new_description: str = '') -> int:
-        rows = self.execute_update(
-            "UPDATE scenarios SET name = ?, description = ?, updated_at = CURRENT_TIMESTAMP WHERE scenario_id = ?",
-            (new_name, new_description, scenario_id)
-        )
-        if rows:
-            self.log_change('scenarios', scenario_id, 'update', new_values={'name': new_name})
-        return rows
-
-    def get_scenario_diff(self, scenario_id: int) -> List[Dict[str, Any]]:
-        """Return list of differences between base constants and scenario constants."""
-        base = self.execute_query("SELECT constant_key, constant_value FROM system_constants")
-        scen = self.execute_query(
-            "SELECT constant_key, constant_value FROM scenario_constants WHERE scenario_id = ?",
-            (scenario_id,)
-        )
-        base_map = {r['constant_key']: r['constant_value'] for r in base}
-        scen_map = {r['constant_key']: r['constant_value'] for r in scen}
-        diffs = []
-        for key, bval in base_map.items():
-            sval = scen_map.get(key, bval)
-            if sval != bval:
-                diffs.append({
-                    'constant_key': key,
-                    'base_value': bval,
-                    'scenario_value': sval,
-                    'delta': sval - bval,
-                    'percent_change': ((sval - bval) / bval * 100.0) if bval not in (0, None) else None
-                })
-        return diffs
-
-    def update_scenario_constant(self, scenario_id: int, constant_key: str, new_value: float) -> int:
-        """Update a single constant value inside a scenario snapshot."""
-        rows = self.execute_update(
-            "UPDATE scenario_constants SET constant_value = ? WHERE scenario_id = ? AND constant_key = ?",
-            (new_value, scenario_id, constant_key)
-        )
-        if rows:
-            self.log_change('scenario_constants', scenario_id, 'update', new_values={constant_key: new_value})
-        return rows
-
-    def create_scenario_from_existing(self, source_scenario_id: int, name: str, description: str = '') -> int:
-        """Clone an existing scenario (including its constant snapshot) under a new name."""
-        new_id = self.execute_insert(
-            "INSERT INTO scenarios (name, description) VALUES (?, ?)",
-            (name, description)
-        )
-        rows = self.execute_query(
-            "SELECT constant_key, constant_value FROM scenario_constants WHERE scenario_id = ?",
-            (source_scenario_id,)
-        )
-        for r in rows:
-            self.execute_insert(
-                "INSERT INTO scenario_constants (scenario_id, constant_key, constant_value) VALUES (?, ?, ?)",
-                (new_id, r['constant_key'], r['constant_value'])
-            )
-        self.log_change('scenarios', new_id, 'create', new_values={'name': name, 'cloned_from': source_scenario_id})
-        return new_id
-
-    def purge_scenarios_by_prefix(self, prefixes: List[str]) -> int:
-        """Delete scenarios whose names start with any of the given prefixes. Returns count deleted."""
-        if not prefixes:
-            return 0
-        # Build dynamic OR conditions
-        conditions = " OR ".join(["name LIKE ?" for _ in prefixes])
-        params = [f"{p}%" for p in prefixes]
-        # Get IDs first for audit logging
-        rows = self.execute_query(f"SELECT scenario_id FROM scenarios WHERE {conditions}", tuple(params))
-        count = 0
-        for r in rows:
-            self.delete_scenario(r['scenario_id'])
-            count += 1
-        return count
-
-    # (User management removed to simplify application and reduce clutter)
-    
     # ==================== CACHE MANAGEMENT ====================
     
     def _invalidate_sources_cache(self):

@@ -72,7 +72,7 @@ class KPIDashboard:
         
         ttk.Label(date_frame, text="Period:", width=10).pack(side=tk.LEFT, padx=(0, 10))
         
-        self.date_var = tk.StringVar()
+        self.date_var = tk.StringVar(master=date_frame)
         date_entry = DateEntry(date_frame, textvariable=self.date_var,
                               width=15, background='darkblue',
                               foreground='white', borderwidth=2,

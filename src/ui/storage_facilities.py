@@ -30,10 +30,10 @@ class StorageFacilitiesModule:
         self.filtered_facilities = []
         self.tree = None
         
-        # Search/filter variables
-        self.search_var = tk.StringVar()
-        self.type_filter_var = tk.StringVar()
-        self.status_filter_var = tk.StringVar()
+        # Search/filter variables - pass master widget to avoid 'too early to create variable' error
+        self.search_var = tk.StringVar(master=self.parent)
+        self.type_filter_var = tk.StringVar(master=self.parent)
+        self.status_filter_var = tk.StringVar(master=self.parent)
         
         # Cache for Excel aggregation to avoid repeated loads
         self._excel_cache = None
@@ -46,7 +46,7 @@ class StorageFacilitiesModule:
             widget.destroy()
         
         # Main container with modern styling
-        container = tk.Frame(self.parent, bg='#f5f6fa')
+        container = tk.Frame(self.parent, bg='#f5f6f7')
         container.pack(fill='both', expand=True)
         
         # Create sections
@@ -60,11 +60,11 @@ class StorageFacilitiesModule:
         
     def _create_header(self, parent):
         """Create modern header section"""
-        header_frame = tk.Frame(parent, bg='#f5f6fa')
+        header_frame = tk.Frame(parent, bg='#f5f6f7')
         header_frame.pack(fill='x', padx=25, pady=(25, 15))
         
         # Title with icon
-        title_container = tk.Frame(header_frame, bg='#f5f6fa')
+        title_container = tk.Frame(header_frame, bg='#f5f6f7')
         title_container.pack(side='left', fill='x', expand=True)
         
         title = tk.Label(
@@ -72,7 +72,7 @@ class StorageFacilitiesModule:
             text="Storage Facilities",
             font=('Segoe UI', 28, 'bold'),
             fg='#2c3e50',
-            bg='#f5f6fa',
+            bg='#f5f6f7',
             anchor='w'
         )
         title.pack(side='top', anchor='w')
@@ -82,7 +82,7 @@ class StorageFacilitiesModule:
             text="Monitor and manage water storage infrastructure",
             font=('Segoe UI', 11),
             fg='#7f8c8d',
-            bg='#f5f6fa',
+            bg='#f5f6f7',
             anchor='w'
         )
         subtitle.pack(side='top', anchor='w', pady=(2, 0))
@@ -93,8 +93,8 @@ class StorageFacilitiesModule:
             text="⟳ Refresh Data",
             font=('Segoe UI', 10, 'bold'),
             fg='white',
-            bg='#3498db',
-            activebackground='#2980b9',
+            bg='#0066cc',
+            activebackground='#0052a3',
             activeforeground='white',
             relief='flat',
             padx=20,
@@ -107,15 +107,15 @@ class StorageFacilitiesModule:
         
         # Hover effect for refresh button
         def on_enter(e):
-            refresh_btn.config(bg='#2980b9')
+            refresh_btn.config(bg='#0052a3')
         def on_leave(e):
-            refresh_btn.config(bg='#3498db')
+            refresh_btn.config(bg='#0066cc')
         refresh_btn.bind('<Enter>', on_enter)
         refresh_btn.bind('<Leave>', on_leave)
         
     def _create_summary_cards(self, parent):
         """Create modern summary dashboard cards"""
-        cards_frame = tk.Frame(parent, bg='#f5f6fa')
+        cards_frame = tk.Frame(parent, bg='#f5f6f7')
         cards_frame.pack(fill='x', padx=25, pady=(0, 15))
         
         # Calculate totals
@@ -125,22 +125,22 @@ class StorageFacilitiesModule:
         self.active_count_label = None
         
         # Card 1: Total Capacity
-        card1 = self._create_card(cards_frame, '#3498db', '💧', 'Total Capacity', '0 m³')
+        card1 = self._create_card(cards_frame, '#0066cc', '💧', 'Total Capacity', '0 m³')
         card1.pack(side='left', fill='both', expand=True, padx=(0, 10))
         self.total_capacity_label = card1
         
         # Card 2: Current Volume
-        card2 = self._create_card(cards_frame, '#2ecc71', '📊', 'Current Volume', '0 m³')
+        card2 = self._create_card(cards_frame, '#28a745', '📊', 'Current Volume', '0 m³')
         card2.pack(side='left', fill='both', expand=True, padx=(0, 10))
         self.total_volume_label = card2
         
         # Card 3: Average Utilization
-        card3 = self._create_card(cards_frame, '#f39c12', '📈', 'Avg Utilization', '0%')
+        card3 = self._create_card(cards_frame, '#ff9800', '📈', 'Avg Utilization', '0%')
         card3.pack(side='left', fill='both', expand=True, padx=(0, 10))
         self.utilization_label = card3
         
         # Card 4: Active Facilities
-        card4 = self._create_card(cards_frame, '#9b59b6', '✓', 'Active Facilities', '0')
+        card4 = self._create_card(cards_frame, '#6c3fb5', '✓', 'Active Facilities', '0')
         card4.pack(side='left', fill='both', expand=True)
         self.active_count_label = card4
         
@@ -223,11 +223,13 @@ class StorageFacilitiesModule:
             font=('Segoe UI', 10),
             width=25,
             relief='flat',
-            bg='#f8f9fa',
+            bg='white',
             fg='#2c3e50'
         )
         search_entry.pack(side='left')
         search_entry.configure(insertbackground='#2c3e50')
+        # Disable default right-click context menu
+        search_entry.bind('<Button-3>', lambda e: 'break')
         
         # Type filter
         type_container = tk.Frame(left_frame, bg='white')
@@ -294,8 +296,8 @@ class StorageFacilitiesModule:
             right_frame,
             text="+ Add Facility",
             fg='white',
-            bg='#2ecc71',
-            activebackground='#27ae60',
+            bg='#28a745',
+            activebackground='#1f7e34',
             activeforeground='white',
             command=self._show_add_dialog,
             **button_style
@@ -307,8 +309,8 @@ class StorageFacilitiesModule:
             right_frame,
             text="✎ Edit",
             fg='white',
-            bg='#3498db',
-            activebackground='#2980b9',
+            bg='#0066cc',
+            activebackground='#0052a3',
             activeforeground='white',
             command=self._show_edit_dialog,
             **button_style
@@ -320,8 +322,8 @@ class StorageFacilitiesModule:
             right_frame,
             text="✕ Delete",
             fg='white',
-            bg='#e74c3c',
-            activebackground='#c0392b',
+            bg='#cc3333',
+            activebackground='#aa2222',
             activeforeground='white',
             command=self._delete_facility,
             **button_style
@@ -333,8 +335,8 @@ class StorageFacilitiesModule:
             right_frame,
             text="📅 Monthly Params",
             fg='white',
-            bg='#9b59b6',
-            activebackground='#8e44ad',
+            bg='#6c3fb5',
+            activebackground='#5a2f95',
             activeforeground='white',
             command=self._show_monthly_params_dialog,
             **button_style
@@ -374,7 +376,7 @@ class StorageFacilitiesModule:
             grid_header,
             text="Utilization = current volume ÷ capacity. End-of-month volume rolls into the next month per facility; it only moves when an explicit inter-facility transfer is defined.",
             font=('Segoe UI', 9),
-            fg='#ecf0f1',
+            fg='white',
             bg='#2c3e50',
             anchor='w',
             wraplength=680,
@@ -405,12 +407,12 @@ class StorageFacilitiesModule:
                        font=('Segoe UI', 10),
                        rowheight=35)
         style.configure('Custom.Treeview.Heading',
-                       background='#ecf0f1',
+                       background='#c5d3e6',
                        foreground='#2c3e50',
                        font=('Segoe UI', 10, 'bold'),
                        relief='flat')
         style.map('Custom.Treeview',
-                 background=[('selected', '#3498db')],
+                 background=[('selected', '#0066cc')],
                  foreground=[('selected', 'white')])
         
         self.tree = ttk.Treeview(
@@ -462,7 +464,7 @@ class StorageFacilitiesModule:
         self.status_filter_var.trace('w', lambda *args: self._apply_filters())
         
         # Footer with info
-        footer = tk.Frame(grid_container, bg='#ecf0f1', height=40)
+        footer = tk.Frame(grid_container, bg='#e8eef5', height=40)
         footer.pack(fill='x')
         footer.pack_propagate(False)
         
@@ -471,7 +473,7 @@ class StorageFacilitiesModule:
             text="",
             font=('Segoe UI', 9),
             fg='#7f8c8d',
-            bg='#ecf0f1',
+            bg='#e8eef5',
             anchor='w'
         )
         self.info_label.pack(side='left', padx=20, fill='x', expand=True)
@@ -768,7 +770,7 @@ class FacilityDialog:
         
         # Make dialog responsive to screen size
         screen_height = parent.winfo_screenheight()
-        dialog_width = 650
+        dialog_width = 900
         dialog_height = min(700, int(screen_height * 0.85))  # Max 700px or 85% of screen height
         
         self.dialog.geometry(f"{dialog_width}x{dialog_height}")
@@ -800,13 +802,13 @@ class FacilityDialog:
         self.capacity_var = tk.StringVar(value=str(facility['total_capacity']) if facility and facility['total_capacity'] else '')
         self.current_volume_var = tk.StringVar(value=str(facility['current_volume']) if facility and facility['current_volume'] else '0')
         self.surface_area_var = tk.StringVar(value=str(facility['surface_area']) if facility and facility['surface_area'] else '')
-        self.min_level_var = tk.StringVar(value=str(facility['minimum_operating_level']) if facility and facility['minimum_operating_level'] else '0')
-        self.max_level_var = tk.StringVar(value=str(facility['maximum_operating_level']) if facility and facility['maximum_operating_level'] else '100')
+        self.pump_start_var = tk.StringVar(value=str(facility['pump_start_level']) if facility and facility['pump_start_level'] else '70')
+        self.pump_stop_var = tk.StringVar(value=str(facility['pump_stop_level']) if facility and facility['pump_stop_level'] else '20')
+        self.purpose_var = tk.StringVar(value=facility['purpose'] if facility and facility['purpose'] else 'raw_water')
+        self.water_quality_var = tk.StringVar(value=facility['water_quality'] if facility and facility['water_quality'] else 'process')
         self.description_var = tk.StringVar(value=facility['description'] if facility and facility['description'] else '')
         self.is_active_var = tk.BooleanVar(value=facility['active'] if facility else True)
-        # Evaporation participation flag (defaults to True if missing)
         self.evap_active_var = tk.BooleanVar(value=(facility.get('evap_active', 1) == 1) if facility else True)
-        # Lined facility flag (defaults to False/0 if missing - unlined)
         self.is_lined_var = tk.BooleanVar(value=(facility.get('is_lined', 0) == 1) if facility else False)
         
         self._create_form()
@@ -897,10 +899,10 @@ class FacilityDialog:
         for label_text, var, placeholder in capacity_fields:
             self._create_field(container, label_text, var, placeholder)
         
-        # Operating Levels Section
+        # Pump & Alarm Controls Section (Industry standard)
         section_label = tk.Label(
             container,
-            text="📏 Operating Levels",
+            text="⚙️ Pump & Alarm Controls",
             font=config.get_font('heading_small'),
             fg=config.get_color('text_primary'),
             bg='white',
@@ -908,13 +910,96 @@ class FacilityDialog:
         )
         section_label.pack(fill='x', pady=(20, 10))
         
-        level_fields = [
-            ("Minimum Operating Level (m)", self.min_level_var, "Minimum safe operating level"),
-            ("Maximum Operating Level (m)", self.max_level_var, "Maximum operating level"),
+        pump_fields = [
+            ("Pump Start Level (%)", self.pump_start_var, "Begin pumping when dam reaches this level (e.g., 70%)"),
+            ("Pump Stop Level (%)", self.pump_stop_var, "Stop pumping when dam drops to this level (e.g., 20%, protects pump from cavitation)"),
         ]
         
-        for label_text, var, placeholder in level_fields:
+        for label_text, var, placeholder in pump_fields:
             self._create_field(container, label_text, var, placeholder)
+        
+        # Water Classification Section
+        section_label = tk.Label(
+            container,
+            text="💧 Water Classification",
+            font=config.get_font('heading_small'),
+            fg=config.get_color('text_primary'),
+            bg='white',
+            anchor='w'
+        )
+        section_label.pack(fill='x', pady=(20, 10))
+        
+        # Purpose dropdown
+        purpose_label = tk.Label(
+            container,
+            text="Purpose",
+            font=config.get_font('body'),
+            fg=config.get_color('text_primary'),
+            bg='white',
+            anchor='w'
+        )
+        purpose_label.pack(fill='x', pady=(10, 2))
+        
+        purpose_combo = ttk.Combobox(
+            container,
+            textvariable=self.purpose_var,
+            font=config.get_font('body'),
+            state='readonly',
+            values=['raw_water', 'return_water', 'storm_water', 'clean_water']
+        )
+        purpose_combo.pack(fill='x', pady=(0, 15))
+        
+        # Water quality dropdown
+        quality_label = tk.Label(
+            container,
+            text="Water Quality",
+            font=config.get_font('body'),
+            fg=config.get_color('text_primary'),
+            bg='white',
+            anchor='w'
+        )
+        quality_label.pack(fill='x', pady=(10, 2))
+        
+        quality_combo = ttk.Combobox(
+            container,
+            textvariable=self.water_quality_var,
+            font=config.get_font('body'),
+            state='readonly',
+            values=['potable', 'process', 'contaminated']
+        )
+        quality_combo.pack(fill='x', pady=(0, 15))
+        
+        # Pump Connections Section
+        conn_section_label = tk.Label(
+            container,
+            text="⚙️ Pump Connections (Auto-Transfer Routes)",
+            font=config.get_font('heading_small'),
+            fg=config.get_color('text_primary'),
+            bg='white',
+            anchor='w'
+        )
+        conn_section_label.pack(fill='x', pady=(20, 10))
+        
+        conn_hint = tk.Label(
+            container,
+            text="Define destination facilities for automatic transfers when this facility reaches pump start level (↓). Transfers occur in priority order, skipping full dams.",
+            font=config.get_font('body_small'),
+            fg=config.get_color('text_secondary'),
+            bg='white',
+            anchor='w',
+            wraplength=500,
+            justify='left'
+        )
+        conn_hint.pack(fill='x', pady=(0, 10))
+        
+        # Connections list frame (scrollable)
+        conn_frame = tk.Frame(container, bg='white', relief='solid', borderwidth=1)
+        conn_frame.pack(fill='both', expand=False, pady=(0, 15))
+        
+        # Create placeholder for connections
+        self.connections_frame = conn_frame
+        self.connections_list = []  # Will store connection widgets
+        self._load_connections_ui()
         
         # Description
         desc_label = tk.Label(
@@ -1082,6 +1167,137 @@ class FacilityDialog:
         if not self.type_var.get() and type_names:
             combo.set(type_names[0])
         
+    def _load_connections_ui(self):
+        """Load and display facility connections for pump transfers"""
+        # Clear existing connections
+        for widget in self.connections_frame.winfo_children():
+            widget.destroy()
+        self.connections_list = []
+        
+        # Get all active facilities except current one
+        all_facilities = self.db.get_storage_facilities()
+        current_code = self.facility_code_var.get().strip().upper()
+        available_facilities = [
+            f for f in all_facilities 
+            if f.get('active') == 1 and f['facility_code'].upper() != current_code
+        ]
+        
+        if not available_facilities:
+            empty_label = tk.Label(
+                self.connections_frame,
+                text="No other active facilities available for connections",
+                font=config.get_font('body_small'),
+                fg=config.get_color('text_secondary'),
+                bg='white',
+                padx=10,
+                pady=10
+            )
+            empty_label.pack()
+            return
+        
+        # Parse current connections from feeds_to if available
+        current_feeds = ""
+        if self.facility and self.facility.get('feeds_to'):
+            current_feeds = self.facility['feeds_to']
+        
+        current_connections = [c.strip() for c in current_feeds.split(',') if c.strip()]
+        
+        # Create scrollable container for connections
+        canvas = tk.Canvas(self.connections_frame, bg='white', highlightthickness=0)
+        scrollbar = ttk.Scrollbar(self.connections_frame, orient='vertical', command=canvas.yview)
+        scrollable_frame = tk.Frame(canvas, bg='white')
+        
+        scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+        
+        canvas.create_window((0, 0), window=scrollable_frame, anchor='nw')
+        canvas.configure(yscrollcommand=scrollbar.set)
+        
+        canvas.pack(side='left', fill='both', expand=True, padx=5, pady=5)
+        scrollbar.pack(side='right', fill='y')
+        
+        # Add existing connections first
+        for idx, conn_code in enumerate(current_connections):
+            self._create_connection_row(scrollable_frame, conn_code, available_facilities, idx)
+        
+        # Add button to add more connections
+        add_btn_frame = tk.Frame(self.connections_frame, bg='white')
+        add_btn_frame.pack(fill='x', padx=5, pady=5)
+        
+        add_conn_btn = tk.Button(
+            add_btn_frame,
+            text="+ Add Connection",
+            font=config.get_font('body'),
+            fg='white',
+            bg=config.get_color('primary'),
+            activebackground=config.get_color('secondary'),
+            relief='flat',
+            padx=10,
+            pady=5,
+            cursor='hand2',
+            command=lambda: self._create_connection_row(scrollable_frame, "", available_facilities, len(self.connections_list))
+        )
+        add_conn_btn.pack(anchor='w')
+        
+        # Store reference for saving
+        self.connections_frame.scrollable_frame = scrollable_frame
+    
+    def _create_connection_row(self, parent, current_code, available_facilities, index):
+        """Create a connection row with dropdown and remove button"""
+        row = tk.Frame(parent, bg='#f5f6fa', relief='solid', borderwidth=1)
+        row.pack(fill='x', pady=2, padx=2)
+        
+        # Priority number
+        priority_label = tk.Label(
+            row,
+            text=f"{index + 1}.",
+            font=config.get_font('body'),
+            fg=config.get_color('text_primary'),
+            bg='#f5f6fa',
+            width=3
+        )
+        priority_label.pack(side='left', padx=(5, 10), pady=5)
+        
+        # Facility dropdown
+        facility_var = tk.StringVar(value=current_code)
+        facility_options = [f['facility_code'] for f in available_facilities]
+        
+        facility_combo = ttk.Combobox(
+            row,
+            textvariable=facility_var,
+            font=config.get_font('body'),
+            state='readonly',
+            values=facility_options,
+            width=20
+        )
+        facility_combo.pack(side='left', fill='x', expand=True, padx=5, pady=5)
+        
+        # Remove button
+        remove_btn = tk.Button(
+            row,
+            text="✕",
+            font=config.get_font('body_small'),
+            fg='white',
+            bg='#e74c3c',
+            activebackground='#c0392b',
+            relief='flat',
+            width=3,
+            cursor='hand2',
+            command=lambda: self._remove_connection(row)
+        )
+        remove_btn.pack(side='right', padx=5, pady=5)
+        
+        # Store reference
+        row.facility_var = facility_var
+        self.connections_list.append(row)
+    
+    def _remove_connection(self, row):
+        """Remove a connection row"""
+        row.destroy()
+        self.connections_list.remove(row)
+        
     def _save(self):
         """Validate and save the storage facility"""
         # Validate required fields
@@ -1134,18 +1350,18 @@ class FacilityDialog:
                 messagebox.showerror("Validation Error", "Surface Area must be a number")
                 return
         
-        # Validate operating levels
+        # Validate pump levels (percentages)
         try:
-            min_level = float(self.min_level_var.get())
-            max_level = float(self.max_level_var.get())
-            if min_level < 0 or max_level < 0:
-                messagebox.showerror("Validation Error", "Operating levels cannot be negative")
+            pump_start = float(self.pump_start_var.get())
+            pump_stop = float(self.pump_stop_var.get())
+            if pump_start < 0 or pump_start > 100 or pump_stop < 0 or pump_stop > 100:
+                messagebox.showerror("Validation Error", "Pump levels must be between 0 and 100%")
                 return
-            if min_level >= max_level:
-                messagebox.showerror("Validation Error", "Minimum level must be less than Maximum level")
+            if pump_start <= pump_stop:
+                messagebox.showerror("Validation Error", "Pump Start level must be greater than Pump Stop level")
                 return
         except ValueError:
-            messagebox.showerror("Validation Error", "Operating levels must be numbers")
+            messagebox.showerror("Validation Error", "Pump levels must be numbers (0-100)")
             return
         
         # Prepare data
@@ -1156,13 +1372,27 @@ class FacilityDialog:
             'total_capacity': capacity,
             'current_volume': current_volume,
             'surface_area': surface_area,
-            'minimum_operating_level': min_level,
-            'maximum_operating_level': max_level,
+            'pump_start_level': float(self.pump_start_var.get()),
+            'pump_stop_level': float(self.pump_stop_var.get()),
+            'purpose': self.purpose_var.get(),
+            'water_quality': self.water_quality_var.get(),
             'description': self.description_text.get('1.0', 'end-1c').strip() or None,
             'active': self.is_active_var.get(),
             'evap_active': 1 if self.evap_active_var.get() else 0,
             'is_lined': 1 if self.is_lined_var.get() else 0
         }
+        
+        # Collect connections in priority order
+        connections = []
+        for row in self.connections_list:
+            conn_code = row.facility_var.get().strip()
+            if conn_code:  # Only add non-empty selections
+                connections.append(conn_code)
+        
+        if connections:
+            data['feeds_to'] = ','.join(connections)
+        else:
+            data['feeds_to'] = None
         
         try:
             if self.mode == 'add':
@@ -1247,8 +1477,27 @@ class FacilityMonthlyParamsDialog:
         )
         subtitle.pack(padx=20, pady=(0, 10))
         
-        # Notebook (tabbed interface)
-        self.notebook = ttk.Notebook(self.dialog)
+        # Modern tab styling with improved UX
+        style = ttk.Style()
+        style.theme_use('clam')
+        style.configure('StorageFacilitiesNotebook.TNotebook', background='#f5f6f7', borderwidth=0)
+        # Enhanced tab styling: larger font, more padding for better visibility
+        style.configure('StorageFacilitiesNotebook.TNotebook.Tab', 
+                       background='#d6dde8', 
+                       foreground='#2c3e50',
+                       padding=[24, 16],  # Increased from [20, 12] for larger tab size
+                       font=('Segoe UI', 11, 'bold'),  # Increased from 10 to 11, added bold
+                       relief='flat',
+                       borderwidth=0)
+        # Enhanced map with better visual feedback on interaction
+        style.map('StorageFacilitiesNotebook.TNotebook.Tab',
+                 background=[('selected', '#3498db'), ('active', '#5dade2'), ('!active', '#d6dde8')],
+                 foreground=[('selected', '#ffffff'), ('active', '#ffffff'), ('!active', '#2c3e50')],
+                 lightcolor=[('selected', '#3498db')],
+                 darkcolor=[('selected', '#3498db')])
+        
+        # Notebook (tabbed interface) with improved styling
+        self.notebook = ttk.Notebook(self.dialog, style='StorageFacilitiesNotebook.TNotebook')
         self.notebook.pack(fill='both', expand=True, padx=20, pady=20)
         
         # Tab 1: Inflow
@@ -1269,8 +1518,8 @@ class FacilityMonthlyParamsDialog:
             text="💾 Save",
             font=('Segoe UI', 10, 'bold'),
             fg='white',
-            bg='#27ae60',
-            activebackground='#229954',
+            bg='#28a745',
+            activebackground='#1f7e34',
             relief='flat',
             padx=25,
             pady=10,
@@ -1283,9 +1532,9 @@ class FacilityMonthlyParamsDialog:
             text="✕ Cancel",
             font=('Segoe UI', 10),
             fg='#7f8c8d',
-            bg='#ecf0f1',
+            bg='#e8eef5',
             activeforeground='#7f8c8d',
-            activebackground='#d5dbdb',
+            activebackground='#d9e6f4',
             relief='flat',
             padx=25,
             pady=10,

@@ -4,309 +4,523 @@ Statistical analysis and trend visualization of water balance data
 """
 
 import tkinter as tk
-from tkinter import ttk
-# tkcalendar removed: using default All Data, no date picker
-from datetime import datetime, date, timedelta
-from dateutil.relativedelta import relativedelta
-import sys
+from tkinter import ttk, filedialog, messagebox
+from datetime import datetime, date
 from pathlib import Path
+import sys
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 import numpy as np
-import seaborn as sns
-from tkinter import filedialog, messagebox
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from database.db_manager import DatabaseManager
-from utils.excel_timeseries_extended import ExcelTimeSeriesExtended
 from utils.app_logger import logger
-from utils.chart_style import apply_common_style, PRIMARY_PALETTE, ACCENT_PALETTE
+from utils.config_manager import ConfigManager
 
 
 class AnalyticsDashboard:
-    """Analytics dashboard for trend analysis and statistics"""
+    """Analytics dashboard for water source trend analysis with auto-detection"""
     
     def __init__(self, parent):
         self.parent = parent
-        self.db = DatabaseManager()
-        self.excel = ExcelTimeSeriesExtended()
+        self.config = ConfigManager()
         self.main_frame = None
         self.chart_canvas = None
+        self.excel_file_path = tk.StringVar(master=parent, value="")
+        self.selected_source = tk.StringVar(master=parent, value="All Sources")
+        self.chart_type = tk.StringVar(master=parent, value="Line Chart")
+        self.start_year = tk.StringVar(master=parent, value="")
+        self.start_month = tk.StringVar(master=parent, value="")
+        self.end_year = tk.StringVar(master=parent, value="")
+        self.end_month = tk.StringVar(master=parent, value="")
+        self.source_data = None  # Cached DataFrame
+        self.available_sources = []  # List of detected column names
+        self.min_date = None  # For date range validation
+        self.max_date = None
         
     def load(self):
         """Load the analytics dashboard"""
         if self.main_frame:
             self.main_frame.destroy()
         
-        self.main_frame = ttk.Frame(self.parent)
-        self.main_frame.pack(fill=tk.BOTH, expand=True, padx=15, pady=15)
+        # Create outer container with professional background
+        outer = tk.Frame(self.parent, bg='#f5f6f7')
+        outer.pack(fill=tk.BOTH, expand=True)
+        
+        self.main_frame = tk.Frame(outer, bg='#f5f6f7')
+        self.main_frame.pack(fill=tk.BOTH, expand=True, padx=0, pady=0)
         
         # Header
         self._create_header()
         
-        # Controls
-        self._create_controls()
+        # File selector
+        self._create_file_selector()
+        
+        # Controls placeholder (will be populated after file load)
+        self.control_container = ttk.Frame(self.main_frame)
+        self.control_container.pack(fill=tk.X, pady=(0, 15))
         
         # Chart area
         self._create_chart_area()
         
-        # Show placeholder instead of loading chart immediately
+        # Show placeholder
         self._show_placeholder()
     
     def _create_header(self):
-        """Create header section"""
-        header_frame = ttk.Frame(self.main_frame)
-        header_frame.pack(fill=tk.X, pady=(0, 15))
+        """Create modern header section"""
+        header_frame = tk.Frame(self.main_frame, bg='white', relief=tk.FLAT, bd=0)
+        header_frame.pack(fill=tk.X, pady=(0, 0), padx=0)
         
-        title = ttk.Label(header_frame, text="📊 Analytics & Trends", 
-                         font=('Segoe UI', 18, 'bold'))
-        title.pack(side=tk.LEFT)
+        inner = tk.Frame(header_frame, bg='white')
+        inner.pack(fill=tk.X, padx=20, pady=20)
         
-        info = ttk.Label(header_frame, 
-                        text="Statistical analysis and trend visualization",
-                        font=('Segoe UI', 10),
-                        foreground='#666')
-        info.pack(side=tk.LEFT, padx=(15, 0))
+        title = tk.Label(inner, text="📊 Analytics & Trends", 
+                         font=('Segoe UI', 22, 'bold'),
+                         bg='white', fg='#2c3e50')
+        title.pack(anchor='w')
+        
+        info = tk.Label(inner, 
+                        text="Water source trend analysis and visualization",
+                        font=('Segoe UI', 11),
+                        fg='#7f8c8d',
+                        bg='white')
+        info.pack(anchor='w', pady=(3, 0))
+    
+    def _create_file_selector(self):
+        """Create modern file selection card"""
+        # Add padding to main frame and separator after header
+        separator = tk.Frame(self.main_frame, bg='#f5f6f7', height=0)
+        separator.pack(fill=tk.X, padx=0)
+        
+        # Content area
+        content_frame = tk.Frame(self.main_frame, bg='#f5f6f7')
+        content_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=(0, 20))
+        
+        file_frame = tk.Frame(content_frame, bg='white', relief=tk.FLAT, bd=1, highlightbackground='#d0d5dd', highlightthickness=1)
+        file_frame.pack(fill=tk.X, pady=(0, 20), padx=0)
+        
+        inner = tk.Frame(file_frame, bg='white')
+        inner.pack(fill=tk.X, padx=20, pady=16)
+        
+        tk.Label(inner, text="📁 Data Source File", font=('Segoe UI', 12, 'bold'), bg='white', fg='#2c3e50').pack(anchor='w', pady=(0, 10))
+        
+        tk.Label(inner, text="Excel file with Meter Readings:", font=('Segoe UI', 10), bg='white', fg='#34495e').pack(anchor='w', pady=(0, 5))
+        
+        path_row = tk.Frame(inner, bg='white')
+        path_row.pack(fill=tk.X)
+        
+        entry = tk.Entry(path_row, textvariable=self.excel_file_path, state='readonly', 
+                 font=('Segoe UI', 10), bg='#f5f6f7', relief=tk.FLAT, bd=0)
+        entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 10), ipady=6)
+        
+        select_btn = tk.Button(path_row, text="📂 Select File", 
+                  command=self._select_and_load_file,
+                  font=('Segoe UI', 10),
+                  bg='#3498db', fg='white',
+                  relief=tk.FLAT, bd=0,
+                  padx=20, pady=8,
+                  cursor='hand2')
+        select_btn.pack(side=tk.LEFT)
+        
+        tk.Label(inner, text="Auto-loads: columns from row 3, data from row 5 onwards", 
+                 fg='#95a5a6', bg='white', font=('Segoe UI', 9, 'italic')).pack(anchor='w', pady=(5, 0))
     
     def _create_controls(self):
-        """Create simplified control panel for water source time series charts"""
-        control_frame = ttk.LabelFrame(self.main_frame, text="Water Source Time Series", padding=15)
-        control_frame.pack(fill=tk.X, pady=(0, 15))
-        try:
-            logger.info("Analytics dashboard: simplified time series controls initializing (styles: Line Trend, Bar Chart)")
-        except Exception:
-            pass
+        """Create modern chart control panel"""
+        # Clear existing controls
+        for widget in self.control_container.winfo_children():
+            widget.destroy()
         
-        # Row 1: Style + Time Range
+        control_frame = tk.Frame(self.control_container, bg='white', relief=tk.FLAT, bd=1, highlightbackground='#d0d5dd', highlightthickness=1)
+        control_frame.pack(fill=tk.BOTH, expand=True, padx=0)
+        
+        inner = tk.Frame(control_frame, bg='white')
+        inner.pack(fill=tk.BOTH, expand=True, padx=20, pady=16)
+        
+        tk.Label(inner, text="📈 Chart Options", font=('Segoe UI', 12, 'bold'), bg='white', fg='#2c3e50').pack(anchor='w', pady=(0, 10))
+        
+        # Use inner frame as control_frame for remaining code
+        control_frame = inner
+        
+        # Row 1: Chart type and source selection
         row1 = ttk.Frame(control_frame)
         row1.pack(fill=tk.X, pady=(0, 10))
         
-        ttk.Label(row1, text="Chart Style:", width=12).pack(side=tk.LEFT, padx=(0, 5))
-        self.style_var = tk.StringVar(value="Line Trend")
-        styles = ["Line Trend", "Bar Chart"]
-        style_combo = ttk.Combobox(row1, textvariable=self.style_var, values=styles, state='readonly', width=18)
-        style_combo.pack(side=tk.LEFT, padx=(0, 20))
-        # Auto-update removed - use Generate Chart button
+        ttk.Label(row1, text="Chart Type:", width=12).pack(side=tk.LEFT, padx=(0, 5))
+        chart_types = ["Line Chart", "Bar Chart", "Area Chart"]
+        ttk.Combobox(row1, textvariable=self.chart_type, values=chart_types, 
+                    state='readonly', width=15).pack(side=tk.LEFT, padx=(0, 20))
         
-        # Moving average toggle (works for both line and bar)
-        self.ma_var = tk.BooleanVar(value=False)
-        ma_check = ttk.Checkbutton(row1, text="Show Moving Avg (3-month)", variable=self.ma_var)
-        ma_check.pack(side=tk.LEFT, padx=(0, 20))
+        ttk.Label(row1, text="Water Source:", width=12).pack(side=tk.LEFT, padx=(0, 5))
+        source_options = ["All Sources"] + self.available_sources
+        self.source_combo = ttk.Combobox(row1, textvariable=self.selected_source, 
+                                        values=source_options, state='readonly', width=40)
+        self.source_combo.pack(side=tk.LEFT, padx=(0, 20))
         
-        # Time Range default to All Data; hide range selector
-        self.range_var = tk.StringVar(value="All Data")
-        self.range_map = {"All Data": "all"}
-        
-        # Row 2: Source filter (code-based)
+        # Row 2: Date range selection (Year/Month filters)
         row2 = ttk.Frame(control_frame)
         row2.pack(fill=tk.X, pady=(0, 10))
-        ttk.Label(row2, text="Source Filter:", width=12).pack(side=tk.LEFT, padx=(0, 5))
-        self.filter_var = tk.StringVar(value="All Sources")
-        sources = self.db.get_water_sources(active_only=True)
-        # Exclude monitoring and static boreholes from source options
-        sources = [s for s in sources if s.get('source_purpose') not in ('MONITORING', 'STATIC')]
-        source_options = ["All Sources"] + [f"{s['source_code']}: {s['source_name']}" for s in sources]
-        filter_combo = ttk.Combobox(row2, textvariable=self.filter_var, values=source_options, state='readonly', width=45)
-        filter_combo.pack(side=tk.LEFT, padx=(0, 20))
-        # Auto-update removed - use Generate Chart button
         
-        # Action buttons
-        generate_btn = ttk.Button(row2, text="📊 Generate Chart", command=self._update_chart, style='Accent.TButton')
-        generate_btn.pack(side=tk.LEFT, padx=(0, 10))
+        ttk.Label(row2, text="Date Range:", width=12).pack(side=tk.LEFT, padx=(0, 5))
+        ttk.Label(row2, text="From:", width=6).pack(side=tk.LEFT, padx=(0, 3))
         
-        download_btn = ttk.Button(row2, text="💾 Download Chart", command=self._download_chart)
-        download_btn.pack(side=tk.LEFT)
+        # Start year
+        ttk.Label(row2, text="Year:", width=5).pack(side=tk.LEFT, padx=(0, 2))
+        years = [""] + sorted([str(y) for y in range(self.min_date.year, self.max_date.year + 1)])
+        ttk.Combobox(row2, textvariable=self.start_year, values=years, 
+                    state='readonly', width=6).pack(side=tk.LEFT, padx=(0, 10))
+        
+        # Start month
+        ttk.Label(row2, text="Month:", width=6).pack(side=tk.LEFT, padx=(0, 2))
+        months = [""] + [f"{m:02d}" for m in range(1, 13)]
+        ttk.Combobox(row2, textvariable=self.start_month, values=months, 
+                    state='readonly', width=6).pack(side=tk.LEFT, padx=(0, 20))
+        
+        ttk.Label(row2, text="To:", width=4).pack(side=tk.LEFT, padx=(0, 3))
+        
+        # End year
+        ttk.Label(row2, text="Year:", width=5).pack(side=tk.LEFT, padx=(0, 2))
+        ttk.Combobox(row2, textvariable=self.end_year, values=years, 
+                    state='readonly', width=6).pack(side=tk.LEFT, padx=(0, 10))
+        
+        # End month
+        ttk.Label(row2, text="Month:", width=6).pack(side=tk.LEFT, padx=(0, 2))
+        ttk.Combobox(row2, textvariable=self.end_month, values=months, 
+                    state='readonly', width=6).pack(side=tk.LEFT)
+        
+        # Row 3: Actions
+        row3 = tk.Frame(control_frame, bg='white')
+        row3.pack(fill=tk.X, pady=(10, 0))
+        
+        gen_btn = tk.Button(row3, text="📈 Generate Chart", command=self._generate_chart, 
+                  font=('Segoe UI', 10, 'bold'),
+                  bg='#27ae60', fg='white',
+                  relief=tk.FLAT, bd=0,
+                  padx=20, pady=8,
+                  cursor='hand2')
+        gen_btn.pack(side=tk.LEFT, padx=(0, 10))
+        
+        save_btn = tk.Button(row3, text="💾 Save Chart", 
+                  command=self._save_chart,
+                  font=('Segoe UI', 10),
+                  bg='#3498db', fg='white',
+                  relief=tk.FLAT, bd=0,
+                  padx=20, pady=8,
+                  cursor='hand2')
+        save_btn.pack(side=tk.LEFT)
+    
+    def _get_y_axis_label(self, source_name):
+        """Detect y-axis label based on source column name"""
+        source_lower = source_name.lower()
+        
+        if 'ton' in source_lower or 'tonne' in source_lower:
+            return 'Volume (Tonnes)'
+        elif 'm/t' in source_lower or 'mega' in source_lower:
+            return 'Volume (ML)'
+        elif '%' in source_lower or 'percent' in source_lower or 'recycl' in source_lower:
+            return 'Percentage (%)'
+        elif 'dispatch' in source_lower or 'count' in source_lower:
+            return 'Count'
+        elif 'moisture' in source_lower or 'wet' in source_lower:
+            return 'Moisture Content (%)'
+        else:
+            return 'Volume (m³)'
+    
+    def _get_default_y_label(self):
+        """Get default y-axis label for multi-source charts"""
+        return 'Value'
+    
+    def _select_and_load_file(self):
+        """Select Excel file and auto-load water source data"""
+        file_path = filedialog.askopenfilename(
+            title="Select Water Balance Excel File",
+            filetypes=[("Excel files", "*.xlsx *.xls"), ("All files", "*.*")]
+        )
+        
+        if not file_path:
+            return
+        
+        self.excel_file_path.set(file_path)
+        self._load_water_source_data(file_path)
+    
+    def _load_water_source_data(self, file_path):
+        """Load and parse water source data from Excel Meter Readings sheet"""
+        try:
+            # Read Excel with header at row 3 (index 2), data starts at row 5
+            df = pd.read_excel(file_path, sheet_name='Meter Readings', header=2, engine='openpyxl')
+
+            # Normalize column names (trim spaces) so duplicates are detected correctly
+            df.columns = [str(col).strip() for col in df.columns]
+
+            # Drop duplicate column names while keeping the first occurrence to avoid pandas
+            # duplicate-key errors during selection
+            duplicate_mask = df.columns.duplicated()
+            if duplicate_mask.any():
+                dropped_cols = df.columns[duplicate_mask].tolist()
+                logger.warning(f"Dropping duplicate columns from Excel: {dropped_cols}")
+                df = df.loc[:, ~duplicate_mask]
+
+            # First column should be Date
+            date_col = df.columns[0]
+            df['Date'] = pd.to_datetime(df[date_col], errors='coerce')
+            df = df.dropna(subset=['Date'])
+
+            # Collect usable numeric source columns, skipping duplicates and non-numeric data
+            source_columns = []
+            seen_sources = set()
+            skipped_sources = []
+            
+            for col in df.columns[1:]:
+                if col == date_col or col == 'Date' or col.startswith('Unnamed') or col in seen_sources:
+                    continue
+                try:
+                    numeric_series = pd.to_numeric(df[col], errors='coerce')
+                    non_null_count = numeric_series.dropna().shape[0]
+                    
+                    # Skip columns with no numeric data at all
+                    if non_null_count == 0:
+                        skipped_sources.append((col, "no numeric data"))
+                        continue
+                    
+                    # Warn if column has sparse data but include it anyway
+                    # (user may want to plot data that starts at different dates)
+                    if non_null_count < len(df) * 0.1:  # Less than 10% data
+                        logger.warning(f"Source '{col}' has sparse data ({non_null_count}/{len(df)} rows)")
+                    
+                    source_columns.append(col)
+                    seen_sources.add(col)
+                    
+                except Exception as e:
+                    skipped_sources.append((col, str(e)))
+                    continue
+
+            self.source_data = df[['Date'] + source_columns].copy()
+            self.available_sources = source_columns
+            
+            # Store date range for validation
+            self.min_date = self.source_data['Date'].min()
+            self.max_date = self.source_data['Date'].max()
+            
+            # Log summary
+            logger.info(f"Loaded {len(df)} records with {len(source_columns)} water sources from Excel")
+            logger.info(f"Date range: {self.min_date.date()} to {self.max_date.date()}")
+            if skipped_sources:
+                skipped_list = "; ".join([f"{col} ({reason})" for col, reason in skipped_sources[:5]])
+                logger.info(f"Skipped {len(skipped_sources)} columns: {skipped_list}" + 
+                           (f" ... and {len(skipped_sources)-5} more" if len(skipped_sources) > 5 else ""))
+            
+            # Create controls now that data is loaded
+            self.control_container.after(10, self._create_controls)
+            
+            # Show success message
+            messagebox.showinfo("Data Loaded", 
+                              f"✓ Loaded {len(df)} records\n✓ Found {len(source_columns)} water sources\n\n" +
+                              "Select options and click 'Generate Chart'")
+            
+        except Exception as e:
+            logger.error(f"Error loading Excel file: {e}")
+            messagebox.showerror("Load Error", f"Failed to load Excel file:\n{str(e)}")
     
     def _create_chart_area(self):
         """Create chart display area"""
-        chart_frame = ttk.Frame(self.main_frame)
-        chart_frame.pack(fill=tk.BOTH, expand=True)
+        # Use the outer container frame
+        chart_frame = tk.Frame(self.main_frame, bg='white', relief=tk.FLAT, bd=1, highlightbackground='#d0d5dd', highlightthickness=1)
+        chart_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=(0, 20))
         
-        # Create matplotlib figure
-        self.figure = Figure(figsize=(12, 6), dpi=100)
+        # Create matplotlib figure with professional settings
+        self.figure = Figure(figsize=(14, 7), dpi=120, facecolor='white')
         self.canvas = FigureCanvasTkAgg(self.figure, master=chart_frame)
-        self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+        self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
     
     def _show_placeholder(self):
         """Show placeholder message when no chart is loaded"""
         self.figure.clear()
         ax = self.figure.add_subplot(111)
         ax.text(0.5, 0.5, 
-                '📊\n\nSelect your options above and click\n"Generate Chart" to view trends',
-                ha='center', va='center', fontsize=14, color='#666',
-                bbox=dict(boxstyle='round,pad=1', facecolor='#f8f9fa', edgecolor='#dee2e6', linewidth=2))
+                '📊\n\nSelect Excel file above to load water source data\n' +
+                'then choose options and click "Generate Chart"',
+                ha='center', va='center', fontsize=13, color='#666',
+                bbox=dict(boxstyle='round,pad=1.2', facecolor='#f5f6f7', 
+                         edgecolor='#dee2e6', linewidth=2))
         ax.set_xlim(0, 1)
         ax.set_ylim(0, 1)
         ax.axis('off')
         self.canvas.draw()
     
-    def _update_chart(self):
-        """Render water source time series based on selections"""
+    
+    def _generate_chart(self):
+        """Generate professional water source trend chart"""
+        if self.source_data is None or self.source_data.empty:
+            messagebox.showwarning("No Data", "Please load an Excel file first")
+            return
+        
         try:
-            range_label = self.range_var.get()
-            time_range = self.range_map.get(range_label, "3_months")
-            filter_text = self.filter_var.get()
-            style = getattr(self, 'style_var', tk.StringVar(value='Line Trend')).get()
+            # Parse and validate date range (year/month only)
+            data_to_plot = self.source_data.copy()
             
-            # Force All Data when defaulting (no range widget)
-            time_range = "all"
+            start_year_str = self.start_year.get().strip()
+            start_month_str = self.start_month.get().strip()
+            end_year_str = self.end_year.get().strip()
+            end_month_str = self.end_month.get().strip()
+            
+            # Apply start date filter (only if year is selected)
+            if start_year_str:
+                try:
+                    start_year = int(start_year_str)
+                    start_month = int(start_month_str) if start_month_str else 1
+                    start_date = pd.to_datetime(f"{start_year}-{start_month:02d}-01")
+                    data_to_plot = data_to_plot[data_to_plot['Date'] >= start_date]
+                    logger.info(f"Applied start date filter: {start_date.date()}")
+                except Exception as e:
+                    logger.error(f"Error parsing start date: {e}")
+                    messagebox.showerror("Date Error", f"Invalid start date: {e}")
+                    return
+            
+            # Apply end date filter (only if year is selected)
+            if end_year_str:
+                try:
+                    end_year = int(end_year_str)
+                    end_month = int(end_month_str) if end_month_str else 12
+                    # Get last day of the end month
+                    if end_month == 12:
+                        end_date = pd.to_datetime(f"{end_year + 1}-01-01") - pd.Timedelta(days=1)
+                    else:
+                        end_date = pd.to_datetime(f"{end_year}-{end_month + 1:02d}-01") - pd.Timedelta(days=1)
+                    data_to_plot = data_to_plot[data_to_plot['Date'] <= end_date]
+                    logger.info(f"Applied end date filter: {end_date.date()}")
+                except Exception as e:
+                    logger.error(f"Error parsing end date: {e}")
+                    messagebox.showerror("Date Error", f"Invalid end date: {e}")
+                    return
+            
+            logger.info(f"Data after date filtering: {len(data_to_plot)} rows (from {len(self.source_data)} total)")
+            
+            if data_to_plot.empty:
+                messagebox.showwarning("No Data in Range", "No data found for the specified date range.")
+                return
             
             self.figure.clear()
-            self._plot_source_trends(time_range, filter_text, style)
-            self.canvas.draw()
-        except Exception as e:
-            logger.error(f"Error updating source trends: {e}")
             ax = self.figure.add_subplot(111)
-            ax.text(0.5, 0.5, f"Error loading chart:\n{str(e)}", ha='center', va='center', fontsize=12, color='red')
-            self.canvas.draw()
-
-    def _plot_source_trends(self, time_range: str, filter_text: str, style: str):
-        """Plot water source time series with code-based labels from Excel Meter Readings"""
-        # Apply seaborn styling for beautiful charts
-        sns.set_style("whitegrid")
-        sns.set_palette("husl")
-        
-        ax = self.figure.add_subplot(111)
-        start_date, end_date = self._get_date_range(time_range)
-        sources = self.db.get_water_sources(active_only=True)
-        # Exclude monitoring and static boreholes from chart data
-        sources = [s for s in sources if s.get('source_purpose') not in ('MONITORING', 'STATIC')]
-        
-        # Filter specific source
-        if filter_text != 'All Sources' and ':' in filter_text:
-            code = filter_text.split(':')[0].strip()
-            sources = [s for s in sources if s['source_code'] == code]
-        
-        # Limit number of sources for readability
-        sources = sources[:5]
-        
-        import pandas as pd
-        from pathlib import Path
-        from utils.config_manager import ConfigManager
-        
-        config = ConfigManager()
-        excel_path_str = config.get('data_sources.legacy_excel_path', 'data/New Water Balance  20250930 Oct.xlsx')
-        base_dir = Path(__file__).parent.parent.parent
-        excel_path = base_dir / excel_path_str if not Path(excel_path_str).is_absolute() else Path(excel_path_str)
-        
-        if not excel_path.exists():
-            ax.text(0.5, 0.5, 'TRP Excel file not found\nConfigure path in Settings > Data Sources', 
-                   ha='center', va='center', fontsize=10, color='red')
-            return
-        try:
-            df = pd.read_excel(excel_path, sheet_name='Meter Readings', engine='openpyxl', header=2)
-            df['Date'] = pd.to_datetime(df.iloc[:, 0], errors='coerce')
-            df = df.dropna(subset=['Date'])
-            df = df[(df['Date'] >= pd.Timestamp(start_date)) & (df['Date'] <= pd.Timestamp(end_date))]
-        except Exception as e:
-            ax.text(0.5, 0.5, f'Excel load error:\n{e}', ha='center', va='center', color='red')
-            return
-        
-        # Use seaborn color palette for vibrant colors
-        colors = sns.color_palette("husl", len(sources))
-        show_ma = self.ma_var.get() if hasattr(self, 'ma_var') else False
-        
-        for idx, source in enumerate(sources):
-            code = source['source_code']
-            name = source['source_name']
-            # Attempt column matching (exact, with " River", whitespace-insensitive)
-            excel_col = None
-            if code in df.columns:
-                excel_col = code
-            elif f"{code} River" in df.columns:
-                excel_col = f"{code} River"
-            else:
-                for col in df.columns:
-                    if col.replace(' ', '').lower() == code.replace(' ', '').lower():
-                        excel_col = col
-                        break
-            if not excel_col:
-                continue
-            data = df[['Date', excel_col]].dropna()
-            if data.empty:
-                continue
-            dates = [d.date() for d in data['Date']]
-            values = data[excel_col].astype(float).tolist()
-            color = colors[idx]
-            if style == 'Bar Chart':
-                from matplotlib import dates as mdates
-                locator = mdates.AutoDateLocator()
-                formatter = mdates.ConciseDateFormatter(locator)
-                ax.xaxis.set_major_locator(locator)
-                ax.xaxis.set_major_formatter(formatter)
-                width = 15 / max(len(sources), 1)
-                offset = (idx - len(sources)/2) * width
-                positions = [mdates.date2num(d) + offset for d in dates]
-                ax.bar(positions, values, width=width, label=f"{code}: {name}", color=color, alpha=0.7, edgecolor='white', linewidth=1.5)
-                # Add moving average line overlay for bar charts
-                if show_ma and len(values) >= 3:
-                    ma_series = pd.Series(values).rolling(window=3, center=True).mean()
-                    ma_dates_num = [mdates.date2num(d) + offset for d in dates]
-                    ax.plot(ma_dates_num, ma_series, label=f"{code} MA(3)", color=color, linestyle='--', linewidth=3, alpha=0.9, marker='o', markersize=6)
-            else:  # Line Trend
-                ax.plot(dates, values, label=f"{code}: {name}", color=color, marker='o', linewidth=2.5, markersize=6, alpha=0.8)
-                # Add moving average overlay if enabled
-                if show_ma and len(values) >= 3:
-                    ma_series = pd.Series(values).rolling(window=3, center=True).mean()
-                    ax.plot(dates, ma_series, label=f"{code} MA(3)", color=color, linestyle='--', linewidth=3, alpha=0.9)
-        
-        title_suffix = " with Moving Avg" if show_ma else ""
-        ax.set_title(f"Water Source Volume Trends ({style}){title_suffix}", fontsize=16, fontweight='bold', pad=20)
-        ax.set_xlabel('Date', fontsize=12, fontweight='bold')
-        ax.set_ylabel('Volume (m³)', fontsize=12, fontweight='bold')
-        ax.grid(True, alpha=0.4, linestyle='--', linewidth=0.8)
-        ax.legend(loc='best', framealpha=0.95, fontsize=10, shadow=True, fancybox=True)
-        ax.spines['top'].set_visible(False)
-        ax.spines['right'].set_visible(False)
-        self.figure.autofmt_xdate()
-        self.figure.tight_layout()
-    
-    def _get_date_range(self, time_range):
-        """Calculate start and end dates based on time range"""
-        end_date = date.today()
-        
-        if time_range == "1_month":
-            start_date = end_date - relativedelta(months=1)
-        elif time_range == "3_months":
-            start_date = end_date - relativedelta(months=3)
-        elif time_range == "6_months":
-            start_date = end_date - relativedelta(months=6)
-        elif time_range == "12_months":
-            start_date = end_date - relativedelta(months=12)
-        else:  # all
-            start_date = date(2020, 1, 1)  # Far back start
-        
-        return start_date, end_date
-    
-    def _download_chart(self):
-        """Download current chart as PNG or PDF"""
-        try:
-            # Get default filename
-            style = self.style_var.get().replace(" ", "_")
-            filter_text = self.filter_var.get().replace(": ", "_").replace(" ", "_")
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            default_name = f"water_source_{style}_{filter_text}_{timestamp}"
             
-            # Ask user for file location and type
+            selected = self.selected_source.get()
+            chart_type = self.chart_type.get()
+            
+            # Determine which sources to plot
+            if selected == "All Sources":
+                sources_to_plot = self.available_sources[:10]  # Limit to 10 for readability
+                if len(self.available_sources) > 10:
+                    messagebox.showinfo("Info", f"Showing first 10 of {len(self.available_sources)} sources for readability")
+            else:
+                sources_to_plot = [selected]
+            
+            # Professional color palette
+            colors = plt.cm.tab10(np.linspace(0, 1, len(sources_to_plot)))
+            
+            for idx, source in enumerate(sources_to_plot):
+                try:
+                    # Get the source column
+                    if source not in data_to_plot.columns:
+                        logger.warning(f"Source '{source}' not found in data; skipping")
+                        continue
+                    
+                    data = data_to_plot[['Date', source]].copy()
+                    col_data = data[source]
+                    
+                    # If duplicate column names exist, pandas returns a DataFrame; use the first column
+                    if isinstance(col_data, pd.DataFrame):
+                        col_data = col_data.iloc[:, 0]
+                    
+                    # Convert to numeric, handling any remaining type issues
+                    col_data = pd.to_numeric(col_data, errors='coerce')
+                    data[source] = col_data
+                    
+                    # Drop rows with missing dates or values
+                    data = data.dropna(subset=['Date', source])
+                    
+                    # Skip source if no valid data points remain
+                    if data.empty or len(data) < 2:
+                        logger.warning(f"Source '{source}' has insufficient data points after filtering; skipping")
+                        continue
+                    
+                    dates = pd.to_datetime(data['Date']).tolist()
+                    values = data[source].tolist()
+                    color = colors[idx % len(colors)]  # Wrap color index if we have extra sources
+                    
+                    if chart_type == "Line Chart":
+                        ax.plot(dates, values, label=source, color=color, linewidth=2.5, 
+                               marker='o', markersize=4, alpha=0.85)
+                    
+                    elif chart_type == "Bar Chart":
+                        width = 20 if len(sources_to_plot) == 1 else 15 / len(sources_to_plot)
+                        offset = (idx - len(sources_to_plot)/2) * width
+                        positions = [d + pd.Timedelta(days=offset) for d in dates]
+                        ax.bar(positions, values, width=width, label=source, color=color, 
+                              alpha=0.75, edgecolor='white', linewidth=1)
+                    
+                    elif chart_type == "Area Chart":
+                        ax.fill_between(dates, values, alpha=0.4, color=color, label=source)
+                        ax.plot(dates, values, color=color, linewidth=2, alpha=0.9)
+                
+                except Exception as e:
+                    logger.error(f"Error plotting source '{source}': {e}")
+                    continue
+            
+            # Professional styling
+            if selected == "All Sources":
+                title = "Water Source Trends (Multiple Sources)"
+                y_label = self._get_default_y_label()
+            else:
+                title = f"Water Source Trends - {selected}"
+                y_label = self._get_y_axis_label(selected)
+            
+            ax.set_title(title, fontsize=16, fontweight='bold', pad=20)
+            ax.set_xlabel('Date', fontsize=12, fontweight='bold')
+            ax.set_ylabel(y_label, fontsize=12, fontweight='bold')
+            ax.grid(True, alpha=0.3, linestyle='--', linewidth=0.8)
+            ax.legend(loc='best', framealpha=0.95, fontsize=9, shadow=True, ncol=2 if len(sources_to_plot) > 5 else 1)
+            ax.spines['top'].set_visible(False)
+            ax.spines['right'].set_visible(False)
+            
+            self.figure.autofmt_xdate()
+            self.figure.tight_layout()
+            self.canvas.draw()
+            
+            logger.info(f"Chart generated: {chart_type} for {selected}")
+            
+        except Exception as e:
+            logger.error(f"Error generating chart: {e}")
+            messagebox.showerror("Chart Error", f"Failed to generate chart:\n{str(e)}")
+    
+    def _save_chart(self):
+        """Save current chart to file"""
+        if self.source_data is None:
+            messagebox.showwarning("No Chart", "Generate a chart first")
+            return
+        
+        try:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            source = self.selected_source.get().replace(" ", "_").replace(":", "")
+            default_name = f"water_source_{source}_{timestamp}"
+            
             file_path = filedialog.asksaveasfilename(
                 defaultextension=".png",
                 initialfile=default_name,
                 filetypes=[
                     ("PNG Image", "*.png"),
                     ("PDF Document", "*.pdf"),
-                    ("SVG Vector", "*.svg"),
-                    ("JPEG Image", "*.jpg")
+                    ("SVG Vector", "*.svg")
                 ],
                 title="Save Chart As"
             )
             
             if file_path:
-                # Save with high DPI for quality
-                self.figure.savefig(file_path, dpi=300, bbox_inches='tight', facecolor='white', edgecolor='none')
-                messagebox.showinfo("Success", f"Chart saved successfully to:\n{file_path}")
-                logger.info(f"Chart downloaded: {file_path}")
+                self.figure.savefig(file_path, dpi=300, bbox_inches='tight', 
+                                   facecolor='white', edgecolor='none')
+                messagebox.showinfo("Success", f"Chart saved to:\n{file_path}")
+                logger.info(f"Chart saved: {file_path}")
+                
         except Exception as e:
-            logger.error(f"Error downloading chart: {e}")
-            messagebox.showerror("Download Error", f"Failed to save chart:\n{str(e)}")
+            logger.error(f"Error saving chart: {e}")
+            messagebox.showerror("Save Error", f"Failed to save chart:\n{str(e)}")
+

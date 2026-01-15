@@ -36,8 +36,8 @@ class ReportsModule:
         # Month and Year selectors (like calculations module)
         ttk.Label(form, text="📅 Select Month:").grid(row=0, column=0, sticky='w', padx=(0,10), pady=5)
         
-        self.year_var = tk.StringVar()
-        self.month_var = tk.StringVar()
+        self.year_var = tk.StringVar(master=form)
+        self.month_var = tk.StringVar(master=form)
         
         # Default to current date
         default_year = date.today().year

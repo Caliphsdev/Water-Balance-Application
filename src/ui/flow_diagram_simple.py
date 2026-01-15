@@ -44,7 +44,7 @@ class SimpleFlowDiagram:
         canvas_frame = Frame(self.parent)
         canvas_frame.pack(fill='both', expand=True, padx=5, pady=5)
 
-        self.canvas = Canvas(canvas_frame, bg='#f8f9fa', highlightthickness=0)
+        self.canvas = Canvas(canvas_frame, bg='#f5f6f7', highlightthickness=0)
         vscroll = Scrollbar(canvas_frame, orient='vertical', command=self.canvas.yview)
         hscroll = Scrollbar(canvas_frame, orient='horizontal', command=self.canvas.xview)
 
@@ -109,22 +109,22 @@ class SimpleFlowDiagram:
     def _draw_background_layers(self):
         """Draw background layers to organize the diagram"""
         # Sources layer
-        self.canvas.create_rectangle(20, 100, 300, 350, fill='#ecf0f1', outline='#bdc3c7', width=2)
+        self.canvas.create_rectangle(20, 100, 300, 350, fill='#e8eef5', outline='#c5d3e6', width=2)
         self.canvas.create_text(30, 110, text='SOURCES', font=('Segoe UI', 10, 'bold'), 
                                fill='#34495e', anchor='nw')
 
         # Treatment layer
-        self.canvas.create_rectangle(320, 100, 600, 350, fill='#ecf0f1', outline='#bdc3c7', width=2)
+        self.canvas.create_rectangle(320, 100, 600, 350, fill='#e8eef5', outline='#c5d3e6', width=2)
         self.canvas.create_text(330, 110, text='TREATMENT', font=('Segoe UI', 10, 'bold'), 
                                fill='#34495e', anchor='nw')
 
         # Storage layer
-        self.canvas.create_rectangle(620, 100, 1000, 400, fill='#ecf0f1', outline='#bdc3c7', width=2)
+        self.canvas.create_rectangle(620, 100, 1000, 400, fill='#e8eef5', outline='#c5d3e6', width=2)
         self.canvas.create_text(630, 110, text='STORAGE', font=('Segoe UI', 10, 'bold'), 
                                fill='#34495e', anchor='nw')
 
         # Distribution layer
-        self.canvas.create_rectangle(1020, 100, 1400, 400, fill='#ecf0f1', outline='#bdc3c7', width=2)
+        self.canvas.create_rectangle(1020, 100, 1400, 400, fill='#e8eef5', outline='#c5d3e6', width=2)
         self.canvas.create_text(1030, 110, text='DISTRIBUTION', font=('Segoe UI', 10, 'bold'), 
                                fill='#34495e', anchor='nw')
 

@@ -17,6 +17,7 @@ from ui.mousewheel import apply_mousewheel_recursive
 from utils.excel_monitor import ExcelFileMonitor
 from utils.excel_timeseries_extended import ExcelTimeSeriesExtended
 from utils.cache_prewarm import prewarm_latest_month
+from licensing.license_manager import LicenseManager
 import threading
 
 
@@ -29,6 +30,7 @@ class MainWindow:
         self.current_module = None
         self._module_cache = {}
         self._pending_load = None
+        self.sidebar_collapsed = False  # Initialize sidebar state
         
         # Log application start
         logger.info("Main window initializing")
@@ -44,10 +46,10 @@ class MainWindow:
         self.container = ttk.Frame(self.root)
         self.container.pack(fill='both', expand=True)
         
-        # Build UI components
+        # Build UI components (statusbar CREATED FIRST so it's packed in correct order)
         self._create_toolbar()
+        self._create_statusbar()  # Pack statusbar BEFORE main layout
         self._create_main_layout()
-        self._create_statusbar()
         # Maximize window for better fit across modules
         self._maximize_window()
 
@@ -67,6 +69,26 @@ class MainWindow:
         )
         self.toolbar.pack(side='top', fill='x')
         self.toolbar.pack_propagate(False)
+        
+        # Hamburger menu button (for toggling sidebar) - enhanced styling
+        self.menu_btn = tk.Button(
+            self.toolbar,
+            text='☰',
+            font=('Segoe UI', 24, 'bold'),
+            bg=bg_header,
+            fg=text_light,
+            activebackground='#2c3e50',
+            activeforeground='#3498db',
+            relief='flat',
+            bd=0,
+            padx=15,
+            pady=6,
+            cursor='hand2',
+            command=self._toggle_sidebar,
+            highlightthickness=0,
+            overrelief='flat'
+        )
+        self.menu_btn.pack(side='left', padx=(8, 12))
         
         # Application title and logo
         title_frame = tk.Frame(self.toolbar, bg=bg_header)
@@ -96,11 +118,127 @@ class MainWindow:
         )
         app_title.pack(side='left')
     
+    def _update_license_status_label(self, is_valid: bool = None, expiry_date = None):
+        """Update the license status display in toolbar.
+        
+        Args:
+            is_valid: Optional override for license validity (e.g., from verify button result)
+            expiry_date: Optional override for expiry date
+        """
+        try:
+            # If not provided, fetch fresh status
+            if is_valid is None:
+                from licensing.license_manager import LicenseManager
+                manager = LicenseManager()
+                is_valid, msg, expiry_date = manager.validate_startup()
+            
+            if is_valid:
+                if expiry_date:
+                    from datetime import date
+                    days_left = (expiry_date - date.today()).days
+                    if days_left <= 7:
+                        self.license_status_label.config(
+                            text=f"⚠️ {days_left}d left",
+                            fg=config.get_color('warning')
+                        )
+                    else:
+                        self.license_status_label.config(
+                            text=f"✅ Valid ({days_left}d)",
+                            fg='#4caf50'
+                        )
+                else:
+                    self.license_status_label.config(text='✅ Valid', fg='#4caf50')
+            else:
+                self.license_status_label.config(text='❌ Invalid', fg='#f44336')
+        except Exception as e:
+            logger.debug(f"Could not update license status label: {e}")
+    
+    def _verify_license_now(self):
+        """Handle manual license verification button click"""
+        try:
+            from licensing.license_manager import LicenseManager
+            from tkinter import messagebox
+            
+            manager = LicenseManager()
+            
+            # Check verification status BEFORE attempting
+            status = manager.get_verification_status()
+            if not status["can_verify"]:
+                messagebox.showwarning(
+                    "Verification Limit Reached",
+                    f"⚠️ You have reached the daily verification limit.\n\n"
+                    f"{status['message']}\n\n"
+                    f"Resets at midnight (South Africa time)"
+                )
+                return
+            
+            self.license_verify_btn.config(state='disabled', text='⏳ Verifying...')
+            self.root.update()
+            
+            is_valid, message, expiry_date = manager.validate_manual()
+            
+            # Update status label with ACTUAL verification result (not a fresh call)
+            self._update_license_status_label(is_valid=is_valid, expiry_date=expiry_date)
+            
+            # Update button state based on new verification count
+            self._update_verify_button_state()
+            
+            if is_valid:
+                messagebox.showinfo(
+                    "License Valid",
+                    f"✅ Your license is active and valid.\n\n{message}"
+                )
+                logger.info("Manual license verification passed")
+            else:
+                # Check if limit was reached
+                if "limit reached" in message.lower():
+                    messagebox.showwarning(
+                        "Verification Limit",
+                        f"⚠️ {message}"
+                    )
+                else:
+                    messagebox.showerror(
+                        "License Invalid",
+                        f"❌ License verification failed:\n\n{message}\n\nPlease contact support@water-balance.com"
+                    )
+                    logger.warning(f"Manual license verification failed: {message}")
+                
+        except Exception as e:
+            logger.exception(f"License verification error: {e}")
+            messagebox.showerror(
+                "Verification Error",
+                f"Could not verify license:\n{str(e)}\n\nCheck your internet connection."
+            )
+        finally:
+            # Update button state
+            self._update_verify_button_state()
+    
+    def _update_verify_button_state(self):
+        """Update verify button state based on verification count."""
+        try:
+            from licensing.license_manager import LicenseManager
+            manager = LicenseManager()
+            status = manager.get_verification_status()
+            
+            if status["can_verify"]:
+                self.license_verify_btn.config(
+                    state='normal',
+                    text=f'🔐 Verify License ({status["count"]}/3)'
+                )
+            else:
+                self.license_verify_btn.config(
+                    state='disabled',
+                    text=f'⏸️ Limit Reached (resets in {status["time_until_reset"]})'
+                )
+        except Exception as e:
+            logger.debug(f"Could not update verify button state: {e}")
+            self.license_verify_btn.config(state='normal', text='🔐 Verify License')
+    
     def _create_main_layout(self):
         """Create sidebar and content area layout"""
-        # Main content frame
+        # Main content frame (expands to fill available space between toolbar and statusbar)
         self.main_frame = ttk.Frame(self.container)
-        self.main_frame.pack(side='top', fill='both', expand=True)
+        self.main_frame.pack(fill='both', expand=True)
         
         # Sidebar navigation
         self._create_sidebar()
@@ -122,48 +260,53 @@ class MainWindow:
         self.sidebar.pack(side='left', fill='y')
         self.sidebar.pack_propagate(False)
         
-        # Sidebar header
-        sidebar_header = tk.Label(
-            self.sidebar,
+        # Sidebar header - Enhanced styling (no hamburger icon, just label)
+        header_frame = tk.Frame(self.sidebar, bg='#34495e', height=70)
+        header_frame.pack(fill='x')
+        header_frame.pack_propagate(False)
+        
+        tk.Label(
+            header_frame,
             text="Navigation",
-            font=config.get_font('heading_small'),
-            fg=text_light,
-            bg=bg_sidebar,
+            font=('Segoe UI', 13, 'bold'),
+            fg='white',
+            bg='#34495e',
             anchor='w',
             padx=20,
-            pady=15
-        )
-        sidebar_header.pack(fill='x')
+            pady=18
+        ).pack(fill='x')
         
         # Navigation menu items
         self.nav_buttons = {}
         
         menu_items = [
-            ('dashboard', '» Dashboard', 'Water balance overview and KPIs'),
-            ('analytics', '» Analytics & Trends', 'Statistical analysis and trend graphs'),
-            ('monitoring_data', '» Monitoring Data', 'Environmental and operational monitoring from Excel'),
-            ('water_sources', '» Water Sources', 'Manage rivers, boreholes, and underground sources'),
-            ('storage', '» Storage Facilities', 'Manage dams and water storage'),
-            ('calculations', '» Calculations', 'Water balance calculations and results'),
-            ('flow_diagram', '» Flow Diagram', 'Visual water balance flow with inputs/outputs/processes'),
-            ('settings', '» Settings', 'System configuration and backups'),
+            ('dashboard', '📊 Dashboard', 'Water balance overview and KPIs'),
+            ('analytics', '📈 Analytics & Trends', 'Statistical analysis and trend graphs'),
+            ('monitoring_data', '🔍 Monitoring Data', 'Environmental and operational monitoring from Excel'),
+            ('storage', '💧 Storage Facilities', 'Manage dams and water storage'),
+            ('calculations', '⚙️ Calculations', 'Water balance calculations and results'),
+            ('flow_diagram', '🌊 Flow Diagram', 'Visual water balance flow with inputs/outputs/processes'),
+            ('settings', '⚡ Settings', 'System configuration and backups'),
         ]
         
         for module_id, label, tooltip in menu_items:
             self._create_nav_button(module_id, label, tooltip)
         
-        # Separator
-        separator = tk.Frame(self.sidebar, bg=config.get_color('divider'), height=1)
-        separator.pack(fill='x', padx=20, pady=10)
+        # Separator with better styling
+        separator_frame = tk.Frame(self.sidebar, bg=bg_sidebar, height=20)
+        separator_frame.pack(fill='x', padx=10, pady=(10, 5))
+        separator_line = tk.Frame(separator_frame, bg='#555555', height=1)
+        separator_line.pack(fill='x', padx=10, pady=8)
         
         # Help and About at bottom
         help_items = [
-            ('help', '? Help', 'User guide and documentation'),
-            ('about', 'i About', 'About this application'),
+            ('help', '❓ Help', 'User guide and documentation'),
+            ('about', 'ℹ️ About', 'About this application'),
         ]
         
         for module_id, label, tooltip in help_items:
             self._create_nav_button(module_id, label, tooltip)
+
 
     def _validate_excel_path_startup(self):
         """On startup, ensure the Application Inputs Excel is a valid .xlsx file.
@@ -186,6 +329,21 @@ class MainWindow:
         except Exception:
             pass
     
+    def _toggle_sidebar(self):
+        """Toggle sidebar visibility to save screen space"""
+        if self.sidebar_collapsed:
+            # Expand sidebar
+            self.sidebar.pack(side='left', fill='y', before=self.content_area)
+            self.sidebar_collapsed = False
+            # Update hamburger button to show it's expanded
+            self.menu_btn.config(relief='flat', bg=config.get_color('bg_header'))
+        else:
+            # Collapse sidebar
+            self.sidebar.pack_forget()
+            self.sidebar_collapsed = True
+            # Highlight hamburger button when collapsed
+            self.menu_btn.config(relief='solid', bg=config.get_color('primary_light'))
+    
     def _create_nav_button(self, module_id, label, tooltip):
         """Create a navigation button in sidebar"""
         bg_sidebar = config.get_color('bg_sidebar')
@@ -195,26 +353,41 @@ class MainWindow:
         btn = tk.Button(
             self.sidebar,
             text=label,
-            font=config.get_font('body'),
+            font=('Segoe UI', 10, 'bold'),
             fg=text_light,
             bg=bg_sidebar,
-            activebackground=primary_light,
+            activebackground='#3498db',
             activeforeground='white',
             relief='flat',
             anchor='w',
-            padx=20,
-            pady=12,
+            padx=18,
+            pady=14,
             cursor='hand2',
+            bd=0,
             command=lambda: self.load_module(module_id)
         )
-        btn.pack(fill='x')
+        btn.pack(fill='x', padx=6, pady=3)
+        
+        # Store module_id for reference
+        btn.module_id = module_id
         
         # Tooltip (simple version)
         self._bind_tooltip(btn, tooltip)
         
-        # Hover effects
-        btn.bind('<Enter>', lambda e: btn.config(bg=primary_light))
-        btn.bind('<Leave>', lambda e: btn.config(bg=bg_sidebar))
+        # Enhanced hover effects with smooth transitions
+        def on_enter(e):
+            btn.config(bg='#3498db', fg='white')
+            btn.config(relief='solid', bd=1)
+        
+        def on_leave(e):
+            # Check if this button is active
+            if hasattr(btn, 'module_id') and btn.module_id == getattr(self, 'current_module', None):
+                btn.config(bg='#2980b9', fg='white', relief='solid', bd=1)
+            else:
+                btn.config(bg=bg_sidebar, fg=text_light, relief='flat', bd=0)
+        
+        btn.bind('<Enter>', on_enter)
+        btn.bind('<Leave>', on_leave)
         
         self.nav_buttons[module_id] = btn
     
@@ -240,15 +413,18 @@ class MainWindow:
         # Content will be loaded dynamically based on navigation
     
     def _create_statusbar(self):
-        """Create bottom status bar"""
-        statusbar_height = config.get('ui.statusbar_height', 25)
-        bg_secondary = config.get_color('bg_secondary')
-        text_secondary = config.get_color('text_secondary')
+        """Create bottom status bar with clean styling"""
+        statusbar_height = config.get('ui.statusbar_height', 28)
+        bg_secondary = '#2c3e50'  # Darker background for contrast
+        text_secondary = '#e8eef5'  # Light blue text
         
         self.statusbar = tk.Frame(
             self.container,
             bg=bg_secondary,
-            height=statusbar_height
+            height=statusbar_height,
+            relief='flat',
+            bd=0,
+            highlightthickness=0
         )
         self.statusbar.pack(side='bottom', fill='x')
         self.statusbar.pack_propagate(False)
@@ -261,29 +437,11 @@ class MainWindow:
             fg=text_secondary,
             bg=bg_secondary,
             anchor='w',
-            padx=10
+            padx=15
         )
         self.statusbar_label.pack(side='left', fill='x', expand=True)
         
-        # Exit button (red)
-        exit_btn = tk.Button(
-            self.statusbar,
-            text="Exit",
-            font=config.get_font('body_bold'),
-            fg='white',
-            bg='#C62828',
-            activebackground='#B71C1C',
-            activeforeground='white',
-            relief='flat',
-            padx=14, pady=4,
-            cursor='hand2',
-            command=self._request_exit
-        )
-        exit_btn.pack(side='right', padx=(5, 6), pady=3)
-        exit_btn.bind('<Enter>', lambda e: exit_btn.config(bg='#B71C1C'))
-        exit_btn.bind('<Leave>', lambda e: exit_btn.config(bg='#C62828'))
-
-        # Version info left of button
+        # Version info
         version_label = tk.Label(
             self.statusbar,
             text=f"v{config.app_version}",
@@ -291,9 +449,22 @@ class MainWindow:
             fg=text_secondary,
             bg=bg_secondary,
             anchor='e',
-            padx=8
+            padx=10
         )
         version_label.pack(side='right')
+
+        # License status
+        license_text = LicenseManager().status_summary()
+        self.license_label = tk.Label(
+            self.statusbar,
+            text=license_text,
+            font=config.get_font('caption'),
+            fg=text_secondary,
+            bg=bg_secondary,
+            anchor='e',
+            padx=8
+        )
+        self.license_label.pack(side='right')
 
     def _maximize_window(self):
         """Maximize the window to fit the screen without changing layouts."""
@@ -353,8 +524,6 @@ class MainWindow:
                     self._load_analytics()
                 elif module_id == 'monitoring_data':
                     self._load_monitoring_data()
-                elif module_id == 'water_sources':
-                    self._load_water_sources()
                 elif module_id == 'storage':
                     self._load_storage_facilities()
                 elif module_id == 'calculations':
@@ -430,13 +599,17 @@ class MainWindow:
     def _highlight_nav_button(self, active_id):
         """Highlight the active navigation button"""
         bg_sidebar = config.get_color('bg_sidebar')
-        primary = config.get_color('primary')
+        
+        # Store current module for hover effects
+        self.current_module = active_id
         
         for module_id, btn in self.nav_buttons.items():
             if module_id == active_id:
-                btn.config(bg=primary)
+                # Active button: blue background with white text and border
+                btn.config(bg='#2980b9', fg='white', relief='solid', bd=1)
             else:
-                btn.config(bg=bg_sidebar)
+                # Inactive button: default sidebar background
+                btn.config(bg=bg_sidebar, fg=config.get_color('text_light'), relief='flat', bd=0)
     
     def _ensure_excel_loaded(self, module_name: str) -> bool:
         """Ensure Excel is loaded before module needs it
@@ -493,13 +666,6 @@ class MainWindow:
         from ui.monitoring_data import MonitoringDataModule
         
         module = MonitoringDataModule(self.content_area)
-        module.load()
-    
-    def _load_water_sources(self):
-        """Load the water sources management module"""
-        from ui.water_sources import WaterSourcesModule
-        
-        module = WaterSourcesModule(self.content_area)
         module.load()
     
     def _load_storage_facilities(self):
@@ -567,139 +733,385 @@ class MainWindow:
         message.pack(expand=True)
     
     def _load_about(self):
-        """Load the About page"""
+        """Load the About page with enhanced styling and information"""
         bg_main = config.get_color('bg_main')
+        bg_secondary = config.get_color('bg_secondary')
+        text_primary = config.get_color('text_primary')
+        text_secondary = config.get_color('text_secondary')
+        accent = config.get_color('accent')
         
         container = tk.Frame(self.content_area, bg=bg_main)
-        container.pack(fill='both', expand=True)
+        container.pack(fill='both', expand=True, padx=0, pady=0)
         
-        # Center content frame
-        center_frame = tk.Frame(container, bg=bg_main)
-        center_frame.place(relx=0.5, rely=0.5, anchor='center')
+        # Create scrollable canvas
+        canvas = tk.Canvas(container, bg=bg_main, highlightthickness=0)
+        scrollbar = tk.Scrollbar(container, orient='vertical', command=canvas.yview)
+        scrollable_frame = tk.Frame(canvas, bg=bg_main)
         
-        # Company logo/header
-        header = tk.Label(
-            center_frame,
+        scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+        
+        canvas.create_window((0, 0), window=scrollable_frame, anchor='nw')
+        canvas.configure(yscrollcommand=scrollbar.set)
+        
+        # Pack scrollbar and canvas
+        scrollbar.pack(side='right', fill='y')
+        canvas.pack(side='left', fill='both', expand=True)
+        
+        # Enable mouse wheel scrolling
+        def _on_mousewheel(event):
+            try:
+                canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+            except tk.TclError:
+                # Canvas was destroyed (likely during tab switch), ignore
+                pass
+        canvas.bind_all("<MouseWheel>", _on_mousewheel)
+        
+        # Create main frame inside scrollable frame
+        main_frame = tk.Frame(scrollable_frame, bg=bg_main)
+        main_frame.pack(fill='both', expand=True, padx=40, pady=50)
+        
+        # HEADER SECTION
+        header_frame = tk.Frame(main_frame, bg=bg_main)
+        header_frame.pack(fill='x', pady=(0, 40))
+        
+        company = tk.Label(
+            header_frame,
             text="🏢 TransAfrica Resources",
-            font=('Segoe UI', 24, 'bold'),
-            fg='#0066cc',
+            font=('Segoe UI', 28, 'bold'),
+            fg=accent,
             bg=bg_main
         )
-        header.pack(pady=(0, 10))
+        company.pack(pady=(0, 10))
         
-        # App title
-        title = tk.Label(
-            center_frame,
+        app_title = tk.Label(
+            header_frame,
             text=f"💧 {config.app_name}",
-            font=('Segoe UI', 18, 'bold'),
-            fg=config.get_color('text_primary'),
+            font=('Segoe UI', 22, 'bold'),
+            fg=text_primary,
             bg=bg_main
         )
-        title.pack(pady=(0, 5))
+        app_title.pack(pady=(0, 8))
         
-        # Version
-        version = tk.Label(
-            center_frame,
-            text=f"📦 Version {config.app_version}",
-            font=('Segoe UI', 12),
-            fg=config.get_color('text_secondary'),
+        version_text = tk.Label(
+            header_frame,
+            text=f"Version {config.app_version}",
+            font=('Segoe UI', 13),
+            fg=text_secondary,
             bg=bg_main
         )
-        version.pack(pady=(0, 20))
+        version_text.pack(pady=(0, 15))
         
-        # Description
-        desc = tk.Label(
-            center_frame,
-            text="Professional water balance management system for mining operations",
+        # DIVIDER
+        divider = tk.Frame(main_frame, height=2, bg=accent, relief='flat')
+        divider.pack(fill='x', pady=(0, 30))
+        
+        # DESCRIPTION SECTION
+        desc_title = tk.Label(
+            main_frame,
+            text="About This Application",
+            font=('Segoe UI', 14, 'bold'),
+            fg=text_primary,
+            bg=bg_main
+        )
+        desc_title.pack(anchor='w', pady=(0, 10))
+        
+        description = tk.Label(
+            main_frame,
+            text="A comprehensive water balance management system designed for mining operations. "
+                 "Tracks all water inflows, outflows, and storage changes to ensure accurate "
+                 "water management and regulatory compliance across multiple facilities.",
             font=('Segoe UI', 11),
-            fg=config.get_color('text_primary'),
+            fg=text_primary,
             bg=bg_main,
-            wraplength=500
+            justify='left',
+            wraplength=700
         )
-        desc.pack(pady=(0, 30))
+        description.pack(anchor='w', pady=(0, 30))
         
-        # Contact info section
-        contact_frame = tk.Frame(center_frame, bg='#f8f9fa', relief='solid', borderwidth=1)
-        contact_frame.pack(fill='x', padx=20, pady=10)
+        # KEY CAPABILITIES SECTION
+        features_title = tk.Label(
+            main_frame,
+            text="✨ Core Capabilities",
+            font=('Segoe UI', 14, 'bold'),
+            fg=text_primary,
+            bg=bg_main
+        )
+        features_title.pack(anchor='w', pady=(0, 12))
+        
+        features_frame = tk.Frame(main_frame, bg=bg_main)
+        features_frame.pack(fill='x', anchor='w', pady=(0, 30))
+        
+        features = [
+            ("📊", "6 Dashboard Views", "Main, KPI, Analytics, Charts, Flow Diagram, Monitoring"),
+            ("💧", "Complete Water Tracking", "6 inflow sources + 7 outflow components with detailed breakdown"),
+            ("🏗️", "Storage Management", "Track multiple facilities with real-time volume and capacity monitoring"),
+            ("📈", "Real-time Calculations", "Advanced water balance engine with closure error validation"),
+            ("📋", "Professional Reporting", "Generate compliance reports and export data for analysis"),
+            ("⚙️", "Configurable Parameters", "Adjust mining rates, TSF return %, seepage losses, and more"),
+            ("🎨", "Modern Interface", "Intuitive user experience with professional styling and navigation"),
+            ("📡", "Excel Integration", "Seamless integration with Water_Balance_TimeSeries_Template.xlsx")
+        ]
+        
+        for icon, title, desc in features:
+            feature_item = tk.Frame(features_frame, bg=bg_main)
+            feature_item.pack(fill='x', pady=8)
+            
+            icon_label = tk.Label(
+                feature_item,
+                text=icon,
+                font=('Segoe UI', 14),
+                fg=accent,
+                bg=bg_main,
+                width=3
+            )
+            icon_label.pack(side='left', padx=(0, 12))
+            
+            text_frame = tk.Frame(feature_item, bg=bg_main)
+            text_frame.pack(side='left', fill='x', expand=True)
+            
+            feature_title_lbl = tk.Label(
+                text_frame,
+                text=title,
+                font=('Segoe UI', 11, 'bold'),
+                fg=text_primary,
+                bg=bg_main,
+                justify='left'
+            )
+            feature_title_lbl.pack(anchor='w')
+            
+            feature_desc_lbl = tk.Label(
+                text_frame,
+                text=desc,
+                font=('Segoe UI', 10),
+                fg=text_secondary,
+                bg=bg_main,
+                justify='left',
+                wraplength=600
+            )
+            feature_desc_lbl.pack(anchor='w')
+        
+        # COMPANY INFORMATION SECTION
+        company_title = tk.Label(
+            main_frame,
+            text="🏢 Company Information",
+            font=('Segoe UI', 14, 'bold'),
+            fg=text_primary,
+            bg=bg_main
+        )
+        company_title.pack(anchor='w', pady=(30, 12))
+        
+        company_items = [
+            ("Organization", "TransAfrica Resources (Pty) Ltd"),
+            ("Industry", "Mining & Water Management"),
+            ("Headquarters", "South Africa"),
+            ("Focus", "Advanced water balance and environmental compliance"),
+            ("Mission", "Provide innovative solutions for sustainable water management in mining operations")
+        ]
+        
+        for label, value in company_items:
+            company_row = tk.Frame(main_frame, bg=bg_main)
+            company_row.pack(fill='x', pady=4)
+            
+            label_widget = tk.Label(
+                company_row,
+                text=label,
+                font=('Segoe UI', 10, 'bold'),
+                fg=accent,
+                bg=bg_main,
+                anchor='w',
+                width=20
+            )
+            label_widget.pack(side='left')
+            
+            value_widget = tk.Label(
+                company_row,
+                text=value,
+                font=('Segoe UI', 10),
+                fg=text_primary,
+                bg=bg_main,
+                justify='left',
+                wraplength=550
+            )
+            value_widget.pack(side='left', fill='x', expand=True)
+        
+        # CONTACT SECTION
+        contact_frame = tk.Frame(main_frame, bg='#f5f5f5', relief='solid', bd=1)
+        contact_frame.pack(fill='x', pady=(30, 30), padx=0)
         
         contact_title = tk.Label(
             contact_frame,
             text="📞 Contact Information",
-            font=('Segoe UI', 12, 'bold'),
-            fg='#0066cc',
-            bg='#f8f9fa'
+            font=('Segoe UI', 13, 'bold'),
+            fg=accent,
+            bg='#f5f5f5'
         )
-        contact_title.pack(pady=(15, 10))
+        contact_title.pack(pady=(15, 10), padx=15)
         
-        contacts = [
-            "📧 caliphs@transafreso.com",
-            "📧 kali@transafreso.com",
-            "☎️  +27 82 355 8130",
-            "☎️  +27 235 76 07"
+        contact_info = [
+            ("Email", "caliphs@transafreso.com"),
+            ("Email", "kali@transafreso.com"),
+            ("Phone", "+27 82 355 8130"),
+            ("Phone", "+27 235 76 07")
         ]
         
-        for contact in contacts:
-            contact_label = tk.Label(
-                contact_frame,
-                text=contact,
-                font=('Segoe UI', 10),
-                fg=config.get_color('text_primary'),
-                bg='#f8f9fa'
+        for contact_type, contact_value in contact_info:
+            contact_item = tk.Frame(contact_frame, bg='#f5f5f5')
+            contact_item.pack(fill='x', pady=4, padx=15)
+            
+            type_label = tk.Label(
+                contact_item,
+                text=f"{contact_type}:",
+                font=('Segoe UI', 10, 'bold'),
+                fg='#333333',
+                bg='#f5f5f5',
+                width=10,
+                anchor='w'
             )
-            contact_label.pack(pady=3)
+            type_label.pack(side='left')
+            
+            value_label = tk.Label(
+                contact_item,
+                text=contact_value,
+                font=('Segoe UI', 10),
+                fg='#666666',
+                bg='#f5f5f5'
+            )
+            value_label.pack(side='left', padx=10)
         
-        contact_frame.pack_configure(pady=(0, 20))
-        
-        # Features
-        features_label = tk.Label(
-            center_frame,
-            text="✨ Key Features",
-            font=('Segoe UI', 11, 'bold'),
-            fg=config.get_color('text_primary'),
+        # DEVELOPER INFORMATION SECTION
+        dev_title = tk.Label(
+            main_frame,
+            text="👨‍💻 Development Team",
+            font=('Segoe UI', 14, 'bold'),
+            fg=text_primary,
             bg=bg_main
         )
-        features_label.pack(pady=(10, 8))
+        dev_title.pack(anchor='w', pady=(30, 12))
         
-        features = [
-            "• Comprehensive water source tracking",
-            "• Storage facility management", 
-            "• Real-time water balance calculations",
-            "• Professional reporting and exports",
-            "• Modern intuitive interface"
+        dev_frame = tk.Frame(main_frame, bg=bg_main)
+        dev_frame.pack(fill='x', anchor='w', pady=(0, 30))
+        
+        developers = [
+            {
+                "name": "Caliphs Nyamudzanha",
+                "role": "Lead Developer & Project Manager",
+                "expertise": "Full-stack Python development, UI/UX design, water balance calculations",
+                "contact": "caliphs@transafreso.com"
+            },
+            {
+                "name": "Kali Nyamudzanha",
+                "role": "Developer & Business Analyst",
+                "expertise": "Database design, reporting systems, business process optimization",
+                "contact": "kali@transafreso.com"
+            }
         ]
         
-        for feature in features:
-            feature_label = tk.Label(
-                center_frame,
-                text=feature,
-                font=('Segoe UI', 10),
-                fg=config.get_color('text_secondary'),
+        for dev in developers:
+            dev_item = tk.Frame(dev_frame, bg='#f5f5f5', relief='solid', bd=1)
+            dev_item.pack(fill='x', pady=10)
+            
+            name_label = tk.Label(
+                dev_item,
+                text=dev["name"],
+                font=('Segoe UI', 11, 'bold'),
+                fg=accent,
+                bg='#f5f5f5'
+            )
+            name_label.pack(anchor='w', padx=15, pady=(12, 2))
+            
+            role_label = tk.Label(
+                dev_item,
+                text=dev["role"],
+                font=('Segoe UI', 10, 'bold'),
+                fg='#333333',
+                bg='#f5f5f5'
+            )
+            role_label.pack(anchor='w', padx=15, pady=(0, 4))
+            
+            expertise_label = tk.Label(
+                dev_item,
+                text=f"Expertise: {dev['expertise']}",
+                font=('Segoe UI', 9),
+                fg='#666666',
+                bg='#f5f5f5',
+                justify='left',
+                wraplength=650
+            )
+            expertise_label.pack(anchor='w', padx=15, pady=(0, 4))
+            
+            email_label = tk.Label(
+                dev_item,
+                text=f"📧 {dev['contact']}",
+                font=('Segoe UI', 9),
+                fg='#666666',
+                bg='#f5f5f5'
+            )
+            email_label.pack(anchor='w', padx=15, pady=(0, 12))
+        
+        # SYSTEM INFO SECTION
+        info_title = tk.Label(
+            main_frame,
+            text="🔧 System Information",
+            font=('Segoe UI', 14, 'bold'),
+            fg=text_primary,
+            bg=bg_main
+        )
+        info_title.pack(anchor='w', pady=(30, 12))
+        
+        info_items = [
+            ("Default Mining Water Rate:", "1.43 m³/tonne"),
+            ("Default TSF Return Rate:", "56%"),
+            ("Seepage Loss Rate:", "0.5% per month"),
+            ("Closure Error Threshold:", "±5% (Excel standard)"),
+            ("Calculation Basis:", "Monthly periods"),
+            ("Database:", "SQLite (water_balance.db)"),
+            ("Python Version:", "3.11+")
+        ]
+        
+        for label, value in info_items:
+            info_row = tk.Frame(main_frame, bg=bg_main)
+            info_row.pack(fill='x', pady=4)
+            
+            label_widget = tk.Label(
+                info_row,
+                text=label,
+                font=('Segoe UI', 10, 'bold'),
+                fg=text_primary,
                 bg=bg_main,
-                justify='left'
+                anchor='w',
+                width=35
             )
-            feature_label.pack(anchor='w', padx=40)
+            label_widget.pack(side='left')
+            
+            value_widget = tk.Label(
+                info_row,
+                text=value,
+                font=('Segoe UI', 10),
+                fg=text_secondary,
+                bg=bg_main
+            )
+            value_widget.pack(side='left')
         
-        # Copyright
-        copyright_label = tk.Label(
-            center_frame,
-            text=f"© 2025 TransAfrica Resources (Pty) Ltd. All rights reserved.",
+        # COPYRIGHT
+        copyright = tk.Label(
+            main_frame,
+            text="© 2025 TransAfrica Resources (Pty) Ltd. All rights reserved.",
             font=('Segoe UI', 9),
-            fg=config.get_color('text_secondary'),
+            fg=text_secondary,
             bg=bg_main
         )
-        copyright_label.pack(pady=(30, 0))
+        copyright.pack(pady=(40, 0))
     
     def _update_statusbar(self):
         """Update status bar with current module info"""
         module_names = {
             'dashboard': 'Dashboard - Water Balance Overview',
-            'water_sources': 'Water Sources Management',
             'storage': 'Storage Facilities Management',
-            'measurements': 'Measurements Data Entry',
             'calculations': 'Water Balance Calculations',
-            'reports': 'Reports Generation',
             'settings': 'Settings & Configuration',
-            'import_export': 'Data Import/Export',
             'help': 'Help & Documentation',
         }
         
@@ -710,32 +1122,6 @@ class MainWindow:
         """Update status bar with custom message (used by notifier)"""
         if hasattr(self, 'statusbar_label'):
             self.statusbar_label.config(text=message)
-
-    def _request_exit(self):
-        """Handle exit button click with confirmation using notifier."""
-        from utils.app_logger import logger as _logger
-        _logger.user_action("Application close requested (button)")
-        if notifier.confirm("Are you sure you want to exit?", "Confirm Exit"):
-            try:
-                # Cancel any pending after callbacks
-                if hasattr(self, '_alert_badge_after_id') and self._alert_badge_after_id:
-                    self.root.after_cancel(self._alert_badge_after_id)
-                    self._alert_badge_after_id = None
-                
-                # Set flag to prevent on_closing double execution
-                self.root._closing = True
-            except Exception:
-                pass
-            _logger.info("Application closing - user confirmed via button")
-            _logger.info("=" * 60)
-            _logger.info("Water Balance Application Stopped")
-            _logger.info("=" * 60)
-            try:
-                self.root.destroy()
-            except Exception:
-                pass
-        else:
-            _logger.info("Application close cancelled by user (button)")
     
     # Toolbar action methods removed - use sidebar navigation instead
     

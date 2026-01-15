@@ -43,8 +43,9 @@ def create_sample_templates():
         'facility_type': ['Dam', 'Dam', 'Dam', 'Dam'],
         'total_capacity': [8000000, 2000000, 1500000, 960000],
         'surface_area': [800000, 150000, 120000, 80000],
-        'minimum_operating_level': [15.0, 20.0, 15.0, 10.0],
-        'maximum_operating_level': [90.0, 95.0, 95.0, 95.0],
+        'max_depth': [45.0, 32.0, 28.0, 25.0],
+        'purpose': ['return_water', 'raw_water', 'process_water', 'clean_water'],
+        'water_quality': ['contaminated', 'process', 'process', 'potable'],
         'description': [
             'Main tailings storage facility',
             'Raw water storage from external sources',
@@ -100,7 +101,7 @@ AVAILABLE TEMPLATES:
 2. storage_facilities_template.xlsx
    - Import storage facilities (dams, tanks, ponds)
    - Required columns: facility_code, facility_name, total_capacity
-   - Optional columns: facility_type, surface_area, minimum_operating_level, maximum_operating_level, description, active
+    - Optional columns: facility_type, surface_area, max_depth, purpose, water_quality, description, active
 
 3. measurements_template.xlsx
    - Import measurement data (flows, levels, volumes)

@@ -216,7 +216,7 @@ SEASONAL (Excel: Same Month)
         sources = self.db.get_water_sources(active_only=True)
         source_names = [f"{s['source_name']} (ID: {s['source_id']})" for s in sources]
         
-        self.test_source_var = tk.StringVar()
+        self.test_source_var = tk.StringVar(master=test_frame)
         test_source = ttk.Combobox(
             test_frame,
             textvariable=self.test_source_var,

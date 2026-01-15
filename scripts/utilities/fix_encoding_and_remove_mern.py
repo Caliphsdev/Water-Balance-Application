@@ -32,7 +32,7 @@ remaining_corrupted = sum(1 for e in diagram['edges']
 print(f"✓ Verification: {remaining_corrupted} corrupted arrows remaining (should be 0)")
 
 print("\n" + "="*80)
-print("FIX 2: REMOVE DEPRECATED FLOWS_MERN SHEET")
+print("FIX 2: REMOVE DEPRECATED FLOWS_MERENSKY NORTH SHEET")
 print("="*80)
 
 wb = load_workbook('test_templates/Water_Balance_TimeSeries_Template.xlsx')
@@ -40,14 +40,14 @@ wb = load_workbook('test_templates/Water_Balance_TimeSeries_Template.xlsx')
 print(f"\nSheets before removal: {len(wb.sheetnames)}")
 print(f"  {', '.join(wb.sheetnames)}")
 
-if 'Flows_MERN' in wb.sheetnames:
-    del wb['Flows_MERN']
-    print("\n✓ Removed Flows_MERN sheet")
+if 'Flows_Merensky North' in wb.sheetnames:
+    del wb['Flows_Merensky North']
+    print("\n✓ Removed Flows_Merensky North sheet")
     
     wb.save('test_templates/Water_Balance_TimeSeries_Template.xlsx')
     print("✓ Template saved")
 else:
-    print("\n✗ Flows_MERN not found in template")
+    print("\n✗ Flows_Merensky North not found in template")
 
 # Verify
 wb = load_workbook('test_templates/Water_Balance_TimeSeries_Template.xlsx')
@@ -58,5 +58,5 @@ print("\n" + "="*80)
 print("ALL FIXES COMPLETE")
 print("="*80)
 print("\n✓ JSON arrows: Fixed (replaced â†' with →)")
-print("✓ MERN sheet: Removed from template")
+print("✓ Merensky North sheet: Removed from template")
 print("✓ System ready to use!")

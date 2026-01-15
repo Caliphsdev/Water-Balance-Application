@@ -361,12 +361,12 @@
       "column": "BH_NDGWA \u2192 SOFTENING"
     },
     "UG2N::softening->reservoir": {
-      "sheet": "Flows_UG2N",
-      "column": "SOFTENING \u2192 RESERVOIR"
+      "sheet": "Flows_UG2 North",
+      "column": "Softening Plant \u2192 Reservoir"
     },
     "UG2N::reservoir->offices": {
-      "sheet": "Flows_UG2N",
-      "column": "RESERVOIR \u2192 OFFICES"
+      "sheet": "Flows_UG2 North",
+      "column": "Reservoir \u2192 Offices"
     },
     "UG2N::softening->guest_house": {
       "sheet": "Flows_UG2N",
@@ -381,20 +381,20 @@
       "column": "guest_house__TO__consumption"
     },
     "UG2N::softening->losses": {
-      "sheet": "Flows_UG2N",
-      "column": "SOFTENING \u2192 LOSSES"
+      "sheet": "Flows_UG2 North",
+      "column": "Softening Plant \u2192 Losses"
     },
     "UG2N::offices->consumption2": {
-      "sheet": "Flows_UG2N",
-      "column": "OFFICES \u2192 CONSUMPTION2"
+      "sheet": "Flows_UG2 North",
+      "column": "Offices \u2192 Consumption2"
     },
     "UG2N::offices->sewage": {
-      "sheet": "Flows_UG2N",
-      "column": "OFFICES \u2192 SEWAGE"
+      "sheet": "Flows_UG2 North",
+      "column": "Offices \u2192 Sewage Treatment"
     },
     "UG2N::sewage->losses2": {
-      "sheet": "Flows_UG2N",
-      "column": "SEWAGE \u2192 LOSSES2"
+      "sheet": "Flows_UG2 North",
+      "column": "Sewage Treatment \u2192 Losses2"
     },
     "UG2N::mers_offices->ug2s_stp": {
       "sheet": "Flows_MERS",
@@ -493,8 +493,8 @@
       "column": "ug2s_mdcdg__TO__ug2s_mdcdg"
     },
     "UG2N::spcd1->spcd1": {
-      "sheet": "Flows_STOCKPILE",
-      "column": "SPCD1 \u2192 SPCD1"
+      "sheet": "Flows_Stockpile1",
+      "column": "SPCD1 Rainfall \u2192 Stockpile Clean Dam 1"
     },
     "UG2N::stockpile_area->stockpile_area": {
       "sheet": "Flows_STOCKPILE",
@@ -667,6 +667,34 @@
     "UG2N::edge:b91a35c1-75a3-4244-9571-bc98febd6656": {
       "sheet": "Flows_OLDTSF",
       "column": "OLDTSF_TRTD \u2192 MRP_MPRWSD1"
+    },
+    "UG2N::mers_sd->mers_mdcdg": {
+      "sheet": "Flows_Merensky South",
+      "column": "Merensky South Decline \u2192 Merensky Decline Dams (Group)"
+    },
+    "UG2N::mers_mdcdg->mers_sd": {
+      "sheet": "Flows_Merensky South",
+      "column": "Merensky Decline Dams (Group) \u2192 Merensky South Decline"
+    },
+    "UG2N::ug2s_mdcdg->ug2s_sd": {
+      "sheet": "Flows_UG2 Main",
+      "column": "Main Decline Clean Dams (Group) \u2192 South Decline"
+    },
+    "UG2N::edge:2853a89e-258b-4ee8-86ce-72df4cc4f190": {
+      "sheet": "Flows_UG2 Plant",
+      "column": "UG2 Concentrator Plant \u2192 UG2 Plant Losses"
+    },
+    "UG2N::edge:638cf568-7150-45d6-a778-fe81617e967a": {
+      "sheet": "Flows_New TSF",
+      "column": "New TSF Return Water Dams \u2192 Junction"
+    },
+    "UG2N::edge:bcdfebe7-6ec5-4f00-80fe-7946fde88af8": {
+      "sheet": "Flows_Merensky South",
+      "column": "Merensky Decline Dams (Group) \u2192 Junction 131 1229 2072"
+    },
+    "UG2N::edge:f6027029-e4bd-4ea2-864f-aa60c375de01": {
+      "sheet": "Flows_New TSF",
+      "column": "Scavenger Boreholes(1-6) \u2192 New TSF Return Water Dams"
     }
   },
   "meta": {

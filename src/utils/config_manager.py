@@ -148,24 +148,6 @@ class ConfigManager:
         except Exception as e:
             print(f'Error saving config: {e}')
 
-    # ============ Scenario Management ============
-    def get_active_scenario_id(self) -> int:
-        """Return currently active scenario ID (or 0 if none)"""
-        return self.get('scenarios.active_id', 0)
-
-    def set_active_scenario(self, scenario_id: int):
-        """Set an active scenario (overrides base constants in calculations)"""
-        if 'scenarios' not in self._config:
-            self._config['scenarios'] = {}
-        self._config['scenarios']['active_id'] = scenario_id
-        self._save_config()
-
-    def clear_active_scenario(self):
-        """Clear the active scenario selection"""
-        if 'scenarios' in self._config and 'active_id' in self._config['scenarios']:
-            self._config['scenarios']['active_id'] = 0
-            self._save_config()
-
     # ============ User Session ============
     def get_current_user(self) -> str:
         """Return current logged-in username (or 'system' if none)"""

@@ -26,7 +26,7 @@ FIXES = [
     {
         "from": "stockpile_area",
         "to": "spcd1",
-        "sheet": "Flows_STOCKPILE",
+        "sheet": "Flows_Stockpile",
         "column": "STOCKPILE_AREA → SPCD1"
     }
 ]

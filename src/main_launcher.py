@@ -105,7 +105,6 @@ data_sources:
   template_excel_path: ""
 
 constants:
-  mining_water_rate: 1.43
   mean_annual_evaporation: 1950
   tsf_return_rate: 0.56
 """

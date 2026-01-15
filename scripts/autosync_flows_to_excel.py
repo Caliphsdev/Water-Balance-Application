@@ -203,7 +203,7 @@ instructions = [
     ('How to Update Monthly Flow Values:', 12, '000000', 'FFFFFF'),
     ('', 11, '000000', 'FFFFFF'),
     ('1. Open the Excel file', 11, '000000', 'FFFFFF'),
-    ('2. Navigate to the area sheet (e.g., Flows_UG2N, Flows_STOCKPILE, etc.)', 11, '000000', 'FFFFFF'),
+    ('2. Navigate to the area sheet (e.g., Flows_UG2 North, Flows_Stockpile, etc.)', 11, '000000', 'FFFFFF'),
     ('3. Find the month row based on Date column (day) and Month column', 11, '000000', 'FFFFFF'),
     ('4. Enter the flow volume (in m³) in the corresponding flow column', 11, '000000', 'FFFFFF'),
     ('5. Save the file', 11, '000000', 'FFFFFF'),
@@ -219,11 +219,11 @@ instructions = [
     ('Understanding the Sheets:', 12, '000000', 'FFFFFF'),
     ('', 11, '000000', 'FFFFFF'),
     ('• Flows_UG2N = UG2 North Decline mining area', 11, '000000', 'FFFFFF'),
-    ('• Flows_STOCKPILE = Ore stockpile facility', 11, '000000', 'FFFFFF'),
+    ('• Flows_Stockpile = Ore stockpile facility', 11, '000000', 'FFFFFF'),
     ('• Flows_UG2S = UG2 South Decline mining area', 11, '000000', 'FFFFFF'),
     ('• Flows_MERS = Merensky South mining area', 11, '000000', 'FFFFFF'),
     ('• Flows_OLDTSF = Old Tailings Storage Facility', 11, '000000', 'FFFFFF'),
-    ('• Flows_NEWTSF = New Tailings Storage Facility (split from Old TSF)', 11, '000000', 'FFFFFF'),
+    ('• Flows_New TSF = New Tailings Storage Facility (split from Old TSF)', 11, '000000', 'FFFFFF'),
     ('• Flows_UG2P = UG2 Plant processing facility', 11, '000000', 'FFFFFF'),
     ('• Flows_MERP = Merensky Plant processing facility', 11, '000000', 'FFFFFF'),
     ('', 11, '000000', 'FFFFFF'),
@@ -287,7 +287,7 @@ print(f"   5. Refer to 'Column Mapping Reference' sheet for definitions")
 
 print(f"\n🎯 Monthly Workflow:")
 print(f"   1. Open test_templates/Water_Balance_TimeSeries_Template.xlsx")
-print(f"   2. Select the area sheet (Flows_UG2N, Flows_STOCKPILE, etc.)")
+print(f"   2. Select the area sheet (Flows_UG2 North, Flows_Stockpile, etc.)")
 print(f"   3. Find the row for your date/month")
 print(f"   4. Enter values in each flow column (e.g., UG2N_TO_STOCKPILE)")
 print(f"   5. Save and run dashboard calculations")

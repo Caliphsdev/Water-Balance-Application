@@ -38,7 +38,7 @@ def setup_flow_sheets():
     # Define area sheets and their flow columns
     # These map to the diagram JSON flow segments
     area_flows = {
-        'Flows_UG2N': {
+        'Flows_UG2 North': {
             'area': 'UG2 North Decline Area',
             'flows': [
                 'BOREHOLE_ABSTRACTION',
@@ -53,7 +53,7 @@ def setup_flow_sheets():
                 'SEEPAGE_LOSS',
             ]
         },
-        'Flows_MERN': {
+        'Flows_Merensky North': {
             'area': 'Merensky North Area',
             'flows': [
                 'RAINFALL_MERN',
@@ -64,7 +64,7 @@ def setup_flow_sheets():
                 'CONSERVATION_POOL',
             ]
         },
-        'Flows_MERENSKY_SOUTH': {
+        'Flows_Merensky South': {
             'area': 'Merensky South Area',
             'flows': [
                 'RAINFALL_MERENSKY_SOUTH',
@@ -74,8 +74,8 @@ def setup_flow_sheets():
                 'RECIRCULATION_LOOP',
             ]
         },
-        'Flows_UG2S': {
-            'area': 'UG2 South Decline Area',
+        'Flows_UG2 Main': {
+            'area': 'UG2 Main Decline Area',
             'flows': [
                 'RAINFALL_UG2S',
                 'UG2S_INFLOW',
@@ -83,7 +83,7 @@ def setup_flow_sheets():
                 'SEEPAGE_UG2S',
             ]
         },
-        'Flows_STOCKPILE': {
+        'Flows_Stockpile': {
             'area': 'Stockpile Area',
             'flows': [
                 'RAINFALL_STOCKPILE',
@@ -93,7 +93,7 @@ def setup_flow_sheets():
                 'TREATMENT_INPUT',
             ]
         },
-        'Flows_OLDTSF': {
+        'Flows_Old TSF': {
             'area': 'Old TSF Area',
             'flows': [
                 'RAINFALL_OLDTSF',
@@ -104,7 +104,7 @@ def setup_flow_sheets():
                 'SPILLWAY_FLOW',
             ]
         },
-        'Flows_UG2PLANT': {
+        'Flows_UG2 Plant': {
             'area': 'UG2 Plant Area',
             'flows': [
                 'PLANT_INFLOW',
@@ -115,7 +115,7 @@ def setup_flow_sheets():
                 'TREATMENT_DISCHARGE',
             ]
         },
-        'Flows_MERPLANT': {
+        'Flows_Merensky Plant': {
             'area': 'Merensky Plant Area',
             'flows': [
                 'PLANT_INFLOW_MER',

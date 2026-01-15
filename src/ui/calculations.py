@@ -7,7 +7,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from datetime import datetime, date, timedelta
 import calendar
-from typing import Optional
+from typing import Optional, Any, Dict, List
 import sys
 from pathlib import Path
 import pandas as pd
@@ -17,17 +17,33 @@ from database.db_manager import DatabaseManager
 from utils.water_balance_calculator import WaterBalanceCalculator
 from utils.excel_timeseries import get_default_excel_repo
 from utils.app_logger import logger
+from utils.config_manager import config
 from utils.template_data_parser import get_template_parser
 from utils.balance_check_engine import get_balance_check_engine
 from utils.balance_engine import BalanceEngine
 from utils.balance_services_legacy import LegacyBalanceServices
 from ui.area_exclusion_dialog import AreaExclusionDialog
 from utils.inputs_audit import collect_inputs_audit
-from utils.inputs_audit import collect_inputs_audit
 
 
 class CalculationsModule:
     """Water balance calculations interface"""
+
+    # Tooltip definitions for balance metrics
+    BALANCE_TOOLTIPS = {
+        'Fresh Inflows': 'Natural water entering the system: surface water, groundwater, rainfall, underground, ore moisture',
+        'Dirty Inflows': 'Recycled/recirculated water: Return Water Dam (RWD) from treatment plants and processes',
+        'Total Outflows': 'All water leaving the system: mining/domestic consumption, discharge, dust suppression, tailings, product moisture',
+        'Total Inflows': 'Fresh + Dirty inflows combined; represents total water available in the system',
+        'ΔStorage': 'Change in storage volume: Positive = storage increased (filled). Negative = storage decreased (drew down)',
+        'Balance Error': 'Residual difference in the water balance equation. Should be ≤5% for acceptable closure. Check for measurement errors if >5%',
+        'Error %': 'Error percentage = (Balance Error ÷ Total Inflows) × 100. <5% = Good. 5-10% = Acceptable. >10% = Investigate data quality',
+        'Status': 'Closure status: GREEN = Balanced (<5% error). RED = Check Required (>5% error). Verify inflow/outflow measurements',
+        'Opening Volume': 'Storage volume at the beginning of the period (m³)',
+        'Closing Volume': 'Storage volume at the end of the period (m³)',
+        'Net Change': 'Closing Volume - Opening Volume. Positive = Filled. Negative = Drawdown',
+        'Closure Error %': 'Indicates how well the balance closes. <5% is excellent. Higher values suggest measurement or data quality issues',
+    }
 
     # === UI HELPER FUNCTIONS ===
     def add_metric_card(self, parent, label, value, color, icon=None):
@@ -36,6 +52,54 @@ class CalculationsModule:
         value_label = tk.Label(frame, text=value, font=('Segoe UI', 15, 'bold'), fg=color)
         value_label.pack()
         return frame
+    
+    def _bind_balance_tooltip(self, widget, label):
+        """Bind floating tooltip to balance metric widget"""
+        tooltip_text = self.BALANCE_TOOLTIPS.get(label, '')
+        if not tooltip_text:
+            return
+        
+        tooltip_window = None
+        
+        def show_tooltip(event):
+            nonlocal tooltip_window
+            if tooltip_window or not tooltip_text:
+                return
+            
+            # Create tooltip window
+            tooltip_window = tk.Toplevel(widget)
+            tooltip_window.wm_overrideredirect(True)
+            tooltip_window.wm_geometry(f"+{event.x_root+15}+{event.y_root+15}")
+            
+            # Create tooltip frame
+            tooltip_frame = tk.Frame(tooltip_window, bg='#34495e', relief=tk.SOLID, borderwidth=1)
+            tooltip_frame.pack()
+            
+            # Add text with word wrap
+            label_widget = tk.Label(
+                tooltip_frame,
+                text=tooltip_text,
+                bg='#34495e',
+                fg='#e8eef5',
+                font=('Segoe UI', 9),
+                wraplength=300,
+                justify='left',
+                padx=10,
+                pady=8
+            )
+            label_widget.pack()
+        
+        def hide_tooltip(event):
+            nonlocal tooltip_window
+            if tooltip_window:
+                try:
+                    tooltip_window.destroy()
+                except:
+                    pass
+                tooltip_window = None
+        
+        widget.bind('<Enter>', show_tooltip, add='+')
+        widget.bind('<Leave>', hide_tooltip, add='+')
 
     def add_info_box(self, parent, text, icon=None):
         frame = ttk.Frame(parent)
@@ -88,7 +152,6 @@ class CalculationsModule:
 
         # Variables
         self.calc_date_var = None
-        self.ore_tonnes_var = None
         self.current_balance = None
         self.engine_result = None
         self.year_var = None
@@ -100,8 +163,12 @@ class CalculationsModule:
         if self.main_frame:
             self.main_frame.destroy()
 
-        self.main_frame = ttk.Frame(self.parent)
-        self.main_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
+        # Create outer container with professional background
+        outer = tk.Frame(self.parent, bg='#f5f6f7')
+        outer.pack(fill=tk.BOTH, expand=True)
+
+        self.main_frame = tk.Frame(outer, bg='#f5f6f7')
+        self.main_frame.pack(fill=tk.BOTH, expand=True, padx=0, pady=0)
 
         # Header
         self._create_header()
@@ -117,34 +184,47 @@ class CalculationsModule:
     
     def _create_header(self):
         """Create header section"""
-        header_frame = ttk.Frame(self.main_frame)
-        header_frame.pack(fill=tk.X, pady=(0, 20))
+        header_frame = tk.Frame(self.main_frame, bg='white', relief=tk.FLAT, bd=0)
+        header_frame.pack(fill=tk.X, pady=(0, 0), padx=0)
         
-        title = ttk.Label(header_frame, text="⚖️ Water Balance Calculations", 
-                         font=('Segoe UI', 16, 'bold'))
-        title.pack(side=tk.LEFT)
+        inner = tk.Frame(header_frame, bg='white')
+        inner.pack(fill=tk.X, padx=20, pady=(10, 10))
         
-        info = ttk.Label(header_frame, 
-                        text="📊 Calculate water balance using TRP formulas",
-                        font=('Segoe UI', 9),
-                        foreground='#666')
-        info.pack(side=tk.LEFT, padx=(20, 0))
+        title = tk.Label(inner, text="⚖️ Water Balance Calculations", 
+                         font=('Segoe UI', 22, 'bold'),
+                         bg='white', fg='#2c3e50')
+        title.pack(anchor='w')
+        
+        info = tk.Label(inner, 
+                        text="Calculate water balance using TRP formulas",
+                        font=('Segoe UI', 11),
+                        fg='#7f8c8d',
+                        bg='white')
+        info.pack(anchor='w', pady=(3, 0))
     
     def _create_input_section(self):
-        """Create input controls"""
-        input_frame = ttk.LabelFrame(self.main_frame, text="⚙️ Calculation Parameters", 
-                                    padding=15)
-        input_frame.pack(fill=tk.X, pady=(0, 15))
+        """Create modern input controls with card design"""
+        # Content area wrapper
+        content_frame = tk.Frame(self.main_frame, bg='#f5f6f7')
+        content_frame.pack(fill=tk.BOTH, expand=False, padx=20, pady=(0, 10))
+        
+        input_frame = tk.Frame(content_frame, bg='white', relief=tk.FLAT, bd=1, highlightbackground='#c5d3e6', highlightthickness=1)
+        input_frame.pack(fill=tk.X, pady=(0, 10), padx=0)
+        
+        inner = tk.Frame(input_frame, bg='white')
+        inner.pack(fill=tk.X, padx=20, pady=12)
+        
+        tk.Label(inner, text="⚙️ Calculation Parameters", font=('Segoe UI', 12, 'bold'), bg='white', fg='#2c3e50').pack(anchor='w', pady=(0, 12))
         
         # Date selection (Month/Year selectors for performance, no tkcalendar)
-        date_frame = ttk.Frame(input_frame)
+        date_frame = tk.Frame(inner, bg='white')
         date_frame.pack(fill=tk.X, pady=5)
         
         ttk.Label(date_frame, text="📅 Calculation Month:", width=18).pack(side=tk.LEFT, padx=(0, 10))
         
-        self.calc_date_var = tk.StringVar()
-        self.year_var = tk.StringVar()
-        self.month_var = tk.StringVar()
+        self.calc_date_var = tk.StringVar(master=date_frame)
+        self.year_var = tk.StringVar(master=date_frame)
+        self.month_var = tk.StringVar(master=date_frame)
         
         # Determine default month/year: latest DB date first, then Excel, then today
         try:
@@ -190,20 +270,14 @@ class CalculationsModule:
         month_combo.bind('<<ComboboxSelected>>', update_calc_date_var)
         update_calc_date_var()
         
-        # Ore tonnage
-        ttk.Label(date_frame, text="⛏️ Ore Processed (tonnes):", width=22).pack(side=tk.LEFT, padx=(0, 10))
-        
-        # Default to 0 when no data; let user enter explicit value if needed
-        self.ore_tonnes_var = tk.StringVar(value='0')
-        self.ore_entry = ttk.Entry(date_frame, textvariable=self.ore_tonnes_var, width=15)
-        self.ore_entry.pack(side=tk.LEFT, padx=(0, 5))
-
-        # Source indicator label removed for cleaner UI
-        
         # Calculate button
-        calc_btn = ttk.Button(date_frame, text="🔢 Calculate Balance", 
+        calc_btn = tk.Button(date_frame, text="🔢 Calculate Balance", 
                              command=self._calculate_balance,
-                             style='Accent.TButton')
+                             font=('Segoe UI', 10, 'bold'),
+                             bg='#0066cc', fg='white',
+                             relief=tk.FLAT, bd=0,
+                             padx=20, pady=8,
+                             cursor='hand2')
         calc_btn.pack(side=tk.LEFT, padx=(10, 0))
         
         # Configure Balance Check button - DISABLED (using all template flows)
@@ -212,22 +286,34 @@ class CalculationsModule:
         # config_btn.pack(side=tk.LEFT, padx=(10, 0))
         
         # Removed Save Calculation and Area Exclusions per request
-
-
-        # Event bindings
-        self.ore_entry.bind("<KeyRelease>", lambda e: self._mark_manual_override())
-
-        # Initial prefill after building UI
-        self._prefill_ore_tonnage()
     
     def _create_results_section(self):
         """Create results display"""
-        # Create notebook for organized display with Flow Diagram theme
-        notebook_frame = ttk.Frame(self.main_frame)
-        notebook_frame.pack(fill=tk.BOTH, expand=True)
+        # Modern tab styling with improved UX: larger, more readable, better spacing
+        style = ttk.Style()
+        style.theme_use('clam')
+        style.configure('CalcNotebook.TNotebook', background='#f5f6f7', borderwidth=0)
+        # Enhanced tab styling: larger font, more padding for better visibility
+        style.configure('CalcNotebook.TNotebook.Tab', 
+                       background='#d6dde8', 
+                       foreground='#2c3e50',
+                       padding=[24, 16],  # Increased from [20, 12] for larger tab size
+                       font=('Segoe UI', 11, 'bold'),  # Increased from 10 to 11, added bold for better visibility
+                       relief='flat',
+                       borderwidth=0)
+        # Enhanced map with better visual feedback on interaction
+        style.map('CalcNotebook.TNotebook.Tab',
+                 background=[('selected', '#3498db'), ('active', '#5dade2'), ('!active', '#d6dde8')],
+                 foreground=[('selected', '#ffffff'), ('active', '#ffffff'), ('!active', '#2c3e50')],
+                 lightcolor=[('selected', '#3498db')],
+                 darkcolor=[('selected', '#3498db')])
         
-        notebook = ttk.Notebook(notebook_frame)
-        notebook.pack(fill=tk.BOTH, expand=True)
+        # Create notebook for organized display with professional styling
+        notebook_frame = tk.Frame(self.main_frame, bg='#f5f6f7')
+        notebook_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=(0, 10))
+        
+        notebook = ttk.Notebook(notebook_frame, style='CalcNotebook.TNotebook')
+        notebook.pack(fill=tk.BOTH, expand=True, pady=0)
         
         # Tab 1: System Balance (Regulator Mode - Authoritative Closure)
         self.closure_frame = ttk.Frame(notebook)
@@ -254,14 +340,6 @@ class CalculationsModule:
         # Tab 4: Days of Operation (water runway analysis)
         self.days_of_operation_frame = ttk.Frame(notebook)
         notebook.add(self.days_of_operation_frame, text="⏳ Days of Operation")
-
-        # Tab 5: Consumption Trends (historical analysis)
-        self.consumption_trends_frame = ttk.Frame(notebook)
-        notebook.add(self.consumption_trends_frame, text="📈 Consumption Trends")
-
-        # Tab 6: Scenario Planner (what-if analysis)
-        self.scenario_planner_frame = ttk.Frame(notebook)
-        notebook.add(self.scenario_planner_frame, text="🔮 Scenario Planner")
 
         # Template Balance (QA) and Template Check Summary tabs removed per request
 
@@ -301,9 +379,7 @@ class CalculationsModule:
             getattr(self, 'recycled_frame', None),
             getattr(self, 'quality_frame', None),
             getattr(self, 'inputs_frame', None),
-                        getattr(self, 'days_of_operation_frame', None),
-                        getattr(self, 'consumption_trends_frame', None),
-                        getattr(self, 'scenario_planner_frame', None),
+            getattr(self, 'days_of_operation_frame', None),
             # NOTE: manual_inputs_frame is intentionally excluded - it should always show the form
             getattr(self, 'breakdown_frame', None),
             getattr(self, 'balance_summary_frame', None),
@@ -328,7 +404,7 @@ class CalculationsModule:
             msg = tk.Label(container, 
                           text="Select a month and click 'Calculate Balance' to generate results.",
                           font=('Segoe UI', 10),
-                          bg='#2c3e50', fg='#ecf0f1')
+                          bg='#2c3e50', fg='#e8eef5')
             msg.pack(pady=40)
 
     def _build_manual_inputs_tab(self):
@@ -357,7 +433,7 @@ class CalculationsModule:
             row = ttk.Frame(form)
             row.pack(fill=tk.X, pady=4)
             ttk.Label(row, text=f"{label} (m³):", width=24).pack(side=tk.LEFT)
-            var = self.manual_inputs_vars.setdefault(key, tk.StringVar(value='0'))
+            var = self.manual_inputs_vars.setdefault(key, tk.StringVar(master=row, value='0'))
             ttk.Entry(row, textvariable=var, width=16).pack(side=tk.LEFT, padx=(0, 8))
             ttk.Label(row, text=desc, foreground='#555').pack(side=tk.LEFT, fill=tk.X, expand=True)
 
@@ -412,7 +488,7 @@ class CalculationsModule:
         
         try:
             calc_date = datetime.strptime(self.calc_date_var.get(), '%Y-%m-%d').date()
-            ore_tonnes = float(self.ore_tonnes_var.get()) if self.ore_tonnes_var.get() else None
+            ore_tonnes = None
             
             # Calculate balance
             balance_calc_start = time.perf_counter()
@@ -449,8 +525,6 @@ class CalculationsModule:
             self._update_inputs_audit_display()
             self._update_storage_dams_display()
             self._update_days_of_operation_display()
-            self._update_consumption_trends_display()
-            self._update_scenario_planner_display()
             self._update_future_balance_placeholder()
             logger.info(f"  ✓ UI update: {(time.perf_counter() - ui_start)*1000:.0f}ms")
             
@@ -503,7 +577,7 @@ class CalculationsModule:
         tk.Label(header_frame,
                 text="📐 Balance Calculation Breakdown",
                 font=('Segoe UI', 16, 'bold'),
-                bg='#2c3e50', fg='#ecf0f1').pack(anchor='w')
+                bg='#2c3e50', fg='#e8eef5').pack(anchor='w')
         
         tk.Label(header_frame,
                 text="Step-by-step calculation with all parameters and formula",
@@ -517,7 +591,7 @@ class CalculationsModule:
         tk.Label(formula_frame,
                 text="📝 Balance Formula",
                 font=('Segoe UI', 11, 'bold'),
-                bg='#34495e', fg='#ecf0f1').pack(anchor='w', padx=12, pady=(10, 5))
+                bg='#34495e', fg='#e8eef5').pack(anchor='w', padx=12, pady=(10, 5))
         
         formula_text = (
             "Total Inflows − Total Recirculation − Total Outflows = Balance Difference\n"
@@ -526,7 +600,7 @@ class CalculationsModule:
         tk.Label(formula_frame,
                 text=formula_text,
                 font=('Segoe UI', 10, 'italic'),
-                bg='#34495e', fg='#ecf0f1',
+                bg='#34495e', fg='#e8eef5',
                 justify='left').pack(anchor='w', padx=12, pady=(0, 10))
         
         # Parameters section
@@ -536,7 +610,7 @@ class CalculationsModule:
         tk.Label(params_frame,
                 text="⚙️ Input Parameters",
                 font=('Segoe UI', 11, 'bold'),
-                bg='#2c3e50', fg='#ecf0f1').pack(anchor='w')
+                bg='#2c3e50', fg='#e8eef5').pack(anchor='w')
         
         # Parameters in a grid
         params_grid = tk.Frame(params_frame, bg='#2c3e50')
@@ -559,7 +633,7 @@ class CalculationsModule:
             param_card.pack(fill=tk.X, pady=5)
             
             tk.Label(param_card, text=f"{icon} {label}:", font=('Segoe UI', 10, 'bold'),
-                    bg='#34495e', fg='#ecf0f1').pack(anchor='w', padx=12, pady=(8, 2))
+                    bg='#34495e', fg='#e8eef5').pack(anchor='w', padx=12, pady=(8, 2))
             tk.Label(param_card, text=str(value), font=('Segoe UI', 10),
                     bg='#34495e', fg='#3498db').pack(anchor='w', padx=12, pady=(0, 8))
         
@@ -570,7 +644,7 @@ class CalculationsModule:
         tk.Label(steps_frame,
                 text="📊 Calculation Steps",
                 font=('Segoe UI', 11, 'bold'),
-                bg='#2c3e50', fg='#ecf0f1').pack(anchor='w')
+                bg='#2c3e50', fg='#e8eef5').pack(anchor='w')
         
         # Step 1: Total Inflows
         step1_frame = tk.Frame(steps_frame, bg='#34495e', relief=tk.SOLID, borderwidth=1)
@@ -581,7 +655,7 @@ class CalculationsModule:
                 bg='#34495e', fg='#3498db').pack(anchor='w', padx=12, pady=(8, 5))
         tk.Label(step1_frame, text=f"Total Inflows = {metrics.total_inflows:,.0f} m³  ({metrics.inflow_count} sources)",
                 font=('Segoe UI', 10),
-                bg='#34495e', fg='#ecf0f1').pack(anchor='w', padx=12, pady=(0, 8))
+                bg='#34495e', fg='#e8eef5').pack(anchor='w', padx=12, pady=(0, 8))
         
         # Step 2: Total Recirculation
         step2_frame = tk.Frame(steps_frame, bg='#34495e', relief=tk.SOLID, borderwidth=1)
@@ -592,7 +666,7 @@ class CalculationsModule:
                 bg='#34495e', fg='#27ae60').pack(anchor='w', padx=12, pady=(8, 5))
         tk.Label(step2_frame, text=f"Total Recirculation = {metrics.total_recirculation:,.0f} m³  ({metrics.recirculation_count} self-loops)",
                 font=('Segoe UI', 10),
-                bg='#34495e', fg='#ecf0f1').pack(anchor='w', padx=12, pady=(0, 8))
+                bg='#34495e', fg='#e8eef5').pack(anchor='w', padx=12, pady=(0, 8))
         
         # Step 3: Total Outflows
         step3_frame = tk.Frame(steps_frame, bg='#34495e', relief=tk.SOLID, borderwidth=1)
@@ -603,7 +677,7 @@ class CalculationsModule:
                 bg='#34495e', fg='#e74c3c').pack(anchor='w', padx=12, pady=(8, 5))
         tk.Label(step3_frame, text=f"Total Outflows = {metrics.total_outflows:,.0f} m³  ({metrics.outflow_count} flows)",
                 font=('Segoe UI', 10),
-                bg='#34495e', fg='#ecf0f1').pack(anchor='w', padx=12, pady=(0, 8))
+                bg='#34495e', fg='#e8eef5').pack(anchor='w', padx=12, pady=(0, 8))
         
         # Step 4: Balance Difference
         step4_frame = tk.Frame(steps_frame, bg='#34495e', relief=tk.SOLID, borderwidth=1)
@@ -619,7 +693,7 @@ class CalculationsModule:
         )
         tk.Label(step4_frame, text=calc_text,
                 font=('Segoe UI', 10),
-                bg='#34495e', fg='#ecf0f1').pack(anchor='w', padx=12, pady=(0, 8))
+                bg='#34495e', fg='#e8eef5').pack(anchor='w', padx=12, pady=(0, 8))
         
         # Step 5: Error Percentage
         step5_frame = tk.Frame(steps_frame, bg='#34495e', relief=tk.SOLID, borderwidth=1)
@@ -635,7 +709,7 @@ class CalculationsModule:
         )
         tk.Label(step5_frame, text=error_calc,
                 font=('Segoe UI', 10),
-                bg='#34495e', fg='#ecf0f1').pack(anchor='w', padx=12, pady=(0, 8))
+                bg='#34495e', fg='#e8eef5').pack(anchor='w', padx=12, pady=(0, 8))
         
         # Final result
         result_frame = tk.Frame(steps_frame, bg='#27ae60' if metrics.is_balanced else '#e74c3c', relief=tk.SOLID, borderwidth=2)
@@ -644,7 +718,7 @@ class CalculationsModule:
         status_icon = "✅" if metrics.is_balanced else "⚠️"
         tk.Label(result_frame, text=f"{status_icon} Final Status: {metrics.status_label}",
                 font=('Segoe UI', 12, 'bold'),
-                bg='#27ae60' if metrics.is_balanced else '#e74c3c', fg='#ecf0f1').pack(padx=12, pady=12)
+                bg='#27ae60' if metrics.is_balanced else '#e74c3c', fg='#e8eef5').pack(padx=12, pady=12)
     
     
     def _update_balance_check_summary(self):
@@ -886,7 +960,7 @@ class CalculationsModule:
         
         tk.Label(header, text="Balance Check Configuration",
                 font=('Segoe UI', 12, 'bold'),
-                bg='#2c3e50', fg='#ecf0f1').pack(side='left', padx=15, pady=15)
+                bg='#2c3e50', fg='#e8eef5').pack(side='left', padx=15, pady=15)
         
         tk.Label(header,
                 text="Select which flows to include in the balance calculation",
@@ -894,7 +968,7 @@ class CalculationsModule:
                 bg='#2c3e50', fg='#95a5a6').pack(side='left', padx=(0, 15))
         
         # Main content
-        content = tk.Frame(dialog, bg='#ecf0f1')
+        content = tk.Frame(dialog, bg='#e8eef5')
         content.pack(fill='both', expand=True, padx=2, pady=2)
         
         # Info box
@@ -906,7 +980,7 @@ class CalculationsModule:
             "Only ENABLED flows will be included when you click 'Calculate Balance' in the Calculations module."
         )
         tk.Label(info_frame, text=info_text, font=('Segoe UI', 9),
-                bg='#34495e', fg='#ecf0f1', justify='left').pack(padx=12, pady=8)
+                bg='#34495e', fg='#e8eef5', justify='left').pack(padx=12, pady=8)
         
         # Notebook for flow types
         from tkinter import ttk
@@ -917,16 +991,16 @@ class CalculationsModule:
         
         # Create tabs for each flow type
         for flow_type in ['inflows', 'recirculation', 'outflows']:
-            tab_frame = tk.Frame(notebook, bg='#ecf0f1')
+            tab_frame = tk.Frame(notebook, bg='#e8eef5')
             notebook.add(tab_frame, text=f"{flow_type.title()}")
             
             # Scrollable area
-            canvas_frame = tk.Frame(tab_frame, bg='#ecf0f1')
+            canvas_frame = tk.Frame(tab_frame, bg='#e8eef5')
             canvas_frame.pack(fill='both', expand=True)
             
-            canvas = tk.Canvas(canvas_frame, bg='#ecf0f1', highlightthickness=0)
+            canvas = tk.Canvas(canvas_frame, bg='#e8eef5', highlightthickness=0)
             scrollbar = ttk.Scrollbar(canvas_frame, orient='vertical', command=canvas.yview)
-            scrollable_frame = tk.Frame(canvas, bg='#ecf0f1')
+            scrollable_frame = tk.Frame(canvas, bg='#e8eef5')
             
             scrollable_frame.bind(
                 "<Configure>",
@@ -955,7 +1029,7 @@ class CalculationsModule:
                 flow_checks[entry.code] = (var, flow_type)
                 
                 # Frame for each flow item
-                item_frame = tk.Frame(scrollable_frame, bg='#ecf0f1')
+                item_frame = tk.Frame(scrollable_frame, bg='#e8eef5')
                 item_frame.pack(fill='x', padx=10, pady=4)
                 
                 # Checkbutton
@@ -965,11 +1039,11 @@ class CalculationsModule:
                 # Flow name and value
                 label_text = f"{entry.name} ({entry.value_m3:,.0f} {entry.unit})"
                 label = tk.Label(item_frame, text=label_text, font=('Segoe UI', 9),
-                               bg='#ecf0f1', fg='#7f8c8d')
+                               bg='#e8eef5', fg='#7f8c8d')
                 label.pack(side='left', padx=(10, 0), anchor='w')
         
         # Footer buttons
-        footer = tk.Frame(dialog, bg='#ecf0f1', height=60)
+        footer = tk.Frame(dialog, bg='#e8eef5', height=60)
         footer.pack(fill='x')
         footer.pack_propagate(False)
         
@@ -1060,7 +1134,7 @@ class CalculationsModule:
         header_frame.pack(fill=tk.X, padx=15, pady=(15, 10))
         
         tk.Label(header_frame, text="⚖️ System Water Balance (Regulator Mode)",
-                font=('Segoe UI', 16, 'bold'), bg='#2c3e50', fg='#ecf0f1').pack(anchor='w')
+                font=('Segoe UI', 16, 'bold'), bg='#2c3e50', fg='#e8eef5').pack(anchor='w')
         tk.Label(header_frame, text="Authoritative closure using fresh + dirty water inflows",
                 font=('Segoe UI', 10), bg='#2c3e50', fg='#95a5a6').pack(anchor='w', pady=(5, 0))
         
@@ -1069,11 +1143,11 @@ class CalculationsModule:
         eq_frame.pack(fill=tk.X, padx=15, pady=(0, 15))
         
         tk.Label(eq_frame, text="📝 Master Balance Equation",
-                font=('Segoe UI', 11, 'bold'), bg='#34495e', fg='#ecf0f1').pack(anchor='w', padx=12, pady=(10, 5))
+                font=('Segoe UI', 11, 'bold'), bg='#34495e', fg='#e8eef5').pack(anchor='w', padx=12, pady=(10, 5))
         
         eq_text = "(Fresh Inflows + Dirty Inflows) − Total Outflows − ΔStorage = Balance Error"
         tk.Label(eq_frame, text=eq_text, font=('Segoe UI', 10, 'italic'),
-                bg='#34495e', fg='#ecf0f1').pack(anchor='w', padx=12, pady=(0, 10))
+                bg='#34495e', fg='#e8eef5').pack(anchor='w', padx=12, pady=(0, 10))
         
         # Key metrics cards
         metrics_grid = tk.Frame(scrollable_frame, bg='#2c3e50')
@@ -1082,8 +1156,15 @@ class CalculationsModule:
         def add_metric(parent, label, value, color, row, col):
             card = tk.Frame(parent, bg='#34495e', relief=tk.SOLID, borderwidth=1)
             card.grid(row=row, column=col, padx=5, pady=5, sticky='ew')
-            tk.Label(card, text=label, font=('Segoe UI', 9), bg='#34495e', fg='#95a5a6').pack(padx=10, pady=(8, 2))
-            tk.Label(card, text=value, font=('Segoe UI', 14, 'bold'), bg='#34495e', fg=color).pack(padx=10, pady=(0, 8))
+            label_widget = tk.Label(card, text=label, font=('Segoe UI', 9), bg='#34495e', fg='#95a5a6')
+            label_widget.pack(padx=10, pady=(8, 2))
+            value_widget = tk.Label(card, text=value, font=('Segoe UI', 14, 'bold'), bg='#34495e', fg=color)
+            value_widget.pack(padx=10, pady=(0, 8))
+            
+            # Add tooltip binding to both label and value
+            self._bind_balance_tooltip(label_widget, label)
+            self._bind_balance_tooltip(value_widget, label)
+            self._bind_balance_tooltip(card, label)
         
         metrics_grid.columnconfigure(0, weight=1)
         metrics_grid.columnconfigure(1, weight=1)
@@ -1111,13 +1192,13 @@ class CalculationsModule:
         inflows_frame.pack(fill=tk.X, padx=15, pady=(0, 10))
         
         tk.Label(inflows_frame, text="💧 Fresh Water Inflows",
-                font=('Segoe UI', 11, 'bold'), bg='#34495e', fg='#ecf0f1').pack(anchor='w', padx=12, pady=(10, 5))
+                font=('Segoe UI', 11, 'bold'), bg='#34495e', fg='#e8eef5').pack(anchor='w', padx=12, pady=(10, 5))
         
         for comp, val in result.fresh_in.components.items():
             comp_frame = tk.Frame(inflows_frame, bg='#34495e')
             comp_frame.pack(fill=tk.X, padx=12, pady=2)
             tk.Label(comp_frame, text=f"• {comp.replace('_', ' ').title()}:",
-                    font=('Segoe UI', 9), bg='#34495e', fg='#ecf0f1', width=25, anchor='w').pack(side='left')
+                    font=('Segoe UI', 9), bg='#34495e', fg='#e8eef5', width=25, anchor='w').pack(side='left')
             tk.Label(comp_frame, text=f"{val:,.0f} m³",
                     font=('Segoe UI', 9, 'bold'), bg='#34495e', fg='#3498db').pack(side='left', padx=10)
         
@@ -1125,7 +1206,7 @@ class CalculationsModule:
         total_frame = tk.Frame(inflows_frame, bg='#34495e')
         total_frame.pack(fill=tk.X, padx=12, pady=(0, 10))
         tk.Label(total_frame, text="TOTAL FRESH INFLOWS:",
-                font=('Segoe UI', 10, 'bold'), bg='#34495e', fg='#ecf0f1', width=25, anchor='w').pack(side='left')
+                font=('Segoe UI', 10, 'bold'), bg='#34495e', fg='#e8eef5', width=25, anchor='w').pack(side='left')
         tk.Label(total_frame, text=f"{result.fresh_in.total:,.0f} m³",
                 font=('Segoe UI', 10, 'bold'), bg='#34495e', fg='#3498db').pack(side='left', padx=10)
         
@@ -1136,12 +1217,12 @@ class CalculationsModule:
             dirty_inflows_frame.pack(fill=tk.X, padx=15, pady=(0, 10))
             
             tk.Label(dirty_inflows_frame, text="💧 Dirty Water Inflows",
-                    font=('Segoe UI', 11, 'bold'), bg='#34495e', fg='#ecf0f1').pack(anchor='w', padx=12, pady=(10, 5))
+                    font=('Segoe UI', 11, 'bold'), bg='#34495e', fg='#e8eef5').pack(anchor='w', padx=12, pady=(10, 5))
             
             rwd_frame = tk.Frame(dirty_inflows_frame, bg='#34495e')
             rwd_frame.pack(fill=tk.X, padx=12, pady=2)
             tk.Label(rwd_frame, text="• RWD (Return Water Dam):",
-                    font=('Segoe UI', 9), bg='#34495e', fg='#ecf0f1', width=25, anchor='w').pack(side='left')
+                    font=('Segoe UI', 9), bg='#34495e', fg='#e8eef5', width=25, anchor='w').pack(side='left')
             tk.Label(rwd_frame, text=f"{rwd_value:,.0f} m³",
                     font=('Segoe UI', 9, 'bold'), bg='#34495e', fg='#95a5a6').pack(side='left', padx=10)
             
@@ -1149,7 +1230,7 @@ class CalculationsModule:
             total_dirty_frame = tk.Frame(dirty_inflows_frame, bg='#34495e')
             total_dirty_frame.pack(fill=tk.X, padx=12, pady=(0, 10))
             tk.Label(total_dirty_frame, text="TOTAL DIRTY INFLOWS:",
-                    font=('Segoe UI', 10, 'bold'), bg='#34495e', fg='#ecf0f1', width=25, anchor='w').pack(side='left')
+                    font=('Segoe UI', 10, 'bold'), bg='#34495e', fg='#e8eef5', width=25, anchor='w').pack(side='left')
             tk.Label(total_dirty_frame, text=f"{rwd_value:,.0f} m³",
                     font=('Segoe UI', 10, 'bold'), bg='#34495e', fg='#95a5a6').pack(side='left', padx=10)
         
@@ -1158,13 +1239,13 @@ class CalculationsModule:
         outflows_frame.pack(fill=tk.X, padx=15, pady=(0, 10))
         
         tk.Label(outflows_frame, text="🚰 Total Outflows",
-                font=('Segoe UI', 11, 'bold'), bg='#34495e', fg='#ecf0f1').pack(anchor='w', padx=12, pady=(10, 5))
+                font=('Segoe UI', 11, 'bold'), bg='#34495e', fg='#e8eef5').pack(anchor='w', padx=12, pady=(10, 5))
         
         for comp, val in result.outflows.components.items():
             comp_frame = tk.Frame(outflows_frame, bg='#34495e')
             comp_frame.pack(fill=tk.X, padx=12, pady=2)
             tk.Label(comp_frame, text=f"• {comp.replace('_', ' ').title()}:",
-                    font=('Segoe UI', 9), bg='#34495e', fg='#ecf0f1', width=25, anchor='w').pack(side='left')
+                    font=('Segoe UI', 9), bg='#34495e', fg='#e8eef5', width=25, anchor='w').pack(side='left')
             tk.Label(comp_frame, text=f"{val:,.0f} m³",
                     font=('Segoe UI', 9, 'bold'), bg='#34495e', fg='#e74c3c').pack(side='left', padx=10)
         
@@ -1172,7 +1253,7 @@ class CalculationsModule:
         total_out_frame = tk.Frame(outflows_frame, bg='#34495e')
         total_out_frame.pack(fill=tk.X, padx=12, pady=(0, 10))
         tk.Label(total_out_frame, text="TOTAL OUTFLOWS:",
-                font=('Segoe UI', 10, 'bold'), bg='#34495e', fg='#ecf0f1', width=25, anchor='w').pack(side='left')
+                font=('Segoe UI', 10, 'bold'), bg='#34495e', fg='#e8eef5', width=25, anchor='w').pack(side='left')
         tk.Label(total_out_frame, text=f"{result.outflows.total:,.0f} m³",
                 font=('Segoe UI', 10, 'bold'), bg='#34495e', fg='#e74c3c').pack(side='left', padx=10)
         
@@ -1181,7 +1262,7 @@ class CalculationsModule:
         storage_frame.pack(fill=tk.X, padx=15, pady=(0, 15))
         
         tk.Label(storage_frame, text="🏗️ Storage Change",
-                font=('Segoe UI', 11, 'bold'), bg='#34495e', fg='#ecf0f1').pack(anchor='w', padx=12, pady=(10, 5))
+                font=('Segoe UI', 11, 'bold'), bg='#34495e', fg='#e8eef5').pack(anchor='w', padx=12, pady=(10, 5))
         
         for label, val in [("Opening Volume", result.storage.opening),
                            ("Closing Volume", result.storage.closing),
@@ -1189,7 +1270,7 @@ class CalculationsModule:
             st_frame = tk.Frame(storage_frame, bg='#34495e')
             st_frame.pack(fill=tk.X, padx=12, pady=2)
             tk.Label(st_frame, text=f"• {label}:",
-                    font=('Segoe UI', 9), bg='#34495e', fg='#ecf0f1', width=25, anchor='w').pack(side='left')
+                    font=('Segoe UI', 9), bg='#34495e', fg='#e8eef5', width=25, anchor='w').pack(side='left')
             tk.Label(st_frame, text=f"{val:,.0f} m³",
                     font=('Segoe UI', 9, 'bold'), bg='#34495e', fg='#f39c12').pack(side='left', padx=10)
         tk.Label(storage_frame, text=f"Source: {result.storage.source}",
@@ -1232,7 +1313,7 @@ class CalculationsModule:
 
         # Header
         tk.Label(frame, text="🏗️ Storage & Dams — Per‑Facility Drivers",
-                 font=('Segoe UI', 14, 'bold'), bg='#2c3e50', fg='#ecf0f1').pack(anchor='w', padx=15, pady=(15, 6))
+                 font=('Segoe UI', 14, 'bold'), bg='#2c3e50', fg='#e8eef5').pack(anchor='w', padx=15, pady=(15, 6))
         tk.Label(frame, text="Closing = Opening + Inflow + Rain + Seepage Gain − (Outflow + Evap + Abstraction + Seepage Loss)",
                  font=('Segoe UI', 9), bg='#2c3e50', fg='#95a5a6').pack(anchor='w', padx=15, pady=(0, 10))
 
@@ -1403,10 +1484,22 @@ class CalculationsModule:
         _autofit_columns()
 
         # Removed "Σ Abstraction to Plant" section per user request.
+        
+        # Add Pump Transfers Display section
+        pump_transfers = self.current_balance.get('pump_transfers', {})
+        self._display_pump_transfers(pump_transfers, frame)
 
 
     def _update_days_of_operation_display(self):
-        """Display Days of Operation dashboard with data quality, KPIs, and storage runway chart."""
+        """Display Days of Operation dashboard with data quality, KPIs, and storage runway chart.
+        
+        Critical threshold calculation:
+        - Uses each facility's pump_stop_level (the level at which pumps cannot operate)
+        - Dynamically weighted by surface area (or capacity if area not available)
+        - Automatically adapts when facilities are added, removed, or deactivated
+        - Example: If RWD has 10% pump_stop and PWD has 20%, the site-wide threshold
+          will be weighted by their respective surface areas/capacities
+        """
         if not hasattr(self, 'days_of_operation_frame') or not self.days_of_operation_frame.winfo_exists():
             return
         
@@ -1450,28 +1543,9 @@ class CalculationsModule:
         header_frame.pack(fill=tk.X, padx=15, pady=(15, 10))
         
         tk.Label(header_frame, text="⏳ Days of Operation — Water Runway Analysis",
-                 font=('Segoe UI', 14, 'bold'), bg='#2c3e50', fg='#ecf0f1').pack(anchor='w')
+                 font=('Segoe UI', 14, 'bold'), bg='#2c3e50', fg='#e8eef5').pack(anchor='w')
         tk.Label(header_frame, text="Estimate how many days the mine can operate based on current water storage and consumption rates",
                  font=('Segoe UI', 9), bg='#2c3e50', fg='#95a5a6').pack(anchor='w', pady=(0, 5))
-        
-        # Data Quality Banner
-        try:
-            completeness_result = quality_checker.check_input_completeness(calc_date)
-            confidence_score = completeness_result['confidence_score']
-            quality_level, quality_color = quality_checker.get_quality_level(confidence_score, confidence_score)
-            warning_count = len([w for w in completeness_result['warnings'] if w])
-            
-            quality_frame = tk.Frame(scrollable_frame, bg=quality_color, relief=tk.SOLID, borderwidth=2)
-            quality_frame.pack(fill=tk.X, padx=15, pady=(0, 12))
-            
-            quality_icon = "✅" if quality_level == "GOOD" else "⚠️" if quality_level == "FAIR" else "❌"
-            tk.Label(quality_frame, text=f"{quality_icon} Data Quality: {quality_level}",
-                     font=('Segoe UI', 11, 'bold'), bg=quality_color, fg='#ffffff').pack(anchor='w', padx=12, pady=(8, 2))
-            tk.Label(quality_frame, text=f"Confidence Score: {confidence_score:.0f}/100 • Warnings: {warning_count}",
-                     font=('Segoe UI', 9), bg=quality_color, fg='#ffffff').pack(anchor='w', padx=12, pady=(0, 8))
-            
-        except Exception as e:
-            logger.warning(f"Could not generate data quality banner: {e}")
         
         # KPI Cards Row
         kpi_container = tk.Frame(scrollable_frame, bg='#2c3e50')
@@ -1480,17 +1554,58 @@ class CalculationsModule:
         # Calculate KPIs
         try:
             # Get current storage and consumption from balance
-            storage_data = self.current_balance.get('storage', {})
+            # NOTE: Use engine_result (BalanceEngine) for consistency with System Balance tab
+            storage_data = self.current_balance.get('storage', {}) if self.current_balance else {}
             total_storage = storage_data.get('closing', 0.0)
             capacity = storage_data.get('capacity', 1000000.0)  # Default 1M m³ if not available
+
+            # Surface-area weighted critical threshold using facility-specific pump_stop_level
+            # Dynamically adapts to active facilities - no hardcoded values
+            facilities = self.db.get_storage_facilities(active_only=True)
+            default_pct = config.get('storage.critical_threshold_pct_default', 0.20)
+
+            total_capacity = 0.0
+            total_area = 0.0
+            weighted_area_pct = 0.0
+            weighted_cap_pct = 0.0
             
-            outflows = self.current_balance.get('outflows', {})
-            monthly_consumption = outflows.get('total', 0.0)
+            for f in facilities:
+                cap = float(f.get('total_capacity', 0) or 0.0)
+                area = float(f.get('surface_area', 0) or 0.0)
+                
+                # Use facility's pump_stop_level (stored as %), convert to decimal
+                # Falls back to config default if pump_stop_level is not set
+                pump_stop = float(f.get('pump_stop_level') or (default_pct * 100))
+                pct = pump_stop / 100.0
+                
+                total_capacity += cap
+                weighted_cap_pct += cap * pct
+                if area > 0:
+                    total_area += area
+                    weighted_area_pct += area * pct
+
+            # Calculate site-wide threshold from weighted average
+            site_pct = default_pct
+            if total_area > 0:
+                site_pct = weighted_area_pct / total_area
+            elif total_capacity > 0:
+                site_pct = weighted_cap_pct / total_capacity
+
+            critical_threshold = site_pct * capacity
+
+            # Use engine_result for outflows (same as System Balance tab for consistency)
+            if self.engine_result:
+                monthly_consumption = self.engine_result.outflows.total
+            else:
+                outflows = self.current_balance.get('outflows', {})
+                monthly_consumption = outflows.get('total', 0.0)
+            
             daily_consumption = monthly_consumption / 30.0 if monthly_consumption > 0 else 1.0  # Avoid division by zero
-            
-            # Calculate days remaining
-            days_remaining = total_storage / daily_consumption if daily_consumption > 0 else 999
-            
+
+            # Calculate days remaining using usable storage above the critical threshold
+            usable_storage = max(total_storage - critical_threshold, 0.0)
+            days_remaining = usable_storage / daily_consumption if daily_consumption > 0 else 999
+
             # Calculate storage percentage
             storage_pct = (total_storage / capacity * 100.0) if capacity > 0 else 0.0
             
@@ -1544,25 +1659,88 @@ class CalculationsModule:
             chart_frame = tk.Frame(scrollable_frame, bg='#34495e', relief=tk.SOLID, borderwidth=1)
             chart_frame.pack(fill=tk.BOTH, expand=True, padx=15, pady=(0, 15))
             
-            tk.Label(chart_frame, text="📊 Storage Projection (90 days)",
-                     font=('Segoe UI', 11, 'bold'), bg='#34495e', fg='#ecf0f1').pack(anchor='w', padx=10, pady=(10, 5))
+            # Calculate actual depletion point (when storage hits critical threshold)
+            # Uses same calculation as Days of Operation: usable_storage = total_storage - critical_threshold
+            depletion_days = int(days_remaining) + 5  # Add 5 days buffer for context
             
-            # Generate projection data
-            projection_days_count = 90
+            # Create chart frame with duration selector
+            chart_outer_frame = tk.Frame(scrollable_frame, bg='#34495e', relief=tk.SOLID, borderwidth=1)
+            chart_outer_frame.pack(fill=tk.BOTH, expand=True, padx=15, pady=(0, 15))
+            
+            # Header with duration selector
+            header_chart_frame = tk.Frame(chart_outer_frame, bg='#34495e')
+            header_chart_frame.pack(fill=tk.X, padx=10, pady=(10, 5))
+            
+            tk.Label(header_chart_frame, text="📊 Storage Depletion Projection",
+                     font=('Segoe UI', 11, 'bold'), bg='#34495e', fg='#e8eef5').pack(side='left')
+            
+            # Projection duration buttons
+            button_frame = tk.Frame(header_chart_frame, bg='#34495e')
+            button_frame.pack(side='right')
+            
+            # Store chart reference for updating
+            chart_frames = {}
+            current_projection_days = tk.IntVar(master=chart_frame, value=min(max(depletion_days, 30), 120))
+            
+            def update_projection(duration):
+                """Regenerate chart with specified duration"""
+                current_projection_days.set(duration)
+                
+                # Clear chart frame
+                for widget in chart_frame.winfo_children():
+                    if isinstance(widget, tk.Label) and 'days' in str(widget.cget('text')).lower():
+                        continue  # Keep the duration label
+                    widget.destroy()
+                
+                # Recalculate projection
+                projection_days = list(range(duration + 1))
+                storage_levels = []
+                for day in range(duration + 1):
+                    projected_storage = max(critical_threshold, total_storage - (daily_consumption * day))
+                    storage_levels.append(projected_storage)
+                
+                # Regenerate chart
+                try:
+                    critical_pct = max(site_pct * 100.0, 0.0)
+                    fig = create_storage_runway_chart(projection_days, storage_levels, capacity,
+                                                    critical_threshold_pct=critical_pct,
+                                                    empty_threshold_pct=0.0)
+                    embed_matplotlib_canvas(chart_frame, fig, toolbar=False)
+                except Exception as e:
+                    logger.error(f"Failed to update chart: {e}")
+            
+            # Duration buttons
+            for duration in [30, 60, 90, 120]:
+                btn = ttk.Button(
+                    button_frame,
+                    text=f"{duration}d",
+                    command=lambda d=duration: update_projection(d),
+                    width=6
+                )
+                btn.pack(side='left', padx=2)
+            
+            # Chart container
+            chart_frame = tk.Frame(chart_outer_frame, bg='#34495e')
+            chart_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=(5, 10))
+            
+            # Initial projection
+            projection_days_count = min(max(depletion_days, 30), 120)
             projection_days = list(range(projection_days_count + 1))
             storage_levels = []
             for day in range(projection_days_count + 1):
-                projected_storage = max(0, total_storage - (daily_consumption * day))
+                # Project total storage (not usable) - chart shows when we hit critical threshold
+                projected_storage = max(critical_threshold, total_storage - (daily_consumption * day))
                 storage_levels.append(projected_storage)
             
-            # Create chart
             # Create projection and pass percentage thresholds
+            critical_pct = max(site_pct * 100.0, 0.0)
+            warning_pct = max(critical_pct + 20.0, 40.0)
             thresholds_pct = {
-                'critical': 20.0,  # 20% of capacity
-                'warning': 40.0,   # 40% of capacity
-                'safe': 70.0       # 70% of capacity
+                'critical': critical_pct,
+                'warning': warning_pct,
+                'safe': 70.0
             }
-            
+
             fig = create_storage_runway_chart(projection_days, storage_levels, capacity, 
                                             critical_threshold_pct=thresholds_pct['critical'],
                                             empty_threshold_pct=0.0)
@@ -1572,652 +1750,6 @@ class CalculationsModule:
             logger.error(f"Failed to create storage runway chart: {e}", exc_info=True)
             tk.Label(chart_frame, text=f"Chart generation failed: {e}",
                      font=('Segoe UI', 9), bg='#34495e', fg='#e74c3c').pack(padx=10, pady=10)
-        
-        # Optimization Panel
-        optimization_frame = tk.Frame(scrollable_frame, bg='#34495e', relief=tk.SOLID, borderwidth=1)
-        optimization_frame.pack(fill=tk.X, padx=15, pady=(0, 15))
-        
-        tk.Label(optimization_frame, text="🎯 Target Days Optimizer",
-                 font=('Segoe UI', 11, 'bold'), bg='#34495e', fg='#ecf0f1').pack(anchor='w', padx=10, pady=(10, 5))
-        tk.Label(optimization_frame, text="Find operational adjustments needed to meet a target number of days",
-                 font=('Segoe UI', 9), bg='#34495e', fg='#95a5a6').pack(anchor='w', padx=10, pady=(0, 10))
-        
-        # Target days input and optimize button
-        input_frame = tk.Frame(optimization_frame, bg='#34495e')
-        input_frame.pack(fill=tk.X, padx=10, pady=(0, 10))
-        
-        tk.Label(input_frame, text="Target Days:", font=('Segoe UI', 9, 'bold'), bg='#34495e', fg='#ecf0f1').pack(side='left', padx=(0, 5))
-        
-        target_days_var = tk.StringVar(value="60")
-        target_entry = ttk.Entry(input_frame, textvariable=target_days_var, width=10)
-        target_entry.pack(side='left', padx=(0, 10))
-        
-        def run_optimization():
-            try:
-                target = int(target_days_var.get())
-                
-                # Get current constants from database
-                constants = self.db.get_all_constants()
-                
-                # Run optimization
-                result = optimizer.optimize_for_target_days(
-                    target_days=target,
-                    current_storage=total_storage,
-                    daily_consumption=daily_consumption,
-                    current_constants=constants,
-                    constraints={
-                        'plant_water_recovery_rate': (0.60, 0.95),
-                        'tailings_moisture_pct': (0.15, 0.35),
-                        'evaporation_mitigation_factor': (0.70, 0.95)
-                    }
-                )
-                
-                # Show results dialog
-                show_optimization_results(result, target)
-                
-            except ValueError:
-                messagebox.showerror("Invalid Input", "Please enter a valid number for target days")
-            except Exception as e:
-                messagebox.showerror("Optimization Error", f"Failed to optimize:\n{e}")
-        
-        def show_optimization_results(result, target):
-            # Create results dialog
-            dialog = tk.Toplevel(self.days_of_operation_frame)
-            dialog.title("Optimization Results")
-            dialog.geometry("600x500")
-            dialog.configure(bg='#2c3e50')
-            
-            # Header
-            header_text = "✅ Target Achievable" if result['achievable'] else "⚠️ Target Not Achievable"
-            header_color = '#28a745' if result['achievable'] else '#fd7e14'
-            
-            header = tk.Frame(dialog, bg=header_color)
-            header.pack(fill=tk.X, padx=2, pady=2)
-            tk.Label(header, text=header_text, font=('Segoe UI', 14, 'bold'), bg=header_color, fg='#ffffff').pack(pady=15)
-            
-            # Results container
-            results_frame = tk.Frame(dialog, bg='#2c3e50')
-            results_frame.pack(fill=tk.BOTH, expand=True, padx=15, pady=15)
-            
-            # Summary
-            tk.Label(results_frame, text=result['message'], font=('Segoe UI', 10), bg='#2c3e50', fg='#ecf0f1', wraplength=550).pack(anchor='w', pady=(0, 15))
-            
-            # Recommendations
-            if result['recommended_changes']:
-                tk.Label(results_frame, text="Recommended Adjustments:", font=('Segoe UI', 11, 'bold'), bg='#2c3e50', fg='#ecf0f1').pack(anchor='w', pady=(0, 5))
-                
-                for change in result['recommended_changes']:
-                    change_frame = tk.Frame(results_frame, bg='#34495e', relief=tk.SOLID, borderwidth=1)
-                    change_frame.pack(fill=tk.X, pady=5)
-                    
-                    tk.Label(change_frame, text=f"• {change['parameter']}", font=('Segoe UI', 9, 'bold'), bg='#34495e', fg='#f39c12').pack(anchor='w', padx=10, pady=(5, 2))
-                    tk.Label(change_frame, text=f"  Current: {change['current']:.2%} → New: {change['new']:.2%}", font=('Segoe UI', 9), bg='#34495e', fg='#ecf0f1').pack(anchor='w', padx=10)
-                    tk.Label(change_frame, text=f"  Change: {change['change_pct']:+.1f}%", font=('Segoe UI', 9), bg='#34495e', fg='#17a2b8').pack(anchor='w', padx=10, pady=(0, 5))
-            
-            # Close button
-            ttk.Button(dialog, text="Close", command=dialog.destroy).pack(pady=15)
-        
-        optimize_btn = ttk.Button(input_frame, text="🎯 Optimize", command=run_optimization)
-        optimize_btn.pack(side='left')
-        
-        # Water-saving recommendations
-        try:
-            # Build consumption dict from daily_consumption estimate
-            test_consumption = {
-                'dust_suppression': daily_consumption * 0.15,     # ~15% of daily consumption
-                'plant_consumption_gross': daily_consumption * 0.5,  # ~50%
-                'tsf_return': daily_consumption * 0.2,            # ~20%
-                'discharge': daily_consumption * 0.1,             # ~10%
-                'evaporation': daily_consumption * 0.05           # ~5%
-            }
-            recommendations = optimizer.suggest_water_saving_actions(test_consumption, storage_pct)
-            
-            if recommendations:
-                tk.Label(optimization_frame, text="💡 Water-Saving Recommendations:",
-                         font=('Segoe UI', 10, 'bold'), bg='#34495e', fg='#ecf0f1').pack(anchor='w', padx=10, pady=(10, 5))
-                
-                for rec in recommendations[:5]:  # Show top 5
-                    rec_frame = tk.Frame(optimization_frame, bg='#2c3e50', relief=tk.SOLID, borderwidth=1)
-                    rec_frame.pack(fill=tk.X, padx=10, pady=3)
-                    
-                    priority_color = {'HIGH': '#dc3545', 'MEDIUM': '#fd7e14', 'LOW': '#28a745'}.get(rec['priority'], '#6c757d')
-                    
-                    header_rec = tk.Frame(rec_frame, bg='#2c3e50')
-                    header_rec.pack(fill=tk.X)
-                    
-                    tk.Label(header_rec, text=f"[{rec['priority']}]", font=('Segoe UI', 8, 'bold'), bg=priority_color, fg='#ffffff').pack(side='left', padx=(5, 5), pady=5)
-                    tk.Label(header_rec, text=rec['category'], font=('Segoe UI', 9, 'bold'), bg='#2c3e50', fg='#f39c12').pack(side='left')
-                    tk.Label(header_rec, text=f"Save: {rec['potential_saving_m3']:,.0f} m³", font=('Segoe UI', 9, 'bold'), bg='#2c3e50', fg='#28a745').pack(side='right', padx=5)
-                    
-                    tk.Label(rec_frame, text=rec['description'], font=('Segoe UI', 8), bg='#2c3e50', fg='#95a5a6', wraplength=550).pack(anchor='w', padx=10, pady=(0, 5))
-        
-        except Exception as e:
-            logger.warning(f"Could not generate recommendations: {e}")
-
-
-    def _update_consumption_trends_display(self):
-        """Display historical consumption trends with charts and breakdown."""
-        if not hasattr(self, 'consumption_trends_frame') or not self.consumption_trends_frame.winfo_exists():
-            return
-        
-        for widget in self.consumption_trends_frame.winfo_children():
-            widget.destroy()
-        
-        # Main container
-        container = tk.Frame(self.consumption_trends_frame, bg='#2c3e50')
-        container.pack(fill=tk.BOTH, expand=True, padx=2, pady=2)
-        
-        # Scrollable area
-        canvas = tk.Canvas(container, bg='#2c3e50', highlightthickness=0)
-        scrollbar = ttk.Scrollbar(container, orient='vertical', command=canvas.yview)
-        scrollable_frame = tk.Frame(canvas, bg='#2c3e50')
-        
-        scrollable_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
-        canvas.create_window((0, 0), window=scrollable_frame, anchor='nw')
-        canvas.configure(yscrollcommand=scrollbar.set)
-        canvas.pack(side='left', fill='both', expand=True)
-        scrollbar.pack(side='right', fill='y')
-        
-        # Header
-        header_frame = tk.Frame(scrollable_frame, bg='#2c3e50')
-        header_frame.pack(fill=tk.X, padx=15, pady=(15, 10))
-        
-        tk.Label(header_frame, text="📈 Consumption Trends — Historical Analysis",
-                 font=('Segoe UI', 14, 'bold'), bg='#2c3e50', fg='#ecf0f1').pack(anchor='w')
-        tk.Label(header_frame, text="Analyze water consumption patterns over time",
-                 font=('Segoe UI', 9), bg='#2c3e50', fg='#95a5a6').pack(anchor='w', pady=(0, 5))
-        
-        # Date Range Picker
-        date_picker_frame = tk.Frame(scrollable_frame, bg='#34495e', relief=tk.SOLID, borderwidth=1)
-        date_picker_frame.pack(fill=tk.X, padx=15, pady=(0, 15))
-        
-        tk.Label(date_picker_frame, text="📅 Date Range:",
-                 font=('Segoe UI', 10, 'bold'), bg='#34495e', fg='#ecf0f1').pack(anchor='w', padx=10, pady=(10, 5))
-        
-        picker_row = tk.Frame(date_picker_frame, bg='#34495e')
-        picker_row.pack(fill=tk.X, padx=10, pady=(0, 10))
-        
-        tk.Label(picker_row, text="From:", font=('Segoe UI', 9), bg='#34495e', fg='#ecf0f1').pack(side='left', padx=(0, 5))
-        
-        from datetime import datetime, timedelta
-        from dateutil.relativedelta import relativedelta
-        
-        # Default to last 6 months
-        end_date = datetime.now().date()
-        start_date = end_date - relativedelta(months=6)
-        
-        from_date_var = tk.StringVar(value=start_date.strftime('%Y-%m-%d'))
-        from_entry = ttk.Entry(picker_row, textvariable=from_date_var, width=12)
-        from_entry.pack(side='left', padx=(0, 15))
-        
-        tk.Label(picker_row, text="To:", font=('Segoe UI', 9), bg='#34495e', fg='#ecf0f1').pack(side='left', padx=(0, 5))
-        
-        to_date_var = tk.StringVar(value=end_date.strftime('%Y-%m-%d'))
-        to_entry = ttk.Entry(picker_row, textvariable=to_date_var, width=12)
-        to_entry.pack(side='left', padx=(0, 15))
-        
-        def refresh_trends():
-            try:
-                start = datetime.strptime(from_date_var.get(), '%Y-%m-%d').date()
-                end = datetime.strptime(to_date_var.get(), '%Y-%m-%d').date()
-                
-                if start >= end:
-                    messagebox.showerror("Invalid Range", "Start date must be before end date")
-                    return
-                
-                # Clear existing charts and reload
-                for widget in charts_container.winfo_children():
-                    widget.destroy()
-                
-                load_trends_data(start, end, charts_container, stats_container)
-                
-            except ValueError:
-                messagebox.showerror("Invalid Date", "Please enter dates in YYYY-MM-DD format")
-        
-        refresh_btn = ttk.Button(picker_row, text="🔄 Refresh", command=refresh_trends)
-        refresh_btn.pack(side='left')
-        
-        # Stats Panel
-        stats_container = tk.Frame(scrollable_frame, bg='#2c3e50')
-        stats_container.pack(fill=tk.X, padx=15, pady=(0, 15))
-        
-        # Charts Container
-        charts_container = tk.Frame(scrollable_frame, bg='#2c3e50')
-        charts_container.pack(fill=tk.BOTH, expand=True, padx=15, pady=(0, 15))
-        
-        def load_trends_data(start_date, end_date, charts_frame, stats_frame):
-            """Load and display trends data for the given date range."""
-            try:
-                from ui.chart_utils import create_trends_chart, create_outflow_breakdown_chart, embed_matplotlib_canvas
-                
-                # Fetch historical calculations from database
-                calculations = self.db.execute_query(
-                    """
-                    SELECT calc_date, total_inflows, total_outflows, 
-                           storage_change
-                    FROM calculations
-                    WHERE calc_date BETWEEN ? AND ?
-                    ORDER BY calc_date
-                    """,
-                    (start_date.strftime('%Y-%m-%d'), end_date.strftime('%Y-%m-%d'))
-                )
-                
-                if not calculations or len(calculations) == 0:
-                    tk.Label(charts_frame, text="No calculation data found for this date range",
-                             font=('Segoe UI', 10), bg='#2c3e50', fg='#95a5a6').pack(pady=20)
-                    return
-                
-                # Prepare data for charts
-                dates = [datetime.strptime(row['calc_date'], '%Y-%m-%d').date() for row in calculations]
-                inflows = [float(row['total_inflows'] or 0) for row in calculations]
-                outflows = [float(row['total_outflows'] or 0) for row in calculations]
-                storage_changes = [float(row['storage_change'] or 0) for row in calculations]
-                
-                # Calculate storage levels from cumulative changes (starting from current)
-                storage_levels = []
-                cumulative = 0
-                for change in storage_changes:
-                    cumulative += change
-                    storage_levels.append(cumulative)
-                
-                # Calculate statistics
-                avg_inflow = sum(inflows) / len(inflows) if inflows else 0
-                avg_outflow = sum(outflows) / len(outflows) if outflows else 0
-                avg_storage = sum(storage_levels) / len(storage_levels) if storage_levels else 0
-                total_consumption = sum(outflows)
-                max_consumption = max(outflows) if outflows else 0
-                min_consumption = min(outflows) if outflows else 0
-                
-                # Display stats
-                for widget in stats_frame.winfo_children():
-                    widget.destroy()
-                
-                stats_title = tk.Label(stats_frame, text="📊 Summary Statistics",
-                                      font=('Segoe UI', 11, 'bold'), bg='#2c3e50', fg='#ecf0f1')
-                stats_title.pack(anchor='w', pady=(0, 10))
-                
-                stats_grid = tk.Frame(stats_frame, bg='#2c3e50')
-                stats_grid.pack(fill=tk.X)
-                
-                # Create stat cards
-                stats_data = [
-                    ("Avg Inflow", f"{avg_inflow:,.0f} m³/month", '#17a2b8'),
-                    ("Avg Outflow", f"{avg_outflow:,.0f} m³/month", '#fd7e14'),
-                    ("Avg Storage", f"{avg_storage:,.0f} m³", '#28a745'),
-                    ("Total Consumption", f"{total_consumption:,.0f} m³", '#6c757d'),
-                    ("Max Consumption", f"{max_consumption:,.0f} m³", '#dc3545'),
-                    ("Min Consumption", f"{min_consumption:,.0f} m³", '#17a2b8')
-                ]
-                
-                for i, (label, value, color) in enumerate(stats_data):
-                    stat_card = tk.Frame(stats_grid, bg=color, relief=tk.RAISED, borderwidth=2)
-                    stat_card.grid(row=i // 3, column=i % 3, padx=5, pady=5, sticky='ew')
-                    stats_grid.columnconfigure(i % 3, weight=1)
-                    
-                    tk.Label(stat_card, text=label, font=('Segoe UI', 8), bg=color, fg='#ffffff').pack(pady=(8, 2))
-                    tk.Label(stat_card, text=value, font=('Segoe UI', 10, 'bold'), bg=color, fg='#ffffff').pack(pady=(0, 8))
-                
-                # Trends Chart
-                trends_frame = tk.Frame(charts_frame, bg='#34495e', relief=tk.SOLID, borderwidth=1)
-                trends_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 15))
-                
-                tk.Label(trends_frame, text="📈 Water Balance Trends",
-                         font=('Segoe UI', 11, 'bold'), bg='#34495e', fg='#ecf0f1').pack(anchor='w', padx=10, pady=(10, 5))
-                
-                series_dict = {
-                    'Inflows': inflows,
-                    'Outflows': outflows,
-                    'Storage': storage_levels
-                }
-                
-                fig = create_trends_chart(dates, series_dict, "Volume (m³)", "Water Balance Over Time")
-                embed_matplotlib_canvas(trends_frame, fig, toolbar=False)
-                
-                # Breakdown Chart (if we have detailed outflow data)
-                try:
-                    # Fetch outflow breakdown for the most recent calculation
-                    latest_calc = calculations[-1]
-                    latest_date = latest_calc['calc_date']
-                    
-                    # Get outflow details from the calculator
-                    calc_date_obj = datetime.strptime(latest_date, '%Y-%m-%d').date()
-                    balance = self.calculator.calculate_water_balance(calc_date_obj, None)
-                    
-                    if balance and 'outflows' in balance:
-                        outflows_data = balance['outflows']
-                        
-                        # Build breakdown dictionary
-                        breakdown_dict = {}
-                        for key, value in outflows_data.items():
-                            if key != 'total' and isinstance(value, (int, float)) and value > 0:
-                                # Format key for display
-                                display_key = key.replace('_', ' ').title()
-                                breakdown_dict[display_key] = [value]  # Single month breakdown
-                        
-                        if breakdown_dict:
-                            breakdown_frame = tk.Frame(charts_frame, bg='#34495e', relief=tk.SOLID, borderwidth=1)
-                            breakdown_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 15))
-                            
-                            tk.Label(breakdown_frame, text=f"📊 Outflow Breakdown ({latest_date})",
-                                     font=('Segoe UI', 11, 'bold'), bg='#34495e', fg='#ecf0f1').pack(anchor='w', padx=10, pady=(10, 5))
-                            
-                            fig2 = create_outflow_breakdown_chart([calc_date_obj], breakdown_dict)
-                            embed_matplotlib_canvas(breakdown_frame, fig2, toolbar=False)
-                
-                except Exception as e:
-                    logger.warning(f"Could not create breakdown chart: {e}")
-                
-            except Exception as e:
-                logger.error(f"Failed to load trends data: {e}", exc_info=True)
-                tk.Label(charts_frame, text=f"Error loading trends: {e}",
-                         font=('Segoe UI', 9), bg='#2c3e50', fg='#e74c3c').pack(pady=20)
-        
-        # Initial load with default date range
-        load_trends_data(start_date, end_date, charts_container, stats_container)
-
-    def _update_scenario_planner_display(self):
-        """Display scenario planning interface with what-if analysis."""
-        if not hasattr(self, 'scenario_planner_frame') or not self.scenario_planner_frame.winfo_exists():
-            return
-        
-        for widget in self.scenario_planner_frame.winfo_children():
-            widget.destroy()
-        
-        # Main container
-        container = tk.Frame(self.scenario_planner_frame, bg='#2c3e50')
-        container.pack(fill=tk.BOTH, expand=True, padx=2, pady=2)
-        
-        # Scrollable area
-        canvas = tk.Canvas(container, bg='#2c3e50', highlightthickness=0)
-        scrollbar = ttk.Scrollbar(container, orient='vertical', command=canvas.yview)
-        scrollable_frame = tk.Frame(canvas, bg='#2c3e50')
-        
-        scrollable_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
-        canvas.create_window((0, 0), window=scrollable_frame, anchor='nw')
-        canvas.configure(yscrollcommand=scrollbar.set)
-        canvas.pack(side='left', fill='both', expand=True)
-        scrollbar.pack(side='right', fill='y')
-        
-        # Header
-        header_frame = tk.Frame(scrollable_frame, bg='#2c3e50')
-        header_frame.pack(fill=tk.X, padx=15, pady=(15, 10))
-        
-        tk.Label(header_frame, text="🔮 Scenario Planner — What-If Analysis",
-                 font=('Segoe UI', 14, 'bold'), bg='#2c3e50', fg='#ecf0f1').pack(anchor='w')
-        tk.Label(header_frame, text="Create and compare scenarios by adjusting water balance constants",
-                 font=('Segoe UI', 9), bg='#2c3e50', fg='#95a5a6').pack(anchor='w', pady=(0, 5))
-        
-        # Scenario Manager
-        manager_frame = tk.Frame(scrollable_frame, bg='#34495e', relief=tk.SOLID, borderwidth=1)
-        manager_frame.pack(fill=tk.X, padx=15, pady=(0, 15))
-        
-        tk.Label(manager_frame, text="📋 Scenarios",
-                 font=('Segoe UI', 11, 'bold'), bg='#34495e', fg='#ecf0f1').pack(anchor='w', padx=10, pady=(10, 5))
-        
-        # Scenario list and buttons
-        scenario_list_frame = tk.Frame(manager_frame, bg='#34495e')
-        scenario_list_frame.pack(fill=tk.X, padx=10, pady=(0, 10))
-        
-        # Scenario storage (in-memory for this session)
-        scenarios = {
-            'Baseline': self.db.get_all_constants()
-        }
-        active_scenario_var = tk.StringVar(value='Baseline')
-        
-        scenario_listbox = tk.Listbox(scenario_list_frame, height=5, bg='#2c3e50', fg='#ecf0f1', 
-                                      selectbackground='#17a2b8', font=('Segoe UI', 9))
-        scenario_listbox.pack(side='left', fill='both', expand=True, padx=(0, 10))
-        
-        for scenario_name in scenarios.keys():
-            scenario_listbox.insert(tk.END, scenario_name)
-        
-        scenario_listbox.select_set(0)
-        
-        buttons_frame = tk.Frame(scenario_list_frame, bg='#34495e')
-        buttons_frame.pack(side='left', fill='y')
-        
-        def create_new_scenario():
-            name = tk.simpledialog.askstring("New Scenario", "Enter scenario name:")
-            if name and name not in scenarios:
-                # Clone baseline constants (create a copy of the dict)
-                scenarios[name] = dict(scenarios['Baseline'])
-                scenario_listbox.insert(tk.END, name)
-                scenario_listbox.selection_clear(0, tk.END)
-                scenario_listbox.select_set(scenario_listbox.size() - 1)
-                active_scenario_var.set(name)
-                refresh_editor()
-            elif name in scenarios:
-                messagebox.showerror("Duplicate", "Scenario already exists")
-        
-        def clone_scenario():
-            selection = scenario_listbox.curselection()
-            if not selection:
-                messagebox.showwarning("No Selection", "Please select a scenario to clone")
-                return
-            
-            source_name = scenario_listbox.get(selection[0])
-            name = tk.simpledialog.askstring("Clone Scenario", f"Clone '{source_name}' as:")
-            
-            if name and name not in scenarios:
-                scenarios[name] = [dict(row) for row in scenarios[source_name]]
-                scenario_listbox.insert(tk.END, name)
-                scenario_listbox.selection_clear(0, tk.END)
-                scenario_listbox.select_set(scenario_listbox.size() - 1)
-                active_scenario_var.set(name)
-                refresh_editor()
-            elif name in scenarios:
-                messagebox.showerror("Duplicate", "Scenario already exists")
-        
-        def delete_scenario():
-            selection = scenario_listbox.curselection()
-            if not selection:
-                messagebox.showwarning("No Selection", "Please select a scenario to delete")
-                return
-            
-            name = scenario_listbox.get(selection[0])
-            if name == 'Baseline':
-                messagebox.showerror("Cannot Delete", "Cannot delete Baseline scenario")
-                return
-            
-            if messagebox.askyesno("Confirm Delete", f"Delete scenario '{name}'?"):
-                del scenarios[name]
-                scenario_listbox.delete(selection[0])
-                scenario_listbox.select_set(0)
-                active_scenario_var.set('Baseline')
-                refresh_editor()
-        
-        def on_scenario_select(event):
-            selection = scenario_listbox.curselection()
-            if selection:
-                active_scenario_var.set(scenario_listbox.get(selection[0]))
-                refresh_editor()
-        
-        scenario_listbox.bind('<<ListboxSelect>>', on_scenario_select)
-        
-        ttk.Button(buttons_frame, text="➕ New", command=create_new_scenario, width=10).pack(pady=2)
-        ttk.Button(buttons_frame, text="📋 Clone", command=clone_scenario, width=10).pack(pady=2)
-        ttk.Button(buttons_frame, text="🗑️ Delete", command=delete_scenario, width=10).pack(pady=2)
-        
-        # Constants Editor
-        editor_frame = tk.Frame(scrollable_frame, bg='#34495e', relief=tk.SOLID, borderwidth=1)
-        editor_frame.pack(fill=tk.BOTH, expand=True, padx=15, pady=(0, 15))
-        
-        tk.Label(editor_frame, text="⚙️ Constants Editor",
-                 font=('Segoe UI', 11, 'bold'), bg='#34495e', fg='#ecf0f1').pack(anchor='w', padx=10, pady=(10, 5))
-        
-        editor_container = tk.Frame(editor_frame, bg='#34495e')
-        editor_container.pack(fill=tk.BOTH, expand=True, padx=10, pady=(0, 10))
-        
-        # Treeview for constants
-        columns = ('key', 'value', 'description')
-        constants_tree = ttk.Treeview(editor_container, columns=columns, show='headings', height=12)
-        
-        constants_tree.heading('key', text='Constant')
-        constants_tree.heading('value', text='Value')
-        constants_tree.heading('description', text='Description')
-        
-        constants_tree.column('key', width=250, minwidth=200)
-        constants_tree.column('value', width=120, minwidth=100)
-        constants_tree.column('description', width=350, minwidth=250)
-        
-        tree_scroll = ttk.Scrollbar(editor_container, orient='vertical', command=constants_tree.yview)
-        constants_tree.configure(yscrollcommand=tree_scroll.set)
-        
-        constants_tree.pack(side='left', fill='both', expand=True)
-        tree_scroll.pack(side='right', fill='y')
-        
-        def refresh_editor():
-            """Reload constants for active scenario."""
-            constants_tree.delete(*constants_tree.get_children())
-            
-            scenario_name = active_scenario_var.get()
-            if scenario_name in scenarios:
-                # scenarios[scenario_name] is now a dict: {'CONSTANT_KEY': value, ...}
-                scenario_constants = scenarios[scenario_name]
-                for key, value in scenario_constants.items():
-                    constants_tree.insert('', 'end', values=(
-                        key,
-                        f"{float(value):.4f}",
-                        ''  # No description column available from dict
-                    ))
-        
-        def edit_constant():
-            selection = constants_tree.selection()
-            if not selection:
-                messagebox.showwarning("No Selection", "Please select a constant to edit")
-                return
-            
-            item = constants_tree.item(selection[0])
-            key = item['values'][0]
-            current_value = item['values'][1]
-            
-            new_value = tk.simpledialog.askfloat("Edit Constant", 
-                                                  f"Enter new value for {key}:",
-                                                  initialvalue=float(current_value))
-            
-            if new_value is not None:
-                scenario_name = active_scenario_var.get()
-                # Update the dict value directly
-                if key in scenarios[scenario_name]:
-                    scenarios[scenario_name][key] = new_value
-                
-                refresh_editor()
-        
-        def reset_to_baseline():
-            scenario_name = active_scenario_var.get()
-            if scenario_name != 'Baseline':
-                scenarios[scenario_name] = dict(scenarios['Baseline'])
-                refresh_editor()
-        
-        edit_buttons = tk.Frame(editor_frame, bg='#34495e')
-        edit_buttons.pack(fill=tk.X, padx=10, pady=(0, 10))
-        
-        ttk.Button(edit_buttons, text="✏️ Edit Value", command=edit_constant).pack(side='left', padx=(0, 5))
-        ttk.Button(edit_buttons, text="🔄 Reset to Baseline", command=reset_to_baseline).pack(side='left')
-        
-        # Comparison Panel
-        comparison_frame = tk.Frame(scrollable_frame, bg='#34495e', relief=tk.SOLID, borderwidth=1)
-        comparison_frame.pack(fill=tk.X, padx=15, pady=(0, 15))
-        
-        tk.Label(comparison_frame, text="📊 Scenario Comparison",
-                 font=('Segoe UI', 11, 'bold'), bg='#34495e', fg='#ecf0f1').pack(anchor='w', padx=10, pady=(10, 5))
-        tk.Label(comparison_frame, text="Select scenarios to compare and run projections",
-                 font=('Segoe UI', 9), bg='#34495e', fg='#95a5a6').pack(anchor='w', padx=10, pady=(0, 10))
-        
-        comparison_controls = tk.Frame(comparison_frame, bg='#34495e')
-        comparison_controls.pack(fill=tk.X, padx=10, pady=(0, 10))
-        
-        tk.Label(comparison_controls, text="Scenarios to compare:", font=('Segoe UI', 9), bg='#34495e', fg='#ecf0f1').pack(side='left', padx=(0, 10))
-        
-        # Multi-select for scenarios
-        selected_scenarios_var = tk.StringVar(value='Baseline')
-        
-        def run_comparison():
-            """Run comparison between selected scenarios."""
-            try:
-                from ui.chart_utils import create_scenario_comparison_chart, embed_matplotlib_canvas
-                
-                # Clear existing results
-                for widget in comparison_results.winfo_children():
-                    widget.destroy()
-                
-                # Get selected scenarios (for simplicity, compare all)
-                scenario_results = {}
-                
-                for scenario_name, constants_list in scenarios.items():
-                    # Simulate projection (simplified - would use actual calculator in production)
-                    # For now, just show the impact of key constants
-                    
-                    constants_dict = {c['constant_key']: c['constant_value'] for c in constants_list}
-                    
-                    # Calculate projected days of operation with these constants
-                    # This is a simplified model - real implementation would use the calculator
-                    recovery_rate = float(constants_dict.get('plant_water_recovery_rate', 0.75))
-                    evap_factor = float(constants_dict.get('evaporation_mitigation_factor', 0.85))
-                    
-                    # Simplified projection formula
-                    base_days = 60.0
-                    projected_days = base_days * (recovery_rate / 0.75) * (evap_factor / 0.85)
-                    
-                    scenario_results[scenario_name] = {
-                        'days_of_operation': projected_days,
-                        'recovery_rate': recovery_rate,
-                        'evap_factor': evap_factor
-                    }
-                
-                # Display results table
-                results_table = tk.Frame(comparison_results, bg='#2c3e50')
-                results_table.pack(fill=tk.X, pady=10)
-                
-                # Header row
-                tk.Label(results_table, text="Scenario", font=('Segoe UI', 9, 'bold'), 
-                        bg='#17a2b8', fg='#ffffff', width=20, anchor='w').grid(row=0, column=0, sticky='ew', padx=1, pady=1)
-                tk.Label(results_table, text="Days of Operation", font=('Segoe UI', 9, 'bold'), 
-                        bg='#17a2b8', fg='#ffffff', width=20).grid(row=0, column=1, sticky='ew', padx=1, pady=1)
-                tk.Label(results_table, text="Recovery Rate", font=('Segoe UI', 9, 'bold'), 
-                        bg='#17a2b8', fg='#ffffff', width=20).grid(row=0, column=2, sticky='ew', padx=1, pady=1)
-                tk.Label(results_table, text="Evap Factor", font=('Segoe UI', 9, 'bold'), 
-                        bg='#17a2b8', fg='#ffffff', width=20).grid(row=0, column=3, sticky='ew', padx=1, pady=1)
-                
-                # Data rows
-                for i, (name, results) in enumerate(scenario_results.items(), start=1):
-                    bg_color = '#34495e' if i % 2 == 0 else '#2c3e50'
-                    
-                    tk.Label(results_table, text=name, font=('Segoe UI', 9), 
-                            bg=bg_color, fg='#ecf0f1', width=20, anchor='w').grid(row=i, column=0, sticky='ew', padx=1, pady=1)
-                    tk.Label(results_table, text=f"{results['days_of_operation']:.1f} days", font=('Segoe UI', 9), 
-                            bg=bg_color, fg='#ecf0f1', width=20).grid(row=i, column=1, sticky='ew', padx=1, pady=1)
-                    tk.Label(results_table, text=f"{results['recovery_rate']:.2%}", font=('Segoe UI', 9), 
-                            bg=bg_color, fg='#ecf0f1', width=20).grid(row=i, column=2, sticky='ew', padx=1, pady=1)
-                    tk.Label(results_table, text=f"{results['evap_factor']:.2%}", font=('Segoe UI', 9), 
-                            bg=bg_color, fg='#ecf0f1', width=20).grid(row=i, column=3, sticky='ew', padx=1, pady=1)
-                
-                # Chart
-                chart_frame = tk.Frame(comparison_results, bg='#34495e', relief=tk.SOLID, borderwidth=1)
-                chart_frame.pack(fill=tk.BOTH, expand=True, pady=10)
-                
-                tk.Label(chart_frame, text="📈 Scenario Comparison Chart",
-                         font=('Segoe UI', 10, 'bold'), bg='#34495e', fg='#ecf0f1').pack(anchor='w', padx=10, pady=(10, 5))
-                
-                fig = create_scenario_comparison_chart(scenario_results)
-                embed_matplotlib_canvas(chart_frame, fig, toolbar=False)
-                
-            except Exception as e:
-                logger.error(f"Failed to run scenario comparison: {e}", exc_info=True)
-                tk.Label(comparison_results, text=f"Comparison failed: {e}",
-                         font=('Segoe UI', 9), bg='#34495e', fg='#e74c3c').pack(pady=10)
-        
-        ttk.Button(comparison_controls, text="▶️ Run Comparison", command=run_comparison).pack(side='left')
-        
-        # Results area
-        comparison_results = tk.Frame(comparison_frame, bg='#34495e')
-        comparison_results.pack(fill=tk.BOTH, expand=True, padx=10, pady=(0, 10))
-        
-        tk.Label(comparison_results, text="Click 'Run Comparison' to see results",
-                 font=('Segoe UI', 9, 'italic'), bg='#34495e', fg='#95a5a6').pack(pady=20)
-        
-        # Initial load
-        refresh_editor()
 
     def _update_recycled_display(self):
         """Display Recycled Water (Dewatering + RWD) with totals and percentage.
@@ -2265,7 +1797,7 @@ class CalculationsModule:
         header_frame = tk.Frame(scrollable_frame, bg='#2c3e50')
         header_frame.pack(fill=tk.X, padx=15, pady=(15, 10))
         tk.Label(header_frame, text="♻️ Recycled Water",
-                 font=('Segoe UI', 16, 'bold'), bg='#2c3e50', fg='#ecf0f1').pack(anchor='w')
+                 font=('Segoe UI', 16, 'bold'), bg='#2c3e50', fg='#e8eef5').pack(anchor='w')
         tk.Label(header_frame, text="Includes Dewatering (Underground) + RWD (Return Water Dam)",
                  font=('Segoe UI', 10), bg='#2c3e50', fg='#95a5a6').pack(anchor='w', pady=(5, 0))
 
@@ -2324,7 +1856,7 @@ class CalculationsModule:
         header_frame.pack(fill=tk.X, padx=15, pady=(15, 10))
         
         tk.Label(header_frame, text="📋 Data Quality & Assumptions",
-                font=('Segoe UI', 16, 'bold'), bg='#2c3e50', fg='#ecf0f1').pack(anchor='w')
+                font=('Segoe UI', 16, 'bold'), bg='#2c3e50', fg='#e8eef5').pack(anchor='w')
         tk.Label(header_frame, text="Transparency for auditors and regulators",
                 font=('Segoe UI', 10), bg='#2c3e50', fg='#95a5a6').pack(anchor='w', pady=(5, 0))
         
@@ -2344,7 +1876,7 @@ class CalculationsModule:
                 tk.Label(flag_frame, text=f"{icon} {flag_key.replace('_', ' ').title()}",
                         font=('Segoe UI', 10, 'bold'), bg='#34495e', fg='#f39c12').pack(anchor='w', padx=12, pady=(8, 2))
                 tk.Label(flag_frame, text=flag_msg,
-                        font=('Segoe UI', 9), bg='#34495e', fg='#ecf0f1', wraplength=700, justify='left').pack(anchor='w', padx=12, pady=(0, 8))
+                        font=('Segoe UI', 9), bg='#34495e', fg='#e8eef5', wraplength=700, justify='left').pack(anchor='w', padx=12, pady=(0, 8))
     
     def _update_inputs_audit_display(self):
         """Display Inputs Audit for the selected month (read-only)."""
@@ -2379,20 +1911,20 @@ class CalculationsModule:
         # Header
         header = tk.Frame(scrollable_frame, bg='#2c3e50')
         header.pack(fill=tk.X, padx=15, pady=(15, 10))
-        tk.Label(header, text="🧾 Inputs Audit", font=('Segoe UI', 16, 'bold'), bg='#2c3e50', fg='#ecf0f1').pack(anchor='w')
+        tk.Label(header, text="🧾 Inputs Audit", font=('Segoe UI', 16, 'bold'), bg='#2c3e50', fg='#e8eef5').pack(anchor='w')
         tk.Label(header, text=f"Month: {audit.get('month', '-')}", font=('Segoe UI', 10), bg='#2c3e50', fg='#95a5a6').pack(anchor='w', pady=(5, 0))
 
         # Legacy Excel section
         legacy = audit.get('legacy_excel', {}) or {}
         legacy_frame = tk.Frame(scrollable_frame, bg='#34495e', relief=tk.SOLID, borderwidth=1)
         legacy_frame.pack(fill=tk.X, padx=15, pady=(0, 10))
-        tk.Label(legacy_frame, text="📑 Meter Readings (Legacy Excel)", font=('Segoe UI', 11, 'bold'), bg='#34495e', fg='#ecf0f1').pack(anchor='w', padx=12, pady=(10, 5))
+        tk.Label(legacy_frame, text="📑 Meter Readings (Legacy Excel)", font=('Segoe UI', 11, 'bold'), bg='#34495e', fg='#e8eef5').pack(anchor='w', padx=12, pady=(10, 5))
         path_txt = legacy.get('path') or '—'
         exists = bool(legacy.get('exists'))
         matched = legacy.get('matched_row_date') or '—'
-        tk.Label(legacy_frame, text=f"Path: {path_txt}", font=('Segoe UI', 9), bg='#34495e', fg='#ecf0f1').pack(anchor='w', padx=12)
+        tk.Label(legacy_frame, text=f"Path: {path_txt}", font=('Segoe UI', 9), bg='#34495e', fg='#e8eef5').pack(anchor='w', padx=12)
         tk.Label(legacy_frame, text=f"File Exists: {'Yes' if exists else 'No'}", font=('Segoe UI', 9), bg='#34495e', fg=('#27ae60' if exists else '#e74c3c')).pack(anchor='w', padx=12, pady=(0, 2))
-        tk.Label(legacy_frame, text=f"Matched Row (month): {matched}", font=('Segoe UI', 9), bg='#34495e', fg='#ecf0f1').pack(anchor='w', padx=12, pady=(0, 8))
+        tk.Label(legacy_frame, text=f"Matched Row (month): {matched}", font=('Segoe UI', 9), bg='#34495e', fg='#e8eef5').pack(anchor='w', padx=12, pady=(0, 8))
 
         # Headers table
         headers = legacy.get('headers', [])
@@ -2442,7 +1974,7 @@ class CalculationsModule:
         tk.Label(header_frame,
                 text="📈 Water Balance Calculation",
                 font=('Segoe UI', 14, 'bold'),
-                bg='#2c3e50', fg='#ecf0f1').pack(anchor='w')
+                bg='#2c3e50', fg='#e8eef5').pack(anchor='w')
         
         # Info box
         info_frame = tk.Frame(container, bg='#34495e', relief=tk.SOLID, borderwidth=1)
@@ -2451,7 +1983,7 @@ class CalculationsModule:
         tk.Label(info_frame,
                 text="⏳  This dashboard will host water balance calculations once parameters are defined.",
                 font=('Segoe UI', 9),
-                bg='#34495e', fg='#ecf0f1',
+                bg='#34495e', fg='#e8eef5',
                 wraplength=800, justify='left').pack(padx=12, pady=10)
         
         # Table frame
@@ -2808,6 +2340,137 @@ class CalculationsModule:
         facilities_frame.pack(fill=tk.BOTH, expand=True, pady=(20, 0))
         self.add_info_box(facilities_frame, "ℹ️ Volumes shown are OPENING balances (start of month). 📊 = Excel data used | 💾 = Database fallback used", icon="💡")
         self.add_treeview(facilities_frame, ('code', 'name', 'volume', 'capacity', 'utilization', 'source'), ['📋 Code', '🏭 Facility Name', '💧 Opening Volume (m³)', '📏 Capacity (m³)', '📊 Util. %', '📍 Data Source'], facilities_data, {})
+        
+        # Pump Transfers Display (always show)
+        pump_transfers = self.current_balance.get('pump_transfers', {})
+        self._display_pump_transfers(pump_transfers)
+    
+    def _display_pump_transfers(self, pump_transfers, parent_frame=None):
+        """Display automatic pump transfers and configured connections
+        
+        Args:
+            pump_transfers: Dict of facility transfers from calculator
+            parent_frame: Parent frame to pack into (default: self.storage_frame for backward compat)
+        """
+        if parent_frame is None:
+            parent_frame = self.storage_frame
+            
+        logger.info(f"🔧 _display_pump_transfers called with {len(pump_transfers) if pump_transfers else 0} facilities")
+        transfers_frame = ttk.LabelFrame(parent_frame, text="⚙️ Automatic Pump Transfers & Connections", padding=10)
+        transfers_frame.pack(fill=tk.BOTH, expand=True, pady=15)
+        
+        # Header
+        self.add_info_box(
+            transfers_frame,
+            "Configured connections (where water can go) and actual transfers. Transfers happen when source ≥ pump_start_level. Shows transfer volume even if 0 m³.",
+            icon="🔄"
+        )
+        
+        # If no transfers configured
+        if not pump_transfers:
+            no_transfers_label = tk.Label(
+                transfers_frame,
+                text="ℹ️ No pump connections configured yet. Add connections in Storage Facilities to enable automatic transfers.",
+                font=('Segoe UI', 9),
+                fg='#5d6d7b',
+                bg='#f5f6fa',
+                wraplength=500,
+                justify='left',
+                padx=10,
+                pady=10
+            )
+            no_transfers_label.pack(fill='x', padx=5, pady=5)
+            return
+        
+        # Transfer details for each facility
+        for facility_code, transfer_data in pump_transfers.items():
+            current_level_pct = transfer_data['current_level_pct']
+            pump_start = transfer_data['pump_start_level']
+            is_at_pump_start = transfer_data['is_at_pump_start']
+            transfers = transfer_data.get('transfers', [])
+            
+            # Facility header
+            fac_frame = tk.Frame(transfers_frame, bg='#f5f6fa', relief='solid', borderwidth=1)
+            fac_frame.pack(fill=tk.X, pady=8, padx=5)
+            
+            # Status indicator
+            status = "✓ Ready to Transfer" if is_at_pump_start else "✗ Below Pump Start"
+            status_color = '#27ae60' if is_at_pump_start else '#e74c3c'
+            
+            header_info = (
+                f"  {facility_code}  |  "
+                f"Level: {current_level_pct:.1f}%  |  "
+                f"Pump Start: {pump_start:.1f}%  |  "
+                f"{status}"
+            )
+            
+            header_label = tk.Label(
+                fac_frame,
+                text=header_info,
+                font=('Segoe UI', 10, 'bold'),
+                bg='#f5f6fa',
+                fg=status_color,
+                anchor='w',
+                padx=10,
+                pady=8
+            )
+            header_label.pack(fill=tk.X)
+            
+            # Show configured connections (even if no transfers happened)
+            if transfers:
+                # Show transfers that happened
+                for transfer in transfers:
+                    transfer_frame = tk.Frame(transfers_frame, bg='#e8f5e9', relief='solid', borderwidth=1)
+                    transfer_frame.pack(fill=tk.X, pady=2, padx=20)
+                    
+                    transfer_text = (
+                        f"  ➜ {transfer['destination']:12} (Priority {transfer['priority']})  |  "
+                        f"Volume: {transfer['volume_m3']:>10,.0f} m³  |  "
+                        f"Dest: {transfer['destination_level_before']:>5.1f}% → {transfer['destination_level_after']:>5.1f}%"
+                    )
+                    
+                    transfer_label = tk.Label(
+                        transfer_frame,
+                        text=transfer_text,
+                        font=('Segoe UI', 9),
+                        bg='#e8f5e9',
+                        fg='#1b5e20',
+                        anchor='w',
+                        padx=10,
+                        pady=5
+                    )
+                    transfer_label.pack(fill=tk.X)
+            else:
+                # No transfers - show why
+                if not is_at_pump_start:
+                    reason_frame = tk.Frame(transfers_frame, bg='#fff3cd', relief='solid', borderwidth=1)
+                    reason_frame.pack(fill=tk.X, pady=2, padx=20)
+                    reason_label = tk.Label(
+                        reason_frame,
+                        text=f"  ℹ️ No transfers - facility level {current_level_pct:.1f}% is below pump_start_level {pump_start:.1f}%",
+                        font=('Segoe UI', 9),
+                        bg='#fff3cd',
+                        fg='#856404',
+                        anchor='w',
+                        padx=10,
+                        pady=5
+                    )
+                    reason_label.pack(fill=tk.X)
+                else:
+                    reason_frame = tk.Frame(transfers_frame, bg='#fff3cd', relief='solid', borderwidth=1)
+                    reason_frame.pack(fill=tk.X, pady=2, padx=20)
+                    reason_label = tk.Label(
+                        reason_frame,
+                        text=f"  ℹ️ No active transfers - check facility connections or all destinations are full",
+                        font=('Segoe UI', 9),
+                        bg='#fff3cd',
+                        fg='#856404',
+                        anchor='w',
+                        padx=10,
+                        pady=5
+                    )
+                    reason_label.pack(fill=tk.X)
+    
     def _get_security_color(self, status):
         """Get color for security status"""
         status_colors = {
@@ -2847,7 +2510,6 @@ class CalculationsModule:
             'calculation_date': datetime.now(),
             'inputs': {
                 'tonnes_milled': ore_tonnes or 0,
-                'mining_water_rate': self.calculator.get_constant('MINING_WATER_RATE', 0.65),
                 'rainfall': inflows.get('rainfall', 0),
                 'evaporation': outflows.get('evaporation', 0),
             },
@@ -2891,8 +2553,6 @@ class CalculationsModule:
                 'closure_error_percent': balance['closure_error_percent'],
             },
             'constants': {
-                'MINING_WATER_RATE': self.calculator.get_constant('MINING_WATER_RATE', 0.65),
-
                 'RAINFALL_FACTOR': self.calculator.get_constant('RAINFALL_FACTOR', 0.85),
             }
         }
@@ -3007,7 +2667,7 @@ class CalculationsModule:
             
             try:
                 calc_date = datetime.strptime(self.calc_date_var.get(), '%Y-%m-%d').date()
-                ore_tonnes = float(self.ore_tonnes_var.get()) if self.ore_tonnes_var.get() else None
+                ore_tonnes = None
                 
                 results = []
                 
@@ -3068,48 +2728,8 @@ class CalculationsModule:
                     "Click 'Calculate Balance' again to see results with new exclusions.")
     
 
-    # ==================== ORE TONNAGE PREFILL ====================
-    def _prefill_ore_tonnage(self):
-        """Populate ore tonnes from Excel data.
-        
-        Precedence:
-          1. Excel 'Tonnes Milled' for the selected month
-          2. Constant 'monthly_ore_processing' as fallback
-        
-        Skips overwrite if user manually edited after last prefill.
-        """
-        try:
-            calc_date = datetime.strptime(self.calc_date_var.get(), '%Y-%m-%d').date()
-        except Exception:
-            return
-        
-        if getattr(self, '_manual_override', False):
-            return
-        
-        # Try to get from Excel
-        try:
-            excel_repo = get_default_excel_repo()
-            excel_tonnes = excel_repo.get_monthly_value(calc_date, "Tonnes Milled")
-            
-            if excel_tonnes > 0:
-                self.ore_tonnes_var.set(str(int(excel_tonnes)))
-                self._manual_override = False
-                return
-        except Exception:
-            pass  # Fall through to constant
-        
-        # Fallback to zero (no synthetic defaults per user preference)
-        self.ore_tonnes_var.set('0')
-        self._manual_override = False
-
-    def _mark_manual_override(self):
-        """Mark that the user manually edited ore tonnes; prevent auto overwrite until date changes."""
-        self._manual_override = True
-        # Label removed; no UX change needed
-
     def _on_calc_date_change(self):
-        """Handle date changes whether via calendar selection or manual typing.
-        Resets manual override so the user always sees authoritative source for the new date."""
+        """Handle date changes whether via calendar selection or manual typing."""
         # Only act if widget constructed (defensive) and date looks valid
         if not self.calc_date_var.get():
             return
@@ -3117,9 +2737,6 @@ class CalculationsModule:
             datetime.strptime(self.calc_date_var.get(), '%Y-%m-%d')
         except Exception:
             return  # ignore incomplete typing until valid
-        # Reset override; new date means new source context
-        self._manual_override = False
-        self._prefill_ore_tonnage()
         self._load_manual_inputs()
 
     def _get_calc_date_obj(self) -> Optional[date]:
@@ -3130,4 +2747,5 @@ class CalculationsModule:
             return datetime.strptime(self.calc_date_var.get(), '%Y-%m-%d').date()
         except Exception:
             return None
+
 

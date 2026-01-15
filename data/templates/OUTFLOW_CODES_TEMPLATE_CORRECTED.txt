@@ -149,7 +149,7 @@ Seepage handled in storage volume calculations (not separate outflow).
   UG2PCD1_spill                       (spill       ) = 37 m³  # Dam spillage
 
 ================================================================================
-📍 UG2_SOUTH - UG2 South Decline Area
+📍 UG2_SOUTH - UG2 Main Decline Area
 ================================================================================
 
 💧 EVAPORATION (Auto-calculated):

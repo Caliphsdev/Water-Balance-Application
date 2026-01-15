@@ -46,7 +46,7 @@ except Exception as e:
     print(f"  ✗ Error: {e}")
 
 # === FIX 2: REMOVE MERN SHEET ===
-print("\n[2] Removing Flows_MERN sheet...")
+print("\n[2] Removing deprecated Flows_Merensky North sheet...")
 
 from openpyxl import load_workbook
 
@@ -55,12 +55,12 @@ wb = load_workbook('test_templates/Water_Balance_TimeSeries_Template.xlsx')
 sheets_before = len(wb.sheetnames)
 print(f"  Sheets before: {sheets_before}")
 
-if 'Flows_MERN' in wb.sheetnames:
-    del wb['Flows_MERN']
+if 'Flows_Merensky North' in wb.sheetnames:
+    del wb['Flows_Merensky North']
     wb.save('test_templates/Water_Balance_TimeSeries_Template.xlsx')
-    print(f"  ✓ Flows_MERN removed")
+    print(f"  ✓ Flows_Merensky North removed")
 else:
-    print(f"  ℹ️ Flows_MERN not in template")
+    print(f"  ℹ️ Flows_Merensky North not in template")
 
 # Verify
 wb = load_workbook('test_templates/Water_Balance_TimeSeries_Template.xlsx')

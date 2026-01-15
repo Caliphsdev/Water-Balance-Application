@@ -12,57 +12,57 @@ from pathlib import Path
 # Add src to path FIRST (before any other imports)
 sys.path.insert(0, str(Path(__file__).parent))
 
-# Only import critical modules for splash screen
+# Only import critical modules for loading screen
 import tkinter as tk
-from ui.splash_screen import show_splash_and_load
+from ui.loading_screen import LoadingScreen
 
 
-def initialize_app(progress_callback):
+def initialize_app(set_status):
     """
     Initialize application with progress updates
-    Uses lazy imports to speed up initial splash display
+    Uses lazy imports to speed up initial loading screen display
     
     Args:
-        progress_callback: Function to call with (value, status, detail)
+        set_status: Function to call with (status_text, progress_percentage)
     """
     
     # Step 1: Load configuration (10%)
-    progress_callback(5, "Loading configuration...", "Reading config files")
+    set_status("Loading configuration...", 5)
     from utils.config_manager import config
     from utils.app_logger import logger
-    progress_callback(10, "Configuration loaded", "")
+    set_status("Loading configuration...", 10)
     
     # Step 2: Initialize logging (20%)
-    progress_callback(15, "Initializing logging...", "Setting up log handlers")
+    set_status("Initializing logging...", 15)
     logger.info("=" * 60)
     logger.info("Water Balance Application Started")
     logger.info("=" * 60)
     logger.info(f"Version: {config.app_version}")
     logger.info(f"Python: {sys.version}")
-    progress_callback(20, "Logging initialized", "")
+    set_status("Initializing logging...", 20)
     
     # Step 3: Load database (40%)
-    progress_callback(25, "Connecting to database...", "Opening SQLite connection")
+    set_status("Connecting to database...", 25)
     from database.db_manager import db
-    progress_callback(30, "Database connected", "")
+    set_status("Connecting to database...", 30)
     
-    progress_callback(35, "Preloading caches...", "Loading frequently used data")
+    set_status("Preloading caches...", 35)
     db.preload_caches()
     logger.info("Database caches preloaded")
-    progress_callback(40, "Database ready", "")
+    set_status("Preloading caches...", 40)
     
     # Step 4: Load utilities (55%)
-    progress_callback(45, "Loading utilities...", "Error handlers and notifications")
+    set_status("Loading utilities...", 45)
     from utils.ui_notify import notifier
     from utils.error_handler import error_handler
-    progress_callback(50, "Utilities loaded", "")
+    set_status("Loading utilities...", 50)
     
-    progress_callback(52, "Loading theme engine...", "Applying visual styles")
+    set_status("Loading theme engine...", 52)
     from ttkthemes import ThemedTk
-    progress_callback(55, "Theme loaded", "")
+    set_status("Loading theme engine...", 55)
     
     # Step 5: Create main window (75%)
-    progress_callback(60, "Creating main window...", "Initializing UI framework")
+    set_status("Creating main window...", 60)
     from tkinter import ttk, messagebox
     
     # Set default user
@@ -82,23 +82,23 @@ def initialize_app(progress_callback):
     min_height = config.get('window.min_height', 700)
     root.minsize(min_width, min_height)
     
-    progress_callback(70, "Window created", "")
+    set_status("Creating main window...", 70)
     
     # Step 6: Apply styles (85%)
-    progress_callback(75, "Applying custom styles...", "Configuring theme colors")
+    set_status("Applying custom styles...", 75)
     _apply_custom_styles(root, config)
     logger.info("Custom styles applied")
-    progress_callback(80, "Styles applied", "")
+    set_status("Applying custom styles...", 80)
     
     # Step 7: Load main window (95%)
-    progress_callback(85, "Building interface...", "Loading main application window")
+    set_status("Building interface...", 85)
     from ui.main_window import MainWindow
     main_window = MainWindow(root)
     logger.info("Main window initializing")
-    progress_callback(90, "Interface built", "")
+    set_status("Building interface...", 90)
     
     # Step 8: Final setup (100%)
-    progress_callback(95, "Finalizing...", "Positioning window")
+    set_status("Finalizing...", 95)
     _center_window(root)
     
     # Bind close event
@@ -124,14 +124,14 @@ def initialize_app(progress_callback):
     
     root.protocol("WM_DELETE_WINDOW", on_closing)
     
-    progress_callback(98, "Ready!", "Starting application...")
+    set_status("Ready!", 98)
     logger.info("Application initialization complete")
     
     # Show window
     root.deiconify()
     root.lift()
     
-    progress_callback(100, "Complete!", "")
+    set_status("Complete!", 100)
     
     # Return root for main loop
     return root
@@ -229,25 +229,36 @@ def _center_window(root):
 
 
 def main():
-    """Application entry point with splash screen"""
+    """Application entry point with loading screen"""
+    loading_screen = None
     try:
         # Get version early (minimal import)
         from utils.config_manager import config
         app_version = config.app_version
         
-        # Show splash and initialize app
-        show_splash_and_load(app_version, initialize_app)
+        # Show loading screen
+        loading_screen = LoadingScreen()
+        loading_screen.show()
         
-        # Get root window and start main loop
-        # Note: root is created inside initialize_app and is already visible
-        # We just need to start the event loop
+        # Initialize app with progress updates
+        root = initialize_app(loading_screen.set_status)
+        
+        # Close loading screen
+        loading_screen.close()
+        loading_screen = None
+        
         from utils.app_logger import logger
         logger.info("Starting main event loop")
         
-        # The root window is already created and visible, just keep it running
-        tk.mainloop()
+        # Start the event loop
+        root.mainloop()
         
     except KeyboardInterrupt:
+        if loading_screen:
+            try:
+                loading_screen.close()
+            except:
+                pass
         try:
             from utils.app_logger import logger
             logger.info("Application interrupted by user (Ctrl+C)")
@@ -255,6 +266,11 @@ def main():
             print("Application interrupted by user (Ctrl+C)")
     
     except Exception as e:
+        if loading_screen:
+            try:
+                loading_screen.close()
+            except:
+                pass
         # Try to use logger and error handler if available
         try:
             from utils.app_logger import logger

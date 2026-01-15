@@ -57,6 +57,9 @@ class DatabaseSchema:
             self._create_alert_rules_table(cursor)
             self._create_alerts_table(cursor)
             self._create_audit_log_table(cursor)
+            self._create_license_info_table(cursor)
+            self._create_license_validation_log_table(cursor)
+            self._create_license_transfers_table(cursor)
 
             # Ensure optional wb_* topology tables exist (idempotent)
             try:
@@ -101,6 +104,12 @@ class DatabaseSchema:
             self._create_groundwater_inflow_table(cursor)
             self._create_data_quality_checks_table(cursor)
             # NOTE: seepage_gain_monthly table removed - seepage now automatic based on facility properties
+
+            # Licensing tables (idempotent)
+            self._create_license_info_table(cursor)
+            self._create_license_validation_log_table(cursor)
+            self._create_license_transfers_table(cursor)
+            self._create_license_audit_log_table(cursor)
 
             # Ensure system_constants has optional min/max columns for UI
             cursor.execute("PRAGMA table_info(system_constants)")
@@ -265,14 +274,12 @@ class DatabaseSchema:
                 -- Capacity specifications
                 total_capacity REAL NOT NULL,  -- m³
                 working_capacity REAL,  -- m³ (usable volume)
-                dead_storage REAL,  -- m³ (unusable volume)
                 surface_area REAL,  -- m² (for evaporation calculations)
                 
                 -- Operating levels (as percentages)
                 pump_start_level REAL DEFAULT 70.0,  -- Start pumping at 70%
                 pump_stop_level REAL DEFAULT 20.0,   -- Stop pumping at 20%
                 high_level_alarm REAL DEFAULT 90.0,
-                low_level_alarm REAL DEFAULT 10.0,
                 
                 -- Current status
                 current_volume REAL DEFAULT 0,
@@ -281,7 +288,6 @@ class DatabaseSchema:
                 
                 -- Physical characteristics
                 max_depth REAL,  -- meters
-                siltation_percentage REAL DEFAULT 0,  -- Percentage of capacity lost to silt
                 is_lined BOOLEAN DEFAULT 0,  -- 1 for lined facilities (negligible seepage), 0 for unlined
                 
                 -- Purpose and connections
@@ -871,6 +877,91 @@ class DatabaseSchema:
         """)
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_audit_table ON audit_log(table_name)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_audit_date ON audit_log(changed_at)")
+
+    def _create_license_info_table(self, cursor):
+        """License metadata and activation bindings"""
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS license_info (
+                license_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                license_key TEXT NOT NULL UNIQUE,
+                license_status TEXT NOT NULL DEFAULT 'pending',
+                license_tier TEXT DEFAULT 'standard',
+                licensee_name TEXT,
+                licensee_email TEXT,
+                hardware_components_json TEXT NOT NULL,
+                hardware_match_threshold INTEGER NOT NULL DEFAULT 2,
+                activated_at TIMESTAMP,
+                last_online_check TIMESTAMP,
+                offline_grace_until TIMESTAMP,
+                expiry_date DATE,
+                max_users INTEGER DEFAULT 1,
+                transfer_count INTEGER DEFAULT 0,
+                last_transfer_at TIMESTAMP,
+                manual_verification_count INTEGER DEFAULT 0,
+                manual_verification_reset_at TIMESTAMP,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+            """
+        )
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_license_status ON license_info(license_status)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_license_expiry ON license_info(expiry_date)")
+
+    def _create_license_validation_log_table(self, cursor):
+        """History of license validations"""
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS license_validation_log (
+                validation_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                license_id INTEGER,
+                validation_type TEXT NOT NULL,
+                validation_result TEXT NOT NULL,
+                validation_message TEXT,
+                validated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (license_id) REFERENCES license_info(license_id)
+            )
+            """
+        )
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_license_validation_result ON license_validation_log(validation_result)")
+
+    def _create_license_transfers_table(self, cursor):
+        """Tracks license transfer requests and approvals"""
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS license_transfers (
+                transfer_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                license_id INTEGER NOT NULL,
+                previous_hardware_json TEXT,
+                new_hardware_json TEXT,
+                transfer_status TEXT NOT NULL DEFAULT 'pending',
+                transfer_note TEXT,
+                requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                approved_at TIMESTAMP,
+                FOREIGN KEY (license_id) REFERENCES license_info(license_id)
+            )
+            """
+        )
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_license_transfer_status ON license_transfers(transfer_status)")
+    
+    def _create_license_audit_log_table(self, cursor):
+        """Security audit log for license events"""
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS license_audit_log (
+                audit_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                license_id INTEGER,
+                event_type TEXT NOT NULL,
+                event_details TEXT,
+                ip_address TEXT,
+                user_agent TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (license_id) REFERENCES license_info(license_id)
+            )
+            """
+        )
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_license_audit_event ON license_audit_log(event_type)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_license_audit_date ON license_audit_log(created_at)")
     
     def _create_reports_table(self, cursor):
         """Generated reports tracking"""
@@ -946,11 +1037,8 @@ class DatabaseSchema:
         # NOTE: TSF_RETURN_RATE, MEAN_ANNUAL_EVAPORATION, PUMP_START_LEVEL, PUMP_STOP_LEVEL, 
         # BALANCE_ERROR_THRESHOLD, DEFAULT_MISSING_VALUE removed as they are not used by latest calculator
         constants = [
-            ('MINING_WATER_RATE', 0.18, 'm³/tonne', 'calculation', 'Mining water requirement per tonne'),
             ('SLURRY_DENSITY', 1.4, 't/m³', 'calculation', 'Tailings slurry density'),
             ('CONCENTRATE_MOISTURE', 0.08, 'fraction', 'calculation', 'Moisture content in concentrate (8%)'),
-            # Ore processing related (added Nov 2025 for moisture inflow configurability)
-            ('monthly_ore_processing', 350000.0, 't/month', 'Plant', 'Default monthly ore processed tonnage used when no entry provided'),
             ('ore_moisture_percent', 3.4, 'percent', 'Plant', 'Average moisture percent of ore feed (used to derive water inflow from wet ore)'),
             ('ore_density', 2.7, 't/m³', 'Plant', 'Bulk density of run-of-mine ore used for moisture volume conversion'),
         ]
@@ -976,10 +1064,6 @@ class DatabaseSchema:
             ('HIGH_STORAGE', 'High Storage Level', 'level', 'storage_utilization', '>', 90.0, '%',
              'warning', 'High Storage Level', 'Storage utilization at {metric_value:.1f}% - overflow risk during rainfall.',
              1, 0, None, 1, 1, 3, 'Prevent overflow incidents'),
-            
-            ('LOW_LEVEL_ALARM', 'Low Level Alarm', 'level', 'level_percent', '<', 10.0, '%',
-             'critical', 'Storage Level Critical', 'Facility at {metric_value:.1f}% capacity - below low level alarm.',
-             1, 0, None, 1, 1, 1, 'Facility-specific low level'),
             
             ('HIGH_CLOSURE_ERROR', 'High Closure Error', 'compliance', 'closure_error_pct', '>', 5.0, '%',
              'warning', 'Water Balance Not Closed', 'Closure error {metric_value:.1f}% exceeds threshold - review measurements.',

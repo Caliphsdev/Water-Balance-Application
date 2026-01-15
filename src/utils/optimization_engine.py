@@ -26,7 +26,9 @@ class OptimizationEngine:
                                  current_storage: float,
                                  daily_consumption: float,
                                  current_constants: Dict[str, float],
-                                 constraints: Optional[Dict] = None) -> Dict:
+                                 constraints: Optional[Dict] = None,
+                                 critical_threshold_pct: float = 0.25,
+                                 total_capacity: Optional[float] = None) -> Dict:
         """
         Find optimal constant adjustments to achieve target days of operation.
         
@@ -35,7 +37,9 @@ class OptimizationEngine:
             current_storage: Current total storage volume (m³)
             daily_consumption: Current daily consumption rate (m³/day)
             current_constants: Dictionary of current constant values
-            constraints: Optional dict of {constant_name: {'min_pct': X, 'max_pct': Y}}
+            constraints: Optional dict of {constant_name: (min_val, max_val)}
+            critical_threshold_pct: Fraction of capacity considered unusable (default 25%)
+            total_capacity: Optional total storage capacity (m³) for accurate thresholding
             
         Returns:
             {
@@ -47,11 +51,19 @@ class OptimizationEngine:
                 'message': str
             }
         """
+        # Ensure current_constants is a dictionary
+        if not isinstance(current_constants, dict):
+            current_constants = {}
+            logger.warning("current_constants is not a dict, using empty dict")
+        
         if constraints is None:
             constraints = self._get_default_constraints()
         
-        # Calculate current days to critical (assume 25% threshold)
-        critical_threshold = current_storage * 0.25
+        # Calculate current days to critical using provided threshold
+        if total_capacity and total_capacity > 0:
+            critical_threshold = total_capacity * critical_threshold_pct
+        else:
+            critical_threshold = current_storage * critical_threshold_pct
         current_days = max(0, (current_storage - critical_threshold) / daily_consumption) if daily_consumption > 0 else 999
         
         # If already meeting target, no optimization needed
@@ -72,23 +84,11 @@ class OptimizationEngine:
         
         # Adjustable constants and their impact on consumption
         adjustable = {
-            'plant_water_recovery_rate': {
-                'impact': 'reduce_consumption',
-                'current': current_constants.get('plant_water_recovery_rate', 0.65),
-                'step': 0.01,
-                'direction': 1  # Increase to reduce net consumption
-            },
             'tailings_moisture_pct': {
                 'impact': 'reduce_consumption',
-                'current': current_constants.get('tailings_moisture_pct', 12.0),
-                'step': -0.5,
-                'direction': -1  # Decrease to reduce water locked in tailings
-            },
-            'evaporation_mitigation_factor': {
-                'impact': 'reduce_consumption',
-                'current': current_constants.get('evaporation_mitigation_factor', 1.0),
-                'step': -0.05,
-                'direction': -1  # Reduce evaporation impact
+                'current': current_constants.get('tailings_moisture_pct', 0.15),
+                'step': -0.01,
+                'direction': -1  # Decrease to reduce water locked in tailings (fraction of mass)
             },
         }
         
@@ -131,13 +131,18 @@ class OptimizationEngine:
         
         # Calculate percentage changes
         adjustments_pct = {}
-        recommended_changes = {}
+        recommended_changes = []
         for const_name, new_val in best_constants.items():
             original = current_constants.get(const_name, adjustable.get(const_name, {}).get('current', new_val))
             if abs(new_val - original) > 0.001:
                 pct_change = ((new_val - original) / original * 100) if original != 0 else 0
                 adjustments_pct[const_name] = pct_change
-                recommended_changes[const_name] = new_val
+                recommended_changes.append({
+                    'parameter': const_name,
+                    'current': original,
+                    'new': new_val,
+                    'change_pct': pct_change
+                })
         
         # Determine if achievable
         achievable = abs(best_days - target_days) <= target_days * 0.1  # Within 10%
@@ -233,20 +238,21 @@ class OptimizationEngine:
     def _get_default_constraints(self) -> Dict:
         """Return default operational constraints."""
         return {
-            'plant_water_recovery_rate': {'min_pct': 100, 'max_pct': 130},  # Can improve up to 30%
             'tailings_moisture_pct': {'min_pct': 80, 'max_pct': 100},        # Can reduce moisture to 80%
-            'evaporation_mitigation_factor': {'min_pct': 70, 'max_pct': 100}, # Can mitigate up to 30%
         }
     
     def _get_constraint_bounds(self, const_name: str, current_value: float, constraints: Dict) -> Tuple[float, float]:
         """Calculate min/max bounds for a constant based on constraints."""
         if const_name not in constraints:
             return (current_value * 0.7, current_value * 1.3)  # Default ±30%
-        
+
         constraint = constraints[const_name]
+        if isinstance(constraint, (tuple, list)) and len(constraint) == 2:
+            return (float(constraint[0]), float(constraint[1]))
+
         min_val = current_value * (constraint.get('min_pct', 70) / 100)
         max_val = current_value * (constraint.get('max_pct', 130) / 100)
-        
+
         return (min_val, max_val)
     
     def _estimate_consumption_impact(self, 

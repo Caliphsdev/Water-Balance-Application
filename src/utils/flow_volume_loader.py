@@ -24,6 +24,18 @@ warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')
 class FlowVolumeLoader:
     """Load flow volumes from Excel on-demand for specific months."""
     
+    # Mapping from legacy area codes to new descriptive sheet names
+    AREA_CODE_TO_SHEET = {
+        'UG2N': 'Flows_UG2 North',
+        'UG2S': 'Flows_UG2 Main',
+        'MERS': 'Flows_Merensky South',
+        'MERP': 'Flows_Merensky Plant',
+        'UG2P': 'Flows_UG2 Plant',
+        'STOCKPILE': 'Flows_Stockpile1',
+        'NEWTSF': 'Flows_New TSF',
+        'OLDTSF': 'Flows_Old TSF',
+    }
+    
     def __init__(self, excel_path: Optional[Path] = None):
         """
         Initialize the flow volume loader.
@@ -60,6 +72,23 @@ class FlowVolumeLoader:
 
         base_dir = Path(__file__).resolve().parents[2]
         return base_dir / cfg_path
+    
+    def _get_sheet_name(self, area_code: str) -> str:
+        """
+        Convert area code to Excel sheet name using mapping.
+        
+        Args:
+            area_code: Legacy area code (e.g., 'UG2N', 'MERS')
+        
+        Returns:
+            Excel sheet name (e.g., 'Flows_UG2 North')
+        """
+        # Check if it's already a full sheet name
+        if area_code.startswith('Flows_'):
+            return area_code
+        
+        # Use mapping for legacy area codes
+        return self.AREA_CODE_TO_SHEET.get(area_code, f'Flows_{area_code}')
     
     def _load_sheet(self, sheet_name: str) -> pd.DataFrame:
         """Load a sheet from Excel with caching and resilient header detection."""
@@ -219,7 +248,7 @@ class FlowVolumeLoader:
         Returns:
             Volume in m³, or None if not found
         """
-        sheet_name = f"Flows_{area_code}"
+        sheet_name = self._get_sheet_name(area_code)
         df = self._load_sheet(sheet_name)
         
         if df.empty:
@@ -265,7 +294,7 @@ class FlowVolumeLoader:
         Returns:
             Dictionary mapping flow_id -> volume (m³)
         """
-        sheet_name = f"Flows_{area_code}"
+        sheet_name = self._get_sheet_name(area_code)
         df = self._load_sheet(sheet_name)
         
         if df.empty:
@@ -366,7 +395,7 @@ class FlowVolumeLoader:
             if not excel_mapping.get('enabled'):
                 continue
             # If a sheet is explicitly set, use exactly that sheet; otherwise default
-            sheet = excel_mapping.get('sheet') or f'Flows_{area_code}'
+            sheet = excel_mapping.get('sheet') or self._get_sheet_name(area_code)
             sheets_to_load.add(sheet)
 
         # Load volumes per sheet to avoid cross-sheet collisions
@@ -389,7 +418,7 @@ class FlowVolumeLoader:
             if not excel_mapping.get('enabled'):
                 continue
             
-            sheet = excel_mapping.get('sheet') or f'Flows_{area_code}'
+            sheet = excel_mapping.get('sheet') or self._get_sheet_name(area_code)
             flow_id = excel_mapping.get('column')
             if not flow_id:
                 logger.debug(f"⚠️ Skipping edge without 'column' mapping: {edge}")
@@ -434,7 +463,7 @@ class FlowVolumeLoader:
         Returns:
             List of (year, month) tuples
         """
-        sheet_name = f"Flows_{area_code}"
+        sheet_name = self._get_sheet_name(area_code)
         df = self._load_sheet(sheet_name)
         
         if df.empty or 'Year' not in df.columns or 'Month' not in df.columns:
@@ -489,7 +518,14 @@ class FlowVolumeLoader:
                 if v is None:
                     continue
                 if isinstance(v, tuple):
-                    flat = " - ".join([str(x).strip() for x in v if x is not None])
+                    # For multi-index, only use the LAST element (actual column header)
+                    # Skip intermediate "Unnamed" levels and title rows
+                    valid_parts = [str(x).strip() for x in v if x is not None and str(x).strip() and not str(x).startswith('Unnamed:')]
+                    if valid_parts:
+                        # Use the last valid part as the column name
+                        flat = valid_parts[-1]
+                    else:
+                        continue
                 else:
                     flat = str(v).strip()
                 if not flat or flat in skip:

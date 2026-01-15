@@ -8,7 +8,7 @@ Flow Diagram Editor - Manual Segment Drawing
 
 import json
 import tkinter as tk
-from tkinter import Canvas, Frame, Label, Scrollbar, messagebox, Button, ttk
+from tkinter import Canvas, Frame, Label, Scrollbar, messagebox, Button, ttk, simpledialog
 from pathlib import Path
 from datetime import date
 import warnings
@@ -168,108 +168,93 @@ class DetailedNetworkFlowDiagram:
         title.pack(pady=5)
         # Inline legend banner
         legend = Label(controls, text='Legend: Clean (Blue) • Evaporation/Losses (Black) • Dirty + variants (Red) • Recirculation (Purple)',
-                       font=('Segoe UI', 8), bg='#2c3e50', fg='#ecf0f1')
+                       font=('Segoe UI', 8), bg='#2c3e50', fg='#e8eef5')
         legend.pack(pady=2)
 
-        # FLOW LINES Section
-        flowlines_frame = Frame(controls, bg='#2c3e50')
-        flowlines_frame.pack(fill='x', padx=10, pady=2)
-        Label(flowlines_frame, text='🎯 FLOW LINES:', font=('Segoe UI', 8, 'bold'),
-              bg='#2c3e50', fg='#3498db').pack(side='left', padx=(0,10))
-        Button(flowlines_frame, text='✏️ Draw', command=self._start_drawing,
-               bg='#3498db', fg='white', font=('Segoe UI', 8), padx=8).pack(side='left', padx=2)
-        Button(flowlines_frame, text='🎨 Edit', command=self._edit_line,
-               bg='#9b59b6', fg='white', font=('Segoe UI', 8), padx=8).pack(side='left', padx=2)
-        Button(flowlines_frame, text='🗑️ Delete', command=self._delete_line,
-               bg='#e74c3c', fg='white', font=('Segoe UI', 8), padx=8).pack(side='left', padx=2)
-        Button(flowlines_frame, text='♻️ Recirculation', command=self._add_recirculation,
-               bg='#16a085', fg='white', font=('Segoe UI', 8), padx=8).pack(side='left', padx=2)
-        Button(flowlines_frame, text='✏️ Edit ♻️', command=self._edit_recirculation,
-               bg='#9b59b6', fg='white', font=('Segoe UI', 8), padx=8).pack(side='left', padx=2)
-        Button(flowlines_frame, text='🔒 Lock ♻️', command=self._toggle_recirculation_lock,
-               bg='#95a5a6', fg='white', font=('Segoe UI', 8), padx=8).pack(side='left', padx=2)
-
-        # COMPONENTS Section
-        components_frame = Frame(controls, bg='#2c3e50')
-        components_frame.pack(fill='x', padx=10, pady=2)
-        Label(components_frame, text='🔧 COMPONENTS:', font=('Segoe UI', 8, 'bold'),
-              bg='#2c3e50', fg='#e67e22').pack(side='left', padx=(0,10))
-        Button(components_frame, text='➕ Add Component', command=self._add_component,
-               bg='#27ae60', fg='white', font=('Segoe UI', 8), padx=8).pack(side='left', padx=2)
-        Button(components_frame, text='✏️ Edit Node', command=self._edit_node,
-               bg='#f39c12', fg='white', font=('Segoe UI', 8), padx=8).pack(side='left', padx=2)
-        Button(components_frame, text='🗑️ Delete Node', command=self._delete_node,
-               bg='#c0392b', fg='white', font=('Segoe UI', 8), padx=8).pack(side='left', padx=2)
-        Button(components_frame, text='🔒 Lock/Unlock', command=self._toggle_lock_selected,
-               bg='#7f8c8d', fg='white', font=('Segoe UI', 8), padx=8).pack(side='left', padx=2)
-
-        # DATA & VIEW Section (combined row)
-        data_view_frame = Frame(controls, bg='#2c3e50')
-        data_view_frame.pack(fill='x', padx=10, pady=2)
-        Label(data_view_frame, text='💾 ACTIONS:', font=('Segoe UI', 8, 'bold'),
-              bg='#2c3e50', fg='#27ae60').pack(side='left', padx=(0,10))
-        Button(data_view_frame, text='💾 Save', command=self._save_to_json,
-               bg='#27ae60', fg='white', font=('Segoe UI', 8), padx=8).pack(side='left', padx=2)
+        # Row 1: EDITING TOOLS (Flow Lines + Components combined)
+        edit_frame = Frame(controls, bg='#2c3e50')
+        edit_frame.pack(fill='x', padx=10, pady=3)
         
-        Label(data_view_frame, text='│', bg='#2c3e50', fg='#7f8c8d',
-              font=('Segoe UI', 12)).pack(side='left', padx=8)
+        # Flow Lines Section
+        Label(edit_frame, text='🎯 FLOWS:', font=('Segoe UI', 8, 'bold'),
+              bg='#2c3e50', fg='#3498db').pack(side='left', padx=(0,8))
+        Button(edit_frame, text='✏️ Draw', command=self._start_drawing,
+               bg='#3498db', fg='white', font=('Segoe UI', 9, 'bold'), padx=10).pack(side='left', padx=2)
+        Button(edit_frame, text='🎨 Edit', command=self._edit_flow_unified,
+               bg='#9b59b6', fg='white', font=('Segoe UI', 9, 'bold'), padx=10).pack(side='left', padx=2)
+        Button(edit_frame, text='🗑️ Delete', command=self._delete_line,
+               bg='#e74c3c', fg='white', font=('Segoe UI', 9, 'bold'), padx=10).pack(side='left', padx=2)
         
-        Label(data_view_frame, text='🔍 VIEW:', font=('Segoe UI', 8, 'bold'),
-              bg='#2c3e50', fg='#9b59b6').pack(side='left', padx=(0,10))
-        Button(data_view_frame, text='➕ Zoom In', command=lambda: self._zoom(1.1),
-               bg='#2ecc71', fg='white', font=('Segoe UI', 8), padx=8).pack(side='left', padx=2)
-        Button(data_view_frame, text='➖ Zoom Out', command=lambda: self._zoom(0.9),
-               bg='#8e44ad', fg='white', font=('Segoe UI', 8), padx=8).pack(side='left', padx=2)
+        # Separator
+        Label(edit_frame, text='│', bg='#2c3e50', fg='#7f8c8d',
+              font=('Segoe UI', 12)).pack(side='left', padx=10)
+        
+        # Components Section
+        Label(edit_frame, text='🔧 NODES:', font=('Segoe UI', 8, 'bold'),
+              bg='#2c3e50', fg='#e67e22').pack(side='left', padx=(0,8))
+        Button(edit_frame, text='➕ Add', command=self._add_component,
+               bg='#27ae60', fg='white', font=('Segoe UI', 9, 'bold'), padx=10).pack(side='left', padx=2)
+        Button(edit_frame, text='✏️ Edit', command=self._edit_node,
+               bg='#f39c12', fg='white', font=('Segoe UI', 9, 'bold'), padx=10).pack(side='left', padx=2)
+        Button(edit_frame, text='🗑️ Delete', command=self._delete_node,
+               bg='#c0392b', fg='white', font=('Segoe UI', 9, 'bold'), padx=10).pack(side='left', padx=2)
+        Button(edit_frame, text='🔒 Lock', command=self._toggle_lock_selected,
+               bg='#7f8c8d', fg='white', font=('Segoe UI', 9, 'bold'), padx=10).pack(side='left', padx=2)
 
-        # Excel-based volume loading (month selector)
+        # Row 2: VIEW & ACTIONS
+        view_frame = Frame(controls, bg='#2c3e50')
+        view_frame.pack(fill='x', padx=10, pady=3)
+        
+        Button(view_frame, text='🔍 Zoom In', command=lambda: self._zoom(1.1),
+               bg='#2ecc71', fg='white', font=('Segoe UI', 9, 'bold'), padx=12).pack(side='left', padx=2)
+        Button(view_frame, text='🔍 Zoom Out', command=lambda: self._zoom(0.9),
+               bg='#8e44ad', fg='white', font=('Segoe UI', 9, 'bold'), padx=12).pack(side='left', padx=2)
+        
+        # Spacer
+        Frame(view_frame, width=20, bg='#2c3e50').pack(side='left')
+        
+        Button(view_frame, text='💾 Save Diagram', command=self._save_to_json,
+               bg='#27ae60', fg='white', font=('Segoe UI', 10, 'bold'), padx=20).pack(side='left', padx=2)
+
+        # Row 3: DATA LOADING (Excel)
         excel_frame = Frame(controls, bg='#2c3e50')
         excel_frame.pack(fill='x', padx=10, pady=3)
         
-        Label(excel_frame, text='📊 DATA:', font=('Segoe UI', 8, 'bold'),
+        Label(excel_frame, text='📊 LOAD DATA:', font=('Segoe UI', 8, 'bold'),
               bg='#2c3e50', fg='#16a085').pack(side='left', padx=(0,10))
         
         Label(excel_frame, text='Year:', bg='#2c3e50', fg='white',
-              font=('Segoe UI', 8)).pack(side='left', padx=2)
-        self.year_var = tk.StringVar(value=str(self.current_year))
+              font=('Segoe UI', 9)).pack(side='left', padx=(0,4))
+        self.year_var = tk.StringVar(master=excel_frame, value=str(self.current_year))
         year_spin = tk.Spinbox(excel_frame, from_=2020, to=2100, textvariable=self.year_var,
-                               width=5, font=('Segoe UI', 8))
-        year_spin.pack(side='left', padx=2)
+                               width=6, font=('Segoe UI', 9))
+        year_spin.pack(side='left', padx=(0,10))
         
         Label(excel_frame, text='Month:', bg='#2c3e50', fg='white',
-              font=('Segoe UI', 8)).pack(side='left', padx=2)
-        self.month_var = tk.StringVar(value=str(self.current_month))
+              font=('Segoe UI', 9)).pack(side='left', padx=(0,4))
+        self.month_var = tk.StringVar(master=excel_frame, value=str(self.current_month))
         months = ['January', 'February', 'March', 'April', 'May', 'June',
                   'July', 'August', 'September', 'October', 'November', 'December']
         month_combo = ttk.Combobox(excel_frame, textvariable=self.month_var,
-                                   values=months, state='readonly', width=10, font=('Segoe UI', 8))
+                                   values=months, state='readonly', width=11, font=('Segoe UI', 9))
         month_combo.current(self.current_month - 1)
-        month_combo.pack(side='left', padx=2)
+        month_combo.pack(side='left', padx=(0,15))
         
-        Button(excel_frame, text='🔄 Load Excel', command=self._load_volumes_from_excel,
-               bg='#16a085', fg='white', font=('Segoe UI', 8), padx=8).pack(side='left', padx=2)
-        Button(excel_frame, text='🔍 Validate', command=self._validate_excel_mapping,
-               bg='#34495e', fg='white', font=('Segoe UI', 8), padx=8).pack(side='left', padx=2)
-        Button(excel_frame, text='🧭 Auto-Map', command=self._auto_map_excel_mappings,
-               bg='#2980b9', fg='white', font=('Segoe UI', 8), padx=8).pack(side='left', padx=2)
-        Button(excel_frame, text='📝 Mappings', command=self._open_mapping_editor,
-               bg='#8e44ad', fg='white', font=('Segoe UI', 8), padx=8).pack(side='left', padx=2)
-        Button(excel_frame, text='🔧 Excel Manager', command=self._open_excel_structure_manager,
-               bg='#e67e22', fg='white', font=('Segoe UI', 8), padx=8).pack(side='left', padx=2)
+        Button(excel_frame, text='📥 Load Excel', command=self._load_volumes_from_excel,
+               bg='#16a085', fg='white', font=('Segoe UI', 10, 'bold'), padx=15).pack(side='left', padx=2)
+        Button(excel_frame, text='🔧 Excel Setup', command=self._open_excel_setup_unified,
+               bg='#e67e22', fg='white', font=('Segoe UI', 10, 'bold'), padx=15).pack(side='left', padx=2)
 
+        # Simple help text
         info = Label(controls, 
-                    text='DRAG COMPONENTS to move | SELECT + "Lock/Unlock" to lock position | GRID: Always visible (20px intervals)',
-                    font=('Segoe UI', 8), bg='#2c3e50', fg='#ecf0f1')
-        info.pack(pady=2)
-
-        info2 = Label(controls, 
-                     text='🔓 Unlocked (white) = moveable | 🔒 Locked (red border) = fixed position | Grid: 20px intervals',
-                     font=('Segoe UI', 7, 'italic'), bg='#2c3e50', fg='#95a5a6')
-        info2.pack(pady=2)
+                    text='Drag to move • Click to select • Right-click for options',
+                    font=('Segoe UI', 8), bg='#2c3e50', fg='#95a5a6', pady=3)
+        info.pack()
 
         canvas_frame = Frame(self.parent)
         canvas_frame.pack(fill='both', expand=True, padx=5, pady=5)
 
-        self.canvas = Canvas(canvas_frame, bg='#f8f9fa', highlightthickness=0, cursor='hand2')
+        self.canvas = Canvas(canvas_frame, bg='#f5f6f7', highlightthickness=0, cursor='hand2')
         vscroll = Scrollbar(canvas_frame, orient='vertical', command=self.canvas.yview)
         hscroll = Scrollbar(canvas_frame, orient='horizontal', command=self.canvas.xview)
 
@@ -301,17 +286,38 @@ class DetailedNetworkFlowDiagram:
         messagebox.showinfo('Grid Display', f'Grid lines {state}')
     
     def _toggle_lock_selected(self):
-        if not self.selected_node:
-            messagebox.showwarning('No Selection', 'Select a component first by clicking on it')
+        """Toggle lock for selected node or recirculation flow."""
+        # Check if a recirculation flow is selected (by clicking on it)
+        if hasattr(self, '_selected_recirculation_idx') and self._selected_recirculation_idx is not None:
+            edge_idx = self._selected_recirculation_idx
+            current_state = self.recirculation_locked.get(edge_idx, False)
+            self.recirculation_locked[edge_idx] = not current_state
+            
+            new_state = '🔒 LOCKED' if self.recirculation_locked[edge_idx] else '🔓 UNLOCKED'
+            edge = self.area_data.get('edges', [])[edge_idx]
+            from_name = self._format_node_name(edge['from'])
+            to_name = self._format_node_name(edge['to'])
+            
+            logger.info(f"Toggled lock for recirculation flow '{from_name} → {to_name}': {new_state}")
+            messagebox.showinfo('Lock Status', f'Recirculation Flow:\n{from_name} → {to_name}\n\n{new_state}')
+            self._save_to_json()
+            self._draw_diagram()
             return
         
-        # Toggle lock state
+        # Otherwise, handle node locking
+        if not self.selected_node:
+            messagebox.showwarning('No Selection', 
+                                 'Select a component or recirculation flow first.\n\n' +
+                                 'Click on a component or flow line to select it.')
+            return
+        
+        # Toggle lock state for node
         current_state = self.locked_nodes.get(self.selected_node, False)
         self.locked_nodes[self.selected_node] = not current_state
         
         new_state = '🔒 LOCKED' if self.locked_nodes[self.selected_node] else '🔓 UNLOCKED'
-        print(f"[DEBUG] Toggled lock for node '{self.selected_node}': {new_state}")
-        messagebox.showinfo('Lock Status', f'{self.selected_node}\n\n{new_state}')
+        logger.info(f"Toggled lock for node '{self.selected_node}': {new_state}")
+        messagebox.showinfo('Lock Status', f'Component:\n{self.selected_node}\n\n{new_state}')
         self._save_to_json()
         self._draw_diagram()
 
@@ -369,7 +375,7 @@ class DetailedNetworkFlowDiagram:
         elif 'stockpile' in node_id_lower or 'spcd' in node_id_lower:
             return "Stockpile Area"
         elif 'ug2s' in node_id_lower or 'ug2_south' in node_id_lower:
-            return "UG2 South Decline Area"
+            return "UG2 Main Decline Area"
         elif 'meren' in node_id_lower or 'mers' in node_id_lower:
             return "Merensky South Area"
         elif 'oldtsf' in node_id_lower or 'old_tsf' in node_id_lower:
@@ -689,9 +695,9 @@ class DetailedNetworkFlowDiagram:
                 self.canvas.create_line(0, y, canvas_width, y, fill='#e0e0e0', width=1, tags='grid')
             # Thicker lines every 100px
             for x in range(0, canvas_width, 100):
-                self.canvas.create_line(x, 0, x, canvas_height, fill='#bdc3c7', width=2, tags='grid')
+                self.canvas.create_line(x, 0, x, canvas_height, fill='#c5d3e6', width=2, tags='grid')
             for y in range(0, canvas_height, 100):
-                self.canvas.create_line(0, y, canvas_width, y, fill='#bdc3c7', width=2, tags='grid')
+                self.canvas.create_line(0, y, canvas_width, y, fill='#c5d3e6', width=2, tags='grid')
 
         # Title for UG2 North Decline Area
         title = self.area_data.get('title', 'Flow Diagram')
@@ -734,21 +740,22 @@ class DetailedNetworkFlowDiagram:
             self.canvas.create_text(50, y, text=stockpile_title, font=('Segoe UI', 14, 'bold'),
                                    fill='#2c3e50', anchor='nw')
 
-        # Title for UG2 South Decline Area (if present)
+        # Title for UG2 Main Decline Area (if present)
         ug2south_title = self.area_data.get('ug2south_title', None)
         if ug2south_title:
-            # Find the y-position of the UG2 South zone background
+            # Find the y-position of the UG2 Main Decline Area zone background
             zone_bgs = self.area_data.get('zone_bg', [])
             ug2south_zone = None
             if isinstance(zone_bgs, list):
                 for zone in zone_bgs:
-                    if zone.get('name', '').lower().startswith('ug2 south'):
+                    zone_name = zone.get('name', '').lower()
+                    if zone_name.startswith('ug2 main decline') or zone_name.startswith('ug2 south'):
                         ug2south_zone = zone
                         break
             if ug2south_zone:
-                y = ug2south_zone.get('y', 1320) + 10
+                y = ug2south_zone.get('y', 930) + 10
             else:
-                y = 1330
+                y = 940
             self.canvas.create_text(50, y, text=ug2south_title, font=('Segoe UI', 14, 'bold'),
                                    fill='#2c3e50', anchor='nw')
 
@@ -1595,7 +1602,7 @@ class DetailedNetworkFlowDiagram:
             dialog.destroy()
         
         # Buttons
-        btn_frame = tk.Frame(dialog, bg='#ecf0f1')
+        btn_frame = tk.Frame(dialog, bg='#e8eef5')
         btn_frame.pack(fill='x', pady=15, padx=10)
         
         tk.Button(btn_frame, text="✅ Create", command=create_component,
@@ -1635,10 +1642,10 @@ class DetailedNetworkFlowDiagram:
         tk.Label(header, text="✏️ Edit Component Properties",
                  font=('Segoe UI', 14, 'bold'), bg='#3498db', fg='white').pack(pady=18)
         
-        info_frame = tk.Frame(dialog, bg='#ecf0f1')
+        info_frame = tk.Frame(dialog, bg='#e8eef5')
         info_frame.pack(fill='x', pady=5)
         tk.Label(info_frame, text=f"Component ID: {self.selected_node}",
-                 font=('Segoe UI', 9, 'italic'), fg='#7f8c8d', bg='#ecf0f1').pack()
+                 font=('Segoe UI', 9, 'italic'), fg='#7f8c8d', bg='#e8eef5').pack()
         
         # Form frame with white background
         form = tk.Frame(dialog, bg='white', padx=25, pady=20)
@@ -1791,7 +1798,7 @@ class DetailedNetworkFlowDiagram:
             dialog.destroy()
         
         # Buttons
-        btn_frame = tk.Frame(dialog, bg='#ecf0f1')
+        btn_frame = tk.Frame(dialog, bg='#e8eef5')
         btn_frame.pack(fill='x', pady=15, padx=10)
         
         tk.Button(btn_frame, text="💾 Save Changes", command=save_changes,
@@ -1910,7 +1917,7 @@ class DetailedNetworkFlowDiagram:
         edge_index_map = []
         for area in sorted(edges_by_area.keys()):
             listbox.insert(tk.END, f"")
-            listbox.itemconfig(tk.END, bg='#ecf0f1')
+            listbox.itemconfig(tk.END, bg='#e8eef5')
             edge_index_map.append(None)
             
             listbox.insert(tk.END, f"━━━ {area} ━━━")
@@ -2087,7 +2094,7 @@ class DetailedNetworkFlowDiagram:
         edge_index_map = []
         for area in sorted(edges_by_area.keys()):
             listbox.insert(tk.END, f"")
-            listbox.itemconfig(tk.END, bg='#ecf0f1')
+            listbox.itemconfig(tk.END, bg='#e8eef5')
             edge_index_map.append(None)
             
             listbox.insert(tk.END, f"━━━ {area} ━━━")
@@ -2125,7 +2132,7 @@ class DetailedNetworkFlowDiagram:
             selected_indices[:] = sorted(set(chosen_edges))
             dialog.destroy()
         
-        btn_frame = tk.Frame(dialog, bg='#ecf0f1')
+        btn_frame = tk.Frame(dialog, bg='#e8eef5')
         btn_frame.pack(fill='x', pady=15, padx=10)
         
         tk.Button(btn_frame, text="🗑️ Delete Selected", command=on_delete,
@@ -2191,10 +2198,10 @@ class DetailedNetworkFlowDiagram:
         main_frame.pack(fill='both', expand=True, padx=10, pady=10)
         
         # Component info
-        info_frame = tk.Frame(main_frame, bg='#ecf0f1', pady=12)
+        info_frame = tk.Frame(main_frame, bg='#e8eef5', pady=12)
         info_frame.pack(fill='x', padx=0, pady=(0,10))
         tk.Label(info_frame, text=f"Component: {self._format_node_name(component_id)}", 
-                font=('Segoe UI', 10, 'bold'), bg='#ecf0f1', fg='#2c3e50').pack(anchor='w', padx=10)
+                font=('Segoe UI', 10, 'bold'), bg='#e8eef5', fg='#2c3e50').pack(anchor='w', padx=10)
         
         # Flow type with more space
         flow_frame = tk.Frame(main_frame)
@@ -2220,7 +2227,7 @@ class DetailedNetworkFlowDiagram:
         for label, value in types:
             tk.Radiobutton(flow_frame, text=label, variable=type_var, value=value,
                           font=('Segoe UI', 10), anchor='w', selectcolor='#16a085',
-                          activebackground='#ecf0f1').pack(anchor='w', padx=15, pady=6)
+                          activebackground='#e8eef5').pack(anchor='w', padx=15, pady=6)
         
         # Volume section
         vol_frame = tk.Frame(main_frame)
@@ -2381,7 +2388,7 @@ class DetailedNetworkFlowDiagram:
 
         # Component info (read-only)
         tk.Label(form, text="Component:", font=('Segoe UI', 10, 'bold'), bg='white').grid(row=0, column=0, sticky='w', pady=8)
-        tk.Label(form, text=self._format_node_name(edge['from']), font=('Segoe UI', 10), bg='#ecf0f1',
+        tk.Label(form, text=self._format_node_name(edge['from']), font=('Segoe UI', 10), bg='#e8eef5',
                  relief='sunken', padx=10, pady=5).grid(row=0, column=1, pady=8, sticky='ew')
 
         # Flow type
@@ -2457,7 +2464,7 @@ class DetailedNetworkFlowDiagram:
             messagebox.showinfo("Updated", f"Recirculation loop updated for {self._format_node_name(edge['from'])}")
 
         # Buttons
-        btn_frame = tk.Frame(dialog, bg='#ecf0f1')
+        btn_frame = tk.Frame(dialog, bg='#e8eef5')
         btn_frame.pack(fill='x', pady=15, padx=10)
         tk.Button(btn_frame, text="💾 Save Changes", command=on_save,
                   bg='#27ae60', fg='white', font=('Segoe UI', 11, 'bold'),
@@ -2734,6 +2741,10 @@ class DetailedNetworkFlowDiagram:
                 # Check if this is a recirculation rectangle (not a regular label)
                 edges = self.area_data.get('edges', [])
                 if edge_idx < len(edges) and edges[edge_idx].get('is_recirculation', False):
+                    # Mark this recirculation as selected for lock toggle
+                    self._selected_recirculation_idx = edge_idx
+                    self.selected_node = None  # Clear node selection
+                    
                     # Check if recirculation is locked
                     is_locked = self.recirculation_locked.get(edge_idx, False)
                     if is_locked:
@@ -2759,6 +2770,7 @@ class DetailedNetworkFlowDiagram:
         clicked_node = self._get_node_at(canvas_x, canvas_y)
         if clicked_node:
             self.selected_node = clicked_node
+            self._selected_recirculation_idx = None  # Clear recirculation selection
             self.dragging = True
             self.drag_start_x = canvas_x
             self.drag_start_y = canvas_y
@@ -2958,7 +2970,7 @@ class DetailedNetworkFlowDiagram:
         
         # Menu title
         menu.add_command(label=f"📍 {node_label}", state='disabled',
-                        background='#ecf0f1', foreground='#2c3e50')
+                        background='#e8eef5', foreground='#2c3e50')
         menu.add_separator()
         
         # Edit component
@@ -2994,7 +3006,7 @@ class DetailedNetworkFlowDiagram:
         
         # Menu title
         menu.add_command(label=f"📍 Canvas Position: ({int(canvas_x)}, {int(canvas_y)})", 
-                        state='disabled', background='#ecf0f1', foreground='#2c3e50')
+                        state='disabled', background='#e8eef5', foreground='#2c3e50')
         menu.add_separator()
         
         # Add component at this location
@@ -3026,7 +3038,7 @@ class DetailedNetworkFlowDiagram:
         # Position info (display only)
         tk.Label(form, text="Position:", font=('Segoe UI', 10, 'bold'), bg='white').grid(row=0, column=0, sticky='w', pady=8)
         position_text = f"X: {int(x)}, Y: {int(y)}"
-        tk.Label(form, text=position_text, font=('Segoe UI', 10), bg='#ecf0f1', relief='sunken', 
+        tk.Label(form, text=position_text, font=('Segoe UI', 10), bg='#e8eef5', relief='sunken', 
                  padx=10, pady=5).grid(row=0, column=1, pady=8, padx=5, sticky='ew')
         
         # Auto-generate unique component ID
@@ -3234,7 +3246,7 @@ class DetailedNetworkFlowDiagram:
             dialog.destroy()
         
         # Buttons
-        btn_frame = tk.Frame(dialog, bg='#ecf0f1')
+        btn_frame = tk.Frame(dialog, bg='#e8eef5')
         btn_frame.pack(fill='x', pady=15, padx=10)
         
         tk.Button(btn_frame, text="✅ Create", command=create_component,
@@ -3347,18 +3359,18 @@ class DetailedNetworkFlowDiagram:
         header.pack(fill='x')
         
         # Connection info (fixed)
-        info_frame = tk.Frame(dialog, bg='#ecf0f1', pady=10)
+        info_frame = tk.Frame(dialog, bg='#e8eef5', pady=10)
         info_frame.pack(fill='x', padx=10, pady=10)
         
         tk.Label(info_frame, text=f"From:", font=('Segoe UI', 9, 'bold'), 
-                bg='#ecf0f1').pack(anchor='w', padx=10)
+                bg='#e8eef5').pack(anchor='w', padx=10)
         tk.Label(info_frame, text=from_id, font=('Segoe UI', 10), 
-                bg='#ecf0f1', fg='#2c3e50').pack(anchor='w', padx=20)
+                bg='#e8eef5', fg='#2c3e50').pack(anchor='w', padx=20)
         
         tk.Label(info_frame, text=f"To:", font=('Segoe UI', 9, 'bold'), 
-                bg='#ecf0f1').pack(anchor='w', padx=10, pady=(5,0))
+                bg='#e8eef5').pack(anchor='w', padx=10, pady=(5,0))
         tk.Label(info_frame, text=to_id, font=('Segoe UI', 10), 
-                bg='#ecf0f1', fg='#2c3e50').pack(anchor='w', padx=20)
+                bg='#e8eef5', fg='#2c3e50').pack(anchor='w', padx=20)
         
         # Flow type selection label
         tk.Label(dialog, text="Select Flow Type:", 
@@ -3406,7 +3418,7 @@ class DetailedNetworkFlowDiagram:
             
             rb = tk.Radiobutton(frame, text=label, variable=selected_type, value=value,
                                font=('Segoe UI', 10, 'bold'), bg='white', 
-                               activebackground='#ecf0f1')
+                               activebackground='#e8eef5')
             rb.pack(anchor='w', padx=5, pady=2)
             
             desc_label = tk.Label(frame, text=desc, font=('Segoe UI', 8), 
@@ -3475,15 +3487,15 @@ class DetailedNetworkFlowDiagram:
         header.pack(fill='x')
         
         # Connection info
-        info_frame = tk.Frame(dialog, bg='#ecf0f1', pady=15)
+        info_frame = tk.Frame(dialog, bg='#e8eef5', pady=15)
         info_frame.pack(fill='x', padx=10, pady=10)
         
         tk.Label(info_frame, text=f"From: {from_id}", font=('Segoe UI', 9), 
-                bg='#ecf0f1').pack(anchor='w', padx=10)
+                bg='#e8eef5').pack(anchor='w', padx=10)
         tk.Label(info_frame, text=f"To: {to_id}", font=('Segoe UI', 9), 
-                bg='#ecf0f1').pack(anchor='w', padx=10)
+                bg='#e8eef5').pack(anchor='w', padx=10)
         tk.Label(info_frame, text=f"Type: {flow_type.title()}", font=('Segoe UI', 9, 'bold'), 
-                bg='#ecf0f1', fg='#2980b9').pack(anchor='w', padx=10, pady=(5,0))
+                bg='#e8eef5', fg='#2980b9').pack(anchor='w', padx=10, pady=(5,0))
         
         # Volume input
         input_frame = tk.Frame(dialog)
@@ -3658,6 +3670,512 @@ class DetailedNetworkFlowDiagram:
                 return self.node_items[item]
         return None
 
+    def _edit_flow_unified(self):
+        """Unified flow editor - handles all flow types including recirculation."""
+        # Check if a flow line is selected
+        if hasattr(self, 'selected_edge') and self.selected_edge:
+            # Direct edit of selected flow
+            self._edit_line()
+        else:
+            # Show picker dialog
+            self._edit_line()
+    
+    def _open_excel_setup_unified(self):
+        """Improved Excel setup with smart workflow."""
+        dialog = self._create_styled_dialog("Excel Connection Setup", 950, 750)
+        
+        # Header
+        header = tk.Frame(dialog, bg='#e67e22', height=60)
+        header.pack(fill='x')
+        header.pack_propagate(False)
+        tk.Label(header, text="🔧 Excel Connection Setup",
+                 font=('Segoe UI', 14, 'bold'), bg='#e67e22', fg='white').pack(pady=18)
+        
+        # Content
+        content = tk.Frame(dialog, bg='white')
+        content.pack(fill='both', expand=True, padx=20, pady=20)
+        
+        # Instructions
+        tk.Label(content, text="Connect your flow diagram to Excel data columns",
+                 font=('Segoe UI', 11), bg='white', fg='#2c3e50').pack(pady=(0,10))
+        
+        # Status Panel - shows current mapping status
+        status_frame = tk.Frame(content, bg='#e8eef5', relief='solid', borderwidth=1)
+        status_frame.pack(fill='x', pady=(0, 20), padx=5)
+        
+        status_inner = tk.Frame(status_frame, bg='#e8eef5')
+        status_inner.pack(fill='both', padx=15, pady=12)
+        
+        # Calculate current status
+        edges = self.area_data.get('edges', [])
+        total_flows = len(edges)
+        mapped_flows = sum(1 for e in edges if e.get('excel_mapping', {}).get('enabled') and 
+                          e.get('excel_mapping', {}).get('sheet') and 
+                          e.get('excel_mapping', {}).get('column'))
+        unmapped_flows = total_flows - mapped_flows
+        
+        tk.Label(status_inner, text="Current Status:", font=('Segoe UI', 10, 'bold'),
+                bg='#e8eef5', fg='#2c3e50').pack(anchor='w')
+        
+        stats_text = f"✅ {mapped_flows} flows connected  •  ⚠️ {unmapped_flows} flows need attention  •  📊 {total_flows} total flows"
+        tk.Label(status_inner, text=stats_text, font=('Segoe UI', 9),
+                bg='#e8eef5', fg='#34495e').pack(anchor='w', pady=(4, 0))
+        
+        # Action buttons with improved workflow
+        btn_frame = tk.Frame(content, bg='white')
+        btn_frame.pack(fill='x', pady=10)
+        
+        def smart_auto_map():
+            """Auto-map with preview and confirmation."""
+            # Show preview first
+            preview_msg = (
+                "This will automatically connect flows to Excel columns by:\n\n"
+                "1. Matching flow names to column headers\n"
+                "2. Using column aliases for renamed headers\n"
+                "3. Applying intelligent pattern matching\n\n"
+                "Current status:\n"
+                f"• {unmapped_flows} flows need mapping\n"
+                f"• {mapped_flows} flows already connected\n\n"
+                "Continue with auto-mapping?"
+            )
+            
+            if not messagebox.askyesno("Smart Auto-Map", preview_msg, icon='question'):
+                return
+            
+            # Perform auto-map
+            self._auto_map_excel_mappings()
+            
+            # Close dialog and show success
+            dialog.destroy()
+            messagebox.showinfo("Success", "Excel mappings have been automatically configured!\n\nUse 'Quick Fix' to handle any remaining unmapped flows.")
+        
+        def quick_fix_unmapped():
+            """Show only unmapped flows for quick resolution."""
+            dialog.destroy()
+            self._open_quick_fix_dialog()
+        
+        # Primary action: Smart Auto-Map (recommended for most users)
+        if unmapped_flows > 0:
+            primary_color = '#27ae60'
+            primary_text = f"🧭 Smart Auto-Map ({unmapped_flows} flows)"
+            primary_desc = f"Automatically connect {unmapped_flows} unmapped flows to Excel columns"
+        else:
+            primary_color = '#16a085'
+            primary_text = "🧭 Smart Auto-Map (All Connected)"
+            primary_desc = "Re-run auto-mapping to refresh all connections"
+        
+        tk.Button(btn_frame, text=primary_text,
+                  command=smart_auto_map,
+                  bg=primary_color, fg='white', font=('Segoe UI', 11, 'bold'),
+                  padx=20, pady=14, cursor='hand2', relief='flat').pack(pady=5, fill='x')
+        
+        tk.Label(btn_frame, text=primary_desc,
+                 font=('Segoe UI', 9), bg='white', fg='#7f8c8d').pack(pady=(0,15))
+        
+        # Secondary action: Quick Fix (for problem flows)
+        if unmapped_flows > 0:
+            fix_color = '#e67e22'
+            fix_text = f"⚡ Quick Fix ({unmapped_flows} unmapped)"
+            fix_desc = "Manually connect flows that couldn't be auto-mapped"
+        else:
+            fix_color = '#95a5a6'
+            fix_text = "⚡ Quick Fix (Nothing to Fix)"
+            fix_desc = "All flows are already connected"
+        
+        quick_fix_btn = tk.Button(btn_frame, text=fix_text,
+                  command=quick_fix_unmapped,
+                  bg=fix_color, fg='white', font=('Segoe UI', 10),
+                  padx=20, pady=12, cursor='hand2', relief='flat',
+                  state='normal' if unmapped_flows > 0 else 'disabled')
+        quick_fix_btn.pack(pady=5, fill='x')
+        
+        tk.Label(btn_frame, text=fix_desc,
+                 font=('Segoe UI', 9), bg='white', fg='#7f8c8d').pack(pady=(0,15))
+        
+        # Excel Column Management section
+        manage_frame = tk.Frame(content, bg='#f5f6f7', relief='solid', borderwidth=1)
+        manage_frame.pack(fill='x', pady=(0, 15), padx=5)
+        
+        manage_inner = tk.Frame(manage_frame, bg='#f5f6f7')
+        manage_inner.pack(fill='both', padx=15, pady=12)
+        
+        tk.Label(manage_inner, text="📝 Excel Column Management:",
+                font=('Segoe UI', 9, 'bold'), bg='#f5f6f7', fg='#34495e').pack(anchor='w')
+        
+        tk.Label(manage_inner, text="Add, rename, or delete Excel columns to match your flow diagram",
+                font=('Segoe UI', 8), bg='#f5f6f7', fg='#7f8c8d').pack(anchor='w', pady=(2, 8))
+        
+        # Button row for column operations
+        col_btn_row = tk.Frame(manage_inner, bg='#f5f6f7')
+        col_btn_row.pack(fill='x')
+        
+        def open_column_manager():
+            """Open the full column manager."""
+            dialog.destroy()
+            self._open_mapping_editor()
+        
+        tk.Button(col_btn_row, text="🔗 Manage Columns",
+                 command=open_column_manager,
+                 bg='#3498db', fg='white', font=('Segoe UI', 9),
+                 padx=15, pady=8, cursor='hand2', relief='flat').pack(side='left')
+        
+        tk.Label(col_btn_row, text="Add, rename, delete, or link Excel columns",
+                font=('Segoe UI', 8), bg='#f5f6f7', fg='#7f8c8d').pack(side='left', padx=(10, 0))
+        
+        # Help text
+        help_frame = tk.Frame(content, bg='#e8f4f8', relief='solid', borderwidth=1)
+        help_frame.pack(fill='x', pady=(10, 15), padx=5)
+        
+        help_inner = tk.Frame(help_frame, bg='#e8f4f8')
+        help_inner.pack(fill='both', padx=15, pady=10)
+        
+        tk.Label(help_inner, text="💡 Quick Guide:",
+                font=('Segoe UI', 9, 'bold'), bg='#e8f4f8', fg='#2980b9').pack(anchor='w')
+        
+        guide_text = (
+            "• New users: Start with 'Smart Auto-Map' to automatically connect everything\n"
+            "• If some flows don't auto-map: Use 'Quick Fix' to manually connect them"
+        )
+        tk.Label(help_inner, text=guide_text, font=('Segoe UI', 8),
+                bg='#e8f4f8', fg='#34495e', justify='left').pack(anchor='w', pady=(4, 0))
+        
+        # Close button
+        tk.Button(content, text="Close", command=dialog.destroy,
+                  bg='#7f8c8d', fg='white', font=('Segoe UI', 10),
+                  padx=30, pady=8, cursor='hand2', relief='flat').pack()
+
+    def _open_quick_fix_dialog(self):
+        """Streamlined dialog to fix only unmapped flows."""
+        edges = self.area_data.get('edges', [])
+        
+        # Find unmapped flows
+        unmapped = []
+        for idx, edge in enumerate(edges):
+            mapping = edge.get('excel_mapping', {}) or {}
+            if not mapping.get('enabled') or not mapping.get('sheet') or not mapping.get('column'):
+                unmapped.append((idx, edge))
+        
+        if not unmapped:
+            messagebox.showinfo("All Connected", "✅ All flows are already connected to Excel columns!\n\nNothing to fix.")
+            return
+        
+        dialog = self._create_styled_dialog("Quick Fix - Unmapped Flows", 900, 650)
+        
+        # Header
+        header = tk.Frame(dialog, bg='#e67e22', height=60)
+        header.pack(fill='x')
+        header.pack_propagate(False)
+        tk.Label(header, text=f"⚡ Quick Fix - {len(unmapped)} Unmapped Flows",
+                 font=('Segoe UI', 14, 'bold'), bg='#e67e22', fg='white').pack(pady=18)
+        
+        # Content
+        content = tk.Frame(dialog, bg='white')
+        content.pack(fill='both', expand=True, padx=20, pady=20)
+        
+        # Instructions
+        instruction_text = (
+            "These flows need to be connected to Excel columns. "
+            "Select a flow, choose its sheet and column, then click 'Apply'."
+        )
+        tk.Label(content, text=instruction_text,
+                 font=('Segoe UI', 10), bg='white', fg='#2c3e50', wraplength=850).pack(pady=(0,15))
+        
+        # Get available sheets and columns
+        registry = get_excel_mapping_registry()
+        loader = get_flow_volume_loader()
+        
+        try:
+            loader.clear_cache()
+        except Exception:
+            pass
+        
+        available_sheets = set(loader.list_sheets())
+        flow_sheets = sorted([s for s in available_sheets if s.startswith('Flows_')])
+        if not flow_sheets:
+            flow_sheets = [
+                'Flows_UG2 North', 'Flows_Merensky North', 'Flows_Merensky South', 'Flows_Merensky Plant',
+                'Flows_UG2 Main', 'Flows_UG2 Plant', 'Flows_Old TSF', 'Flows_Stockpile'
+            ]
+        
+        sheet_columns = {}
+        for sheet in flow_sheets:
+            try:
+                cols = loader.list_sheet_columns(sheet)
+                sheet_columns[sheet] = [str(c).strip() for c in cols]
+            except Exception:
+                sheet_columns[sheet] = []
+        
+        # Split into left (list) and right (editor)
+        main_split = tk.Frame(content, bg='white')
+        main_split.pack(fill='both', expand=True)
+        
+        # Left panel - unmapped flows list
+        left_panel = tk.Frame(main_split, bg='white', width=400)
+        left_panel.pack(side='left', fill='both', expand=True, padx=(0, 10))
+        
+        tk.Label(left_panel, text="Unmapped Flows:", font=('Segoe UI', 10, 'bold'),
+                bg='white', fg='#2c3e50').pack(anchor='w', pady=(0, 5))
+        
+        # Listbox with scrollbar
+        list_frame = tk.Frame(left_panel, bg='white')
+        list_frame.pack(fill='both', expand=True)
+        
+        scrollbar = tk.Scrollbar(list_frame)
+        scrollbar.pack(side='right', fill='y')
+        
+        flow_listbox = tk.Listbox(list_frame, yscrollcommand=scrollbar.set,
+                                  font=('Consolas', 9), selectmode='single',
+                                  bg='#f5f6f7', relief='solid', borderwidth=1)
+        flow_listbox.pack(side='left', fill='both', expand=True)
+        scrollbar.config(command=flow_listbox.yview)
+        
+        # Populate listbox
+        for idx, edge in unmapped:
+            from_name = self._format_node_name(edge.get('from', ''))
+            to_name = self._format_node_name(edge.get('to', ''))
+            flow_listbox.insert('end', f"{idx:03d} | {from_name} → {to_name}")
+        
+        # Right panel - mapping editor
+        right_panel = tk.Frame(main_split, bg='#f5f6f7', relief='solid', borderwidth=1)
+        right_panel.pack(side='right', fill='both', expand=True)
+        
+        right_inner = tk.Frame(right_panel, bg='#f5f6f7')
+        right_inner.pack(fill='both', expand=True, padx=15, pady=15)
+        
+        tk.Label(right_inner, text="Selected Flow:", font=('Segoe UI', 10, 'bold'),
+                bg='#f5f6f7', fg='#2c3e50').pack(anchor='w', pady=(0, 5))
+        
+        flow_detail_var = tk.StringVar(value="Select a flow from the list")
+        tk.Label(right_inner, textvariable=flow_detail_var, font=('Segoe UI', 9),
+                bg='#f5f6f7', fg='#34495e', wraplength=400, justify='left').pack(anchor='w', pady=(0, 15))
+        
+        # Sheet selector
+        tk.Label(right_inner, text="Excel Sheet:", font=('Segoe UI', 9, 'bold'),
+                bg='#f5f6f7', fg='#2c3e50').pack(anchor='w', pady=(10, 2))
+        
+        sheet_var = tk.StringVar()
+        sheet_combo = ttk.Combobox(right_inner, textvariable=sheet_var,
+                                   values=sorted(sheet_columns.keys()), state='readonly',
+                                   width=40, font=('Segoe UI', 9))
+        sheet_combo.pack(anchor='w', fill='x', pady=(0, 10))
+        
+        # Column selector
+        tk.Label(right_inner, text="Excel Column:", font=('Segoe UI', 9, 'bold'),
+                bg='#f5f6f7', fg='#2c3e50').pack(anchor='w', pady=(10, 2))
+        
+        column_var = tk.StringVar()
+        column_combo = ttk.Combobox(right_inner, textvariable=column_var,
+                                    width=40, font=('Segoe UI', 9))
+        column_combo.pack(anchor='w', fill='x', pady=(0, 15))
+        
+        # Preview
+        preview_var = tk.StringVar(value="Select sheet and column to preview")
+        preview_label = tk.Label(right_inner, textvariable=preview_var,
+                                font=('Segoe UI', 8, 'italic'), bg='#f5f6f7',
+                                fg='#7f8c8d', wraplength=400, justify='left')
+        preview_label.pack(anchor='w', pady=(0, 15))
+        
+        # Status
+        status_var = tk.StringVar(value="")
+        status_label = tk.Label(right_inner, textvariable=status_var,
+                               font=('Segoe UI', 9, 'bold'), bg='#f5f6f7',
+                               fg='#27ae60', wraplength=400, justify='left')
+        status_label.pack(anchor='w', pady=(10, 0))
+        
+        # Track current selection
+        current_selection = {'idx': None, 'edge': None}
+        fixed_count = [0]  # Use list to allow modification in nested function
+        
+        def update_columns(*_):
+            """Update column dropdown when sheet changes."""
+            selected_sheet = sheet_var.get()
+            cols = sheet_columns.get(selected_sheet, [])
+            column_combo['values'] = cols
+            if cols:
+                column_var.set('')  # Reset selection
+        
+        def update_preview(*_):
+            """Update preview text."""
+            sheet = sheet_var.get()
+            col = column_var.get()
+            if sheet and col:
+                preview_var.set(f"✓ Will connect to: {sheet} → {col}")
+            elif sheet:
+                preview_var.set(f"Sheet selected: {sheet} (choose a column)")
+            else:
+                preview_var.set("Select sheet and column to preview")
+        
+        def on_flow_select(event):
+            """Handle flow selection from list."""
+            selection = flow_listbox.curselection()
+            if not selection:
+                return
+            
+            idx = selection[0]
+            edge_idx, edge = unmapped[idx]
+            current_selection['idx'] = edge_idx
+            current_selection['edge'] = edge
+            
+            from_name = self._format_node_name(edge.get('from', ''))
+            to_name = self._format_node_name(edge.get('to', ''))
+            flow_detail_var.set(f"Flow: {from_name} → {to_name}\nIndex: {edge_idx}")
+            
+            # Try to pre-fill sheet based on source node
+            mapping = edge.get('excel_mapping', {}) or {}
+            if mapping.get('sheet'):
+                sheet_var.set(mapping['sheet'])
+            else:
+                # Infer sheet from from_id
+                from_id = edge.get('from', '').lower()
+                for area_key, sheet_name in [
+                    ('ug2n', 'Flows_UG2 North'),
+                    ('mern', 'Flows_Merensky North'),
+                    ('mers', 'Flows_Merensky South'),
+                    ('merplant', 'Flows_Merensky Plant'),
+                    ('ug2s', 'Flows_UG2 Main'),
+                    ('ug2plant', 'Flows_UG2 Plant'),
+                    ('oldtsf', 'Flows_Old TSF'),
+                    ('stockpile', 'Flows_Stockpile')
+                ]:
+                    if area_key in from_id:
+                        sheet_var.set(sheet_name)
+                        break
+            
+            if mapping.get('column'):
+                column_var.set(mapping['column'])
+            else:
+                column_var.set('')
+            
+            status_var.set("")
+        
+        def apply_mapping():
+            """Apply the selected mapping to the current flow."""
+            if not current_selection['edge']:
+                messagebox.showwarning("No Selection", "Please select a flow from the list first.")
+                return
+            
+            sheet = sheet_var.get()
+            col = column_var.get()
+            
+            if not sheet or not col:
+                messagebox.showwarning("Incomplete", "Please select both sheet and column.")
+                return
+            
+            # Validate column exists in Excel
+            available_cols = sheet_columns.get(sheet, [])
+            if col not in available_cols:
+                # Column doesn't exist - offer to create it
+                create_response = messagebox.askyesno(
+                    "Create Column?",
+                    f"Column '{col}' doesn't exist in sheet '{sheet}'.\n\n"
+                    "Would you like to create it automatically?"
+                )
+                
+                if create_response:
+                    try:
+                        # Create the column in Excel
+                        from openpyxl import load_workbook
+                        wb = load_workbook(loader.excel_path)
+                        ws = wb[sheet]
+                        
+                        # Append after the last header in row 3
+                        header_row = 3
+                        last_header_idx = 0
+                        for cell in ws[header_row]:
+                            val = cell.value
+                            if val is not None and str(val).strip():
+                                last_header_idx = cell.column
+                        
+                        target_col = (last_header_idx if last_header_idx > 0 else ws.max_column) + 1
+                        ws.cell(row=header_row, column=target_col, value=col)
+                        wb.save(loader.excel_path)
+                        wb.close()
+                        
+                        # Refresh column cache
+                        loader.clear_cache()
+                        cols = loader.list_sheet_columns(sheet)
+                        sheet_columns[sheet] = [str(c).strip() for c in cols]
+                        update_columns()
+                        
+                        logger.info(f"✅ Created column '{col}' in sheet '{sheet}'")
+                        status_var.set(f"✓ Column '{col}' created!")
+                    except Exception as e:
+                        messagebox.showerror("Error", f"Failed to create column:\n{e}")
+                        return
+                else:
+                    # User declined to create column
+                    messagebox.showinfo("Cancelled", "Mapping not saved. Please select or create a valid column.")
+                    return
+            
+            # Apply mapping
+            edge = current_selection['edge']
+            edge['excel_mapping'] = {
+                'enabled': True,
+                'sheet': sheet,
+                'column': col
+            }
+            
+            # Update registry
+            flow_id = self._flow_registry_id(edge)
+            registry.link_column_to_flow(flow_id, sheet, col)
+            
+            # Remove from unmapped list
+            current_idx = flow_listbox.curselection()[0]
+            flow_listbox.delete(current_idx)
+            unmapped.pop(current_idx)
+            fixed_count[0] += 1
+            
+            # Update status
+            status_var.set(f"✓ Connected! ({fixed_count[0]} fixed)")
+            
+            # Save to JSON
+            self._save_to_json()
+            
+            # Select next item if available
+            if unmapped:
+                next_idx = min(current_idx, len(unmapped) - 1)
+                flow_listbox.selection_set(next_idx)
+                on_flow_select(None)
+            else:
+                # All done!
+                dialog.destroy()
+                messagebox.showinfo("All Fixed!", f"✅ Successfully connected {fixed_count[0]} flows to Excel!\n\nAll flows are now mapped.")
+        
+        # Wire up events
+        sheet_var.trace_add('write', update_columns)
+        sheet_var.trace_add('write', update_preview)
+        column_var.trace_add('write', update_preview)
+        flow_listbox.bind('<<ListboxSelect>>', on_flow_select)
+        
+        # Action buttons at bottom
+        action_frame = tk.Frame(right_inner, bg='#f5f6f7')
+        action_frame.pack(fill='x', pady=(20, 0))
+        
+        tk.Button(action_frame, text="✓ Apply Mapping",
+                 command=apply_mapping,
+                 bg='#27ae60', fg='white', font=('Segoe UI', 10, 'bold'),
+                 padx=25, pady=10, cursor='hand2', relief='flat').pack(side='left', padx=(0, 10))
+        
+        tk.Button(action_frame, text="Skip This Flow",
+                 command=lambda: (flow_listbox.delete(flow_listbox.curselection()[0]) if flow_listbox.curselection() else None,
+                                 unmapped.pop(flow_listbox.curselection()[0]) if flow_listbox.curselection() else None),
+                 bg='#95a5a6', fg='white', font=('Segoe UI', 9),
+                 padx=15, pady=8, cursor='hand2', relief='flat').pack(side='left')
+        
+        # Bottom buttons
+        bottom_frame = tk.Frame(content, bg='white')
+        bottom_frame.pack(fill='x', pady=(15, 0))
+        
+        tk.Button(bottom_frame, text=f"Save & Close ({fixed_count[0]} fixed)",
+                 command=lambda: (self._save_to_json(), dialog.destroy()),
+                 bg='#3498db', fg='white', font=('Segoe UI', 10),
+                 padx=30, pady=10, cursor='hand2', relief='flat').pack(side='left', padx=(0, 10))
+        
+        tk.Button(bottom_frame, text="Cancel",
+                 command=dialog.destroy,
+                 bg='#7f8c8d', fg='white', font=('Segoe UI', 10),
+                 padx=30, pady=10, cursor='hand2', relief='flat').pack(side='left')
+
     def _save_to_json(self):
         """Save to JSON"""
         try:
@@ -3691,15 +4209,31 @@ class DetailedNetworkFlowDiagram:
         try:
             registry = get_excel_mapping_registry()
             loader = get_flow_volume_loader()
+            
+            # Map area codes to correct sheet names
             area_to_sheet = {
-                'ug2n': 'Flows_UG2N',
-                'mern': 'Flows_MERN',
-                'mers': 'Flows_MERS',
-                'merplant': 'Flows_MERP',  # Excel sheet uses MERP
-                'ug2s': 'Flows_UG2S',
-                'ug2plant': 'Flows_UG2P',  # Excel sheet uses UG2P
-                'oldtsf': 'Flows_OLDTSF',
-                'stockpile': 'Flows_STOCKPILE'
+                'ug2n': 'Flows_UG2 North',
+                'mern': 'Flows_Merensky North',
+                'mers': 'Flows_Merensky South',
+                'merplant': 'Flows_Merensky Plant',
+                'ug2s': 'Flows_UG2 Main',
+                'ug2plant': 'Flows_UG2 Plant',
+                'oldtsf': 'Flows_Old TSF',
+                'stockpile': 'Flows_Stockpile',
+                'newtsf': 'Flows_New TSF'
+            }
+            
+            # Map old abbreviated sheet names to correct names (for registry compatibility)
+            sheet_name_fixes = {
+                'Flows_OLDTSF': 'Flows_Old TSF',
+                'Flows_MERP': 'Flows_Merensky Plant',
+                'Flows_NEWTSF': 'Flows_New TSF',
+                'Flows_UG2P': 'Flows_UG2 Plant',
+                'Flows_UG2S': 'Flows_UG2 Main',
+                'Flows_MERS': 'Flows_Merensky South',
+                'Flows_UG2N': 'Flows_UG2 North',
+                'Flows_STOCKPILE': 'Flows_Stockpile1',
+                'Flows_Stockpile': 'Flows_Stockpile1'
             }
 
             updated = 0
@@ -3729,6 +4263,9 @@ class DetailedNetworkFlowDiagram:
                 if not sheet:
                     skipped += 1
                     continue
+                
+                # Fix abbreviated sheet names from old registry data
+                sheet = sheet_name_fixes.get(sheet, sheet)
 
                 # Load sheet columns via loader (cached)
                 df = loader._load_sheet(sheet)
@@ -3838,8 +4375,8 @@ class DetailedNetworkFlowDiagram:
         # Fallback to known area sheets only if workbook listing failed
         if not flow_sheets:
             flow_sheets = [
-                'Flows_UG2N', 'Flows_MERN', 'Flows_MERS', 'Flows_MERP',
-                'Flows_UG2S', 'Flows_UG2P', 'Flows_OLDTSF', 'Flows_STOCKPILE'
+                'Flows_UG2 North', 'Flows_Merensky North', 'Flows_Merensky South', 'Flows_Merensky Plant',
+                'Flows_UG2 Main', 'Flows_UG2 Plant', 'Flows_Old TSF', 'Flows_Stockpile'
             ]
 
         sheet_columns = {}
@@ -3909,13 +4446,13 @@ class DetailedNetworkFlowDiagram:
             form.pack(fill='x')
 
             ttk.Label(form, text="Sheet:").grid(row=0, column=0, sticky='w')
-            link_sheet_var = tk.StringVar()
+            link_sheet_var = tk.StringVar(master=form)
             sheet_combo = ttk.Combobox(form, textvariable=link_sheet_var,
                                       values=sorted(sheet_columns.keys()), state='readonly', width=26)
             sheet_combo.grid(row=0, column=1, sticky='we', padx=(8, 0))
 
             ttk.Label(form, text="Column:").grid(row=1, column=0, sticky='w', pady=(10, 0))
-            link_column_var = tk.StringVar()
+            link_column_var = tk.StringVar(master=form)
             column_combo = ttk.Combobox(form, textvariable=link_column_var, width=36)
             column_combo.grid(row=1, column=1, sticky='we', padx=(8, 0), pady=(10, 0))
 
@@ -3992,21 +4529,7 @@ class DetailedNetworkFlowDiagram:
                 row=4, column=0, sticky='w', pady=(12, 0)
             )
 
-        dialog = tk.Toplevel(self.canvas)
-        dialog.title("Edit Excel Mappings")
-        dialog.transient(self.canvas)
-        dialog.grab_set()
-        self._center_window(dialog, 900, 620)
-
-        header = ttk.Frame(dialog, padding=(12, 10, 12, 4))
-        header.pack(fill='x')
-        ttk.Label(header, text="Excel mapping editor", font=('Segoe UI', 11, 'bold')).pack(anchor='w')
-        ttk.Label(header, text="Double-click a flow to edit its sheet/column or toggle enable",
-                  font=('Segoe UI', 9)).pack(anchor='w', pady=(4, 0))
-        actions = ttk.Frame(header)
-        actions.pack(fill='x', pady=(6, 0))
-        
-        def _open_manual_mapper():
+        def _manual_mapper():
             """Interactive step-by-step column mapping with verification."""
             unmapped = []
             for idx, edge in enumerate(edges):
@@ -4036,9 +4559,9 @@ class DetailedNetworkFlowDiagram:
             # Header
             header_frame = ttk.Frame(mapper_win, padding=(12, 10, 12, 6))
             header_frame.pack(fill='x')
-            ttk.Label(header_frame, text="Manual Column Mapper - Step-by-Step Verification",
+            ttk.Label(header_frame, text="Manual Column Mapper — Step-by-Step Verification",
                       font=('Segoe UI', 11, 'bold')).pack(anchor='w')
-            ttk.Label(header_frame, text=f"Mapping {len(unmapped)} unmapped flows - verify each one before saving",
+            ttk.Label(header_frame, text=f"Showing {len(unmapped)} flows with missing/invalid Excel links — verify each before saving",
                       font=('Segoe UI', 9)).pack(anchor='w', pady=(4, 0))
             
             # Navigation
@@ -4056,9 +4579,9 @@ class DetailedNetworkFlowDiagram:
             info_panel = ttk.LabelFrame(content, text="Current Flow", padding=(12, 8))
             info_panel.pack(fill='x', pady=(0, 10))
             
-            flow_from_var = tk.StringVar()
-            flow_to_var = tk.StringVar()
-            flow_value_var = tk.StringVar()
+            flow_from_var = tk.StringVar(master=info_panel)
+            flow_to_var = tk.StringVar(master=info_panel)
+            flow_value_var = tk.StringVar(master=info_panel)
             ttk.Label(info_panel, text="From:").grid(row=0, column=0, sticky='w')
             ttk.Label(info_panel, textvariable=flow_from_var, font=('Segoe UI', 10, 'bold')).grid(row=0, column=1, sticky='w', padx=(8, 0))
             ttk.Label(info_panel, text="To:").grid(row=1, column=0, sticky='w', pady=(4, 0))
@@ -4071,13 +4594,13 @@ class DetailedNetworkFlowDiagram:
             map_panel.pack(fill='both', expand=True, pady=(0, 10))
             
             ttk.Label(map_panel, text="Sheet:").pack(anchor='w', pady=(0, 2))
-            mapper_sheet_var = tk.StringVar()
+            mapper_sheet_var = tk.StringVar(master=map_panel)
             mapper_sheet_combo = ttk.Combobox(map_panel, textvariable=mapper_sheet_var,
                                              values=sorted(sheet_columns.keys()), state='readonly', width=50)
             mapper_sheet_combo.pack(anchor='w', fill='x', pady=(0, 10))
             
             ttk.Label(map_panel, text="Column (from selected sheet):").pack(anchor='w', pady=(0, 2))
-            mapper_col_var = tk.StringVar()
+            mapper_col_var = tk.StringVar(master=map_panel)
             mapper_col_combo = ttk.Combobox(map_panel, textvariable=mapper_col_var, width=50)
             mapper_col_combo.pack(anchor='w', fill='x', pady=(0, 10))
             
@@ -4117,10 +4640,13 @@ class DetailedNetworkFlowDiagram:
                 idx_val, edge_ref, status = unmapped[curr]
                 from_id = edge_ref.get('from', '')
                 to_id = edge_ref.get('to', '')
+                # Use friendly names for display to avoid confusion
+                from_name = self._format_node_name(from_id)
+                to_name = self._format_node_name(to_id)
                 value = edge_ref.get('volume', '-')
                 
-                flow_from_var.set(from_id)
-                flow_to_var.set(to_id)
+                flow_from_var.set(from_name)
+                flow_to_var.set(to_name)
                 flow_value_var.set(str(value) if value not in ['-', None, ''] else '-')
                 progress_var.set(f"Flow {curr+1} of {len(unmapped)} ({status})")
                 
@@ -4199,30 +4725,165 @@ class DetailedNetworkFlowDiagram:
                       command=mapper_win.destroy, width=10).pack(side='right')
             
             _show_current()
+
+        dialog = tk.Toplevel(self.canvas)
+        dialog.title("💧 Excel Connection Manager")
+        dialog.transient(self.canvas)
+        dialog.grab_set()
+        self._center_window(dialog, 1100, 700)
+        dialog.configure(bg='#f5f7fa')
+
+        # Modern header with gradient-like effect
+        header = tk.Frame(dialog, bg='#2c3e50', height=80)
+        header.pack(fill='x')
+        header.pack_propagate(False)
         
-        def _open_edit_all_mappings():
-            """View and edit all flow mappings in a searchable table."""
+        header_inner = tk.Frame(header, bg='#2c3e50')
+        header_inner.pack(fill='both', expand=True, padx=20, pady=15)
+        
+        tk.Label(header_inner, text="💧 Excel Connection Manager", 
+                font=('Segoe UI', 16, 'bold'), bg='#2c3e50', fg='white').pack(anchor='w')
+        tk.Label(header_inner, text="Connect flow diagram elements to Excel data columns • Double-click to edit", 
+                font=('Segoe UI', 10), bg='#2c3e50', fg='#c5d3e6').pack(anchor='w', pady=(4, 0))
+
+        # Stats bar
+        stats_bar = tk.Frame(dialog, bg='#e8eef5', height=50)
+        stats_bar.pack(fill='x')
+        stats_bar.pack_propagate(False)
+        
+        stats_inner = tk.Frame(stats_bar, bg='#e8eef5')
+        stats_inner.pack(fill='x', padx=20, pady=10)
+        
+        # Count stats
+        total_flows = len(edges)
+        connected_flows = sum(1 for e in edges if e.get('excel_mapping', {}).get('enabled'))
+        unmapped_flows = total_flows - connected_flows
+        
+        # Create a single label that can be updated
+        stats_text = f"Total: {total_flows}  •  Connected: {connected_flows}  •  Unmapped: {unmapped_flows}"
+        stats_label = tk.Label(stats_inner, text=stats_text, bg='#e8eef5', 
+                              font=('Segoe UI', 10, 'bold'), fg='#34495e')
+        stats_label.pack(side='left')
+
+        # Action toolbar
+        toolbar = tk.Frame(dialog, bg='white', height=60)
+        toolbar.pack(fill='x', pady=(0, 0))
+        toolbar.pack_propagate(False)
+        
+        toolbar_inner = tk.Frame(toolbar, bg='white')
+        toolbar_inner.pack(fill='both', expand=True, padx=20, pady=10)
+        
+        # Left side: Quick actions
+        actions_left = tk.Frame(toolbar_inner, bg='white')
+        actions_left.pack(side='left', fill='y')
+        
+        # Styled buttons
+        btn_style = {
+            'font': ('Segoe UI', 9, 'bold'),
+            'cursor': 'hand2',
+            'relief': 'flat',
+            'bd': 0,
+            'pady': 8,
+            'padx': 15
+        }
+        
+        # Fix Invalid and Edit All buttons removed - streamlined to just Auto-Map and Quick Fix
+        # tk.Button(actions_left, text="⚠️ Fix Invalid", command=lambda: _open_edit_all_mappings(True),
+        #          bg='#3498db', fg='white', activebackground='#2980b9', activeforeground='white',
+        #          **btn_style).pack(side='left', padx=(0, 8))
+        # tk.Button(actions_left, text="📋 Edit All", command=lambda: _open_edit_all_mappings(False),
+        #          bg='#9b59b6', fg='white', activebackground='#8e44ad', activeforeground='white',
+        #          **btn_style).pack(side='left', padx=(0, 8))
+        
+        tk.Button(actions_left, text="🔗 Link Columns", command=lambda: _open_link_manager(),
+                 bg='#16a085', fg='white', activebackground='#138d75', activeforeground='white',
+                 **btn_style).pack(side='left', padx=(0, 8))
+        
+        tk.Button(actions_left, text="↻ Refresh", command=lambda: _refresh_headers(),
+                 bg='#34495e', fg='white', activebackground='#2c3e50', activeforeground='white',
+                 **btn_style).pack(side='left')
+        
+        # Right side: Search/Filter
+        search_frame = tk.Frame(toolbar_inner, bg='white')
+        search_frame.pack(side='right', fill='y')
+        
+        tk.Label(search_frame, text="🔍", font=('Segoe UI', 12), bg='white', fg='#7f8c8d').pack(side='left', padx=(0, 5))
+        
+        filter_var = tk.StringVar(master=search_frame)
+        filter_entry = tk.Entry(search_frame, textvariable=filter_var, 
+                               font=('Segoe UI', 10), width=30,
+                               bg='#e8eef5', fg='#2c3e50', relief='flat', bd=0)
+        filter_entry.pack(side='left', ipady=6, ipadx=10)
+        filter_entry.insert(0, "Search flows, sheets, or columns...")
+        filter_entry.config(fg='#95a5a6')
+        
+        def on_focus_in(e):
+            if filter_entry.get() == "Search flows, sheets, or columns...":
+                filter_var.set('')  # Clear the variable too
+                filter_entry.delete(0, 'end')
+                filter_entry.config(fg='#2c3e50')
+        
+        def on_focus_out(e):
+            if not filter_entry.get():
+                filter_var.set("Search flows, sheets, or columns...")  # Restore placeholder in variable
+                filter_entry.insert(0, "Search flows, sheets, or columns...")
+                filter_entry.config(fg='#95a5a6')
+        
+        filter_entry.bind('<FocusIn>', on_focus_in)
+        filter_entry.bind('<FocusOut>', on_focus_out)
+        
+        def _open_edit_all_mappings(invalid_only: bool = False):
+            """View and edit flow mappings in a searchable table.
+            Pass invalid_only=True to show only flows with missing/invalid Excel links.
+            """
             edit_win = tk.Toplevel(self.canvas)
             edit_win.title("Edit All Flow Mappings")
             edit_win.transient(self.canvas)
             edit_win.grab_set()
             self._center_window(edit_win, 1100, 700)
             
-            # Header
-            header = ttk.Frame(edit_win, padding=(12, 10, 12, 6))
+            # Header (consistent color block)
+            header = tk.Frame(edit_win, bg='#2c3e50', height=70)
             header.pack(fill='x')
-            ttk.Label(header, text="Edit All Flow Mappings - 152 Flows",
-                     font=('Segoe UI', 11, 'bold')).pack(anchor='w')
-            ttk.Label(header, text="Click a flow to edit its Excel mapping. Invalid mappings marked with ⚠️",
-                     font=('Segoe UI', 9)).pack(anchor='w', pady=(4, 0))
+            header.pack_propagate(False)
+            title_inner = tk.Frame(header, bg='#2c3e50')
+            title_inner.pack(fill='both', expand=True, padx=16, pady=12)
+            tk.Label(title_inner, text=f"💧 Edit All Flow Mappings — {len(edges)} Flows",
+                     font=('Segoe UI', 13, 'bold'), bg='#2c3e50', fg='white').pack(anchor='w')
+            tk.Label(title_inner, text="Click a flow to edit its Excel mapping. Invalid mappings marked with ⚠️",
+                     font=('Segoe UI', 9), bg='#2c3e50', fg='#e8eef5').pack(anchor='w')
+            
+            # Stats bar
+            stats_bar = tk.Frame(edit_win, bg='#e8eef5', height=45)
+            stats_bar.pack(fill='x')
+            stats_bar.pack_propagate(False)
+            stats_inner = tk.Frame(stats_bar, bg='#e8eef5')
+            stats_inner.pack(fill='x', padx=16, pady=10)
+            
+            # Calculate stats
+            total_flows = len(edges)
+            connected_flows = sum(1 for e in edges if e.get('excel_mapping', {}).get('enabled') and e.get('excel_mapping', {}).get('sheet') and e.get('excel_mapping', {}).get('column'))
+            unmapped_flows = total_flows - connected_flows
+            
+            tk.Label(stats_inner, text="✅", font=('Segoe UI', 11), bg='#e8eef5', fg='#27ae60').pack(side='left', padx=(0, 4))
+            tk.Label(stats_inner, text=f"{connected_flows} connected", font=('Segoe UI', 9, 'bold'), bg='#e8eef5', fg='#27ae60').pack(side='left', padx=(0, 12))
+            tk.Label(stats_inner, text="•", font=('Segoe UI', 9), bg='#e8eef5', fg='#7f8c8d').pack(side='left', padx=(0, 12))
+            tk.Label(stats_inner, text="⚠️", font=('Segoe UI', 11), bg='#e8eef5', fg='#e74c3c').pack(side='left', padx=(0, 4))
+            tk.Label(stats_inner, text=f"{unmapped_flows} need attention", font=('Segoe UI', 9, 'bold'), bg='#e8eef5', fg='#e74c3c').pack(side='left', padx=(0, 12))
+            tk.Label(stats_inner, text="•", font=('Segoe UI', 9), bg='#e8eef5', fg='#7f8c8d').pack(side='left', padx=(0, 12))
+            tk.Label(stats_inner, text="📊", font=('Segoe UI', 11), bg='#e8eef5', fg='#34495e').pack(side='left', padx=(0, 4))
+            tk.Label(stats_inner, text=f"{total_flows} total flows", font=('Segoe UI', 9, 'bold'), bg='#e8eef5', fg='#34495e').pack(side='left')
             
             # Search bar
             search_frame = ttk.Frame(header, padding=(0, 8, 0, 0))
             search_frame.pack(fill='x')
             ttk.Label(search_frame, text="Search:").pack(side='left')
-            search_var = tk.StringVar()
+            search_var = tk.StringVar(master=search_frame)
             search_entry = ttk.Entry(search_frame, textvariable=search_var, width=40)
             search_entry.pack(side='left', padx=(8, 0), fill='x', expand=True)
+            # Invalid-only toggle
+            invalid_only_var = tk.BooleanVar(value=invalid_only)
+            ttk.Checkbutton(search_frame, text="Show invalid/missing only", variable=invalid_only_var).pack(side='right')
             
             # Table frame
             table_frame = ttk.Frame(edit_win)
@@ -4256,14 +4917,19 @@ class DetailedNetworkFlowDiagram:
                 shown = 0
                 
                 for idx, edge in enumerate(edges):
-                    flow_id = f"{edge.get('from', '?')} → {edge.get('to', '?')}"
+                    # Show friendly names instead of internal IDs
+                    flow_id = f"{self._format_node_name(edge.get('from', '?'))} → {self._format_node_name(edge.get('to', '?'))}"
                     mapping = edge.get('excel_mapping', {}) or {}
                     sheet = mapping.get('sheet', '')
                     column = mapping.get('column', '')
                     volume = edge.get('volume', '-')
                     
-                    # Filter by search
-                    if search_term and search_term not in flow_id.lower() and search_term not in column.lower():
+                    # Filter by search (matches flow, sheet, or column)
+                    if search_term and (
+                        search_term not in flow_id.lower() and
+                        search_term not in str(sheet).lower() and
+                        search_term not in str(column).lower()
+                    ):
                         continue
                     
                     # Check if valid
@@ -4275,6 +4941,10 @@ class DetailedNetworkFlowDiagram:
                         if column not in cols:
                             is_valid = False
                     
+                    # Skip valid rows when invalid-only is enabled
+                    if invalid_only_var.get() and is_valid:
+                        continue
+
                     row = ttk.Frame(list_frame)
                     row.pack(fill='x', pady=1)
                     
@@ -4331,7 +5001,7 @@ class DetailedNetworkFlowDiagram:
                 # Flow info
                 info = ttk.Frame(edit_single_win, padding=(12, 10, 12, 6))
                 info.pack(fill='x')
-                flow_id = f"{edge.get('from', '?')} → {edge.get('to', '?')}"
+                flow_id = f"{self._format_node_name(edge.get('from', '?'))} → {self._format_node_name(edge.get('to', '?'))}"
                 flow_value = edge.get('volume', '-')
                 value_str = str(flow_value) if flow_value not in ['-', None, ''] else '-'
                 info_text = f"Flow: {flow_id}  |  Value: {value_str} m³"
@@ -4372,6 +5042,38 @@ class DetailedNetworkFlowDiagram:
                     if not sheet or not col:
                         messagebox.showwarning("Incomplete", "Select both sheet and column")
                         return
+                    # Validate presence and offer auto-create if missing
+                    cols = sheet_columns.get(sheet, [])
+                    if col not in cols:
+                        if not messagebox.askyesno("Column Missing",
+                                                    f"Column '{col}' not found in sheet '{sheet}'.\n\nCreate it on row 3 and continue?"):
+                            return
+                        try:
+                            excel_path = getattr(self.flow_loader, 'excel_path', None)
+                            if not excel_path or not Path(excel_path).exists():
+                                messagebox.showerror("Excel Not Found", f"Excel file not found:\n{excel_path}")
+                                return
+                            wb = load_workbook(excel_path)
+                            ws = wb[sheet]
+                            header_row = 3
+                            last_header_idx = 0
+                            for cell in ws[header_row]:
+                                val = cell.value
+                                if val is not None and str(val).strip():
+                                    last_header_idx = cell.column
+                            target_col = (last_header_idx if last_header_idx > 0 else ws.max_column) + 1
+                            ws.cell(row=header_row, column=target_col, value=col)
+                            wb.save(excel_path)
+                            wb.close()
+                            # Update caches
+                            sheet_columns[sheet] = cols + [col]
+                            try:
+                                self.flow_loader.clear_cache()
+                            except Exception:
+                                pass
+                        except Exception as ce:
+                            messagebox.showerror("Error", f"Failed to create column:\n{ce}")
+                            return
                     
                     # Update edge
                     edges[edge_idx]['excel_mapping'] = {
@@ -4401,12 +5103,10 @@ class DetailedNetworkFlowDiagram:
             # Initial populate
             _populate_list()
             
-            # Re-populate on search
+            # Re-populate on search/toggle
             search_var.trace_add('write', lambda *_: _populate_list())
+            invalid_only_var.trace_add('write', lambda *_: _populate_list())
         
-        ttk.Button(actions, text="[Manual Mapper]", command=_open_manual_mapper).pack(side='left', padx=(0, 8))
-        ttk.Button(actions, text="[Edit All Mappings]", command=_open_edit_all_mappings).pack(side='left', padx=(0, 8))
-        ttk.Button(actions, text="🔗 Link Columns to Flows", command=_open_link_manager).pack(side='left')
         def _refresh_headers():
             try:
                 from utils.flow_volume_loader import reset_flow_volume_loader
@@ -4426,65 +5126,120 @@ class DetailedNetworkFlowDiagram:
                     sheet_columns[sheet] = cols
                 else:
                     sheet_columns[sheet] = []
-            messagebox.showinfo("Headers Refreshed", "Reloaded Excel headers from workbook.")
-        ttk.Button(actions, text="🔄 Refresh Excel Headers", command=_refresh_headers).pack(side='left')
+            messagebox.showinfo("✅ Headers Refreshed", "Excel column headers reloaded successfully!")
+            _populate_rows()
+
+        # Main content area with modern table
+        content_frame = tk.Frame(dialog, bg='#f5f7fa')
+        content_frame.pack(fill='both', expand=True, padx=20, pady=(10, 15))
+
+        # Table container with shadow effect
+        table_container = tk.Frame(content_frame, bg='white', relief='flat', bd=0)
+        table_container.pack(fill='both', expand=True)
         
-        # Quick filter
-        filter_var = tk.StringVar()
-        ttk.Label(actions, text="Filter:").pack(side='left', padx=(8, 4))
-        filter_entry = ttk.Entry(actions, textvariable=filter_var, width=24)
-        filter_entry.pack(side='left')
+        # Modern styled treeview
+        style = ttk.Style()
+        style.theme_use('clam')
+        style.configure("Modern.Treeview",
+                       background="white",
+                       foreground="#2c3e50",
+                       rowheight=32,
+                       fieldbackground="white",
+                       borderwidth=0,
+                       font=('Segoe UI', 9))
+        style.map('Modern.Treeview',
+                 background=[('selected', '#3498db')])
+        style.configure("Modern.Treeview.Heading",
+                       background="#34495e",
+                       foreground="white",
+                       relief="flat",
+                       font=('Segoe UI', 10, 'bold'))
+        style.map("Modern.Treeview.Heading",
+                 background=[('active', '#2c3e50')])
 
-        list_frame = ttk.Frame(dialog, padding=(12, 6, 12, 6))
-        list_frame.pack(fill='both', expand=True)
+        columns = ('id', 'flow', 'sheet', 'column', 'enabled')
+        tree = ttk.Treeview(table_container, columns=columns, show='headings', 
+                          selectmode='browse', style="Modern.Treeview")
+        
+        tree.heading('id', text='#')
+        tree.heading('flow', text='Flow Connection')
+        tree.heading('sheet', text='Excel Sheet')
+        tree.heading('column', text='Excel Column')
+        tree.heading('enabled', text='Status')
+        
+        tree.column('id', width=50, anchor='center')
+        tree.column('flow', width=400, anchor='w')
+        tree.column('sheet', width=150, anchor='w')
+        tree.column('column', width=350, anchor='w')
+        tree.column('enabled', width=100, anchor='center')
 
-        columns = ('flow', 'sheet', 'column', 'enabled')
-        tree = ttk.Treeview(list_frame, columns=columns, show='headings', selectmode='browse')
-        tree.heading('flow', text='Flow')
-        tree.heading('sheet', text='Sheet')
-        tree.heading('column', text='Column')
-        tree.heading('enabled', text='Enabled')
-        tree.column('flow', width=360, anchor='w')
-        tree.column('sheet', width=120, anchor='w')
-        tree.column('column', width=260, anchor='w')
-        tree.column('enabled', width=80, anchor='center')
-
-        scrollbar = ttk.Scrollbar(list_frame, orient='vertical', command=tree.yview)
+        scrollbar = ttk.Scrollbar(table_container, orient='vertical', command=tree.yview)
         tree.configure(yscrollcommand=scrollbar.set)
         scrollbar.pack(side='right', fill='y')
         tree.pack(side='left', fill='both', expand=True)
 
-        tree.tag_configure('odd', background='#f7f9fb')
-        tree.tag_configure('even', background='#ffffff')
+        # Alternating row colors
+        tree.tag_configure('connected', background='#e8f8f5', foreground='#27ae60')
+        tree.tag_configure('disconnected', background='#fadbd8', foreground='#e74c3c')
+        tree.tag_configure('odd_connected', background='#d5f4e6', foreground='#27ae60')
+        tree.tag_configure('odd_disconnected', background='#f5b7b1', foreground='#c0392b')
 
         # Populate list
         def _populate_rows():
+            """Populate tree with flows and update stats."""
             tree.delete(*tree.get_children())
+            
+            total_flows = len(edges)
+            connected_flows = 0
+            unmapped_flows = 0
+            
             for idx, edge in enumerate(edges):
                 from_name = self._format_node_name(edge.get('from', ''))
                 to_name = self._format_node_name(edge.get('to', ''))
                 mapping = edge.get('excel_mapping', {}) or {}
                 sheet = mapping.get('sheet', '-')
                 column = mapping.get('column', '-')
-                enabled = 'Yes' if mapping.get('enabled') else 'No'
-                text = f"{idx:03d} | {from_name} → {to_name}"
-                # Apply filter if set
-                if filter_var.get():
-                    q = filter_var.get().lower()
-                    if q not in text.lower() and q not in str(sheet).lower() and q not in str(column).lower():
+                enabled = mapping.get('enabled', False)
+                
+                # Track stats
+                if sheet != '-' and column != '-' and enabled:
+                    connected_flows += 1
+                    status = '✅ Connected'
+                    tag = 'connected' if idx % 2 == 0 else 'odd_connected'
+                else:
+                    unmapped_flows += 1
+                    status = '❌ Disconnected'
+                    tag = 'disconnected' if idx % 2 == 0 else 'odd_disconnected'
+                
+                flow_text = f"{from_name} → {to_name}"
+                
+                # Apply filter if set (ignore placeholder text)
+                filter_text = filter_var.get()
+                if filter_text and filter_text != "Search flows, sheets, or columns...":
+                    q = filter_text.lower()
+                    if q not in flow_text.lower() and q not in str(sheet).lower() and q not in str(column).lower():
                         continue
-                tag = 'odd' if idx % 2 else 'even'
-                tree.insert('', 'end', iid=str(idx), values=(text, sheet, column, enabled), tags=(tag,))
+                
+                tree.insert('', 'end', iid=str(idx), 
+                          values=(f"{idx+1}", flow_text, sheet, column, status), 
+                          tags=(tag,))
+            
+            # Update stats in header
+            stats_label.config(text=f"Total: {total_flows}  •  Connected: {connected_flows}  •  Unmapped: {unmapped_flows}")
+        
         _populate_rows()
         
         def _on_filter_change(*_):
+            """Re-populate when filter changes."""
             _populate_rows()
+        
         filter_var.trace_add('write', _on_filter_change)
 
         def edit_selected(event=None):
+            """Edit a selected flow mapping with modern dialog."""
             selection = tree.selection()
             if not selection:
-                messagebox.showwarning("No Selection", "Please select a flow to edit")
+                messagebox.showwarning("⚠️ No Selection", "Please select a flow to edit")
                 return
             item_id = selection[0]
             idx = int(item_id)
@@ -4492,34 +5247,229 @@ class DetailedNetworkFlowDiagram:
             flow_id = self._flow_registry_id(edge)
 
             edit_win = tk.Toplevel(dialog)
-            edit_win.title("Edit Mapping")
-            self._center_window(edit_win, 520, 340)
+            edit_win.title("Edit Flow Mapping")
+            edit_win.configure(bg='#f5f7fa')
+            self._center_window(edit_win, 580, 520)
 
-            form = ttk.Frame(edit_win, padding=(16, 14, 16, 14))
-            form.pack(fill='both', expand=True)
+            # Header
+            header_frame = tk.Frame(edit_win, bg='#3498db', height=60)
+            header_frame.pack(fill='x')
+            header_frame.pack_propagate(False)
+            
+            tk.Label(header_frame, text="✏️ Edit Excel Mapping", 
+                    bg='#3498db', fg='white', 
+                    font=('Segoe UI', 12, 'bold')).pack(anchor='w', padx=20, pady=15)
 
-            ttk.Label(form, text=f"Flow: {edge.get('from')} → {edge.get('to')}",
-                      font=('Segoe UI', 10, 'bold')).pack(anchor='w', pady=(0, 8))
+            # Form container
+            form = tk.Frame(edit_win, bg='white', padx=25, pady=20)
+            form.pack(fill='both', expand=True, padx=20, pady=(15, 10))
 
-            # Enabled
+            # Flow info (read-only)
+            tk.Label(form, text="Flow Connection:", bg='white', fg='#7f8c8d',
+                    font=('Segoe UI', 9)).pack(anchor='w', pady=(0, 3))
+            flow_label = tk.Label(form, 
+                                 text=f"{edge.get('from')} → {edge.get('to')}", 
+                                 bg='#e8eef5', fg='#2c3e50',
+                                 font=('Segoe UI', 10, 'bold'),
+                                 anchor='w', padx=12, pady=8)
+            flow_label.pack(fill='x', pady=(0, 15))
+
+            # Enabled checkbox
             enabled_var = tk.BooleanVar(value=edge.get('excel_mapping', {}).get('enabled', False))
-            ttk.Checkbutton(form, text="Enable Excel mapping", variable=enabled_var).pack(anchor='w')
+            enabled_check = tk.Checkbutton(form, text="✅ Enable Excel mapping for this flow", 
+                                          variable=enabled_var, bg='white', 
+                                          font=('Segoe UI', 9, 'bold'),
+                                          fg='#27ae60', selectcolor='white',
+                                          activebackground='white', activeforeground='#27ae60')
+            enabled_check.pack(anchor='w', pady=(0, 15))
 
-            # Sheet
-            ttk.Label(form, text="Sheet:").pack(anchor='w', pady=(12, 2))
+            # Sheet selection
+            tk.Label(form, text="Excel Sheet:", bg='white', fg='#7f8c8d',
+                    font=('Segoe UI', 9)).pack(anchor='w', pady=(0, 3))
             sheet_var = tk.StringVar(value=edge.get('excel_mapping', {}).get('sheet', ''))
             sheet_combo = ttk.Combobox(form, textvariable=sheet_var,
-                                      values=sorted(sheet_columns.keys()), state='readonly')
-            sheet_combo.pack(anchor='w', fill='x')
+                                      values=sorted(sheet_columns.keys()), 
+                                      state='readonly', font=('Segoe UI', 10))
+            sheet_combo.pack(anchor='w', fill='x', pady=(0, 15))
 
-            # Column
-            ttk.Label(form, text="Column:").pack(anchor='w', pady=(12, 2))
+            # Column selection
+            tk.Label(form, text="Excel Column:", bg='white', fg='#7f8c8d',
+                    font=('Segoe UI', 9)).pack(anchor='w', pady=(0, 3))
+            
+            column_row = tk.Frame(form, bg='white')
+            column_row.pack(anchor='w', fill='x', pady=(0, 15))
+            
             column_var = tk.StringVar(value=edge.get('excel_mapping', {}).get('column', ''))
-            column_combo = ttk.Combobox(form, textvariable=column_var)
-            column_combo.pack(anchor='w', fill='x')
+            column_combo = ttk.Combobox(column_row, textvariable=column_var, font=('Segoe UI', 10))
+            column_combo.pack(side='left', fill='x', expand=True, padx=(0, 8))
+            
+            def rename_current_column():
+                """Rename the currently selected Excel column."""
+                current_sheet = sheet_var.get()
+                current_column = column_var.get()
+                
+                if not current_sheet:
+                    messagebox.showwarning("No Sheet", "Please select a sheet first")
+                    return
+                if not current_column or current_column == '-':
+                    messagebox.showwarning("No Column", "Please select a column to rename")
+                    return
+                if current_column in ['Date', 'Year', 'Month']:
+                    messagebox.showwarning("Cannot Rename", "Standard columns (Date, Year, Month) cannot be renamed")
+                    return
+                
+                # Create modern rename dialog
+                rename_dialog = tk.Toplevel(edit_win)
+                rename_dialog.title("Rename Excel Column")
+                rename_dialog.configure(bg='#f5f7fa')
+                self._center_window(rename_dialog, 520, 320)
+                rename_dialog.transient(edit_win)
+                rename_dialog.grab_set()
+                
+                # Header
+                header = tk.Frame(rename_dialog, bg='#3498db', height=50)
+                header.pack(fill='x')
+                header.pack_propagate(False)
+                tk.Label(header, text="✏️ Rename Excel Column", 
+                        bg='#3498db', fg='white', 
+                        font=('Segoe UI', 12, 'bold')).pack(anchor='w', padx=20, pady=15)
+                
+                # Body
+                body = tk.Frame(rename_dialog, bg='white')
+                body.pack(fill='both', expand=True, padx=25, pady=20)
+                
+                # Current name display
+                tk.Label(body, text="Current Name:", bg='white', fg='#7f8c8d',
+                        font=('Segoe UI', 9)).pack(anchor='w', pady=(0, 3))
+                current_display = tk.Label(body, text=current_column, bg='#e8eef5', fg='#2c3e50',
+                                          font=('Segoe UI', 10, 'bold'),
+                                          anchor='w', padx=12, pady=8)
+                current_display.pack(fill='x', pady=(0, 15))
+                
+                # New name input
+                tk.Label(body, text="New Name:", bg='white', fg='#7f8c8d',
+                        font=('Segoe UI', 9)).pack(anchor='w', pady=(0, 3))
+                new_name_var = tk.StringVar(value=current_column)
+                name_entry = tk.Entry(body, textvariable=new_name_var, 
+                                     font=('Segoe UI', 11), 
+                                     bg='#e8eef5', fg='#2c3e50',
+                                     relief='flat', bd=0, insertbackground='#3498db')
+                name_entry.pack(fill='x', pady=(0, 20), ipady=8, ipadx=10)
+                name_entry.focus()
+                name_entry.select_range(0, tk.END)  # Pre-select text
+                
+                result = [None]  # Mutable to capture result
+                
+                def apply_rename():
+                    new_name = new_name_var.get().strip()
+                    if not new_name:
+                        messagebox.showwarning("Empty Name", "Column name cannot be empty", parent=rename_dialog)
+                        return
+                    if new_name == current_column:
+                        messagebox.showinfo("No Change", "New name is the same as current name", parent=rename_dialog)
+                        return
+                    result[0] = new_name
+                    rename_dialog.destroy()
+                
+                def cancel_rename():
+                    rename_dialog.destroy()
+                
+                # Buttons
+                button_frame = tk.Frame(body, bg='white')
+                button_frame.pack(fill='x', padx=0, pady=0)
+                
+                cancel_btn = tk.Button(button_frame, text="Cancel", 
+                                      command=cancel_rename,
+                                      bg='#95a5a6', fg='white',
+                                      font=('Segoe UI', 10),
+                                      relief='flat', padx=20, pady=8,
+                                      cursor='hand2')
+                cancel_btn.pack(side='right', padx=(8, 0))
+                
+                rename_btn = tk.Button(button_frame, text="✏️ Rename", 
+                                      command=apply_rename,
+                                      bg='#27ae60', fg='white',
+                                      font=('Segoe UI', 10, 'bold'),
+                                      relief='flat', padx=20, pady=8,
+                                      cursor='hand2')
+                rename_btn.pack(side='right')
+                
+                # Allow Enter to confirm
+                name_entry.bind('<Return>', lambda e: apply_rename())
+                
+                # Wait for dialog to close
+                edit_win.wait_window(rename_dialog)
+                
+                if result[0] is None:
+                    return  # User cancelled
+                
+                new_name = result[0]
+                
+                try:
+                    from openpyxl import load_workbook
+                    excel_path = self.flow_loader.excel_path
+                    wb = load_workbook(excel_path)
+                    ws = wb[current_sheet]
+                    
+                    # Find and rename in row 3 (actual header row)
+                    for cell in ws[3]:
+                        if cell.value == current_column:
+                            cell.value = new_name
+                            break
+                    
+                    wb.save(excel_path)
+                    wb.close()
+                    
+                    # Update JSON mappings for all flows using this column
+                    self._load_diagram_data()
+                    edges_to_update = self.area_data.get('edges', [])
+                    updated_count = 0
+                    for edge_item in edges_to_update:
+                        mapping = edge_item.get('excel_mapping', {}) or {}
+                        if (mapping.get('enabled') and 
+                            mapping.get('sheet') == current_sheet and 
+                            mapping.get('column') == current_column):
+                            mapping['column'] = new_name
+                            edge_item['excel_mapping'] = mapping
+                            updated_count += 1
+                    
+                    # Save updated JSON
+                    with open(self.json_file, 'w', encoding='utf-8') as f:
+                        json.dump(self.area_data, f, indent=2, ensure_ascii=False)
+                    
+                    # Clear cache and update UI
+                    self.flow_loader.clear_cache()
+                    column_var.set(new_name)
+                    refresh_columns()
+                    
+                    msg = f"✅ Column renamed to '{new_name}'"
+                    if updated_count > 0:
+                        msg += f"\n({updated_count} flow mapping(s) updated)"
+                    messagebox.showinfo("Success", msg)
+                    
+                except Exception as e:
+                    messagebox.showerror("Error", f"Failed to rename column:\n{e}")
+            
+            rename_col_btn = tk.Button(column_row, text="✏️", 
+                                      command=rename_current_column,
+                                      bg='#3498db', fg='white',
+                                      font=('Segoe UI', 10),
+                                      width=3,
+                                      relief='flat', padx=8, pady=6,
+                                      cursor='hand2',
+                                      activebackground='#2980b9',
+                                      activeforeground='white')
+            rename_col_btn.pack(side='left')
 
+            # Persist checkbox
             persist_var = tk.BooleanVar(value=bool(registry.get_link(flow_id)))
-            ttk.Checkbutton(form, text="Persist link for renamed columns", variable=persist_var).pack(anchor='w', pady=(10, 0))
+            persist_check = tk.Checkbutton(form, 
+                                          text="🔗 Remember this link (survives column renames)", 
+                                          variable=persist_var, bg='white',
+                                          font=('Segoe UI', 9),
+                                          fg='#34495e', selectcolor='white',
+                                          activebackground='white', activeforeground='#2c3e50')
+            persist_check.pack(anchor='w', pady=(0, 20))
 
             def refresh_columns(*_args):
                 cols = sheet_columns.get(sheet_var.get(), [])
@@ -4528,6 +5478,7 @@ class DetailedNetworkFlowDiagram:
             refresh_columns()
 
             def save_mapping():
+                """Save mapping and update tree row."""
                 edge['excel_mapping'] = {
                     'enabled': enabled_var.get(),
                     'sheet': sheet_var.get(),
@@ -4537,27 +5488,74 @@ class DetailedNetworkFlowDiagram:
                     registry.link_column_to_flow(flow_id, sheet_var.get(), column_var.get())
                 else:
                     registry.remove_link(flow_id)
-                # Refresh row display
-                from_name = self._format_node_name(edge.get('from', ''))
-                to_name = self._format_node_name(edge.get('to', ''))
-                enabled_flag = 'Yes' if enabled_var.get() else 'No'
-                tag = 'odd' if idx % 2 else 'even'
-                tree.item(item_id, values=(f"{idx:03d} | {from_name} → {to_name}", sheet_var.get(), column_var.get(), enabled_flag), tags=(tag,))
+                
+                # Update stats and refresh tree
+                _populate_rows()
                 edit_win.destroy()
+                messagebox.showinfo("✅ Saved", "Mapping updated successfully!")
 
-            ttk.Button(form, text="Save Mapping", command=save_mapping,
-                      width=20).pack(pady=18)
+            # Footer buttons
+            button_frame = tk.Frame(edit_win, bg='#f5f7fa')
+            button_frame.pack(fill='x', padx=20, pady=(0, 20))
+            
+            cancel_btn = tk.Button(button_frame, text="Cancel", 
+                                   command=edit_win.destroy,
+                                   bg='#95a5a6', fg='white', 
+                                   font=('Segoe UI', 10),
+                                   relief='flat', padx=20, pady=8,
+                                   cursor='hand2')
+            cancel_btn.pack(side='right', padx=(8, 0))
+            
+            save_btn = tk.Button(button_frame, text="💾 Save Mapping", 
+                                command=save_mapping,
+                                bg='#27ae60', fg='white', 
+                                font=('Segoe UI', 10, 'bold'),
+                                relief='flat', padx=20, pady=8,
+                                cursor='hand2')
+            save_btn.pack(side='right')
 
         tree.bind('<Double-1>', edit_selected)
 
         def save_all_and_close():
+            """Save all mappings to JSON and close dialog."""
             self._save_to_json()
+            messagebox.showinfo("✅ Saved", "All flow mappings saved successfully!")
             dialog.destroy()
 
-        footer = ttk.Frame(dialog, padding=(12, 6, 12, 12))
+        # Modern footer
+        footer = tk.Frame(dialog, bg='#e8eef5', height=70)
         footer.pack(fill='x')
-        ttk.Button(footer, text="💾 Save All", command=save_all_and_close,
-                  width=20).pack(anchor='e')
+        footer.pack_propagate(False)
+        
+        footer_inner = tk.Frame(footer, bg='#e8eef5')
+        footer_inner.pack(fill='both', expand=True, padx=20, pady=15)
+        
+        # Export button (left)
+        export_btn = tk.Button(footer_inner, text="📤 Export Mappings", 
+                              command=lambda: messagebox.showinfo("Export", "Export feature coming soon!"),
+                              bg='#95a5a6', fg='white', 
+                              font=('Segoe UI', 9),
+                              relief='flat', padx=15, pady=8,
+                              cursor='hand2')
+        export_btn.pack(side='left')
+        
+        # Close button (right, secondary)
+        close_btn = tk.Button(footer_inner, text="Close", 
+                             command=dialog.destroy,
+                             bg='#7f8c8d', fg='white', 
+                             font=('Segoe UI', 10),
+                             relief='flat', padx=20, pady=8,
+                             cursor='hand2')
+        close_btn.pack(side='right', padx=(8, 0))
+        
+        # Save All button (right, primary)
+        save_all_btn = tk.Button(footer_inner, text="💾 Save All & Close", 
+                                command=save_all_and_close,
+                                bg='#27ae60', fg='white', 
+                                font=('Segoe UI', 10, 'bold'),
+                                relief='flat', padx=25, pady=8,
+                                cursor='hand2')
+        save_all_btn.pack(side='right')
 
     def _open_excel_structure_manager(self):
         """Open Excel Structure Manager - manage sheets and columns"""
@@ -4618,9 +5616,69 @@ class DetailedNetworkFlowDiagram:
                 messagebox.showerror("Error", f"Failed to load sheets:\n{e}")
         
         def add_sheet():
-            new_name = tk.simpledialog.askstring("Add Sheet", "Enter new sheet name:")
-            if not new_name:
+            # Modern add sheet dialog
+            add_dialog = tk.Toplevel(dialog)
+            add_dialog.title("Add New Sheet")
+            add_dialog.configure(bg='#f5f7fa')
+            self._center_window(add_dialog, 500, 280)
+            add_dialog.transient(dialog)
+            add_dialog.grab_set()
+            
+            # Header
+            header = tk.Frame(add_dialog, bg='#27ae60', height=50)
+            header.pack(fill='x')
+            header.pack_propagate(False)
+            tk.Label(header, text="➕ Add New Sheet", 
+                    bg='#27ae60', fg='white', 
+                    font=('Segoe UI', 12, 'bold')).pack(anchor='w', padx=20, pady=15)
+            
+            # Body
+            body = tk.Frame(add_dialog, bg='white')
+            body.pack(fill='both', expand=True, padx=25, pady=20)
+            
+            tk.Label(body, text="Sheet Name:", bg='white', fg='#7f8c8d',
+                    font=('Segoe UI', 9)).pack(anchor='w', pady=(0, 3))
+            name_var = tk.StringVar()
+            entry = tk.Entry(body, textvariable=name_var, 
+                           font=('Segoe UI', 11), 
+                           bg='#e8eef5', fg='#2c3e50',
+                           relief='flat', bd=0, insertbackground='#27ae60')
+            entry.pack(fill='x', pady=(0, 20), ipady=8, ipadx=10)
+            entry.focus()
+            
+            result = [None]
+            
+            def apply_add():
+                new_name = name_var.get().strip()
+                if not new_name:
+                    messagebox.showwarning("Empty Name", "Sheet name cannot be empty", parent=add_dialog)
+                    return
+                result[0] = new_name
+                add_dialog.destroy()
+            
+            def cancel_add():
+                add_dialog.destroy()
+            
+            # Buttons
+            btn_frame = tk.Frame(body, bg='white')
+            btn_frame.pack(fill='x')
+            
+            tk.Button(btn_frame, text="Cancel", command=cancel_add,
+                     bg='#95a5a6', fg='white', font=('Segoe UI', 10),
+                     relief='flat', padx=20, pady=8, cursor='hand2').pack(side='right', padx=(8, 0))
+            tk.Button(btn_frame, text="➕ Add", command=apply_add,
+                     bg='#27ae60', fg='white', font=('Segoe UI', 10, 'bold'),
+                     relief='flat', padx=20, pady=8, cursor='hand2').pack(side='right')
+            
+            entry.bind('<Return>', lambda e: apply_add())
+            
+            dialog.wait_window(add_dialog)
+            
+            if result[0] is None:
                 return
+            
+            new_name = result[0]
+            
             try:
                 wb = load_workbook(excel_path)
                 if new_name in wb.sheetnames:
@@ -4635,7 +5693,8 @@ class DetailedNetworkFlowDiagram:
                 wb.save(excel_path)
                 wb.close()
                 refresh_sheets()
-                messagebox.showinfo("Success", f"Sheet '{new_name}' created with standard headers!")
+                refresh_sheets_combo()
+                messagebox.showinfo("✅ Success", f"Sheet '{new_name}' created with standard headers!")
             except Exception as e:
                 messagebox.showerror("Error", f"Failed to add sheet:\n{e}")
         
@@ -4645,9 +5704,83 @@ class DetailedNetworkFlowDiagram:
                 messagebox.showwarning("No Selection", "Please select a sheet to rename")
                 return
             old_name = sheets_listbox.get(selection[0]).replace("📄 ", "")
-            new_name = tk.simpledialog.askstring("Rename Sheet", f"Rename '{old_name}' to:", initialvalue=old_name)
-            if not new_name or new_name == old_name:
+            
+            # Modern rename dialog
+            rename_dialog = tk.Toplevel(dialog)
+            rename_dialog.title("Rename Sheet")
+            rename_dialog.configure(bg='#f5f7fa')
+            self._center_window(rename_dialog, 520, 320)
+            rename_dialog.transient(dialog)
+            rename_dialog.grab_set()
+            
+            # Header
+            header = tk.Frame(rename_dialog, bg='#3498db', height=50)
+            header.pack(fill='x')
+            header.pack_propagate(False)
+            tk.Label(header, text="✏️ Rename Sheet", 
+                    bg='#3498db', fg='white', 
+                    font=('Segoe UI', 12, 'bold')).pack(anchor='w', padx=20, pady=15)
+            
+            # Body
+            body = tk.Frame(rename_dialog, bg='white')
+            body.pack(fill='both', expand=True, padx=25, pady=20)
+            
+            # Current name
+            tk.Label(body, text="Current Name:", bg='white', fg='#7f8c8d',
+                    font=('Segoe UI', 9)).pack(anchor='w', pady=(0, 3))
+            current_label = tk.Label(body, text=old_name, bg='#e8eef5', fg='#2c3e50',
+                                    font=('Segoe UI', 10, 'bold'),
+                                    anchor='w', padx=12, pady=8)
+            current_label.pack(fill='x', pady=(0, 15))
+            
+            # New name
+            tk.Label(body, text="New Name:", bg='white', fg='#7f8c8d',
+                    font=('Segoe UI', 9)).pack(anchor='w', pady=(0, 3))
+            new_var = tk.StringVar(value=old_name)
+            entry = tk.Entry(body, textvariable=new_var, 
+                           font=('Segoe UI', 11), 
+                           bg='#e8eef5', fg='#2c3e50',
+                           relief='flat', bd=0, insertbackground='#3498db')
+            entry.pack(fill='x', pady=(0, 20), ipady=8, ipadx=10)
+            entry.focus()
+            entry.select_range(0, tk.END)
+            
+            result = [None]
+            
+            def apply_rename():
+                new_name = new_var.get().strip()
+                if not new_name:
+                    messagebox.showwarning("Empty Name", "Sheet name cannot be empty", parent=rename_dialog)
+                    return
+                if new_name == old_name:
+                    messagebox.showinfo("No Change", "New name is the same as current name", parent=rename_dialog)
+                    return
+                result[0] = new_name
+                rename_dialog.destroy()
+            
+            def cancel_rename():
+                rename_dialog.destroy()
+            
+            # Buttons
+            btn_frame = tk.Frame(body, bg='white')
+            btn_frame.pack(fill='x')
+            
+            tk.Button(btn_frame, text="Cancel", command=cancel_rename,
+                     bg='#95a5a6', fg='white', font=('Segoe UI', 10),
+                     relief='flat', padx=20, pady=8, cursor='hand2').pack(side='right', padx=(8, 0))
+            tk.Button(btn_frame, text="✏️ Rename", command=apply_rename,
+                     bg='#3498db', fg='white', font=('Segoe UI', 10, 'bold'),
+                     relief='flat', padx=20, pady=8, cursor='hand2').pack(side='right')
+            
+            entry.bind('<Return>', lambda e: apply_rename())
+            
+            dialog.wait_window(rename_dialog)
+            
+            if result[0] is None:
                 return
+            
+            new_name = result[0]
+            
             try:
                 wb = load_workbook(excel_path)
                 if old_name not in wb.sheetnames:
@@ -4662,7 +5795,8 @@ class DetailedNetworkFlowDiagram:
                 wb.save(excel_path)
                 wb.close()
                 refresh_sheets()
-                messagebox.showinfo("Success", f"Sheet renamed to '{new_name}'!")
+                refresh_sheets_combo()
+                messagebox.showinfo("✅ Success", f"Sheet renamed to '{new_name}'!")
             except Exception as e:
                 messagebox.showerror("Error", f"Failed to rename sheet:\n{e}")
         
@@ -4716,7 +5850,7 @@ class DetailedNetworkFlowDiagram:
         sheet_select_frame.pack(fill='x', pady=(0, 10))
         tk.Label(sheet_select_frame, text="Select Sheet:", font=('Segoe UI', 10, 'bold')).pack(side='left', padx=(0, 10))
         
-        sheet_var = tk.StringVar()
+        sheet_var = tk.StringVar(master=sheet_select_frame)
         sheet_combo = ttk.Combobox(sheet_select_frame, textvariable=sheet_var, state='readonly', font=('Segoe UI', 10), width=30)
         sheet_combo.pack(side='left', padx=5)
         
@@ -4764,21 +5898,89 @@ class DetailedNetworkFlowDiagram:
             if not selected_sheet:
                 messagebox.showwarning("No Sheet", "Please select a sheet first")
                 return
-            new_col = tk.simpledialog.askstring("Add Column", "Enter new column name:")
-            if not new_col:
+            
+            # Modern add column dialog
+            add_dialog = tk.Toplevel(dialog)
+            add_dialog.title("Add New Column")
+            add_dialog.configure(bg='#f5f7fa')
+            self._center_window(add_dialog, 500, 280)
+            add_dialog.transient(dialog)
+            add_dialog.grab_set()
+            
+            # Header
+            header = tk.Frame(add_dialog, bg='#27ae60', height=50)
+            header.pack(fill='x')
+            header.pack_propagate(False)
+            tk.Label(header, text="➕ Add New Column", 
+                    bg='#27ae60', fg='white', 
+                    font=('Segoe UI', 12, 'bold')).pack(anchor='w', padx=20, pady=15)
+            
+            # Body
+            body = tk.Frame(add_dialog, bg='white')
+            body.pack(fill='both', expand=True, padx=25, pady=20)
+            
+            tk.Label(body, text="Column Name:", bg='white', fg='#7f8c8d',
+                    font=('Segoe UI', 9)).pack(anchor='w', pady=(0, 3))
+            col_var = tk.StringVar()
+            entry = tk.Entry(body, textvariable=col_var, 
+                           font=('Segoe UI', 11), 
+                           bg='#e8eef5', fg='#2c3e50',
+                           relief='flat', bd=0, insertbackground='#27ae60')
+            entry.pack(fill='x', pady=(0, 20), ipady=8, ipadx=10)
+            entry.focus()
+            
+            result = [None]
+            
+            def apply_add():
+                new_col = col_var.get().strip()
+                if not new_col:
+                    messagebox.showwarning("Empty Name", "Column name cannot be empty", parent=add_dialog)
+                    return
+                result[0] = new_col
+                add_dialog.destroy()
+            
+            def cancel_add():
+                add_dialog.destroy()
+            
+            # Buttons
+            btn_frame = tk.Frame(body, bg='white')
+            btn_frame.pack(fill='x')
+            
+            tk.Button(btn_frame, text="Cancel", command=cancel_add,
+                     bg='#95a5a6', fg='white', font=('Segoe UI', 10),
+                     relief='flat', padx=20, pady=8, cursor='hand2').pack(side='right', padx=(8, 0))
+            tk.Button(btn_frame, text="➕ Add", command=apply_add,
+                     bg='#27ae60', fg='white', font=('Segoe UI', 10, 'bold'),
+                     relief='flat', padx=20, pady=8, cursor='hand2').pack(side='right')
+            
+            entry.bind('<Return>', lambda e: apply_add())
+            
+            dialog.wait_window(add_dialog)
+            
+            if result[0] is None:
                 return
+            
+            new_col = result[0]
+            
             try:
                 wb = load_workbook(excel_path)
                 ws = wb[selected_sheet]
-                # Find next empty column
-                next_col = ws.max_column + 1
-                ws.cell(row=1, column=next_col, value=new_col)
+                # Append after the last header in row 3 (actual header row)
+                header_row = 3
+                last_header_idx = 0
+                for cell in ws[header_row]:
+                    val = cell.value
+                    if val is not None and str(val).strip():
+                        last_header_idx = cell.column
+                # Fallback to ws.max_column if row 3 yields nothing
+                target_col = (last_header_idx if last_header_idx > 0 else ws.max_column) + 1
+                ws.cell(row=header_row, column=target_col, value=new_col)
                 wb.save(excel_path)
                 wb.close()
                 refresh_columns()
                 # Clear loader cache to pick up new column
                 self.flow_loader.clear_cache()
-                messagebox.showinfo("Success", f"Column '{new_col}' added to sheet '{selected_sheet}'!")
+                messagebox.showinfo("✅ Success", f"Column '{new_col}' added to sheet '{selected_sheet}'!")
             except Exception as e:
                 messagebox.showerror("Error", f"Failed to add column:\n{e}")
         
@@ -4795,14 +5997,88 @@ class DetailedNetworkFlowDiagram:
             if old_name in ['Date', 'Year', 'Month']:
                 messagebox.showwarning("Cannot Rename", "Standard columns (Date, Year, Month) cannot be renamed")
                 return
-            new_name = tk.simpledialog.askstring("Rename Column", f"Rename '{old_name}' to:", initialvalue=old_name)
-            if not new_name or new_name == old_name:
+            
+            # Modern rename dialog
+            rename_dialog = tk.Toplevel(dialog)
+            rename_dialog.title("Rename Column")
+            rename_dialog.configure(bg='#f5f7fa')
+            self._center_window(rename_dialog, 520, 320)
+            rename_dialog.transient(dialog)
+            rename_dialog.grab_set()
+            
+            # Header
+            header = tk.Frame(rename_dialog, bg='#3498db', height=50)
+            header.pack(fill='x')
+            header.pack_propagate(False)
+            tk.Label(header, text="✏️ Rename Column", 
+                    bg='#3498db', fg='white', 
+                    font=('Segoe UI', 12, 'bold')).pack(anchor='w', padx=20, pady=15)
+            
+            # Body
+            body = tk.Frame(rename_dialog, bg='white')
+            body.pack(fill='both', expand=True, padx=25, pady=20)
+            
+            # Current name
+            tk.Label(body, text="Current Name:", bg='white', fg='#7f8c8d',
+                    font=('Segoe UI', 9)).pack(anchor='w', pady=(0, 3))
+            current_label = tk.Label(body, text=old_name, bg='#e8eef5', fg='#2c3e50',
+                                    font=('Segoe UI', 10, 'bold'),
+                                    anchor='w', padx=12, pady=8)
+            current_label.pack(fill='x', pady=(0, 15))
+            
+            # New name
+            tk.Label(body, text="New Name:", bg='white', fg='#7f8c8d',
+                    font=('Segoe UI', 9)).pack(anchor='w', pady=(0, 3))
+            new_var = tk.StringVar(value=old_name)
+            entry = tk.Entry(body, textvariable=new_var, 
+                           font=('Segoe UI', 11), 
+                           bg='#e8eef5', fg='#2c3e50',
+                           relief='flat', bd=0, insertbackground='#3498db')
+            entry.pack(fill='x', pady=(0, 20), ipady=8, ipadx=10)
+            entry.focus()
+            entry.select_range(0, tk.END)
+            
+            result = [None]
+            
+            def apply_rename():
+                new_name = new_var.get().strip()
+                if not new_name:
+                    messagebox.showwarning("Empty Name", "Column name cannot be empty", parent=rename_dialog)
+                    return
+                if new_name == old_name:
+                    messagebox.showinfo("No Change", "New name is the same as current name", parent=rename_dialog)
+                    return
+                result[0] = new_name
+                rename_dialog.destroy()
+            
+            def cancel_rename():
+                rename_dialog.destroy()
+            
+            # Buttons
+            btn_frame = tk.Frame(body, bg='white')
+            btn_frame.pack(fill='x')
+            
+            tk.Button(btn_frame, text="Cancel", command=cancel_rename,
+                     bg='#95a5a6', fg='white', font=('Segoe UI', 10),
+                     relief='flat', padx=20, pady=8, cursor='hand2').pack(side='right', padx=(8, 0))
+            tk.Button(btn_frame, text="✏️ Rename", command=apply_rename,
+                     bg='#3498db', fg='white', font=('Segoe UI', 10, 'bold'),
+                     relief='flat', padx=20, pady=8, cursor='hand2').pack(side='right')
+            
+            entry.bind('<Return>', lambda e: apply_rename())
+            
+            dialog.wait_window(rename_dialog)
+            
+            if result[0] is None:
                 return
+            
+            new_name = result[0]
+            
             try:
                 wb = load_workbook(excel_path)
                 ws = wb[selected_sheet]
-                # Find the column
-                for cell in ws[1]:
+                # Find the column in row 3 (actual header row)
+                for cell in ws[3]:
                     if cell.value == old_name:
                         cell.value = new_name
                         break
@@ -4830,9 +6106,9 @@ class DetailedNetworkFlowDiagram:
                 refresh_columns()
                 self.flow_loader.clear_cache()
                 if updated:
-                    messagebox.showinfo("Success", f"Column renamed to '{new_name}'.\nUpdated {updated} flow mappings in diagram.")
+                    messagebox.showinfo("✅ Success", f"Column renamed to '{new_name}'.\nUpdated {updated} flow mapping(s).")
                 else:
-                    messagebox.showinfo("Success", f"Column renamed to '{new_name}'.\nNo existing flow mappings referenced this column.")
+                    messagebox.showinfo("✅ Success", f"Column renamed to '{new_name}'.\nNo existing flow mappings referenced this column.")
             except Exception as e:
                 messagebox.showerror("Error", f"Failed to rename column:\n{e}")
         
@@ -4854,8 +6130,8 @@ class DetailedNetworkFlowDiagram:
             try:
                 wb = load_workbook(excel_path)
                 ws = wb[selected_sheet]
-                # Find and delete the column
-                for idx, cell in enumerate(ws[1], start=1):
+                # Find and delete the column from row 3 (actual header row)
+                for idx, cell in enumerate(ws[3], start=1):
                     if cell.value == col_name:
                         ws.delete_cols(idx)
                         break
@@ -5019,7 +6295,7 @@ class DetailedNetworkFlowDiagram:
         refresh_unmapped()
         
         # Footer
-        footer = tk.Frame(dialog, bg='#ecf0f1')
+        footer = tk.Frame(dialog, bg='#e8eef5')
         footer.pack(fill='x', pady=10, padx=10)
         
         tk.Button(footer, text="✖ Close", command=dialog.destroy,
@@ -5036,7 +6312,7 @@ class DetailedNetworkFlowDiagram:
         dialog.grab_set()
         
         # Professional styling
-        dialog.configure(bg='#ecf0f1')
+        dialog.configure(bg='#e8eef5')
         
         # Center the window
         self._center_window(dialog, width, height)
@@ -5103,12 +6379,8 @@ class DetailedNetworkFlowDiagram:
             # Redraw diagram with updated volumes
             self._draw_diagram()
             
-            messagebox.showinfo(
-                "✅ Loaded from Excel",
-                f"Flow volumes loaded for {month_name} {year}\n\n"
-                f"Area: {self.area_code}\n"
-                f"Check flow line labels for updated m³ values"
-            )
+            # Show brief status message instead of popup
+            logger.info(f"✅ Flow volumes loaded for {month_name} {year}")
         
         except Exception as e:
             logger.error(f"❌ Error loading from Excel: {e}")
@@ -5142,3 +6414,4 @@ class DetailedNetworkFlowDiagram:
 
 # For compatibility
 FlowDiagramDashboard = DetailedNetworkFlowDiagram
+

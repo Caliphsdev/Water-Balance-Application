@@ -1,6 +1,9 @@
 """
 Help Documentation Module
 Comprehensive user guide and technical documentation for the Water Balance Application
+
+Updated: January 2026
+Covers all dashboards, calculations, data sources, and features
 """
 
 import tkinter as tk
@@ -48,13 +51,15 @@ class HelpDocumentation:
         except Exception:
             pass
         style.configure('Enhanced.TNotebook', background='white')
+        # Enhanced tab styling: larger padding, bolder font for better visibility and usability
         style.configure('Enhanced.TNotebook.Tab',
                         foreground=config.get_color('primary'),
                         font=config.get_font('body_bold'),
-                        padding=(14, 8))
+                        padding=(24, 14))  # Increased from (14, 8) for larger tab size and better UX
+        # Enhanced map with better visual feedback on interaction
         style.map('Enhanced.TNotebook.Tab',
-                   foreground=[('selected', config.get_color('accent')), ('active', config.get_color('accent'))],
-                   background=[('selected', '#F0F4FF'), ('active', '#F8FAFF')])
+                   foreground=[('selected', 'white'), ('active', 'white')],
+                   background=[('selected', config.get_color('accent')), ('active', config.get_color('accent_hover') or '#5dade2')])
 
         # Header
         header_frame = ttk.Frame(self.main_frame)
@@ -82,11 +87,13 @@ class HelpDocumentation:
         
         # Create tabs
         self._create_overview_tab()
+        self._create_dashboards_tab()
         self._create_calculations_tab()
         self._create_formulas_tab()
         self._create_data_sources_tab()
         self._create_storage_tab()
         self._create_features_tab()
+        self._create_troubleshooting_tab()
         
         # Focus requested tab/section
         if initial_tab:
@@ -270,10 +277,55 @@ class HelpDocumentation:
         
         content = self._create_scrollable_frame(tab, 'Overview')
         
-        self._add_section(content, "Water Balance Application", 
-            "This application performs comprehensive water balance calculations for mining operations, "
-            "tracking all water inflows, outflows, and storage changes to ensure accurate water management "
-            "and regulatory compliance.", level=1, tab_name='Overview')
+        self._add_section(content, "🎯 WHAT IS THIS APPLICATION?", 
+            "Water Balance Management System for Mining Operations\n\n"
+            "Complete water tracking solution for calculating water inflows, outflows, and storage changes "
+            "to ensure accurate water management and regulatory compliance.", level=1, tab_name='Overview')
+        
+        self._add_section(content, "📌 PRIMARY EQUATION", 
+            "Fresh Inflows - Total Outflows - Storage Change = Closure Error\n\n"
+            "✓ CLOSED: Closure Error ≤ 5% (acceptable)\n"
+            "✗ OPEN: Closure Error > 5% (needs investigation)", level=1, tab_name='Overview')
+        
+        self._add_section(content, "🔑 CORE CONCEPTS", 
+            "• Fresh Inflows: Total inflows minus recycled TSF return water\n"
+            "• Total Outflows: Plant consumption + evaporation + discharge\n"
+            "• Storage Change: Volume gained/lost in dams and tanks\n"
+            "• Closure Error: Accuracy measure (target: ±5%)", level=1, tab_name='Overview')
+        
+        self._add_section(content, "⚙️ KEY PARAMETERS & DEFAULTS", 
+            "Mining Water Rate: 1.43 m³/tonne (configurable)\n"
+            "TSF Return Rate: 56% (configurable)\n"
+            "Seepage Loss: 0.5% per month (configurable)\n"
+            "Closure Error Threshold: ±5% (Excel standard)\n"
+            "Calculation Period: MONTHLY (all formulas calibrated for monthly base)", level=1, tab_name='Overview')
+        
+        self._add_section(content, "📊 WHAT YOU CAN DO", 
+            "✓ Calculate complete water balance for any month\n"
+            "✓ Track water from 6+ sources (surface, groundwater, underground, rainfall, etc.)\n"
+            "✓ Monitor storage across multiple facilities\n"
+            "✓ Analyze 7+ outflow components (plant, evaporation, discharge, etc.)\n"
+            "✓ Export reports for compliance\n"
+            "✓ Optimize water recycling ratios\n"
+            "✓ Forecast storage capacity\n"
+            "✓ Visualize water flows on interactive diagrams", level=1, tab_name='Overview')
+        
+        self._add_section(content, "🎛️ QUICK START", 
+            "Step 1: Go to Calculations tab → Select date\n"
+            "Step 2: System loads all inflows and calculates outflows automatically\n"
+            "Step 3: Review results in Dashboard\n"
+            "Step 4: Check Closure Error (should be ≤ 5%)\n"
+            "Step 5: Analyze trends in Analytics Dashboard\n\n"
+            "See Troubleshooting tab if Closure Error > 5%", level=1, tab_name='Overview')
+        
+        self._add_section(content, "📑 OTHER DOCUMENTATION TABS", 
+            "Dashboards: Overview of all 6 visualization dashboards and their uses\n"
+            "Calculations: Water balance components, data sources, and calculation logic\n"
+            "Formulas: All mathematical equations with inputs, outputs, and examples\n"
+            "Water Sources: Where water comes from and measurement priorities\n"
+            "Storage: Facility volumes and capacity management\n"
+            "Features: Application capabilities and configuration options\n"
+            "Troubleshooting: Solutions for common issues and errors", level=1, tab_name='Overview')
         
         self._add_section(content, "Purpose", 
             "The water balance system helps you:\n\n"
@@ -309,162 +361,478 @@ class HelpDocumentation:
             "The application automatically handles missing data using historical averaging "
             "and marks calculations accordingly.", level=2, tab_name='Overview')
     
+    def _create_dashboards_tab(self):
+        """All available dashboards and their purposes"""
+        tab = ttk.Frame(self.notebook)
+        self.notebook.add(tab, text='Dashboards')
+        
+        content = self._create_scrollable_frame(tab, 'Dashboards')
+        
+        self._add_section(content, "Available Dashboards", 
+            "The application provides 6 specialized dashboards, each designed for different aspects of water management.", 
+            level=1, tab_name='Dashboards')
+        
+        self._add_section(content, "📊 Main Dashboard", 
+            "Real-time overview of water balance status.\n\n"
+            "Displays:\n"
+            "• Water source count (active sources)\n"
+            "• Storage facilities count (number of dams/tanks)\n"
+            "• Total system capacity (Mm³)\n"
+            "• Current volume across all facilities (End of Month)\n"
+            "• Overall utilization percentage\n"
+            "• Environmental KPIs: Regional rainfall, evaporation\n"
+            "• 6-month rainfall vs evaporation trend chart\n"
+            "• Closure error trend sparkline/heatmap\n"
+            "• System status and operational metrics\n\n"
+            "⏱️ TIME PERIOD: Displays latest available month (closing volumes)", 
+            level=2, tab_name='Dashboards')
+        
+        self._add_section(content, "💰 KPI Dashboard", 
+            "Performance metrics aligned with Excel calculations.\n\n"
+            "Tracks:\n"
+            "• Water use efficiency (m³ per tonne ore)\n"
+            "• Plant efficiency (net plant consumption)\n"
+            "• Mining efficiency (mining + dust suppression)\n"
+            "• Overall efficiency (total water use)\n"
+            "• Recycling ratio (TSF return as % of gross consumption)\n"
+            "• Water source dependency breakdown\n"
+            "• Freshwater vs recycled water split\n"
+            "• Storage security (days of supply at current rate)\n"
+            "• Month-to-month trends\n"
+            "• Date selection for historical analysis\n\n"
+            "Features:\n"
+            "• Excel parity: Results match Excel dashboard calculations\n"
+            "• Visual performance indicators (color-coded)\n"
+            "• Export to PDF for reporting", 
+            level=2, tab_name='Dashboards')
+        
+        self._add_section(content, "📈 Analytics Dashboard", 
+            "Trend analysis and historical pattern recognition.\n\n"
+            "Analyzes:\n"
+            "• Inflow trends over time\n"
+            "• Outflow patterns\n"
+            "• Storage trajectory\n"
+            "• Seasonal patterns\n"
+            "• Year-over-year comparisons\n"
+            "• Monthly change analysis\n"
+            "• Anomaly detection\n"
+            "• Moving averages (12-month)\n"
+            "• Projection capabilities\n\n"
+            "Use for:\n"
+            "• Identifying seasonal water demand patterns\n"
+            "• Forecasting future storage levels\n"
+            "• Planning maintenance windows\n"
+            "• Water security planning", 
+            level=2, tab_name='Dashboards')
+        
+        self._add_section(content, "📉 Charts Dashboard", 
+            "Comprehensive visualizations of all components.\n\n"
+            "Shows:\n"
+            "• Inflow breakdown by source (pie chart)\n"
+            "• Outflow breakdown by category (pie chart)\n"
+            "• Storage facility utilization (bar chart)\n"
+            "• Water balance components (stacked bar)\n"
+            "• Closure error trends (line chart)\n"
+            "• Source contribution (horizontal bar)\n"
+            "• Facility comparison (side-by-side)\n"
+            "• Monthly volume changes (waterfall)\n\n"
+            "Customizable:\n"
+            "• Date range selection\n"
+            "• Chart type selection\n"
+            "• Drill-down to see details\n"
+            "• Export as image", 
+            level=2, tab_name='Dashboards')
+        
+        self._add_section(content, "🗂️ Flow Diagram Dashboard", 
+            "Visual mapping of water flows between components.\n\n"
+            "Features:\n"
+            "• Interactive flow diagram with 8 operational areas\n"
+            "• Drag-and-drop component positioning\n"
+            "• Manual flow line drawing (orthogonal segments)\n"
+            "• Excel volume overlays (on-demand loading)\n"
+            "• Color-coded flow types:\n"
+            "  - Blue: Clean water\n"
+            "  - Red: Dirty water/effluent\n"
+            "  - Black: Losses/evaporation\n"
+            "• Recirculation loops visualization\n"
+            "• Component locking to prevent accidental moves\n"
+            "• Grid and zoom controls\n\n"
+            "Operations:\n"
+            "• Add/edit/delete components\n"
+            "• Draw/edit/delete flow lines\n"
+            "• Load Excel volume data by month\n"
+            "• Map flow lines to Excel columns\n"
+            "• Auto-map using column aliases\n"
+            "• Save diagram to JSON\n\n"
+            "Use for:\n"
+            "• Understanding water connectivity\n"
+            "• Validating flow balance logic\n"
+            "• Communication with stakeholders\n"
+            "• Process documentation", 
+            level=2, tab_name='Dashboards')
+        
+        self._add_section(content, "📋 Monitoring Dashboard", 
+            "Real-time data tracking for measurements.\n\n"
+            "Monitors:\n"
+            "• Borehole abstraction rates\n"
+            "• River/surface water flows\n"
+            "• Facility water levels (mm)\n"
+            "• Daily measurements vs monthly targets\n"
+            "• Data quality flags\n"
+            "• Missing data gaps\n"
+            "• Measurement frequency (daily, weekly, monthly)\n"
+            "• Historical data statistics\n"
+            "• Anomaly warnings\n\n"
+            "Features:\n"
+            "• Time series visualization\n"
+            "• Outlier highlighting\n"
+            "• Gap filling with historical averages\n"
+            "• Data export for external analysis\n"
+            "• Quality scoring (% of data available)\n\n"
+            "Use for:\n"
+            "• Day-to-day operations monitoring\n"
+            "• Data validation before calculations\n"
+            "• Equipment maintenance scheduling\n"
+            "• Performance trending", 
+            level=2, tab_name='Dashboards')
+    
     def _create_calculations_tab(self):
-        """Main calculation process"""
+        """Main calculation process with actual implementation"""
         tab = ttk.Frame(self.notebook)
         self.notebook.add(tab, text='Calculations')
         
         content = self._create_scrollable_frame(tab, 'Calculations')
         
-        self._add_section(content, "⏱️ CALCULATION PERIOD: MONTHLY", 
-            "All water balance calculations are designed for MONTHLY periods:\n\n"
-            "• Default ore processing: 350,000 tonnes/month\n"
-            "• Evaporation rates: stored as mm/month, converted to daily\n"
-            "• Historical averaging: 12-month rolling window\n"
-            "• Seepage calculations: 0.5% of volume per month\n"
-            "• TSF return and consumption rates: monthly basis\n\n"
-            "While you can calculate for any specific date, the underlying formulas "
-            "and constants are calibrated for monthly water balance periods, which is "
-            "standard practice for mine water management.", level=1, tab_name='Calculations')
+        self._add_section(content, "� WATER BALANCE CALCULATION ENGINE", 
+            "INPUT (User provides):\n"
+            "  • Calculation date (any date in system)\n"
+            "  • Ore tonnage (from Excel or manual entry, optional)\n\n"
+            "SYSTEM RETRIEVES:\n"
+            "  • Water source measurements (flow meters, levels)\n"
+            "  • Facility storage volumes (opening/closing)\n"
+            "  • Excel monthly data (rainfall, evaporation, production, discharge)\n"
+            "  • Regional climate data (rainfall mm/month, evaporation mm/month)\n\n"
+            "SYSTEM CALCULATES:\n"
+            "  • Total inflows (6 components)\n"
+            "  • Total outflows (7 components)\n"
+            "  • Storage change per facility\n"
+            "  • Closure error (accuracy measure)\n\n"
+            "OUTPUT (Application shows):\n"
+            "  • Complete water balance breakdown by component\n"
+            "  • Closure error status (CLOSED ≤5% or OPEN >5%)\n"
+            "  • Inflow/outflow percentages\n"
+            "  • Storage facility details\n"
+            "  • KPIs (water efficiency, recycling ratio, days of supply)", level=1, tab_name='Calculations')
         
-        self._add_section(content, "Water Balance Calculation Process", 
-            "The application performs a complete water balance calculation for any date, "
-            "following these steps:", level=1, tab_name='Calculations')
+        self._add_section(content, "📊 MAIN WATER BALANCE EQUATION", 
+            "The water balance equation is the foundation of all calculations:\n\n"
+            "Fresh Inflows = Total Outflows + Storage Change + Closure Error\n\n"
+            "Where Fresh Inflows excludes recycled water (TSF return is recycled water, not new inflow).\n"
+            "All calculations are MONTHLY based but can be run for any calendar date.", level=1, tab_name='Calculations')
         
-        self._add_section(content, "Step 1: Calculate Total Inflows", 
-            "All water entering the system is summed:\n\n"
-            "1. SURFACE WATER: From rivers, streams, and catchment areas\n"
-            "2. GROUNDWATER: From boreholes and wells\n"
-            "3. UNDERGROUND WATER: From dewatering and mine drainage\n"
-            "4. RAINFALL: Direct precipitation on storage facilities\n"
-            "5. TSF RETURN WATER: Water recovered from tailings (counted as inflow)\n\n"
-            "Each source is queried from measurements or calculated from average flow rates.", level=2, tab_name='Calculations')
+        self._add_section(content, "INFLOWS - What Water Enters the System", 
+            "The system tracks water entering from multiple sources:", level=1, tab_name='Calculations')
         
-        self._add_formula(content,
-            "Total Inflows = Surface Water + Groundwater + Underground Water + Rainfall + TSF Return",
-            "All values in m³ for the calculation period", tab_name='Calculations')
+        self._add_section(content, "1. Surface Water (Rivers, Streams, Dams)", 
+            "Water from external surface sources measured or estimated.\n"
+            "Sources: Water sources database with type 'Surface' or 'River'", level=2, tab_name='Calculations')
         
-        self._add_section(content, "Step 2: Calculate Total Outflows", 
-            "All water leaving or consumed in the system:\n\n"
-            "1. PLANT CONSUMPTION (Gross): Water used in ore processing\n"
-            "2. TSF RETURN: Portion of plant water that returns from tailings\n"
-            "3. NET PLANT CONSUMPTION: Actual water consumed (Gross - Return)\n"
-            "4. EVAPORATION: Water lost to atmosphere from storage surfaces\n"
-            "5. DISCHARGE: Controlled releases to environment\n"
-            "6. OTHER LOSSES: Seepage, dust suppression, etc.", level=2)
+        self._add_section(content, "2. Groundwater (Boreholes, Wells)", 
+            "Underground water abstraction from aquifers.\n"
+            "Sources: Water sources database with type 'Borehole' or 'Groundwater'", level=2, tab_name='Calculations')
         
-        self._add_formula(content,
-            "Plant Consumption (Gross) = Ore Tonnes × Mining Water Rate\n"
-            "TSF Return = Plant Consumption × TSF Return Rate\n"
-            "Net Plant Consumption = Plant Consumption - TSF Return\n"
-            "Total Outflows = Net Plant Consumption + Evaporation + Discharge + Other",
-            "Mining Water Rate default: 1.43 m³/tonne, TSF Return Rate configurable (stored as percentage)", tab_name='Calculations')
+        self._add_section(content, "3. Underground Water (Dewatering, Mine Drainage)", 
+            "Water from active mining dewatering operations.\n"
+            "Sources: Water sources database with type 'Underground' or 'Dewater'", level=2, tab_name='Calculations')
         
-        self._add_section(content, "Step 3: Calculate Storage Changes", 
-            "For each storage facility (dam, tank), track:\n\n"
-            "• Opening volume (start of period)\n"
-            "• Closing volume (end of period)\n"
-            "• Net change = Closing - Opening\n"
-            "• Total system storage change = Sum of all facility changes", level=2)
+        self._add_section(content, "4. Rainfall", 
+            "Precipitation directly onto storage facility surfaces.\n"
+            "Calculation: Regional monthly rainfall (mm) × Facility surface area (m²)\n"
+            "Sources: Database regional_rainfall_monthly table (by month)", level=2, tab_name='Calculations')
         
-        self._add_formula(content,
-            "Net Storage Change = Σ(Closing Volume - Opening Volume) for all facilities",
-            "Positive = water added to storage, Negative = water drawn from storage", tab_name='Calculations')
+        self._add_section(content, "5. Ore Moisture Water (From Wet Ore)", 
+            "Water content in incoming ore (included in tonnage).\n"
+            "Priority: Excel 'Tonnes Milled' → Stored measurement → Zero\n"
+            "Calculation: Ore tonnes × Ore moisture content %", level=2, tab_name='Calculations')
         
-        self._add_section(content, "Step 4: Calculate Closure Error", 
-            "The closure error measures the water balance accuracy:\n\n"
-            "Ideally: Inflows - Outflows = Storage Change\n"
-            "In practice: Small errors occur due to measurement uncertainty", level=2)
+        self._add_section(content, "6. RWD - Return Water Dam (When Applicable)", 
+            "Excel column: AO - Treated/recycled water inflow when explicitly recorded.\n"
+            "Only used if present in Excel; otherwise TSF return calculated automatically.", level=2, tab_name='Calculations')
         
         self._add_formula(content,
-            "Closure Error (m³) = Inflows - Outflows - Storage Change\n"
-            "Closure Error (%) = (Closure Error / Inflows) × 100\n\n"
-            "Acceptable Range: ±5% (Excel parity standard)",
-            "Errors outside ±5% indicate measurement issues or missing data", tab_name='Calculations')
+            "Total Inflows = Surface Water + Groundwater + Underground + Rainfall + Ore Moisture + RWD\n\n"
+            "Fresh Inflows = Total Inflows - TSF Return\n"
+            "  (TSF return is recycled water, not NEW water entering system)",
+            "All values in m³ for the monthly period. Fresh inflows used for closure error calculation.", tab_name='Calculations')
         
-        self._add_section(content, "Step 5: Generate Results", 
-            "The final water balance includes:\n\n"
-            "• Detailed breakdown of all inflow components\n"
-            "• Detailed breakdown of all outflow components\n"
-            "• Net balance (Inflows - Outflows)\n"
-            "• Storage change for each facility\n"
-            "• Closure error (absolute and percentage)\n"
-            "• Balance status: CLOSED (<5% error) or OPEN (≥5% error)\n"
-            "• Quality flags for all measurements", level=2, tab_name='Calculations')
+        self._add_section(content, "OUTFLOWS - What Water Leaves the System", 
+            "Water exiting through consumption, evaporation, and discharge:", level=1, tab_name='Calculations')
+        
+        self._add_section(content, "1. Plant Consumption (Gross vs Net)", 
+            "Gross = Total water circulating through plant (Fresh + Recycled TSF Return)\n"
+            "Net = Fresh water actually consumed by plant = Gross - TSF Return\n\n"
+            "Includes: Grinding, flotation, filtering, dust suppression, mining ops, domestic use\n"
+            "Calculation (when ore data available):\n"
+            "  • Ore Tonnes Milled (from Excel) × Mining Water Rate (default 1.43 m³/tonne)\n"
+            "  • Plus: Dust suppression, mining consumption, domestic consumption\n"
+            "  • Minus: Auxiliary uses (dust, mining, domestic) = Fresh to plant\n"
+            "  • Plus: TSF Return = Gross", level=2, tab_name='Calculations')
+        
+        self._add_section(content, "2. TSF Return (Tailings Storage Facility Recovery)", 
+            "Water recovered from tailings and recycled back to plant.\n"
+            "Calculation: Plant Consumption (Gross) × TSF Return Rate %\n"
+            "Default Rate: 56% (configurable in Settings)\n"
+            "Treatment: Counted as INFLOW (recycled water), reduces fresh water need", level=2, tab_name='Calculations')
+        
+        self._add_section(content, "3. Evaporation Loss", 
+            "Water lost to atmosphere from storage facility surfaces.\n"
+            "Calculation (per facility):\n"
+            "  Evaporation (m³) = Evaporation Rate (mm/month) × Facility Surface Area (m²) / 1000\n"
+            "  Total = Sum across all facilities with evap_active = 1\n"
+            "Source: database regional_evaporation_monthly table (by month)", level=2, tab_name='Calculations')
+        
+        self._add_section(content, "4. Discharge (Controlled Environmental Release)", 
+            "Water deliberately released to environment (compliance, management).\n"
+            "Priority: Excel Discharge column → Database measurement → Manual input → Zero", level=2, tab_name='Calculations')
+        
+        self._add_section(content, "5. Product Moisture (Concentrate Moisture)", 
+            "Water locked in concentrate product being dispatched.\n"
+            "Priority: Excel PGM/Chromite wet tons + moisture % → Production sheet → Zero\n"
+            "Calculation: Concentrate wet tonnes × Moisture % = Water output\n"
+            "Formula: (PGM_wet × PGM_moist + CHR_wet × CHR_moist) / 100", level=2, tab_name='Calculations')
+        
+        self._add_section(content, "6. Tailings Retention (Water in Tailings)", 
+            "Water locked in tailings solids deposited to TSF.\n"
+            "Calculation: Plant consumption × Tailings moisture retention rate\n"
+            "Rate: Configurable (from settings or Excel if available)", level=2, tab_name='Calculations')
+        
+        self._add_formula(content,
+            "Total Outflows = Plant Net Consumption + Evaporation + Discharge\n\n"
+            "WHERE Plant Net Consumption includes:\n"
+            "  • Ore processing (milling, flotation, filtering)\n"
+            "  • Product moisture (water in concentrate)\n"
+            "  • Tailings retention (water locked in tailings)\n"
+            "  • Dust suppression, mining, domestic uses\n\n"
+            "NOTE: Seepage loss NOT included in total outflows (handled in storage change)",
+            "Fresh Water to Plant = Fresh Inflows - Auxiliary Uses - Storage facility demands", tab_name='Calculations')
+        
+        self._add_section(content, "STORAGE CHANGE - Facility Volume Tracking", 
+            "Each facility (dam, tank, pit) has opening and closing volumes.\n"
+            "Storage Change = Closing Volume - Opening Volume\n"
+            "Positive change = water added to storage\n"
+            "Negative change = water drawn from storage\n\n"
+            "For each facility:\n"
+            "  • Opening volume: Volume at start of period (from Excel/DB)\n"
+            "  • Closing volume: Volume at end of period (from Excel/DB)\n"
+            "  • Seepage gain: Automatic aquifer recharge (deduction from loss)\n"
+            "  • Net = Closing - Opening - Seepage loss + Seepage gain", level=1, tab_name='Calculations')
+        
+        self._add_formula(content,
+            "Net Storage Change = Σ(Closing - Opening) for all facilities\n\n"
+            "Total System Storage Change includes:\n"
+            "  • Opening volumes from Excel (start of month)\n"
+            "  • Closing volumes from Excel (end of month)\n"
+            "  • Seepage losses per facility (0.5% of volume/month default)\n"
+            "  • Seepage gains from aquifer recharge",
+            "Positive = capacity increased, Negative = capacity decreased", tab_name='Calculations')
+        
+        self._add_section(content, "CLOSURE ERROR - Balance Accuracy Check", 
+            "Measures if the water balance equation balances:\n\n"
+            "Ideal equation: Fresh Inflows - Total Outflows - Storage Change = 0\n"
+            "In practice: Small errors from measurement uncertainty\n\n"
+            "Calculation:\n"
+            "  Closure Error (m³) = |Fresh In - Total Out - Storage Change|\n"
+            "  Closure Error (%) = (Closure Error / Fresh Inflows) × 100\n"
+            "  Balance Status: CLOSED if Error ≤ 5%, OPEN if Error > 5%", level=1, tab_name='Calculations')
+        
+        self._add_formula(content,
+            "Closure Error % = |Fresh Inflows - Total Outflows - Storage Change| / Fresh Inflows × 100\n\n"
+            "Acceptable: ≤ 5% (Excel standard, regulatory compliance)\n"
+            "Flag values: CLOSED (good) or OPEN (needs investigation)",
+            "Quality metric: Shows data quality and measurement accuracy. >5% indicates missing data or measurement errors.", tab_name='Calculations')
     
     def _create_formulas_tab(self):
-        """Detailed formulas and calculations"""
+        """All mathematical formulas used in calculations"""
         tab = ttk.Frame(self.notebook)
         self.notebook.add(tab, text='Formulas')
         
         content = self._create_scrollable_frame(tab, 'Formulas')
         
-        self._add_section(content, "Core Calculation Formulas", 
-            "Detailed mathematical formulas used throughout the application.", level=1, tab_name='Formulas')
+        self._add_section(content, "📐 FORMULA DOCUMENTATION STRUCTURE", 
+            "Each formula below shows:\n\n"
+            "EQUATION: Mathematical formula with variable definitions\n"
+            "INPUT: What values the formula uses (data sources)\n"
+            "OUTPUT: What the formula produces (result/unit)\n"
+            "NOTES: Important details, defaults, or special cases\n\n"
+            "All formulas are MONTHLY BASED - calculated for month periods even if run on specific dates", level=1, tab_name='Formulas')
         
-        self._add_section(content, "Plant Water Consumption", 
-            "Water required for ore processing operations.", level=2, tab_name='Formulas')
-        
-        self._add_formula(content,
-            "Plant Makeup Water (m³) = Monthly Ore Tonnes × Mining Water Rate (m³/tonne)",
-            "Mining Water Rate is configurable, default = 1.43 m³/tonne. Adjust in Settings based on your plant's actual water consumption.", tab_name='Formulas')
-        
-        self._add_section(content, "TSF Return Water", 
-            "Water recovered from the Tailings Storage Facility and recycled back to the plant.", level=2, tab_name='Formulas')
+        self._add_section(content, "🧮 MAIN WATER BALANCE EQUATION", 
+            "The fundamental equation all other calculations support:", level=1, tab_name='Formulas')
         
         self._add_formula(content,
-            "TSF Return (m³) = Plant Consumption × (TSF Return Rate / 100)\n"
-            "Net Plant Consumption = Plant Consumption - TSF Return",
-            "TSF Return Rate is configurable in Settings, stored as percentage. Typical range: 50-60% for mining operations.", tab_name='Formulas')
+            "EQUATION: Fresh Inflows - Total Outflows - Storage Change = Closure Error\n\n"
+            "REARRANGED: Fresh Inflows = Total Outflows + Storage Change + Closure Error\n\n"
+            "COMPONENT DEFINITIONS:\n"
+            "  Fresh Inflows = Total Inflows - TSF Return (exclude recycled water)\n"
+            "  Total Inflows = Sum of all water sources (6 types)\n"
+            "  Total Outflows = Plant net consumption + evaporation + discharge\n"
+            "  Storage Change = Closing volume - Opening volume (all facilities)\n"
+            "  Closure Error = |Fresh In - Total Out - Storage Change|",
+            "INPUT: Fresh water in, total water out, facility volumes\nOUTPUT: Closure error (m³ and %)\nTARGET: Error ≤ 5%", tab_name='Formulas')
         
-        self._add_section(content, "Evaporation Loss", 
-            "Water lost to the atmosphere from open storage surfaces.", level=2, tab_name='Formulas')
-        
-        self._add_formula(content,
-            "Evaporation (m³) = (Evaporation Rate mm / 1000) × Surface Area m²\n"
-            "Monthly Evaporation = Daily Rate × Days in Month",
-            "Evaporation rates from S-pan measurements, Zone 4A climate classification\n"
-            "Surface area dynamically calculated from facility water levels", tab_name='Formulas')
-        
-        self._add_section(content, "Rainfall Contribution", 
-            "Direct precipitation captured in storage facilities.", level=2, tab_name='Formulas')
+        self._add_section(content, "INFLOW FORMULAS (6 Water Source Types)", 
+            "Calculating all water entering the system:", level=1, tab_name='Formulas')
         
         self._add_formula(content,
-            "Rainfall Volume (m³) = (Rainfall mm / 1000) × Surface Area m²",
-            "Rainfall data from on-site weather station or regional measurements", tab_name='Formulas')
-        
-        self._add_section(content, "Surface Water Flow", 
-            "Water from rivers, streams, and surface catchments.", level=2, tab_name='Formulas')
-        
-        self._add_formula(content,
-            "For measured sources:\n"
-            "  Volume = Measured Flow (m³) from flow meters\n\n"
-            "For unmeasured sources:\n"
-            "  Volume = Average Flow Rate (m³/day) × Days in Period\n\n"
-            "If no data available:\n"
-            "  Volume = Historical Average for same period (quality flag: ESTIMATED)",
-            "Historical averaging uses 12-month rolling window of available data", tab_name='Formulas')
-        
-        self._add_section(content, "Storage Facility Calculations", 
-            "Volume, capacity, and utilization for dams and tanks.", level=2, tab_name='Formulas')
+            "EQUATION: Surface Water (m³) = Σ(Flow readings for each surface source)\n\n"
+            "SOURCE TYPES: 'Surface', 'River', 'Stream', 'Dam'\n"
+            "DATA PRIORITY: Measured flow meter → Estimated average → Zero",
+            "INPUT: Water source database, flow meter readings, Excel sheets\nOUTPUT: Surface water volume (m³)\nEXAMPLE: River inflow measured at 500 m³/day × 30 days = 15,000 m³", tab_name='Formulas')
         
         self._add_formula(content,
-            "Current Volume (m³) = f(Water Level, Facility Geometry)\n"
-            "Available Capacity (m³) = Total Capacity - Current Volume\n"
-            "Utilization (%) = (Current Volume / Total Capacity) × 100\n"
-            "Freeboard (m) = Maximum Level - Current Level",
-            "Volume-level relationships defined by facility-specific rating curves", tab_name='Formulas')
-        
-        self._add_section(content, "Closure Error Calculation", 
-            "Measures the accuracy of the water balance.", level=2, tab_name='Formulas')
+            "EQUATION: Groundwater (m³) = Σ(Borehole abstraction for each borehole)\n\n"
+            "SOURCE TYPES: 'Borehole', 'Groundwater'\n"
+            "CALCULATION: (Pump rate m³/day × operating days) OR direct volume measurement",
+            "INPUT: Borehole database, pump flow rates, water levels\nOUTPUT: Groundwater volume (m³)\nEXAMPLE: Borehole 1 at 100 m³/day × 25 operating days = 2,500 m³", tab_name='Formulas')
         
         self._add_formula(content,
-            "Closure Error Absolute = |Inflows - Outflows - Storage Change|\n"
-            "Closure Error Percentage = (Closure Error / Inflows) × 100\n\n"
+            "EQUATION: Underground/Dewatering (m³) = Σ(Mine dewater volumes)\n\n"
+            "SOURCE TYPES: 'Underground', 'Dewater', 'Mine Drainage'\n"
+            "MEASURES: Water from active mining dewatering operations",
+            "INPUT: Dewatering pump rates, operating hours, mine workings\nOUTPUT: Underground water volume (m³)\nEXAMPLE: Dewater pump 80 m³/day × 30 days = 2,400 m³", tab_name='Formulas')
+        
+        self._add_formula(content,
+            "EQUATION: Rainfall (m³) = (Regional Rainfall mm / 1000) × Facility Surface Area m²\n\n"
+            "APPLIED TO: Each storage facility with evap_active = 1\n"
+            "DATA SOURCE: Database regional_rainfall_monthly table (by calendar month)",
+            "INPUT: Monthly rainfall (mm), facility surface area (m²)\nOUTPUT: Rainfall volume (m³)\nEXAMPLE: 50mm rainfall × 50,000 m² surface area = 2,500 m³", tab_name='Formulas')
+        
+        self._add_formula(content,
+            "EQUATION: Ore Moisture (m³) = Ore Tonnes Milled × Ore Moisture Content %\n\n"
+            "ORE TONNAGE PRIORITY:\n"
+            "  1. Excel 'Tonnes Milled' column (by year+month)\n"
+            "  2. Manually entered ore_tonnes parameter\n"
+            "  3. Zero (if no data provided)",
+            "INPUT: Ore tonnage, ore moisture %\nOUTPUT: Ore moisture water volume (m³)\nEXAMPLE: 350,000 tonnes × 2% moisture = 7,000 m³", tab_name='Formulas')
+        
+        self._add_formula(content,
+            "EQUATION: Total Inflows (m³) = Surface + Groundwater + Underground + Rainfall + Ore Moisture + RWD\n\n"
+            "RWD (Return Water Dam): Only included if Excel column provides explicit monthly value\n"
+            "FRESH INFLOWS (for closure error): Total Inflows - TSF Return",
+            "INPUT: All 6 inflow component volumes\nOUTPUT: Total inflows (m³), Fresh inflows (m³)\nEXAMPLE: 15,000 + 2,500 + 2,400 + 2,500 + 7,000 = 29,400 m³ total", tab_name='Formulas')
+        
+        self._add_section(content, "OUTFLOW FORMULAS (7 Water Use Types)", 
+            "Calculating all water leaving the system:", level=1, tab_name='Formulas')
+        
+        self._add_formula(content,
+            "EQUATION: Plant Consumption Gross (m³) = Fresh Water to Plant + TSF Return\n\n"
+            "CALCULATION WHEN ORE DATA AVAILABLE:\n"
+            "  Ore Tonnes × Mining Water Rate (1.43 m³/tonne default)\n"
+            "  + Dust suppression, mining ops, domestic use\n"
+            "  = Fresh water to plant\n"
+            "  + TSF Return (56% of gross)\n"
+            "  = Plant Consumption Gross",
+            "INPUT: Ore tonnage, mining water rate, TSF return %\nOUTPUT: Plant consumption gross (m³)\nEXAMPLE: 350,000 tonnes × 1.43 = 500,500 m³ gross", tab_name='Formulas')
+        
+        self._add_formula(content,
+            "EQUATION: TSF Return (m³) = Plant Consumption Gross × (TSF Return Rate / 100)\n\n"
+            "STANDARD RATE: 56% (configurable in Settings)\n"
+            "ALTERNATIVE: Explicit Excel RWD (Return Water Dam) column if provided",
+            "INPUT: Plant consumption gross, TSF return rate %\nOUTPUT: TSF return water (m³), counted as INFLOW\nEXAMPLE: 500,500 × 0.56 = 280,280 m³ TSF return", tab_name='Formulas')
+        
+        self._add_formula(content,
+            "EQUATION: Plant Consumption NET (m³) = Plant Consumption Gross - TSF Return\n\n"
+            "THIS IS FRESH WATER ACTUALLY CONSUMED:\n"
+            "  • Ore milling, flotation, filtering\n"
+            "  • Product moisture (water in concentrate)\n"
+            "  • Tailings retention (water in tailings)\n"
+            "  • Dust suppression, mining ops, domestic\n\n"
+            "Used in closure error equation (not gross with recycled)",
+            "INPUT: Plant gross, TSF return\nOUTPUT: Fresh water consumed (m³)\nEXAMPLE: 500,500 - 280,280 = 220,220 m³ net fresh consumption", tab_name='Formulas')
+        
+        self._add_formula(content,
+            "EQUATION: Evaporation Loss (m³) = Σ for all facilities:\n"
+            "  (Regional Evaporation Rate mm/month / 1000) × Surface Area m²\n\n"
+            "APPLIED TO: Facilities with evap_active = 1\n"
+            "RATE SOURCE: Database regional_evaporation_monthly (by calendar month)",
+            "INPUT: Monthly evaporation rate (mm), facility surface area (m²)\nOUTPUT: Evaporation loss (m³)\nEXAMPLE: 200 mm evap × 50,000 m² = 10,000 m³ loss", tab_name='Formulas')
+        
+        self._add_formula(content,
+            "EQUATION: Discharge (m³) = Environmental releases\n\n"
+            "DATA PRIORITY:\n"
+            "  1. Excel 'Discharge' column (monthly value)\n"
+            "  2. Database measurement (measurement_type='discharge')\n"
+            "  3. Manual input from Settings\n"
+            "  4. Zero",
+            "INPUT: Compliance/management release requirements\nOUTPUT: Discharge volume (m³)\nEXAMPLE: Monthly compliance release 5,000 m³", tab_name='Formulas')
+        
+        self._add_formula(content,
+            "EQUATION: Product Moisture (m³) = (Concentrate Tonnes × Moisture %)\n\n"
+            "CONCENTRATE TONNES PRIORITY:\n"
+            "  1. Excel PGM + Chromite wet tons dispatched (from Meter Readings)\n"
+            "  2. Production sheet estimate\n"
+            "  3. Zero\n\n"
+            "MOISTURE: Weighted average of PGM and Chromite %",
+            "INPUT: Concentrate wet tonnage, moisture %\nOUTPUT: Water in product (m³)\nEXAMPLE: 1000 tonnes concentrate × 10% moisture = 100 m³", tab_name='Formulas')
+        
+        self._add_formula(content,
+            "EQUATION: Tailings Retention (m³) = Plant Consumption Gross × Tailings Moisture Rate\n\n"
+            "MOISTURE RATE: Typical 18-22% (configurable)\n"
+            "REPRESENTS: Water locked in tailings solids deposited to TSF",
+            "INPUT: Plant consumption, tailings moisture rate %\nOUTPUT: Water in tailings (m³)\nEXAMPLE: 500,500 × 20% = 100,100 m³ water in tailings", tab_name='Formulas')
+        
+        self._add_section(content, "STORAGE CHANGE FORMULAS", 
+            "Tracking facility volume changes:", level=1, tab_name='Formulas')
+        
+        self._add_formula(content,
+            "Storage Change per Facility (m³) = Closing Volume - Opening Volume\n\n"
+            "Opening Volume: From Excel at month start\n"
+            "Closing Volume: From Excel at month end",
+            "Source: Facility water level measurements converted to volume", tab_name='Formulas')
+        
+        self._add_formula(content,
+            "Net System Storage Change (m³) = Σ(Storage Change) for all facilities\n\n"
+            "Includes:\n"
+            "  • Opening/closing volumes from Excel\n"
+            "  • Seepage loss adjustments (0.5% of volume/month default)\n"
+            "  • Seepage gain from aquifer recharge",
+            "Positive = capacity increase, Negative = capacity decrease", tab_name='Formulas')
+        
+        self._add_section(content, "CLOSURE ERROR FORMULA", 
+            "Measuring water balance accuracy:", level=1, tab_name='Formulas')
+        
+        self._add_formula(content,
+            "Closure Error (m³) = |Fresh Inflows - Total Outflows - Storage Change|\n\n"
+            "Closure Error (%) = (Closure Error m³ / Fresh Inflows m³) × 100\n\n"
             "Balance Status:\n"
-            "  CLOSED: Error ≤ 5% (acceptable)\n"
-            "  OPEN: Error > 5% (requires investigation)",
-            "Target: ±5% or better for regulatory compliance", tab_name='Formulas')
+            "  CLOSED: ≤ 5% error (acceptable, meets Excel standard)\n"
+            "  OPEN: > 5% error (requires investigation)",
+            "Quality indicator: Shows measurement accuracy and data completeness", tab_name='Formulas')
+        
+        self._add_section(content, "SUPPORTING CALCULATION FORMULAS", 
+            "Additional formulas for derived metrics:", level=1, tab_name='Formulas')
+        
+        self._add_formula(content,
+            "Net Balance (m³) = Total Inflows - Total Outflows\n\n"
+            "Note: Uses TOTAL inflows (including TSF return for visibility)\n"
+            "Different from storage change (which includes TSF return effect)",
+            "Operational planning metric: Is the system gaining or losing water?", tab_name='Formulas')
+        
+        self._add_formula(content,
+            "Water Use Efficiency (%) = Plant Output × 100 / Net Plant Consumption\n\n"
+            "Plant Output: Concentrate tonnes + tailings tonnes\n"
+            "Net Plant Consumption: Fresh water used for processing",
+            "KPI: More output per water unit = better efficiency", tab_name='Formulas')
+        
+        self._add_formula(content,
+            "Recycling Ratio (%) = TSF Return × 100 / (TSF Return + Fresh Inflows)\n\n"
+            "Shows % of water that is recycled vs fresh",
+            "Higher ratio = greater water reuse, better sustainability", tab_name='Formulas')
+        
+        self._add_formula(content,
+            "Days of Operation = Current Storage Volume / Average Daily Consumption\n\n"
+            "Average Daily = Monthly Net Consumption / Days in Month",
+            "How many days the system can operate with current storage if no inflows occur", tab_name='Formulas')
     
     def _create_data_sources_tab(self):
         """Water source types and management"""
@@ -616,122 +984,180 @@ class HelpDocumentation:
         
         content = self._create_scrollable_frame(tab, 'Features')
         
-        self._add_section(content, "Application Features", 
-            "Overview of key capabilities and how to use them.", level=1, tab_name='Features')
+        self._add_section(content, "Core Features & Capabilities", 
+            "Comprehensive list of all application functions and tools.", level=1, tab_name='Features')
         
-        self._add_section(content, "Dashboard", 
-            "Real-time overview of water balance status.\n\n"
-            "Displays:\n"
-            "• Current storage levels across all facilities\n"
-            "• Active water sources and volumes\n"
-            "• Recent calculations and trends\n"
-            "• Quick-access KPI cards", level=2, tab_name='Features')
-        
-        self._add_section(content, "KPI Dashboard", 
-            "Performance monitoring with Excel parity.\n\n"
-            "Features:\n"
-            "• Water use efficiency metrics\n"
-            "• Recycling ratio tracking\n"
-            "• Source dependency breakdown\n"
-            "• Storage security indicators\n"
-            "• Compliance status checks\n"
-            "• Date selection for historical analysis\n"
-            "• Visual indicators (color-coded performance)", level=2, tab_name='Features')
-        
-        self._add_section(content, "Data Quality Management", 
-            "Ensures reliable calculations through data validation.\n\n"
+        self._add_section(content, "💾 Data Management", 
+            "Import, store, and organize water balance data.\n\n"
             "Capabilities:\n"
-            "• Historical averaging for missing data\n"
-            "• Quality flags (MEASURED, CALCULATED, ESTIMATED, ASSUMED)\n"
-            "• Gap detection and filling algorithms\n"
-            "• Outlier identification\n"
-            "• Data completeness scoring\n"
-            "• Audit trail for all estimates", level=2, tab_name='Features')
+            "• Excel template import (9 template types)\n"
+            "• SQLite database persistence\n"
+            "• Automatic data validation\n"
+            "• Historical data management\n"
+            "• Data quality scoring\n"
+            "• Missing data detection and flagging\n"
+            "• Backup and recovery\n"
+            "• Audit trail for all changes\n"
+            "• Batch data import\n"
+            "• Database reset/rebuild functionality", 
+            level=2, tab_name='Features')
         
-        self._add_section(content, "Extended Summary", 
-            "Detailed breakdown of water balance components.\n\n"
-            "Shows:\n"
-            "• Complete inflow breakdown by source\n"
-            "• Complete outflow breakdown by category\n"
-            "• Storage change for each facility\n"
-            "• Closure error analysis\n"
-            "• Data quality indicators for each value\n"
-            "• Supporting calculations and assumptions", level=2, tab_name='Features')
+        self._add_section(content, "⚙️ Configuration & Settings", 
+            "Customize application behavior and calculations.\n\n"
+            "Adjustable Parameters:\n"
+            "• Mining water rate (m³/tonne, default: 1.43)\n"
+            "• TSF return percentage (default: 56%)\n"
+            "• Default ore processing (default: 350,000 tonnes/month)\n"
+            "• Seepage loss rate (0.5% per month)\n"
+            "• Closure error threshold (5%)\n\n"
+            "Access: Click 'Settings' in navigation menu", 
+            level=2, tab_name='Features')
         
-        self._add_section(content, "Calculations Module", 
-            "Run water balance calculations for any date.\n\n"
-            "⏱️ TIME PERIOD: All calculations are designed for MONTHLY periods\n\n"
-            "Options:\n"
-            "• Single date calculation\n"
-            "• Date range calculations\n"
-            "• Custom ore tonnage override (default: 350,000 tonnes/month)\n"
-            "• Batch processing for multiple dates\n"
-            "• Save results to database\n"
-            "• Export to Excel/PDF", level=2, tab_name='Features')
+        self._add_section(content, "🔢 Calculation Engine", 
+            "Advanced water balance computation with 40,000x performance optimization.\n\n"
+            "⏱️ TIME PERIOD: All formulas calibrated for MONTHLY calculations\n"
+            "   Can calculate for any specific date, but underlying rates are monthly", 
+            level=2, tab_name='Features')
         
-        self._add_section(content, "Data Import", 
-            "Import water balance data from Excel files.\n\n"
-            "📁 TEMPLATES AVAILABLE: Click '📁 Open Templates Folder' button to access "
-            "pre-formatted Excel templates.\n\n"
-            "Templates include:\n"
-            "• Borehole Abstraction (monthly flow rates in m³/month)\n"
-            "• River Abstraction (monthly flow rates in m³/month)\n"
-            "• Facility Levels (storage levels)\n"
-            "• Rainfall (monthly mm)\n"
-            "• Evaporation (monthly mm)\n"
-            "• Plant Consumption (monthly volumes)\n"
-            "• Discharge (monthly volumes)\n"
-            "• Water Sources (source definitions)\n"
-            "• Storage Facilities (facility definitions)\n\n"
-            "⏱️ TIME PERIOD: All measurement templates are designed for MONTHLY data\n\n"
-            "Import Process:\n"
-            "1. Click '📁 Open Templates Folder' to get templates\n"
-            "2. Fill template with your data in Excel/LibreOffice\n"
-            "3. Select import type matching your template\n"
-            "4. Browse to select your filled Excel file\n"
-            "5. Click 'Preview Data' to validate structure\n"
-            "6. Review data and click 'Import Data' to add to database\n\n"
-            "File Requirements:\n"
-            "• First row contains column headers\n"
-            "• Column names match template fields\n"
-            "• Dates in YYYY-MM-DD format\n"
-            "• Required columns have values\n"
-            "• One row per location per month for measurements", level=2, tab_name='Features')
+        self._add_section(content, "📊 Extended Summary View", 
+            "Detailed breakdown of balance components.", 
+            level=2, tab_name='Features')
         
-        self._add_section(content, "Reports Generator", 
-            "Professional reports for stakeholders and regulators.\n\n"
-            "Report Types:\n"
-            "• Monthly water balance report\n"
-            "• Annual compliance report\n"
-            "• Source performance report\n"
-            "• Storage capacity report\n"
-            "• KPI trends report\n\n"
-            "Formats:\n"
-            "• PDF with charts and tables\n"
-            "• Excel workbook with raw data\n"
-            "• CSV for data analysis", level=2, tab_name='Features')
+        self._add_section(content, "📁 Data Import from Excel", 
+            "9 pre-formatted templates for easy data entry.", 
+            level=2, tab_name='Features')
         
-        self._add_section(content, "Performance Optimization", 
-            "Smart caching for fast calculations.\n\n"
-            "Technology:\n"
-            "• Memoization: 40,000x faster repeated calculations\n"
-            "• Database caching: Reduced query overhead\n"
-            "• Single-pass KPI calculations\n"
-            "• Automatic cache invalidation when data changes\n\n"
-            "Result:\n"
-            "• Instant dashboard updates\n"
-            "• Real-time KPI refresh\n"
-            "• Responsive user interface", level=2, tab_name='Features')
+        self._add_section(content, "📈 Analytics & Trends", 
+            "12-month moving averages, seasonal analysis, forecasting.", 
+            level=2, tab_name='Features')
         
-        self._add_section(content, "Error Handling & Logging", 
-            "Enterprise-grade reliability and diagnostics.\n\n"
-            "Features:\n"
-            "• User-friendly error messages\n"
-            "• Detailed technical logs for debugging\n"
-            "• Performance timing on all operations\n"
-            "• Automatic error classification\n"
-            "• Notification history tracking\n"
-            "• Rotating log files (prevents disk filling)", level=2, tab_name='Features')
+        self._add_section(content, "📄 Report Generation", 
+            "Professional PDF, Excel, and CSV reports.", 
+            level=2, tab_name='Features')
+        
+        self._add_section(content, "🔒 Data Quality & Validation", 
+            "Historical averaging, quality flags, gap detection.", 
+            level=2, tab_name='Features')
+        
+        self._add_section(content, "⚡ Performance Optimization", 
+            "Memoization cache provides 40,000x speed improvement.", 
+            level=2, tab_name='Features')
+        
+        self._add_section(content, "🛡️ Error Handling & Logging", 
+            "Enterprise-grade reliability with detailed diagnostics.", 
+            level=2, tab_name='Features')
+    
+    def _create_troubleshooting_tab(self):
+        """Common issues and solutions"""
+        tab = ttk.Frame(self.notebook)
+        self.notebook.add(tab, text='Troubleshooting')
+        
+        content = self._create_scrollable_frame(tab, 'Troubleshooting')
+        
+        self._add_section(content, "Troubleshooting Guide", 
+            "Solutions for common issues and error messages.", level=1, tab_name='Troubleshooting')
+        
+        self._add_section(content, "❓ Dashboards show '-' instead of data", 
+            "Cause: Excel data not loaded\n\n"
+            "Solution:\n"
+            "1. Go to Flow Diagram tab\n"
+            "2. Select Year and Month from dropdowns\n"
+            "3. Click 'Load Excel' button\n"
+            "4. Return to Dashboard to see volumes", 
+            level=2, tab_name='Troubleshooting')
+        
+        self._add_section(content, "❓ Closure error >5% (Balance Open)", 
+            "Indicates measurement inconsistencies\n\n"
+            "Investigation Steps:\n"
+            "1. Check Extended Summary for detailed breakdown\n"
+            "2. Verify facility water levels are current\n"
+            "3. Look for '-' values (missing data)\n"
+            "4. Compare with previous months\n"
+            "5. Manually verify largest inflow/outflow values", 
+            level=2, tab_name='Troubleshooting')
+        
+        self._add_section(content, "❓ Import fails: 'File format error'", 
+            "Check:\n"
+            "1. File is Excel (.xlsx) or CSV\n"
+            "2. First row contains column headers\n"
+            "3. Dates in YYYY-MM-DD format\n"
+            "4. Numbers are numeric (not text)\n"
+            "5. Column names match template exactly", 
+            level=2, tab_name='Troubleshooting')
+        
+        self._add_section(content, "❓ Calculations are very slow", 
+            "Solutions:\n"
+            "1. First calculation of new date is slow (~1-3 sec) - this is normal\n"
+            "2. Subsequent calculations reuse cache (40,000x faster)\n"
+            "3. Very slow every time: check database size\n"
+            "4. Enable 'Fast Startup' in Settings for background loading", 
+            level=2, tab_name='Troubleshooting')
+        
+        self._add_section(content, "❓ Flow Diagram won't save", 
+            "Check:\n"
+            "1. File permissions: data/diagrams/ must be writable\n"
+            "2. Disk space: ensure >100MB free\n"
+            "3. Solution: Click 'Save' again or restart application", 
+            level=2, tab_name='Troubleshooting')
+        
+        self._add_section(content, "❓ 'No data available' on Analytics", 
+            "Analytics require at least 3 months of data\n\n"
+            "Solution:\n"
+            "1. Import historical data using Data Import tab\n"
+            "2. Use templates in 'Open Templates Folder'\n"
+            "3. Once 3+ months loaded, Analytics becomes available", 
+            level=2, tab_name='Troubleshooting')
+        
+        self._add_section(content, "❓ Excel mapping errors in Flow Diagram", 
+            "Cause: Column not found in Excel file\n\n"
+            "Solutions:\n"
+            "1. Click 'Validate' to find missing columns\n"
+            "2. Click 'Auto-Map' to auto-fix using aliases\n"
+            "3. Click 'Mappings' to manually edit column names", 
+            level=2, tab_name='Troubleshooting')
+        
+        self._add_section(content, "❓ KPI values don't match Excel", 
+            "Check Settings for:\n"
+            "1. Mining water rate (default: 1.43 m³/tonne)\n"
+            "2. TSF return percentage (default: 56%)\n"
+            "3. Default ore tonnage (default: 350,000 tonnes/month)\n"
+            "4. Product moisture percentages\n\n"
+            "Update if different and recalculate", 
+            level=2, tab_name='Troubleshooting')
+        
+        self._add_section(content, "❓ Missing data warnings on Dashboard", 
+            "This is normal when:\n"
+            "• Just imported data\n"
+            "• Some facilities don't have measurements\n"
+            "• New sources not activated yet\n\n"
+            "App automatically uses historical averages to fill gaps", 
+            level=2, tab_name='Troubleshooting')
+        
+        self._add_section(content, "❓ Database errors", 
+            "Quick Fix:\n"
+            "1. Close application completely\n"
+            "2. Wait 5 seconds\n"
+            "3. Reopen application\n\n"
+            "If Still Failing:\n"
+            "1. Go to Settings\n"
+            "2. Click 'Reset Database'\n"
+            "3. Application will recreate database", 
+            level=2, tab_name='Troubleshooting')
+        
+        self._add_section(content, "📞 Getting Help & Support", 
+            "Resources:\n"
+            "• This Help Documentation (click ? Help)\n"
+            "• Check docs/ folder for detailed guides\n"
+            "• Check data/logs/ for error details\n"
+            "• Hover over fields for tooltips\n\n"
+            "When Reporting Issues:\n"
+            "• Provide error message\n"
+            "• Attach relevant log file\n"
+            "• State what you were doing\n"
+            "• List steps to reproduce", 
+            level=2, tab_name='Troubleshooting')
+
+
     
 
 def create_help_window():

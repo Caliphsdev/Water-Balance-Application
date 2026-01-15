@@ -8,6 +8,7 @@ Implements formulas from Excel analysis:
 - Evaporation losses
 - Water balance equations
 - Storage level changes
+- Automatic pump transfers between facilities
 """
 
 from datetime import date, datetime
@@ -22,6 +23,7 @@ from utils.historical_averaging import HistoricalAveraging
 from utils.excel_timeseries import get_default_excel_repo
 from utils.app_logger import logger
 from utils.alert_manager import alert_manager
+from utils.pump_transfer_engine import PumpTransferEngine
 
 
 class WaterBalanceCalculator:
@@ -33,6 +35,8 @@ class WaterBalanceCalculator:
         self.historical_avg = HistoricalAveraging(self.db)
         # Excel repositories - initialized lazily on first use
         self._excel_repo = None
+        # Pump transfer engine
+        self.pump_transfer_engine = PumpTransferEngine(self.db, self)
         # Performance optimization: cache for balance calculations
         self._balance_cache = {}
         self._kpi_cache = {}
@@ -123,35 +127,7 @@ class WaterBalanceCalculator:
             # Also store with friendly names
             if 'TSF' in const['constant_key']:
                 constants['tsf_return_percentage'] = float(const['constant_value']) * 100
-            elif 'MINING_WATER' in const['constant_key']:
-                constants['mining_water_per_tonne'] = float(const['constant_value'])
-            elif 'PROCESSING' in const['constant_key']:
-                constants['monthly_ore_processing'] = float(const['constant_value'])
         
-        # Apply active scenario overrides if any
-        from utils.config_manager import config as app_config
-        # Reload config to ensure latest scenario selection is reflected
-        active_id = app_config.get_active_scenario_id()
-        app_config.load_config()  # Force reload from disk in case another component updated it
-        refreshed_id = app_config.get_active_scenario_id()
-        if refreshed_id != active_id:
-            logger.info(f"Scenario id refreshed from {active_id} to {refreshed_id}")
-            active_id = refreshed_id
-        if active_id:
-            logger.info(f"Loading scenario overrides for scenario_id={active_id}")
-            scenario_consts = self.db.get_scenario_constants(active_id)
-            for key, val in scenario_consts.items():
-                std_key = key.lower().replace('_', '')
-                constants[std_key] = float(val)
-                if 'TSF' in key:
-                    constants['tsf_return_percentage'] = float(val) * 100
-                elif 'MINING_WATER' in key:
-                    logger.info(f"Override MINING_WATER_RATE -> mining_water_per_tonne={val}")
-                    constants['mining_water_per_tonne'] = float(val)
-                elif 'PROCESSING' in key:
-                    constants['monthly_ore_processing'] = float(val)
-        else:
-            logger.info(f"No active scenario (active_id={active_id}) during constants load")
         return constants
     
     def get_constant(self, name: str, default: float = 0.0) -> float:
@@ -163,10 +139,7 @@ class WaterBalanceCalculator:
         norm = name.lower().replace('_', '')
         # Map common raw forms to friendly storage keys
         alias_map = {
-            'miningwaterrate': 'mining_water_per_tonne',
-            'tsfreturnrate': 'tsf_return_percentage',
-            # Allow direct access to processing monthly ore
-            'monthlyoreprocessing': 'monthly_ore_processing'
+            'tsfreturnrate': 'tsf_return_percentage'
         }
         mapped = alias_map.get(norm, norm)
         return self.constants.get(mapped, default)
@@ -418,7 +391,6 @@ class WaterBalanceCalculator:
         Priority order for ore tonnage source:
           1. Excel monthly value 'Tonnes Milled' (by year+month)
           2. Explicit ore_tonnes argument (only if > 0)
-          3. Constant 'monthly_ore_processing' — REMOVED per user request for zero-defaults
         
         Returns: (ore_moisture_water_m3, source_present_bool)
         source_present_bool True only if data came from Excel or explicit positive tonnage.
@@ -472,14 +444,25 @@ class WaterBalanceCalculator:
 
         tailings_dry_mass = max(ore_tonnes - concentrate_tonnes, 0.0)
 
-        # Tailings moisture from DB only (monthly), else zero
+        # Tailings moisture: Priority 1) DB monthly data, 2) Constant fallback
         tailings_moisture_pct = 0.0
         try:
             db_moisture = self.db.get_tailings_moisture_monthly(calculation_date.month, calculation_date.year)
             if db_moisture is not None:
                 tailings_moisture_pct = max(float(db_moisture), 0.0) / 100.0
+            else:
+                # Fallback to constant if no DB data
+                const_moisture = self.db.get_constant('tailings_moisture_pct')
+                if const_moisture:
+                    tailings_moisture_pct = max(float(const_moisture), 0.0) / 100.0
         except Exception:
-            tailings_moisture_pct = 0.0
+            # Final fallback to constant
+            try:
+                const_moisture = self.db.get_constant('tailings_moisture_pct')
+                if const_moisture:
+                    tailings_moisture_pct = max(float(const_moisture), 0.0) / 100.0
+            except Exception:
+                tailings_moisture_pct = 0.0
 
         return tailings_dry_mass * tailings_moisture_pct
     
@@ -579,9 +562,9 @@ class WaterBalanceCalculator:
         
         # Fallback: estimate from ore tonnage (for projections/when no measurements)
         if ore_tonnes is None:
-            ore_tonnes = self.get_constant('monthly_ore_processing', 350000.0)
+            ore_tonnes = 0.0
         
-        water_per_tonne = self.get_constant('mining_water_per_tonne', 0.18)
+        water_per_tonne = self.get_constant('mining_water_per_tonne', 0.0)
         consumption = ore_tonnes * water_per_tonne
         
         return consumption
@@ -836,36 +819,50 @@ class WaterBalanceCalculator:
         if concentrate_moisture_pct is None:
             concentrate_moisture_pct = 0.0
 
-        product_moisture = (concentrate_tonnes * concentrate_moisture_pct) if concentrate_tonnes > 0 else 0.0
+        # Product moisture calculation (wet basis):
+        # Water (tonnes) = Wet mass (tonnes) × (moisture% / 100)
+        # Water (m³) = Water (tonnes) / water_density (t/m³)
+        # Assuming water density = 1.0 t/m³ for moisture content
+        water_density = 1.0  # tonnes per m³
+        product_moisture_tonnes = (concentrate_tonnes * concentrate_moisture_pct) if concentrate_tonnes > 0 else 0.0
+        product_moisture = product_moisture_tonnes / water_density  # Convert to m³
 
         # Net plant consumption (fresh water actually consumed by main plant)
         # Net = Fresh_to_plant (do not count abstraction or TSF as fresh)
         net_plant_consumption = fresh_water_to_plant if fresh_water_to_plant is not None else max(0.0, plant_consumption - tsf_return - abstraction_to_plant)
 
-        # TOTAL OUTFLOWS: Net plant + Auxiliary uses + Discharge
-        # Note: Using NET not GROSS to avoid double-counting TSF return
-        # TSF return is already counted as an INFLOW
+        # TOTAL OUTFLOWS: Only actual water losses leaving the mine site
+        # ═════════════════════════════════════════════════════════════════
         # 
-        # Plant Net = Fresh water to plant ONLY (auxiliary uses were subtracted before)
-        # Therefore we must ADD BACK auxiliary uses to get total site consumption
+        # Components INCLUDED in total (water permanently leaving site):
+        #   • Mining Consumption: Water used in underground operations
+        #   • Domestic Consumption: Personnel and site water use
+        #   • Dust Suppression: Ore handling dust control
+        #   • Discharge: Water released to environment
+        #   • Product Moisture: Water shipped off-site with concentrate
+        #   • Tailings Retention: Water locked in tailings solids
         # 
-        # Calculation flow:
-        #   1. fresh_total = all fresh inflows
-        #   2. auxiliary = dust + mining + domestic (subtracted from fresh_total)
-        #   3. fresh_to_plant = fresh_total - auxiliary
-        #   4. plant_net = fresh_to_plant (does NOT include auxiliary)
-        #   5. total_outflows = plant_net + auxiliary + discharge
+        # Components EXCLUDED from total (not external losses):
+        #   • Evaporation: Captured in storage change (dam volume decrease)
+        #   • Seepage Loss: Captured in storage change (dam volume decrease)
+        #   • Plant Consumption Gross: Superseded by detailed components above
+        #   • Plant Consumption Net: OLD metric, replaced by detailed breakdown
+        #   • Abstraction to Plant: Internal transfer (not fresh water loss)
         # 
-        # IMPORTANT: Evaporation and Seepage are NOT included in total outflows because:
-        # - Evaporation reduces storage volumes (calculated in storage change)
-        # - Seepage affects facility volumes (decreases storage)
-        # - Storage change already captures both effects
-        # - Including them here would double-count these losses
-        # - They're shown separately for reporting/analysis purposes
+        # WHY exclude evaporation & seepage from outflows total?
+        #   When water evaporates from a dam or seeps through lining:
+        #   1. Dam volume decreases → Captured in storage change (ΔStorage)
+        #   2. If we ALSO count it in outflows, we double-count the loss
+        #   3. Mass balance: Fresh IN = Outflows + ΔStorage + Error
+        #   4. Storage change already includes evaporation/seepage effects
         # 
-        # MASS BALANCE: Fresh IN = OUT + ΔStorage + Error
-        # where ΔStorage already includes evaporation and seepage effects
-        total = net_plant_consumption + dust_suppression + mining_use + domestic_use + discharge
+        # MASS BALANCE EQUATION:
+        #   Fresh Inflows - (Mining + Domestic + Dust + Discharge + 
+        #   Product Moisture + Tailings) - ΔStorage = Balance Error
+        # 
+        # Note: ΔStorage is calculated per-facility and includes evaporation
+        # and seepage effects automatically through measured volume changes
+        total = mining_use + domestic_use + dust_suppression + discharge + product_moisture + tailings_retention
 
         outflows = {
             'plant_consumption_gross': plant_consumption,
@@ -913,8 +910,8 @@ class WaterBalanceCalculator:
         if rainfall_rows:
             total_rainfall_mm = sum(r['rainfall_mm'] for r in rainfall_rows if r.get('rainfall_mm'))
         else:
-            # Fallback to constant when no measurement rows
-            total_rainfall_mm = self.get_constant('DEFAULT_MONTHLY_RAINFALL_MM', 60.0)
+            # Fallback to zero when no measurement rows
+            total_rainfall_mm = 0.0
 
         facility_measurements_map = {}
         
@@ -1008,7 +1005,7 @@ class WaterBalanceCalculator:
         start_time = time.perf_counter()
         
         # Check cache first (performance optimization)
-        ore_key = ore_tonnes if ore_tonnes is not None else self.get_constant('monthly_ore_processing', 350000.0)
+        ore_key = ore_tonnes if ore_tonnes is not None else 0.0
         cache_key = (calculation_date, ore_key)
         if cache_key in self._balance_cache:
             elapsed = (time.perf_counter() - start_time) * 1000
@@ -1095,6 +1092,9 @@ class WaterBalanceCalculator:
         auxiliary_uses = dust_suppression_prelim + mining_use_prelim + domestic_use_prelim
         fresh_water_to_plant = fresh_water_total - auxiliary_uses
         
+        # Calculate automatic pump transfers between facilities
+        pump_transfers = self.pump_transfer_engine.calculate_pump_transfers(calculation_date)
+        
         outflows = self.calculate_total_outflows(
             calculation_date,
             ore_val,
@@ -1142,6 +1142,10 @@ class WaterBalanceCalculator:
         # Get current storage levels (using Excel volumes for this date if available)
         storage_stats = self._get_storage_statistics(preloaded_facilities=preloaded_facilities, calculation_date=calculation_date)
         
+        # Add closing volume to storage stats (critical for Days of Operation)
+        storage_stats['closing'] = storage_change_data.get('total_closing_volume', storage_stats['current_volume'])
+        storage_stats['capacity'] = storage_stats['total_capacity']  # Alias for compatibility
+        
         balance = {
             'calculation_date': calculation_date,
             'inflows': inflows,
@@ -1152,7 +1156,8 @@ class WaterBalanceCalculator:
             'closure_error_percent': closure_error_pct,
             'storage': storage_stats,
             'ore_processed': ore_val,
-            'balance_status': 'CLOSED' if closure_error_pct < 5.0 else 'OPEN'
+            'balance_status': 'CLOSED' if closure_error_pct < 5.0 else 'OPEN',
+            'pump_transfers': pump_transfers
         }
         
         # Cache the result (performance optimization)
@@ -1182,7 +1187,8 @@ class WaterBalanceCalculator:
         
         return {
             'total_capacity': total_capacity,
-            'current_volume': current_volume,
+            'current_volume': current_volume,  # Opening balance
+            'opening': current_volume,  # Alias for clarity
             'available_capacity': total_capacity - current_volume,
             'utilization_percent': utilization
         }
@@ -1330,7 +1336,7 @@ class WaterBalanceCalculator:
         """
         projections: List[Dict] = []
         current_date = start_date
-        ore_val = ore_tonnes_per_month if ore_tonnes_per_month is not None else self.get_constant('monthly_ore_processing', 350000.0)
+        ore_val = ore_tonnes_per_month if ore_tonnes_per_month is not None else 0.0
         for _ in range(months):
             # Use first day of month for projection consistency
             projection_date = date(current_date.year, current_date.month, 1)
@@ -1388,7 +1394,7 @@ class WaterBalanceCalculator:
         Returns m³ water per tonne milled for various consumption categories
         """
         if ore_tonnes is None:
-            ore_tonnes = self.get_constant('monthly_ore_processing', 350000.0)
+            ore_tonnes = 0.0
         
         if ore_tonnes == 0:
             return {
@@ -1654,7 +1660,7 @@ class WaterBalanceCalculator:
         OPTIMIZED: Single balance calculation, all metrics derived from it
         """
         # Check KPI cache first
-        ore_key = ore_tonnes if ore_tonnes is not None else self.get_constant('monthly_ore_processing', 350000.0)
+        ore_key = ore_tonnes if ore_tonnes is not None else 0.0
         cache_key = (calculation_date, ore_key)
         if cache_key in self._kpi_cache:
             return self._kpi_cache[cache_key].copy()
@@ -1800,7 +1806,7 @@ class WaterBalanceCalculator:
             if rainfall_rows:
                 total_rainfall_mm = sum(r['rainfall_mm'] for r in rainfall_rows if r.get('rainfall_mm'))
             else:
-                total_rainfall_mm = self.get_constant('DEFAULT_MONTHLY_RAINFALL_MM', 60.0)
+                total_rainfall_mm = 0.0
 
             # Facility measurements map is now always empty (no DB time-series)
             facility_measurements_map = {}
@@ -2059,7 +2065,7 @@ class WaterBalanceCalculator:
     
     def reload_constants(self):
         """Reload constants and clear cache
-        Call after scenario change or constant update
+        Call after constant update
         """
         self.constants = self._load_constants()
         self.invalidate_cache()  # Clear all since constants affect all dates

@@ -42,13 +42,17 @@ def migrate_database():
             print("Adding description to storage_facilities...")
             cursor.execute("ALTER TABLE storage_facilities ADD COLUMN description TEXT")
         
-        if 'minimum_operating_level' not in columns:
-            print("Adding minimum_operating_level to storage_facilities...")
-            cursor.execute("ALTER TABLE storage_facilities ADD COLUMN minimum_operating_level REAL DEFAULT 0")
+        if 'max_depth' not in columns:
+            print("Adding max_depth to storage_facilities...")
+            cursor.execute("ALTER TABLE storage_facilities ADD COLUMN max_depth REAL")
         
-        if 'maximum_operating_level' not in columns:
-            print("Adding maximum_operating_level to storage_facilities...")
-            cursor.execute("ALTER TABLE storage_facilities ADD COLUMN maximum_operating_level REAL DEFAULT 100")
+        if 'purpose' not in columns:
+            print("Adding purpose to storage_facilities...")
+            cursor.execute("ALTER TABLE storage_facilities ADD COLUMN purpose TEXT DEFAULT 'raw_water'")
+        
+        if 'water_quality' not in columns:
+            print("Adding water_quality to storage_facilities...")
+            cursor.execute("ALTER TABLE storage_facilities ADD COLUMN water_quality TEXT DEFAULT 'process'")
         
         conn.commit()
         print("Migration completed successfully!")

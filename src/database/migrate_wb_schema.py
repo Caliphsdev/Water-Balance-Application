@@ -561,7 +561,7 @@ def seed_stockpile_area():
 
 
 def seed_ug2_south_decline_area():
-    """Seed topology for UG2 South Decline Area.
+    """Seed topology for UG2 Main Decline Area.
 
     Structures:
     - Softening Plant (treatment)
@@ -599,7 +599,7 @@ def seed_ug2_south_decline_area():
         # Insert area
         cur.execute(
             "INSERT OR IGNORE INTO wb_areas (area_code, area_name, description) VALUES (?, ?, ?)",
-            ("UG2_SOUTH", "UG2 South Decline Area", "UG2 South area topology")
+            ("UG2_SOUTH", "UG2 Main Decline Area", "UG2 South area topology")
         )
         cur.execute("SELECT area_id FROM wb_areas WHERE area_code=?", ("UG2_SOUTH",))
         area_id = cur.fetchone()[0]

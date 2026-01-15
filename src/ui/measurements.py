@@ -96,7 +96,7 @@ class MeasurementsModule:
         ttk.Label(date_frame, text="From:", width=12).pack(side=tk.LEFT, padx=(0, 5))
         
         default_from = date.today() - timedelta(days=30)
-        self.date_from_var = tk.StringVar()
+        self.date_from_var = tk.StringVar(master=date_frame)
         date_from = DateEntry(date_frame, textvariable=self.date_from_var,
                              width=12, background='darkblue',
                              foreground='white', borderwidth=2,
@@ -106,7 +106,7 @@ class MeasurementsModule:
         
         ttk.Label(date_frame, text="To:", width=8).pack(side=tk.LEFT, padx=(0, 5))
         
-        self.date_to_var = tk.StringVar()
+        self.date_to_var = tk.StringVar(master=date_frame)
         date_to = DateEntry(date_frame, textvariable=self.date_to_var,
                            width=12, background='darkblue',
                            foreground='white', borderwidth=2,
@@ -391,19 +391,19 @@ class MeasurementDialog:
         self.dialog.geometry(f"+{x}+{y}")
         
         # Variables
-        self.date_var = tk.StringVar()
-        self.type_var = tk.StringVar()
-        self.source_var = tk.StringVar()
-        self.facility_var = tk.StringVar()
-        self.volume_var = tk.StringVar()
-        self.flow_rate_var = tk.StringVar()
-        self.level_meters_var = tk.StringVar()
-        self.level_percent_var = tk.StringVar()
-        self.rainfall_var = tk.StringVar()
-        self.measured_var = tk.IntVar(value=1)
-        self.quality_var = tk.StringVar(value='good')
-        self.data_source_var = tk.StringVar(value='manual')
-        self.notes_var = tk.StringVar()
+        self.date_var = tk.StringVar(master=self.dialog)
+        self.type_var = tk.StringVar(master=self.dialog)
+        self.source_var = tk.StringVar(master=self.dialog)
+        self.facility_var = tk.StringVar(master=self.dialog)
+        self.volume_var = tk.StringVar(master=self.dialog)
+        self.flow_rate_var = tk.StringVar(master=self.dialog)
+        self.level_meters_var = tk.StringVar(master=self.dialog)
+        self.level_percent_var = tk.StringVar(master=self.dialog)
+        self.rainfall_var = tk.StringVar(master=self.dialog)
+        self.measured_var = tk.IntVar(master=self.dialog, value=1)
+        self.quality_var = tk.StringVar(master=self.dialog, value='good')
+        self.data_source_var = tk.StringVar(master=self.dialog, value='manual')
+        self.notes_var = tk.StringVar(master=self.dialog)
         
         self._create_form()
         self._populate_form()

@@ -90,7 +90,7 @@ INFLOW SOURCE CODES BY AREA - FILL IN YOUR VALUES
                                                                   # NEGATIVE = flow FROM UG2P_PLANT TO UG2PCD1 (return to dam)
 
 ================================================================================
-📍 UG2_SOUTH - UG2 South Decline Area
+📍 UG2_SOUTH - UG2 Main Decline Area
 ================================================================================
 
 ⬇️  EXTERNAL INFLOWS (nature/extraction):

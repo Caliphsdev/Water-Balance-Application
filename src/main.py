@@ -11,6 +11,8 @@ from tkinter import ttk, messagebox
 from ttkthemes import ThemedTk
 import sys
 from pathlib import Path
+import threading
+import time
 
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent))
@@ -22,10 +24,12 @@ from utils.error_handler import error_handler
 from ui.main_window import MainWindow
 from database.db_manager import db
 from utils.flow_volume_loader import get_flow_volume_loader, reset_flow_volume_loader
+from ui.loading_screen import LoadingScreen
+from licensing.license_manager import LicenseManager
+from ui.license_dialog import show_license_dialog
 
 # New: Async loading support (Phase 1: Fast Startup)
 from utils.async_loader import get_loader, load_database_blocking
-from ui.loading_indicator import LoadingIndicator
 
 
 class WaterBalanceApp:
@@ -35,12 +39,16 @@ class WaterBalanceApp:
         """Initialize the Water Balance Application"""
         self.root = None
         self.main_window = None
-        self.loading_indicator = None
+        self.loading_screen = None
         self.db_loaded = False
         self.mainloop_started = False
         self.pending_db_callback = None
-        self.loading_start_time = None
-        self.min_loading_time = 3.0  # Minimum 3 seconds for smooth experience
+        
+        # License manager for background checks
+        self.license_manager = LicenseManager()
+        self.license_check_thread = None
+        self.license_check_running = False
+        self.last_license_status = True  # Assume valid until proven otherwise
         
     def initialize(self):
         """Initialize the application window and components"""
@@ -57,7 +65,8 @@ class WaterBalanceApp:
             fast_startup_enabled = config.get('features.fast_startup', False)
             logger.info(f"Fast startup feature: {'ENABLED' if fast_startup_enabled else 'DISABLED'}")
             
-            # Create themed root window with safe fallback
+            # Create themed root window FIRST (before loading screen)
+            # This prevents multiple tk.Tk() instances which cause window artifacts
             try:
                 self.root = ThemedTk(theme=config.theme)
             except Exception as theme_err:
@@ -65,8 +74,22 @@ class WaterBalanceApp:
                 self.root = tk.Tk()
                 # Apply basic background so user doesn't see black screen
                 self.root.configure(bg=config.get_color('bg_main'))
+            
+            # IMPORTANT: Keep window completely hidden and off-screen until loading completes
+            self.root.withdraw()
+            self.root.attributes('-alpha', 0.0)  # Completely transparent
+            self.root.geometry(f"+9999+9999")  # Move off-screen
+            
+            # Now create loading screen using main root as parent
+            self.loading_screen = LoadingScreen(root=self.root)
+            self.loading_screen.set_status("Initializing application...", 0)
+            self.loading_screen.show()
+            logger.info("Professional loading screen displayed")
+            
+            # Set target geometry for later
+            self.target_geometry = config.window_geometry
+            
             self.root.title(config.window_title)
-            self.root.geometry(config.window_geometry)
             logger.info(f"Window created: {config.window_geometry}")
             # Closing state flag to prevent double-confirm/destroy
             self.root._closing = False
@@ -83,9 +106,13 @@ class WaterBalanceApp:
             self._apply_custom_styles()
             logger.info("Custom styles applied")
             
+            # Update loading screen
+            self.loading_screen.set_status("Loading configuration...", 30)
+            
             # Database loading: ASYNC (new) or BLOCKING (old)
             if fast_startup_enabled:
                 # NEW: Async database loading - start in background
+                self.loading_screen.set_status("Connecting to database...", 45)
                 logger.info("Starting ASYNC database loading (fast startup)")
                 self.db_loaded = False
                 
@@ -98,9 +125,11 @@ class WaterBalanceApp:
                 
             else:
                 # OLD: Blocking database load (traditional approach)
+                self.loading_screen.set_status("Loading database...", 50)
                 logger.info("Using BLOCKING database load (traditional mode)")
                 db.preload_caches()
                 logger.info("Database caches preloaded (blocking)")
+                self.loading_screen.set_status("Initializing UI components...", 75)
                 # Health check in blocking mode
                 try:
                     stats = db.get_dashboard_stats()
@@ -115,17 +144,9 @@ class WaterBalanceApp:
             
             # Create main window
             try:
+                self.loading_screen.set_status("Building interface...", 90)
                 self.main_window = MainWindow(self.root)
                 logger.info("Main window created successfully")
-                
-                # Now show loading indicator if using async loading
-                if fast_startup_enabled and not self.db_loaded:
-                    import time
-                    self.loading_start_time = time.time()
-                    self.loading_indicator = LoadingIndicator(self.root, "Loading data")
-                    self.loading_indicator.show()
-                    self.root.update()  # Force render
-                    logger.info("Loading indicator displayed")
                     
             except Exception as mw_err:
                 logger.exception(f"Main window failed to initialize: {mw_err}")
@@ -149,7 +170,38 @@ class WaterBalanceApp:
                 return True
             
             # Center window on screen
+            self.loading_screen.set_status("Finalizing...", 100)
             self._center_window()
+            
+            # Schedule main window to appear after loading screen closes
+            # Wait for full loading screen duration (3.5s) + animation completion (1.2s) + fade out (300ms) + safety buffer (800ms)
+            loading_delay_ms = 3500 + 1200 + 300 + 800  # 5800ms total - ensures 100% is reached comfortably
+            
+            def on_loading_complete():
+                """Called after loading screen closes - show app immediately."""
+                try:
+                    if self.loading_screen:
+                        self.loading_screen.close()
+                        self.loading_screen = None
+                except:
+                    pass
+                
+                # Now reveal the main window
+                self.root.geometry(self.target_geometry)
+                self.root.attributes('-alpha', 0.0)  # Start transparent
+                self.root.deiconify()  # Make visible
+                self.root.lift()  # Bring to front
+                self.root.focus_force()  # Give focus
+                
+                # Smooth fade-in (100ms)
+                for i in range(1, 6):
+                    self.root.attributes('-alpha', i / 5)
+                    self.root.update()
+                    import time
+                    time.sleep(0.02)  # 20ms per step = 100ms total
+            
+            # Schedule to show app after loading screen fully completes
+            self.root.after(loading_delay_ms, on_loading_complete)
             
             # Bind window close event
             self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
@@ -158,6 +210,12 @@ class WaterBalanceApp:
             return True
             
         except Exception as e:
+            # Close loading screen on error
+            if self.loading_screen:
+                try:
+                    self.loading_screen.close()
+                except:
+                    pass
             tech_msg, user_msg, severity = error_handler.handle(
                 e, 
                 context="Application initialization",
@@ -282,9 +340,6 @@ class WaterBalanceApp:
         try:
             if error:
                 logger.error(f"Database loading failed: {error}")
-                # Hide loading indicator
-                if self.loading_indicator and self.loading_indicator.is_showing():
-                    self.loading_indicator.hide()
                 
                 # Show error and fallback to blocking load
                 if messagebox.askyesno(
@@ -323,35 +378,8 @@ class WaterBalanceApp:
                 except Exception as hc_err:
                     logger.warning(f"DB health check failed: {hc_err}")
                 
-                # Calculate remaining time to show loading screen (minimum 3 seconds)
-                if self.loading_indicator and self.loading_indicator.is_showing():
-                    import time
-                    elapsed = time.time() - self.loading_start_time if self.loading_start_time else 0
-                    remaining = max(0, self.min_loading_time - elapsed)
-                    
-                    if remaining > 0:
-                        logger.info(f"Waiting {remaining:.1f}s more for smooth loading experience")
-                        # Schedule hiding after remaining time
-                        self.root.after(int(remaining * 1000), self._hide_loading_indicator)
-                    else:
-                        self._hide_loading_indicator()
-                
         except Exception as e:
             logger.exception(f"Error in database loaded callback: {e}")
-            if self.loading_indicator and self.loading_indicator.is_showing():
-                try:
-                    self.loading_indicator.hide()
-                except:
-                    pass
-    
-    def _hide_loading_indicator(self):
-        """Hide loading indicator smoothly"""
-        try:
-            if self.loading_indicator and self.loading_indicator.is_showing():
-                self.loading_indicator.hide()
-                logger.info("Loading indicator hidden - app ready")
-        except Exception as e:
-            logger.error(f"Error hiding loading indicator: {e}")
     
     def _center_window(self):
         """Center the window on the screen"""
@@ -372,12 +400,12 @@ class WaterBalanceApp:
         self.root.geometry(f'+{x}+{y}')
     
     def on_closing(self):
-        """Handle application close event"""
+        """Handle application close event - fast and clean."""
         # Avoid double invocation if already closing
         if getattr(self.root, '_closing', False):
             return
         
-        # Check if window still exists before showing dialog
+        # Check if window still exists
         try:
             if not self.root.winfo_exists():
                 return
@@ -388,30 +416,35 @@ class WaterBalanceApp:
         if notifier.confirm("Are you sure you want to exit?", "Confirm Exit"):
             self.root._closing = True
             
-            # Clean up loading indicator if still showing
-            if self.loading_indicator:
+            # Stop background license check thread immediately (non-blocking)
+            self.license_check_running = False
+            if self.license_check_thread and self.license_check_thread.is_alive():
+                # Don't wait - let daemon thread exit on its own
+                pass
+            
+            # Clear caches asynchronously (don't block UI closure)
+            def cleanup():
                 try:
-                    self.loading_indicator.hide()
+                    loader = get_flow_volume_loader()
+                    loader.clear_cache()
                 except:
                     pass
-
-            # Clear Excel flow loader caches to ensure fresh loads next session
-            try:
-                loader = get_flow_volume_loader()
-                loader.clear_cache()
-            except Exception:
-                pass
-            try:
-                reset_flow_volume_loader()
-            except Exception:
-                pass
-                    
+                try:
+                    reset_flow_volume_loader()
+                except:
+                    pass
+            
+            # Schedule cleanup in background (doesn't block closing)
+            threading.Thread(target=cleanup, daemon=True).start()
+            
             logger.info("Application closing - user confirmed")
             logger.info("=" * 60)
             logger.info("Water Balance Application Stopped")
             logger.info("=" * 60)
+            
+            # Close immediately without waiting for cleanup
             self.root.destroy()
-            self.root.quit()  # Exit mainloop
+            self.root.quit()
         else:
             logger.info("Application close cancelled by user")
             self.root._closing = False
@@ -427,8 +460,72 @@ class WaterBalanceApp:
                 self.pending_db_callback = None
                 logger.info("Processing deferred DB callback")
                 self.root.after(100, self._update_ui_after_db_load, db_manager, error)
-                
+            
+            # Start background license check thread (professional approach)
+            self._start_background_license_check()
+            
             self.root.mainloop()
+    
+    def _start_background_license_check(self):
+        """Start background thread for periodic license validation every 1-2 hours"""
+        self.license_check_running = True
+        self.license_check_thread = threading.Thread(
+            target=self._background_license_check_loop,
+            daemon=True  # Daemon thread - will exit when main app closes
+        )
+        self.license_check_thread.start()
+        logger.info("Background license check thread started (every 1-2 hours)")
+    
+    def _background_license_check_loop(self):
+        """Periodic license validation loop running in background thread"""
+        # Check interval: 1 hour (3600 seconds)
+        check_interval = config.get('licensing.background_check_interval_seconds', 3600)
+        
+        while self.license_check_running:
+            try:
+                # Wait for the check interval before first check
+                time.sleep(check_interval)
+                
+                # Don't check if app is not fully initialized
+                if not self.mainloop_started or not self.root.winfo_exists():
+                    continue
+                
+                logger.debug("Running periodic background license check...")
+                is_valid, message, expiry_date = self.license_manager.validate_background()
+                
+                # Only notify if status changed (license was valid, now invalid)
+                if self.last_license_status and not is_valid:
+                    self.last_license_status = False
+                    logger.warning(f"❌ License status changed: {message}")
+                    
+                    # Show warning dialog on main thread
+                    self.root.after(0, self._show_license_revoked_dialog, message)
+                elif not self.last_license_status and is_valid:
+                    self.last_license_status = True
+                    logger.info("✅ License re-validated successfully")
+                    
+            except Exception as e:
+                logger.debug(f"Background license check error (non-critical): {e}")
+    
+    def _show_license_revoked_dialog(self, message: str):
+        """Show dialog when license is revoked during operation"""
+        try:
+            if not self.root.winfo_exists():
+                return
+                
+            logger.warning("Showing license revocation dialog to user")
+            # Show warning (not error) - gives user chance to save work
+            result = messagebox.showwarning(
+                "License Status Alert",
+                f"Your license status has changed:\n\n{message}\n\nPlease save your work and restart the application.",
+                type=messagebox.OKCANCEL
+            )
+            
+            if result == messagebox.OK:
+                # User acknowledged - optionally restart
+                logger.info("User acknowledged license revocation notice")
+        except Exception as e:
+            logger.debug(f"Could not show dialog: {e}")
 
 
 def main():
@@ -437,6 +534,47 @@ def main():
         logger.info("=" * 60)
         logger.info("Starting Water Balance Management System")
         logger.info("=" * 60)
+
+        # Enforce license validation before launching UI
+        manager = LicenseManager()
+        is_valid, reason, expiry_date = manager.validate_startup()
+        if not is_valid:
+            logger.warning(f"License check failed: {reason}")
+            root = tk.Tk()
+            root.withdraw()
+            
+            # Show informative error message to user based on reason
+            if "revoked" in reason.lower():
+                messagebox.showerror(
+                    "License Revoked",
+                    f"🚫 Your license has been revoked.\n\n{reason}\n\nThe application cannot start."
+                )
+                logger.critical("Application terminated: license revoked")
+                root.destroy()
+                sys.exit(1)
+            elif "Hardware mismatch" in reason:
+                # Allow transfer attempt
+                success = show_license_dialog(parent=root, mode="transfer")
+                root.destroy()
+                if not success:
+                    messagebox.showerror("License Required", f"{reason}\n\nPlease activate to continue.")
+                    logger.critical("Application terminated: license validation failed")
+                    sys.exit(1)
+            else:
+                # Regular activation dialog
+                success = show_license_dialog(parent=root, mode="activate")
+                root.destroy()
+                if not success:
+                    messagebox.showerror("License Required", f"{reason}\n\nPlease activate to continue.")
+                    logger.critical("Application terminated: license validation failed")
+                    sys.exit(1)
+            
+            # Re-validate after activation/transfer
+            is_valid, reason, expiry_date = manager.validate_startup()
+            if not is_valid:
+                messagebox.showerror("License Invalid", reason)
+                logger.critical("Application terminated: license validation failed after activation")
+                sys.exit(1)
         
         app = WaterBalanceApp()
         app.run()  # run() already calls initialize()

@@ -16,7 +16,7 @@ from openpyxl.styles import Alignment, Font, PatternFill
 
 # Column definitions per flow sheet (kept local; no path dependencies)
 FLOW_SHEETS: Dict[str, List[str]] = {
-    "Flows_NEWTSF": [
+    "Flows_New TSF": [
         "Date",
         "Year",
         "Month",
@@ -29,7 +29,7 @@ FLOW_SHEETS: Dict[str, List[str]] = {
         "OLDTSF_NEW_TSF_RAINRUN → OLDTSF_NEW_TSF",
         "OLDTSF_NT_RWD → OLDTSF_NEW_TSF",
     ],
-    "Flows_OLDTSF": [
+    "Flows_Old TSF": [
         "Date",
         "Year",
         "Month",
@@ -52,7 +52,7 @@ FLOW_SHEETS: Dict[str, List[str]] = {
         "OLDTSF_NT_RWD → OLDTSF_NT_RWD_SPILL",
         "OLDTSF_TRTD → OLDTSF_TRTD_SPILL",
     ],
-    "Flows_UG2P": [
+    "Flows_UG2 Plant": [
         "Date",
         "Year",
         "Month",
@@ -79,7 +79,7 @@ FLOW_SHEETS: Dict[str, List[str]] = {
         "UG2PLANT_UG2PCD1 → UG2PLANT_UG2PCD1_SPILL",
         "UG2PLANT_UG2PCD1_RAIN → UG2PLANT_UG2PCD1",
     ],
-    "Flows_UG2S": [
+    "Flows_UG2 Main": [
         "Date",
         "Year",
         "Month",
@@ -101,7 +101,7 @@ FLOW_SHEETS: Dict[str, List[str]] = {
         "UG2S_STP → UG2S_MDCDG",
         "UG2S_STP → UG2S_SOFT_LOSSES",
     ],
-    "Flows_UG2N": [
+    "Flows_UG2 North": [
         "Date",
         "Year",
         "Month",
@@ -126,7 +126,7 @@ FLOW_SHEETS: Dict[str, List[str]] = {
         "TRP_CLINIC → SEPTIC",
         "TRP_CLINIC → CONSUMPTION",
     ],
-    "Flows_MERP": [
+    "Flows_Merensky Plant": [
         "Date",
         "Year",
         "Month",
@@ -154,7 +154,7 @@ FLOW_SHEETS: Dict[str, List[str]] = {
         "MERPLANT_MPSWD12_RAIN → MERPLANT_MPSWD12",
         "NDCD → MERPLANT_MPRWSD1",
     ],
-    "Flows_MERS": [
+    "Flows_Merensky South": [
         "Date",
         "Year",
         "Month",
@@ -174,7 +174,7 @@ FLOW_SHEETS: Dict[str, List[str]] = {
         "MERS_SDSA → UG2S_MDCDG",
         "MERS_MDCDG → MERS_MDCDG",
     ],
-    "Flows_STOCKPILE": [
+    "Flows_Stockpile": [
         "Date",
         "Year",
         "Month",
