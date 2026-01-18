@@ -357,17 +357,20 @@ class WaterBalanceCalculator:
         return inflows
     
     def _get_rainfall_inflow(self, calculation_date: date, preloaded_facilities: Optional[List[Dict]] = None) -> float:
-        """Calculate rainfall contribution to storage using database regional rainfall"""
+        """Calculate rainfall contribution to storage using database regional rainfall.
+        Uses year-aware monthly value and applies only to facilities with evaporation enabled.
+        """
         # Use database regional rainfall (per-facility calculation handles this now)
         # Sum up all facility rainfall from calculate_facility_balance
         facilities = preloaded_facilities if preloaded_facilities is not None else self.db.get_storage_facilities()
         
         month = calculation_date.month
+        year = calculation_date.year
         total_rainfall_volume = 0.0
         
         for f in facilities:
-            # Get regional rainfall for this month
-            regional_rainfall_mm = self.db.get_regional_rainfall_monthly(month)
+            # Get regional rainfall for this month (year-aware)
+            regional_rainfall_mm = self.db.get_regional_rainfall_monthly(month, year)
             if regional_rainfall_mm is None or regional_rainfall_mm <= 0:
                 continue
                 
@@ -602,9 +605,11 @@ class WaterBalanceCalculator:
     
     def calculate_evaporation_loss(self, calculation_date: date, preloaded_facilities: Optional[List[Dict]] = None) -> float:
         """Calculate evaporation losses using monthly rate.
-        Priority: 1) Per-facility DB dashboard entries, 2) Global evaporation_rates table, 3) Extended Excel
+        Priority: 1) Per-facility DB dashboard entries, 2) Global evaporation_rates table (year-aware), 3) Extended Excel
+        Caps per-facility evaporation so it cannot exceed available volume.
         """
         month = calculation_date.month
+        year = calculation_date.year
         
         # Get surface area of all storage facilities
         facilities = preloaded_facilities if preloaded_facilities is not None else self.db.get_storage_facilities()
@@ -613,6 +618,7 @@ class WaterBalanceCalculator:
         for f in facilities:
             facility_id = f.get('facility_id')
             surface_area = f.get('surface_area', 0) or 0.0
+            current_vol = f.get('current_volume', 0.0) or 0.0
             evap_flag = f.get('evap_active', 1)
             
             if evap_flag in (None, ''):
@@ -621,22 +627,18 @@ class WaterBalanceCalculator:
                 continue
             
             # Priority 1: Per-facility DB dashboard entry
-            facility_evap_mm = self.db.get_facility_evaporation_monthly(facility_id, month)
+            facility_evap_mm = self.db.get_facility_evaporation_monthly(facility_id, month, year)
             
             if facility_evap_mm > 0:
                 evap_volume = (facility_evap_mm / 1000.0) * surface_area
-                total_evap_volume += evap_volume
+                # Clamp evaporation to available water volume in the facility
+                total_evap_volume += min(evap_volume, current_vol)
             else:
-                # Priority 2: Global evaporation_rates table (zone-based)
-                evap_rate = self.db.execute_query(
-                    "SELECT evaporation_mm FROM evaporation_rates WHERE month = ? AND zone = '4A' AND year IS NULL",
-                    (month,)
-                )
-                
-                if evap_rate:
-                    evap_mm = evap_rate[0]['evaporation_mm']
+                # Priority 2: Global evaporation_rates table (zone-based, year-aware)
+                evap_mm = self.db.get_regional_evaporation_monthly(month, year=year)
+                if evap_mm and evap_mm > 0:
                     evap_volume = (evap_mm / 1000.0) * surface_area
-                    total_evap_volume += evap_volume
+                    total_evap_volume += min(evap_volume, current_vol)
         
         return total_evap_volume
     
@@ -1246,9 +1248,10 @@ class WaterBalanceCalculator:
             evap_flag = 1
         evap_enabled = int(evap_flag) == 1
         
-        # Use regional rainfall (applies to all facilities)
-        regional_rainfall_mm = self.db.get_regional_rainfall_monthly(month)
-        rainfall_mm = regional_rainfall_mm if regional_rainfall_mm > 0 else 0.0
+        # Use regional rainfall (applies to all facilities, year-aware)
+        rainfall_mm = self.db.get_regional_rainfall_monthly(month, calculation_date.year)
+        if not rainfall_mm or rainfall_mm < 0:
+            rainfall_mm = 0.0
         
         # Rainfall volume on this facility
         rainfall_volume = (rainfall_mm / 1000.0) * surface_area if evap_enabled else 0.0
@@ -1258,9 +1261,13 @@ class WaterBalanceCalculator:
         evap_loss = 0.0
         
         if evap_enabled and surface_area > 0:
-            regional_evap_mm = self.db.get_regional_evaporation_monthly(month)
+            # Use year-aware regional evaporation
+            regional_evap_mm = self.db.get_regional_evaporation_monthly(month, year=calculation_date.year)
             if regional_evap_mm and regional_evap_mm > 0:
                 evap_loss = (regional_evap_mm / 1000.0) * surface_area
+                # Cap evaporation so it cannot exceed current available volume
+                current_vol = facility.get('current_volume', 0.0) or 0.0
+                evap_loss = min(evap_loss, current_vol)
         
         outflows += evap_loss
         
@@ -1787,7 +1794,12 @@ class WaterBalanceCalculator:
     
     def persist_storage_volumes(self, calculation_date: date) -> bool:
         """Persist calculated closing volumes to storage facilities (Excel: update storage)
-        Updates current_volume for each facility based on calculated balance
+        Updates current_volume for each facility based on calculated balance.
+        
+        Logic:
+        - If calculating a new date: update volumes to new date's closing values
+        - If recalculating same date: replace old volumes with latest calculated values
+        - Tracks which calculation date the volumes correspond to via volume_calc_date
         """
         try:
             facilities = self.db.get_storage_facilities()
@@ -1811,6 +1823,7 @@ class WaterBalanceCalculator:
             # Facility measurements map is now always empty (no DB time-series)
             facility_measurements_map = {}
             
+            updated_count = 0
             for facility in facilities:
                 facility_id = facility['facility_id']
                 facility_balance = self.calculate_facility_balance(
@@ -1825,22 +1838,28 @@ class WaterBalanceCalculator:
                     closing_volume = facility_balance['closing_volume']
                     utilization = facility_balance['utilization_percent']
                     
-                    # Update facility current volume
+                    # Update facility current volume with calculation date tracking
                     update_query = """
                         UPDATE storage_facilities 
                         SET current_volume = ?,
                             current_level_percent = ?,
+                            volume_calc_date = ?,
                             last_updated = ?
                         WHERE facility_id = ?
                     """
                     self.db.execute_update(
                         update_query,
-                        (closing_volume, utilization, datetime.now(), facility_id)
+                        (closing_volume, utilization, calculation_date, datetime.now(), facility_id)
                     )
+                    updated_count += 1
             
+            # Invalidate cache so dashboard shows updated volumes
+            self.db.invalidate_all_caches()
+            
+            logger.info(f"✅ Updated {updated_count} facility volumes for {calculation_date}")
             return True
         except Exception as e:
-            print(f"Error persisting storage volumes: {e}")
+            logger.error(f"Error persisting storage volumes: {e}")
             return False
     
     def save_calculation(self, calculation_date: date, 

@@ -24,6 +24,7 @@ from utils.balance_engine import BalanceEngine
 from utils.balance_services_legacy import LegacyBalanceServices
 from ui.area_exclusion_dialog import AreaExclusionDialog
 from utils.inputs_audit import collect_inputs_audit
+from ui.mouse_wheel_support import enable_canvas_mousewheel, enable_text_mousewheel
 
 
 class CalculationsModule:
@@ -34,10 +35,10 @@ class CalculationsModule:
         'Fresh Inflows': 'Natural water entering the system: surface water, groundwater, rainfall, underground, ore moisture',
         'Dirty Inflows': 'Recycled/recirculated water: Return Water Dam (RWD) from treatment plants and processes',
         'Total Outflows': 'All water leaving the system: mining/domestic consumption, discharge, dust suppression, tailings, product moisture',
-        'Total Inflows': 'Fresh + Dirty inflows combined; represents total water available in the system',
+        'Total Inflows': 'Fresh + recycled inflows combined; represents total water available in the system',
         'ΔStorage': 'Change in storage volume: Positive = storage increased (filled). Negative = storage decreased (drew down)',
-        'Balance Error': 'Residual difference in the water balance equation. Should be ≤5% for acceptable closure. Check for measurement errors if >5%',
-        'Error %': 'Error percentage = (Balance Error ÷ Total Inflows) × 100. <5% = Good. 5-10% = Acceptable. >10% = Investigate data quality',
+        'Balance Error': 'Residual difference in the water balance equation (fresh inflows − outflows − ΔStorage). Should be ≤5% for acceptable closure. Check for measurement errors if >5%',
+        'Error %': 'Error percentage = (Balance Error ÷ Fresh Inflows) × 100. Fresh inflows exclude recycled/TSF returns. <5% = Good. 5-10% = Acceptable. >10% = Investigate data quality',
         'Status': 'Closure status: GREEN = Balanced (<5% error). RED = Check Required (>5% error). Verify inflow/outflow measurements',
         'Opening Volume': 'Storage volume at the beginning of the period (m³)',
         'Closing Volume': 'Storage volume at the end of the period (m³)',
@@ -106,6 +107,7 @@ class CalculationsModule:
         frame.pack(fill=tk.X, pady=(0, 15))
         info_text = tk.Text(frame, height=3, wrap=tk.WORD, font=('Segoe UI', 9), relief=tk.FLAT, background='#f0f0f0', borderwidth=0)
         info_text.pack(fill=tk.X)
+        enable_text_mousewheel(info_text)
         info_text.insert('1.0', f"{icon or ''} {text}".strip())
         info_text.configure(state='disabled', foreground='#666')
         return frame
@@ -286,6 +288,7 @@ class CalculationsModule:
         # config_btn.pack(side=tk.LEFT, padx=(10, 0))
         
         # Removed Save Calculation and Area Exclusions per request
+        # Auto-save is now ALWAYS enabled (no UI toggle)
     
     def _create_results_section(self):
         """Create results display"""
@@ -530,13 +533,33 @@ class CalculationsModule:
             
             total_elapsed = (time.perf_counter() - calc_start) * 1000
             logger.info(f"✅ Calculations completed in {total_elapsed:.0f}ms")
+
+            # ALWAYS auto-save calculation and persist storage volumes (no option to disable)
+            try:
+                existing_id = self.calculator._check_duplicate_calculation(calc_date, ore_tonnes or 0)
+                if existing_id:
+                    # Replace existing calculation silently
+                    self.db.execute_update("DELETE FROM calculations WHERE calc_id = ?", (existing_id,))
+                    calc_id = self.calculator.save_calculation(calc_date, ore_tonnes, persist_storage=True)
+                    logger.info(f"🔄 Auto-saved calculation for {calc_date} (replaced ID {existing_id} → new ID {calc_id}); storage volumes persisted")
+                else:
+                    calc_id = self.calculator.save_calculation(calc_date, ore_tonnes, persist_storage=True)
+                    logger.info(f"💾 Auto-saved calculation for {calc_date} (ID {calc_id}); storage volumes persisted")
+                # Invalidate DB caches so other modules (Dashboard) see latest volumes
+                self.db.invalidate_all_caches()
+            except Exception as e:
+                logger.warning(f"Auto-save skipped due to error: {e}")
             
         except Exception as e:
             messagebox.showerror("Calculation Error", f"Failed to calculate balance:\n{str(e)}")
             logger.error(f"Calculation error: {e}", exc_info=True)
     
+    # DEPRECATED: Balance check moved to Flow Diagram dashboard
     def _update_balance_calculation_breakdown(self):
-        """Professional Balance Calculation Breakdown tab with parameters and formula"""
+        """DEPRECATED: Balance calculation breakdown moved to Flow Diagram - use Balance Check button there"""
+        # This method is no longer used - balance check with recirculation formula
+        # is now available in the Flow Diagram dashboard via "Balance Check" button
+        return
         # Check if frame still exists
         if not hasattr(self, 'breakdown_frame') or not self.breakdown_frame.winfo_exists():
             logger.warning("Breakdown frame no longer exists, skipping update")
@@ -566,6 +589,7 @@ class CalculationsModule:
         
         canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
         canvas.configure(yscrollcommand=scrollbar.set)
+        enable_canvas_mousewheel(canvas)
         
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
@@ -704,7 +728,7 @@ class CalculationsModule:
                 bg='#34495e', fg='#9b59b6').pack(anchor='w', padx=12, pady=(8, 5))
         
         error_calc = (
-            f"({metrics.balance_difference:,.0f} ÷ {metrics.total_inflows:,.0f}) × 100 "
+            f"({metrics.balance_difference:,.0f} ÷ {metrics.total_inflows:,.0f} fresh inflows) × 100 "
             f"= {metrics.balance_error_percent:.2f}%"
         )
         tk.Label(step5_frame, text=error_calc,
@@ -756,10 +780,10 @@ class CalculationsModule:
         
         # Info box explaining the calculation
         self.add_info_box(self.balance_summary_frame,
-                         "Balance Equation: Total Inflows − Recirculation − Total Outflows = Balance Difference\n"
-                         "Error %: (Balance Difference ÷ Total Inflows) × 100\n"
-                         "Status: < 0.1% = Excellent | < 0.5% = Good | ≥ 0.5% = Check needed",
-                         icon="⚙️")
+                 "Balance Equation: Fresh Inflows − Recirculation − Total Outflows = Balance Difference\n"
+                 "Error %: (Balance Difference ÷ Fresh Inflows) × 100 (fresh excludes recycled/TSF returns)\n"
+                 "Status: < 0.1% = Excellent | < 0.5% = Good | ≥ 0.5% = Check needed",
+                 icon="⚙️")
         
         # Key metrics
         metrics_frame = ttk.Frame(self.balance_summary_frame)
@@ -1009,6 +1033,7 @@ class CalculationsModule:
             
             canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
             canvas.configure(yscrollcommand=scrollbar.set)
+            enable_canvas_mousewheel(canvas)
             
             canvas.pack(side='left', fill='both', expand=True)
             scrollbar.pack(side='right', fill='y')
@@ -1125,6 +1150,7 @@ class CalculationsModule:
         scrollable_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
         canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
         canvas.configure(yscrollcommand=scrollbar.set)
+        enable_canvas_mousewheel(canvas)
         
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
@@ -1308,6 +1334,7 @@ class CalculationsModule:
         # Ensure the inner frame width follows the canvas width for responsive layouts
         canvas.bind('<Configure>', lambda e: canvas.itemconfig(win, width=e.width))
         canvas.configure(yscrollcommand=scrollbar.set)
+        enable_canvas_mousewheel(canvas)
         canvas.pack(side='left', fill='both', expand=True)
         scrollbar.pack(side='right', fill='y')
 
@@ -1535,6 +1562,7 @@ class CalculationsModule:
         scrollable_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
         canvas.create_window((0, 0), window=scrollable_frame, anchor='nw')
         canvas.configure(yscrollcommand=scrollbar.set)
+        enable_canvas_mousewheel(canvas)
         canvas.pack(side='left', fill='both', expand=True)
         scrollbar.pack(side='right', fill='y')
         
@@ -1950,7 +1978,7 @@ class CalculationsModule:
     
     def _update_flow_params_preview(self):
         """Update template balance check tabs (QA only)"""
-        self._update_balance_calculation_breakdown()
+        # Note: _update_balance_calculation_breakdown removed - balance check moved to Flow Diagram
         self._update_balance_check_summary()
 
     def _update_future_balance_placeholder(self):
@@ -2677,14 +2705,29 @@ class CalculationsModule:
                     existing_id = self.calculator._check_duplicate_calculation(calc_date, ore_tonnes or 0)
                     
                     if existing_id:
-                        # Duplicate found - inform user
-                        results.append(f"ℹ️  Duplicate calculation detected\n"
-                                     f"   Same date and input values already saved (ID: {existing_id})\n"
-                                     f"   Skipping database save to avoid duplicate")
+                        # Duplicate found - ask user if they want to replace
+                        replace = messagebox.askyesno(
+                            "Duplicate Found",
+                            f"A calculation for {calc_date} already exists (ID: {existing_id}).\n\n"
+                            "Do you want to replace it with the new calculation?\n\n"
+                            "• Yes: Replace old calculation and update storage volumes\n"
+                            "• No: Keep existing calculation"
+                        )
+                        
+                        if replace:
+                            # Delete old calculation and save new one
+                            self.db.execute_update("DELETE FROM calculations WHERE calc_id = ?", (existing_id,))
+                            calc_id = self.calculator.save_calculation(calc_date, ore_tonnes, persist_storage=True)
+                            results.append(f"✅ Replaced existing calculation (new ID: {calc_id})\n"
+                                         f"   Storage volumes updated to {calc_date}")
+                        else:
+                            results.append(f"ℹ️  Kept existing calculation (ID: {existing_id})\n"
+                                         f"   No changes made")
                     else:
-                        # No duplicate - save normally
-                        calc_id = self.calculator.save_calculation(calc_date, ore_tonnes)
-                        results.append(f"✅ Saved to database (ID: {calc_id})")
+                        # No duplicate - save normally with volume persistence
+                        calc_id = self.calculator.save_calculation(calc_date, ore_tonnes, persist_storage=True)
+                        results.append(f"✅ Saved to database (ID: {calc_id})\n"
+                                     f"   Storage volumes updated to {calc_date}")
                 
                 # Export to PDF
                 if option in ("pdf", "both"):
@@ -2738,6 +2781,13 @@ class CalculationsModule:
         except Exception:
             return  # ignore incomplete typing until valid
         self._load_manual_inputs()
+    
+    def _toggle_auto_save(self):
+        """Toggle auto-save feature and persist to config."""
+        enabled = self.auto_save_var.get()
+        config.set('features.auto_save_calculation', enabled)
+        status = "enabled" if enabled else "disabled"
+        logger.info(f"Auto-save {status} - storage volumes will {'be persisted' if enabled else 'NOT be persisted'} after calculations")
 
     def _get_calc_date_obj(self) -> Optional[date]:
         """Return calc date as date or None if invalid."""

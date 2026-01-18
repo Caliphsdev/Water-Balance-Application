@@ -12,6 +12,12 @@ from utils.backup_manager import BackupManager
 from utils.config_manager import config
 from utils.alert_manager import alert_manager
 from utils.app_logger import logger
+from ui.mouse_wheel_support import (
+    enable_canvas_mousewheel,
+    enable_text_mousewheel,
+    enable_listbox_mousewheel,
+    enable_treeview_mousewheel,
+)
 
 
 class SettingsModule:
@@ -125,9 +131,7 @@ class SettingsModule:
         canvas.configure(yscrollcommand=scrollbar.set)
         
         # Enable mousewheel scrolling
-        def _on_mousewheel(event):
-            canvas.yview_scroll(int(-1*(event.delta/120)), 'units')
-        canvas.bind_all('<MouseWheel>', _on_mousewheel)
+        enable_canvas_mousewheel(canvas)
         
         canvas.pack(side='left', fill='both', expand=True, padx=20, pady=20)
         scrollbar.pack(side='right', fill='y', padx=0, pady=20)
@@ -324,9 +328,7 @@ class SettingsModule:
         canvas.configure(yscrollcommand=scrollbar.set)
         
         # Enable mousewheel scrolling
-        def _on_mousewheel(event):
-            canvas.yview_scroll(int(-1*(event.delta/120)), 'units')
-        canvas.bind_all('<MouseWheel>', _on_mousewheel)
+        enable_canvas_mousewheel(canvas)
         
         canvas.pack(side='left', fill='both', expand=True)
         scrollbar.pack(side='right', fill='y')
@@ -386,6 +388,7 @@ class SettingsModule:
         # Compact 5-column layout that fits on any screen
         cols = ('Cat', 'Constant', 'Value', 'Unit', 'Usage')
         self.tree = ttk.Treeview(tree_container, columns=cols, show='headings', height=12)
+        enable_treeview_mousewheel(self.tree)
         
         # Compact widths - total ~800px fits on all screens
         widths = {'Cat': 80, 'Constant': 180, 'Value': 80, 'Unit': 70, 'Usage': 390}
@@ -723,6 +726,7 @@ class SettingsModule:
         
         cols = ('Timestamp', 'Constant', 'Old Value', 'New Value', 'User')
         tree = ttk.Treeview(frame, columns=cols, show='headings', height=18)
+        enable_treeview_mousewheel(tree)
         
         widths = {'Timestamp': 180, 'Constant': 200, 'Old Value': 120, 'New Value': 120, 'User': 100}
         for c in cols:
@@ -809,6 +813,7 @@ class SettingsModule:
         ttk.Entry(frame, textvariable=unit_var, width=20).grid(row=2, column=1, sticky='w', padx=8)
         ttk.Entry(frame, textvariable=cat_var, width=20).grid(row=3, column=1, sticky='w', padx=8)
         desc_txt.grid(row=4, column=1, sticky='w', padx=8)
+        enable_text_mousewheel(desc_txt)
 
         btns = ttk.Frame(frame)
         btns.grid(row=5, column=0, columnspan=2, pady=12)
@@ -916,6 +921,7 @@ class SettingsModule:
         
         self.backups_list = tk.Listbox(list_card, height=10, font=('Consolas', 10), bg='white', relief=tk.FLAT, bd=0)
         self.backups_list.pack(fill='both', expand=True, padx=20, pady=12)
+        enable_listbox_mousewheel(self.backups_list)
         
         self._load_backups()
         
@@ -1172,9 +1178,7 @@ class SettingsModule:
         canvas.configure(yscrollcommand=scrollbar.set)
         
         # Enable mousewheel scrolling
-        def _on_mousewheel(event):
-            canvas.yview_scroll(int(-1*(event.delta/120)), 'units')
-        canvas.bind_all('<MouseWheel>', _on_mousewheel)
+        enable_canvas_mousewheel(canvas)
         
         canvas.pack(side='left', fill='both', expand=True)
         scrollbar.pack(side='right', fill='y')

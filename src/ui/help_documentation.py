@@ -14,6 +14,7 @@ import platform
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from utils.config_manager import config
+from ui.mouse_wheel_support import enable_canvas_mousewheel
 
 
 class HelpDocumentation:
@@ -114,6 +115,7 @@ class HelpDocumentation:
         
         canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
         canvas.configure(yscrollcommand=scrollbar.set)
+        enable_canvas_mousewheel(canvas)
         
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
@@ -121,8 +123,6 @@ class HelpDocumentation:
         # Store canvas for later scrolling
         self._tab_canvas[tab_name] = (canvas, scrollable_frame)
 
-        # Bind mouse wheel scrolling (platform-specific)
-        self._bind_mousewheel(scrollable_frame, canvas)
         return scrollable_frame
 
     def _bind_mousewheel(self, target, canvas):

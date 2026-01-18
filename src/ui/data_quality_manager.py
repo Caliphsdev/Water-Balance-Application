@@ -13,6 +13,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from database.db_manager import DatabaseManager
 from utils.historical_averaging import HistoricalAveraging
+from ui.mouse_wheel_support import enable_text_mousewheel
 
 
 class DataQualityManager(ttk.Frame):
@@ -100,6 +101,7 @@ class DataQualityManager(ttk.Frame):
         # Create treeview for breakdown
         columns = ('Category', 'Count', 'Percentage', 'Avg Volume')
         self.quality_tree = ttk.Treeview(breakdown_frame, columns=columns, show='headings', height=8)
+        enable_treeview_mousewheel(self.quality_tree)
         
         for col in columns:
             self.quality_tree.heading(col, text=col)
@@ -117,6 +119,7 @@ class DataQualityManager(ttk.Frame):
         
         self.recommendations_text = tk.Text(rec_frame, height=4, wrap='word', state='disabled')
         self.recommendations_text.pack(fill='x')
+        enable_text_mousewheel(self.recommendations_text)
     
     def setup_gap_tab(self):
         """Setup gap filling tab"""
@@ -175,6 +178,7 @@ class DataQualityManager(ttk.Frame):
         self.gap_results_text.configure(yscrollcommand=gap_scrollbar.set)
         
         self.gap_results_text.pack(side='left', fill='both', expand=True)
+        enable_text_mousewheel(self.gap_results_text)
         gap_scrollbar.pack(side='right', fill='y')
     
     def setup_methods_tab(self):
@@ -241,6 +245,7 @@ SEASONAL (Excel: Same Month)
         # Comparison results
         columns = ('Method', 'Value', 'Confidence', 'Data Points', 'Quality')
         self.methods_tree = ttk.Treeview(test_frame, columns=columns, show='headings', height=6)
+        enable_treeview_mousewheel(self.methods_tree)
         
         for col in columns:
             self.methods_tree.heading(col, text=col)

@@ -18,6 +18,7 @@ import warnings
 from utils.config_manager import config
 from utils.app_logger import logger
 from database.db_manager import DatabaseManager
+from ui.mouse_wheel_support import enable_treeview_mousewheel
 
 # Suppress noisy pandas date conversion warnings
 warnings.filterwarnings('ignore', message='Discarding nonzero nanoseconds')
@@ -78,16 +79,16 @@ class MonitoringDataModule:
                            bg='#f5f6f7')
         subtitle.pack(anchor='w', pady=(3, 0))
         
-        # Modern tab styling with improved UX
+        # Modern tab styling with improved UX (compact tabs)
         style = ttk.Style()
         style.theme_use('clam')
         style.configure('Modern.TNotebook', background='#f5f6f7', borderwidth=0)
-        # Enhanced tab styling: larger font, more padding for better visibility
+        # Compact tab styling: smaller font and padding to free screen space
         style.configure('Modern.TNotebook.Tab', 
                        background='#d6dde8', 
                        foreground='#2c3e50',
-                       padding=[24, 16],  # Increased from [20, 10] for larger tab size
-                       font=('Segoe UI', 11, 'bold'),  # Increased from 10 to 11, added bold
+                   padding=[12, 8],
+                   font=('Segoe UI', 10),
                        relief='flat',
                        borderwidth=0)
         # Enhanced map with better visual feedback on interaction
@@ -109,16 +110,16 @@ class MonitoringDataModule:
         tab_container = tk.Frame(wrapper, bg='#f5f6f7')
         tab_container.pack(fill='both', expand=True, padx=20, pady=(0, 20))
         
-        # Modern tab styling with improved UX
+        # Modern tab styling with improved UX (compact tabs)
         style = ttk.Style()
         style.theme_use('clam')
         style.configure('DashboardNotebook.TNotebook', background='#f5f6f7', borderwidth=0)
-        # Enhanced tab styling: larger font, more padding for better visibility
+        # Compact tab styling: smaller font and padding to free screen space
         style.configure('DashboardNotebook.TNotebook.Tab',
                        background='#d6dde8',
                        foreground='#2c3e50',
-                       padding=[24, 16],  # Increased from [20, 12] for larger tab size
-                       font=('Segoe UI', 11, 'bold'),  # Increased from 10 to 11, added bold
+                   padding=[12, 8],
+                   font=('Segoe UI', 10),
                        relief='flat',
                        borderwidth=0)
         # Enhanced map with better visual feedback on interaction
@@ -354,32 +355,32 @@ class MonitoringDataModule:
         
     def _create_bh_mon_visualize_tab(self, parent: ttk.Frame):
         """Visualize tab for monitoring charts with aquifer and borehole filters."""
-        control_frame = ttk.LabelFrame(parent, text="Chart Options", padding=10)
-        control_frame.pack(fill='x', pady=(0, 10))
+        control_frame = ttk.LabelFrame(parent, text="Chart Options", padding=3)
+        control_frame.pack(fill='x', pady=(0, 2))
 
         self.bh_mon_chart_type = tk.StringVar(master=control_frame, value='Line')
         self.bh_mon_selected_param = tk.StringVar(master=control_frame, value='')
         self.bh_mon_viz_aquifer = tk.StringVar(master=control_frame, value='All')
         self.bh_mon_viz_borehole = tk.StringVar(master=control_frame, value='All')
 
-        ttk.Label(control_frame, text='Chart:').grid(row=0, column=0, sticky='w')
-        ttk.Combobox(control_frame, textvariable=self.bh_mon_chart_type, values=['Line','Bar','Box'], width=10, state='readonly').grid(row=0, column=1, padx=(4,10), sticky='w')
-        ttk.Label(control_frame, text='Parameter:').grid(row=0, column=2, sticky='w')
-        self.bh_mon_param_combo = ttk.Combobox(control_frame, textvariable=self.bh_mon_selected_param, values=[], width=18, state='readonly')
-        self.bh_mon_param_combo.grid(row=0, column=3, padx=(4,10), sticky='w')
-        ttk.Label(control_frame, text='Aquifer:').grid(row=0, column=4, sticky='w', padx=(10,0))
-        ttk.Combobox(control_frame, textvariable=self.bh_mon_viz_aquifer, values=['All', 'Shallow Aquifer', 'Deep Aquifer'], width=14, state='readonly').grid(row=0, column=5, padx=(4,10), sticky='w')
-        ttk.Label(control_frame, text='Borehole:').grid(row=0, column=6, sticky='w', padx=(10,0))
-        self.bh_mon_borehole_combo = ttk.Combobox(control_frame, textvariable=self.bh_mon_viz_borehole, values=['All'], width=14, state='readonly')
-        self.bh_mon_borehole_combo.grid(row=0, column=7, padx=(4,10), sticky='w')
+        ttk.Label(control_frame, text='Chart:').grid(row=0, column=0, sticky='w', padx=(1,1))
+        ttk.Combobox(control_frame, textvariable=self.bh_mon_chart_type, values=['Line','Bar','Box'], width=7, state='readonly').grid(row=0, column=1, padx=(0,3), sticky='w')
+        ttk.Label(control_frame, text='Param:').grid(row=0, column=2, sticky='w', padx=(1,1))
+        self.bh_mon_param_combo = ttk.Combobox(control_frame, textvariable=self.bh_mon_selected_param, values=[], width=12, state='readonly')
+        self.bh_mon_param_combo.grid(row=0, column=3, padx=(0,3), sticky='w')
+        ttk.Label(control_frame, text='Aquifer:').grid(row=0, column=4, sticky='w', padx=(1,1))
+        ttk.Combobox(control_frame, textvariable=self.bh_mon_viz_aquifer, values=['All', 'Shallow Aquifer', 'Deep Aquifer'], width=10, state='readonly').grid(row=0, column=5, padx=(0,3), sticky='w')
+        ttk.Label(control_frame, text='BH:').grid(row=0, column=6, sticky='w', padx=(1,1))
+        self.bh_mon_borehole_combo = ttk.Combobox(control_frame, textvariable=self.bh_mon_viz_borehole, values=['All'], width=10, state='readonly')
+        self.bh_mon_borehole_combo.grid(row=0, column=7, padx=(0,3), sticky='w')
 
-        ttk.Button(control_frame, text='📈 Generate Charts', command=self._generate_bh_mon_charts, style='Accent.TButton').grid(row=0, column=8, padx=(8,0))
-        ttk.Button(control_frame, text='💾 Save Chart', command=self._save_current_chart, width=12).grid(row=0, column=9, padx=(6,0))
+        ttk.Button(control_frame, text='Generate', command=self._generate_bh_mon_charts).grid(row=0, column=8, padx=(2,2))
+        ttk.Button(control_frame, text='Save', command=self._save_current_chart, width=5).grid(row=0, column=9, padx=(0,1))
 
         control_frame.columnconfigure(3, weight=1)
 
         info_frame = ttk.Frame(parent)
-        info_frame.pack(fill='x', pady=(0,10))
+        info_frame.pack(fill='x', pady=(0,2))
         ttk.Label(info_frame, text="ℹ️  Load data first in 'Upload & Preview'. Select aquifer, borehole (or 'All'), parameter, and chart type. Click 'Generate Charts'.", foreground='#1976D2', font=('Segoe UI', 9, 'italic')).pack(anchor='w')
 
         # Chart area container
@@ -476,6 +477,7 @@ class MonitoringDataModule:
             preview_frame.pack(fill='both', expand=True, padx=6, pady=6)
 
             tree = ttk.Treeview(preview_frame, height=10)
+            enable_treeview_mousewheel(tree)
             tree.pack(fill='both', expand=True)
             vsb = ttk.Scrollbar(preview_frame, orient='vertical', command=tree.yview)
             hsb = ttk.Scrollbar(preview_frame, orient='horizontal', command=tree.xview)
@@ -678,6 +680,7 @@ class MonitoringDataModule:
             preview = ttk.LabelFrame(self.borehole_static_content, text='Parsed Data', padding=8)
             preview.pack(fill='both', expand=True, padx=6, pady=6)
             tree = ttk.Treeview(preview, height=10)
+            enable_treeview_mousewheel(tree)
             tree.pack(fill='both', expand=True)
             vsb = ttk.Scrollbar(preview, orient='vertical', command=tree.yview)
             hsb = ttk.Scrollbar(preview, orient='horizontal', command=tree.xview)
@@ -746,9 +749,9 @@ class MonitoringDataModule:
         # Create chart frame before preview
         self._bh_static_chart_frame = ttk.Frame(self.borehole_static_content)
         if preview_widget:
-            self._bh_static_chart_frame.pack(fill='both', expand=False, padx=6, pady=6, before=preview_widget)
+            self._bh_static_chart_frame.pack(fill='both', expand=True, padx=0, pady=1, before=preview_widget)
         else:
-            self._bh_static_chart_frame.pack(fill='both', expand=False, padx=6, pady=6)
+            self._bh_static_chart_frame.pack(fill='both', expand=True, padx=0, pady=1)
         # Plot chart with filtered data
         self._plot_static_levels(df)
 
@@ -761,20 +764,27 @@ class MonitoringDataModule:
             target = self._bh_static_chart_frame
         else:
             target = self.borehole_static_content
+        # Clear previous widgets in target to avoid stacked canvases on re-render
+        try:
+            for w in list(target.winfo_children()):
+                w.destroy()
+        except Exception:
+            pass
         chart_type = (self.chart_type.get() or 'Line')
         # Calculate responsive figure size based on content area
         try:
-            content_width = target.winfo_width()
-            # Use 90% of content width, min 700px, max 1400px for better readability
-            fig_width_px = max(700, min(1400, int(content_width * 0.9)))
-            fig_width_inch = fig_width_px / 100  # 100 DPI
-            fig_height_inch = fig_width_inch * 0.6  # Better aspect for reports
+            target.update_idletasks()
+            content_width = target.winfo_width() or self.container.winfo_width()
+            # Use 96% of content width, min 900px, max 1800px for better readability
+            fig_width_px = max(900, min(1800, int(content_width * 0.96)))
+            fig_width_inch = fig_width_px / 150  # DPI will be 150
+            fig_height_inch = max(5.5, fig_width_inch * 0.55)  # Better aspect for reports
         except Exception:
             # Fallback if window not yet realized
-            fig_width_inch, fig_height_inch = 10, 6
+            fig_width_inch, fig_height_inch = 11, 6
         
         # Professional styling for reports
-        fig = Figure(figsize=(fig_width_inch, fig_height_inch), dpi=100, facecolor='white')
+        fig = Figure(figsize=(fig_width_inch, fig_height_inch), dpi=150, facecolor='white')
         ax = fig.add_subplot(111)
         
         # Professional color palette (colorblind-friendly)
@@ -813,15 +823,29 @@ class MonitoringDataModule:
         ax.tick_params(labelsize=9)
         fig.autofmt_xdate(rotation=45, ha='right')  # Angled dates for readability
         
-        fig.tight_layout()
+        fig.tight_layout(rect=[0, 0.1, 1, 1])  # Reserve bottom 10% for date labels
         # Wrap canvas in scrollable frame
         canvas_frame = ttk.Frame(target)
-        canvas_frame.pack(fill='both', expand=False, padx=6, pady=6)
+        canvas_frame.pack(fill='both', expand=True, padx=0, pady=0)
         canvas = FigureCanvasTkAgg(fig, master=canvas_frame)
         canvas.draw()
         canvas.get_tk_widget().pack(fill='both', expand=True)
         # Keep a reference for saving
         self._last_plot_figure = fig
+        # Store df for responsive resizing
+        self._static_chart_df = df
+        # Bind resize to re-render with throttle
+        def _on_resize(event):
+            try:
+                if getattr(self, '_static_resize_job', None):
+                    self.container.after_cancel(self._static_resize_job)
+                self._static_resize_job = self.container.after(200, lambda: self._plot_static_levels(self._static_chart_df))
+            except Exception:
+                pass
+        try:
+            target.bind('<Configure>', _on_resize)
+        except Exception:
+            pass
 
     def _get_registered_borehole_names(self):
         """Return a set of normalized registered static/monitoring borehole names."""
@@ -855,12 +879,13 @@ class MonitoringDataModule:
             # Choose backend by extension
             ext = Path(fpath).suffix.lower()
             if ext in ('.png', '.jpg', '.jpeg'):
-                self._last_plot_figure.savefig(fpath, bbox_inches='tight', dpi=150)
+                # Save at 300 DPI for report-ready clarity
+                self._last_plot_figure.savefig(fpath, bbox_inches='tight', dpi=300)
             elif ext == '.pdf':
                 self._last_plot_figure.savefig(fpath, bbox_inches='tight')
             else:
-                # default to png
-                self._last_plot_figure.savefig(fpath, bbox_inches='tight', dpi=150)
+                # default to png at high DPI
+                self._last_plot_figure.savefig(fpath, bbox_inches='tight', dpi=300)
             messagebox.showinfo("Saved", f"Chart saved to {Path(fpath).name}")
         except Exception as e:
             logger.error(f"Save chart failed: {e}")
@@ -994,6 +1019,7 @@ class MonitoringDataModule:
         frame = ttk.LabelFrame(parent, text="Preview from files (no database)", padding=8)
         frame.pack(fill='both', expand=True)
         self._bh_static_upload_tree = ttk.Treeview(frame, height=12, show='headings')
+        enable_treeview_mousewheel(self._bh_static_upload_tree)
         self._bh_static_upload_tree.pack(fill='both', expand=True)
         vsb = ttk.Scrollbar(frame, orient='vertical', command=self._bh_static_upload_tree.yview)
         hsb = ttk.Scrollbar(frame, orient='horizontal', command=self._bh_static_upload_tree.xview)
@@ -1132,17 +1158,17 @@ class MonitoringDataModule:
 
     def _create_bh_static_visualize_tab(self, parent: ttk.Frame):
         """Visualize loaded static borehole data (in-memory)."""
-        control = ttk.LabelFrame(parent, text="Chart Options", padding=10)
-        control.pack(fill='x', pady=(0,10))
+        control = ttk.LabelFrame(parent, text="Chart Options", padding=3)
+        control.pack(fill='x', pady=(0,2))
         self.chart_type = tk.StringVar(master=control, value='Line')
         self.single_borehole = tk.BooleanVar(master=control, value=False)
         self.single_borehole_name = tk.StringVar(master=control, value='')
-        ttk.Label(control, text='Chart').grid(row=0, column=0, sticky='e')
-        ttk.Combobox(control, textvariable=self.chart_type, values=['Line','Bar'], width=8, state='readonly').grid(row=0, column=1, sticky='w')
-        ttk.Checkbutton(control, text='Single borehole', variable=self.single_borehole).grid(row=0, column=2, sticky='w')
-        self.single_borehole_combo = ttk.Combobox(control, textvariable=self.single_borehole_name, values=[], width=18, state='readonly')
-        self.single_borehole_combo.grid(row=0, column=3, sticky='w', padx=(6,0))
-        ttk.Button(control, text='📈 Generate Charts', command=self._bh_static_generate_from_data, style='Accent.TButton').grid(row=0, column=4, sticky='w', padx=(8,0))
+        ttk.Label(control, text='Chart:').grid(row=0, column=0, sticky='e', padx=(1,1))
+        ttk.Combobox(control, textvariable=self.chart_type, values=['Line','Bar'], width=7, state='readonly').grid(row=0, column=1, sticky='w', padx=(0,3))
+        ttk.Checkbutton(control, text='Single', variable=self.single_borehole).grid(row=0, column=2, sticky='w', padx=(1,3))
+        self.single_borehole_combo = ttk.Combobox(control, textvariable=self.single_borehole_name, values=[], width=12, state='readonly')
+        self.single_borehole_combo.grid(row=0, column=3, sticky='w', padx=(0,3))
+        ttk.Button(control, text='Generate', command=self._bh_static_generate_from_data).grid(row=0, column=4, sticky='w', padx=(2,0))
         control.columnconfigure(3, weight=1)
 
         # Content
@@ -1634,7 +1660,7 @@ class MonitoringDataModule:
         btn_bar.pack(fill='x', padx=6, pady=(0,6))
         ttk.Button(btn_bar, text='💾 Save Chart', command=self._save_current_chart, width=12).pack(side='right')
         self._bh_static_chart_frame = ttk.Frame(self.borehole_static_content)
-        self._bh_static_chart_frame.pack(fill='both', expand=False, padx=6, pady=6)
+        self._bh_static_chart_frame.pack(fill='both', expand=True, padx=0, pady=0)
         self._plot_static_levels(plot_df)
             
     def _load_borehole_monitoring_data(self):
@@ -1807,6 +1833,7 @@ class MonitoringDataModule:
         preview = ttk.LabelFrame(self.bh_mon_content, text='Parsed Monitoring Data', padding=8)
         preview.pack(fill='both', expand=True, padx=6, pady=6)
         tree = ttk.Treeview(preview, height=12)
+        enable_treeview_mousewheel(tree)
         tree.pack(fill='both', expand=True)
         vsb = ttk.Scrollbar(preview, orient='vertical', command=tree.yview)
         hsb = ttk.Scrollbar(preview, orient='horizontal', command=tree.xview)
@@ -2030,6 +2057,7 @@ class MonitoringDataModule:
             
             # Create tree with scrollbars
             tree = ttk.Treeview(preview, height=12)
+            enable_treeview_mousewheel(tree)
             tree.pack(fill='both', expand=True, side='left')
             vsb = ttk.Scrollbar(preview, orient='vertical', command=tree.yview)
             hsb = ttk.Scrollbar(preview, orient='horizontal', command=tree.xview)
@@ -2110,16 +2138,21 @@ class MonitoringDataModule:
             lbl.pack()
             self._last_plot_figure = None
             return
-        # Responsive figure size
+        # Responsive figure size - smaller for box charts
         try:
-            content_width = self.bh_mon_chart_area.winfo_width()
-            fig_width_px = max(600, min(1200, int(content_width * 0.9)))
-            fig_width_inch = fig_width_px / 100
-            fig_height_inch = fig_width_inch * 0.5
+            self.bh_mon_chart_area.update_idletasks()
+            content_width = self.bh_mon_chart_area.winfo_width() or self.container.winfo_width()
+            fig_width_px = max(900, min(1800, int(content_width * 0.96)))
+            fig_width_inch = fig_width_px / 150
+            # Box charts are more compact - use 0.35 ratio vs 0.58 for line/bar
+            if chart_type == 'Box':
+                fig_height_inch = max(3.5, fig_width_inch * 0.35)
+            else:
+                fig_height_inch = max(5.2, fig_width_inch * 0.58)
         except Exception:
-            fig_width_inch, fig_height_inch = 9, 4.5
+            fig_width_inch, fig_height_inch = 11, 4 if chart_type == 'Box' else 6
         # Industry-standard figure with better DPI and professional styling
-        fig = Figure(figsize=(fig_width_inch, fig_height_inch), dpi=120, facecolor='white')
+        fig = Figure(figsize=(fig_width_inch, fig_height_inch), dpi=150, facecolor='white')
         ax = fig.add_subplot(111)
         
         # Color palette by aquifer type (professional blue/orange scheme)
@@ -2159,12 +2192,20 @@ class MonitoringDataModule:
             ax.text(0.5, 0.5, 'No data available for selected parameter', 
                    ha='center', va='center', transform=ax.transAxes, fontsize=12, color='#999')
         
-        # Professional title and labels
+        # Professional title and labels - smaller for box charts
         title = f'{selected_param}\n{chart_type} Chart'
-        ax.set_title(title, fontsize=14, fontweight='bold', pad=15)
-        ax.set_xlabel('Date', fontsize=11, fontweight='bold')
-        ax.set_ylabel(f'{selected_param} (mg/L)' if selected_param != 'Static Level' else f'{selected_param} (m)', 
-                     fontsize=11, fontweight='bold')
+        if chart_type == 'Box':
+            ax.set_title(title, fontsize=11, fontweight='bold', pad=8)  # Compact for box
+            ax.set_xlabel('')  # No x-label for box plots
+            ax.set_ylabel(f'{selected_param} (mg/L)' if selected_param != 'Static Level' else f'{selected_param} (m)', 
+                         fontsize=9, fontweight='bold')
+            ax.tick_params(labelsize=8)  # Smaller tick labels
+        else:
+            ax.set_title(title, fontsize=14, fontweight='bold', pad=15)  # Standard for line/bar
+            ax.set_xlabel('Date', fontsize=11, fontweight='bold')
+            ax.set_ylabel(f'{selected_param} (mg/L)' if selected_param != 'Static Level' else f'{selected_param} (m)', 
+                         fontsize=11, fontweight='bold')
+            ax.tick_params(labelsize=9)
         
         # Industry-standard grid (major + minor)
         ax.grid(True, which='major', linestyle='-', linewidth=0.8, alpha=0.3, color='#666')
@@ -2183,13 +2224,34 @@ class MonitoringDataModule:
         if chart_type != 'Box':
             fig.autofmt_xdate(rotation=45)
         
-        # Professional tight layout with extra space for legend
-        fig.tight_layout(rect=[0, 0, 0.85 if plotted_count > 1 else 1, 1])
+        # Professional tight layout with variable margins based on chart type
+        if chart_type == 'Box':
+            # Box charts: minimal bottom margin, tighter spacing
+            bottom_margin = 0.05
+            ax.margins(y=0.1)  # Reduce top/bottom margins for compact look
+        else:
+            # Line/Bar charts: more space for date labels and legend
+            bottom_margin = 0.15
+        right_margin = 0.85 if chart_type != 'Box' and plotted_count > 1 else 1
+        fig.tight_layout(rect=[0, bottom_margin, right_margin, 1])
         # Canvas
         canvas = FigureCanvasTkAgg(fig, master=self.bh_mon_chart_area)
         canvas.draw()
         canvas.get_tk_widget().pack(fill='both', expand=True)
         self._last_plot_figure = fig
+        # Store df and bind resize for responsive redraw
+        self._bh_mon_chart_df = df
+        def _on_resize_mon(event):
+            try:
+                if getattr(self, '_bh_mon_resize_job', None):
+                    self.container.after_cancel(self._bh_mon_resize_job)
+                self._bh_mon_resize_job = self.container.after(200, lambda: self._plot_bh_mon_chart(self._bh_mon_chart_df))
+            except Exception:
+                pass
+        try:
+            self.bh_mon_chart_area.bind('<Configure>', _on_resize_mon)
+        except Exception:
+            pass
 
     def _filter_df_by_period_bh_mon(self, df: pd.DataFrame) -> pd.DataFrame:
         """Filter monitoring dataframe by period."""
@@ -2465,7 +2527,7 @@ class MonitoringDataModule:
         control_frame.columnconfigure(3, weight=1)
 
         info_frame = ttk.Frame(parent)
-        info_frame.pack(fill='x', pady=(0,10))
+        info_frame.pack(fill='x', pady=(0,2))
         ttk.Label(info_frame, text="ℹ️  Load data first in 'Upload & Preview'. Select monitoring point (or 'All'), parameter, and chart type. Click 'Generate Charts'.", foreground='#1976D2', font=('Segoe UI', 9, 'italic')).pack(anchor='w')
 
         # Chart area container
@@ -2636,6 +2698,7 @@ class MonitoringDataModule:
             
             # Tree (pack last, fills remaining space)
             tree = ttk.Treeview(tree_frame, height=12, yscrollcommand=vsb.set, xscrollcommand=hsb.set)
+            enable_treeview_mousewheel(tree)
             tree.pack(side='left', fill='both', expand=True)
             
             # Configure scrollbar commands
@@ -2731,9 +2794,13 @@ class MonitoringDataModule:
             content_width = self.pcd_chart_area.winfo_width()
             fig_width_px = max(600, min(1200, int(content_width * 0.9)))
             fig_width_inch = fig_width_px / 100
-            fig_height_inch = fig_width_inch * 0.5
+            # Box charts more compact, line/bar standard
+            if chart_type == 'Box':
+                fig_height_inch = fig_width_inch * 0.35
+            else:
+                fig_height_inch = fig_width_inch * 0.5
         except Exception:
-            fig_width_inch, fig_height_inch = 9, 4.5
+            fig_width_inch, fig_height_inch = 9, (3 if chart_type == 'Box' else 4.5)
         
         fig = Figure(figsize=(fig_width_inch, fig_height_inch), dpi=120, facecolor='white')
         ax = fig.add_subplot(111)
@@ -2771,9 +2838,16 @@ class MonitoringDataModule:
                    ha='center', va='center', transform=ax.transAxes, fontsize=12, color='#999')
         
         title = f'{selected_param}\n{chart_type} Chart'
-        ax.set_title(title, fontsize=14, fontweight='bold', pad=15)
-        ax.set_xlabel('Date', fontsize=11, fontweight='bold')
-        ax.set_ylabel(selected_param, fontsize=11, fontweight='bold')
+        if chart_type == 'Box':
+            ax.set_title(title, fontsize=11, fontweight='bold', pad=8)  # Compact for box
+            ax.set_xlabel('')  # No x-label for box plots
+            ax.set_ylabel(selected_param, fontsize=9, fontweight='bold')
+            ax.tick_params(labelsize=8)  # Smaller tick labels
+        else:
+            ax.set_title(title, fontsize=14, fontweight='bold', pad=15)  # Standard for line/bar
+            ax.set_xlabel('Date', fontsize=11, fontweight='bold')
+            ax.set_ylabel(selected_param, fontsize=11, fontweight='bold')
+            ax.tick_params(labelsize=9)
         
         ax.grid(True, which='major', linestyle='-', linewidth=0.8, alpha=0.3, color='#666')
         ax.grid(True, which='minor', linestyle=':', linewidth=0.5, alpha=0.2, color='#999')
@@ -2788,7 +2862,10 @@ class MonitoringDataModule:
         if chart_type != 'Box':
             fig.autofmt_xdate(rotation=45)
         
-        fig.tight_layout(rect=[0, 0, 0.85 if plotted_count > 1 else 1, 1])
+        # Professional tight layout with extra space for legend and date labels
+        bottom_margin = 0.15 if chart_type != 'Box' else 0.05  # More space for rotated dates
+        right_margin = 0.85 if plotted_count > 1 else 1
+        fig.tight_layout(rect=[0, bottom_margin, right_margin, 1])
         
         from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
         canvas = FigureCanvasTkAgg(fig, master=self.pcd_chart_area)
@@ -2952,113 +3029,3 @@ class MonitoringDataModule:
             parsed = parsed.sort_values(['monitoring_point', 'date']).reset_index(drop=True)
         return parsed
 
-    # ==================== TAB 4: RETURN WATER DAM MONITORING (DISABLED) ====================
-    # Undeveloped tab - can be re-enabled when ready
-    # def _create_rwd_tab(self):
-    #     """Tab for Return Water Dam monitoring"""
-    #     tab = ttk.Frame(self.notebook, padding=15)
-    #     self.notebook.add(tab, text="💧 Return Water Dam")
-    #
-    #     # Sub-tabs: Register | Visualize
-    #     rwd_tabs = ttk.Notebook(tab)
-    #     rwd_tabs.pack(fill='both', expand=True)
-    #
-    #     # Register tab
-    #     reg_tab = ttk.Frame(rwd_tabs, padding=10)
-    #     rwd_tabs.add(reg_tab, text="Register")
-    #     ttk.Label(reg_tab, text="Return Water Dam registration features coming soon", 
-    #              font=('Segoe UI', 12)).pack(pady=20)
-    #
-    #     # Visualize tab
-    #     viz_tab = ttk.Frame(rwd_tabs, padding=10)
-    #     rwd_tabs.add(viz_tab, text="Visualize")
-    #     
-    #     # Control panel placeholder
-    #     control_frame = ttk.LabelFrame(viz_tab, text="Data Source", padding=10)
-    #     control_frame.pack(fill='x', pady=(0, 10))
-    #     
-    #     ttk.Label(control_frame, text="Directory:").grid(row=0, column=0, sticky='w', padx=(0, 10))
-    #     rwd_dir = tk.StringVar(value="Not set")
-    #     ttk.Entry(control_frame, textvariable=rwd_dir, state='readonly', width=60).grid(row=0, column=1, sticky='ew', padx=(0, 10))
-    #     ttk.Button(control_frame, text="📂 Select Directory", state='disabled').grid(row=0, column=2, padx=(0,5))
-    #     ttk.Button(control_frame, text="🔎 Scan Directory & Load", state='disabled', style='Accent.TButton').grid(row=0, column=3)
-    #     
-    #     # Content area
-    #     content = ttk.Frame(viz_tab)
-    #     content.pack(fill='both', expand=True, pady=10)
-    #     ttk.Label(content, text="🚧 Return Water Dam monitoring visualization will be implemented with column mapping", 
-    #              font=('Segoe UI', 11), foreground='#666').pack(pady=40)
-
-    # ==================== TAB 5: SEWAGE TREATMENT MONITORING (DISABLED) ====================
-    # Undeveloped tab - can be re-enabled when ready
-    # def _create_sewage_tab(self):
-    #     """Tab for Sewage Treatment monitoring"""
-    #     tab = ttk.Frame(self.notebook, padding=15)
-    #     self.notebook.add(tab, text="🏭 Sewage Treatment")
-    #
-    #     # Sub-tabs: Register | Visualize
-    #     sewage_tabs = ttk.Notebook(tab)
-    #     sewage_tabs.pack(fill='both', expand=True)
-    #
-    #     # Register tab
-    #     reg_tab = ttk.Frame(sewage_tabs, padding=10)
-    #     sewage_tabs.add(reg_tab, text="Register")
-    #     ttk.Label(reg_tab, text="Sewage Treatment registration features coming soon", 
-    #              font=('Segoe UI', 12)).pack(pady=20)
-    #
-    #     # Visualize tab
-    #     viz_tab = ttk.Frame(sewage_tabs, padding=10)
-    #     sewage_tabs.add(viz_tab, text="Visualize")
-    #     
-    #     # Control panel placeholder
-    #     control_frame = ttk.LabelFrame(viz_tab, text="Data Source", padding=10)
-    #     control_frame.pack(fill='x', pady=(0, 10))
-    #     
-    #     ttk.Label(control_frame, text="Directory:").grid(row=0, column=0, sticky='w', padx=(0, 10))
-    #     sewage_dir = tk.StringVar(value="Not set")
-    #     ttk.Entry(control_frame, textvariable=sewage_dir, state='readonly', width=60).grid(row=0, column=1, sticky='ew', padx=(0, 10))
-    #     ttk.Button(control_frame, text="📂 Select Directory", state='disabled').grid(row=0, column=2, padx=(0,5))
-    #     ttk.Button(control_frame, text="🔎 Scan Directory & Load", state='disabled', style='Accent.TButton').grid(row=0, column=3)
-    #     
-    #     # Content area
-    #     content = ttk.Frame(viz_tab)
-    #     content.pack(fill='both', expand=True, pady=10)
-    #     ttk.Label(content, text="🚧 Sewage Treatment monitoring visualization will be implemented with column mapping", 
-    #              font=('Segoe UI', 11), foreground='#666').pack(pady=40)
-
-    # ==================== TAB 6: RIVER MONITORING (DISABLED) ====================
-    # Undeveloped tab - can be re-enabled when ready
-    # def _create_river_tab(self):
-    #     """Tab for River monitoring"""
-    #     tab = ttk.Frame(self.notebook, padding=15)
-    #     self.notebook.add(tab, text="🌊 River Monitoring")
-    #
-    #     # Sub-tabs: Register | Visualize
-    #     river_tabs = ttk.Notebook(tab)
-    #     river_tabs.pack(fill='both', expand=True)
-    #
-    #     # Register tab
-    #     reg_tab = ttk.Frame(river_tabs, padding=10)
-    #     river_tabs.add(reg_tab, text="Register")
-    #     ttk.Label(reg_tab, text="River monitoring registration features coming soon", 
-    #              font=('Segoe UI', 12)).pack(pady=20)
-    #
-    #     # Visualize tab
-    #     viz_tab = ttk.Frame(river_tabs, padding=10)
-    #     river_tabs.add(viz_tab, text="Visualize")
-    #     
-    #     # Control panel placeholder
-    #     control_frame = ttk.LabelFrame(viz_tab, text="Data Source", padding=10)
-    #     control_frame.pack(fill='x', pady=(0, 10))
-    #     
-    #     ttk.Label(control_frame, text="Directory:").grid(row=0, column=0, sticky='w', padx=(0, 10))
-    #     river_dir = tk.StringVar(value="Not set")
-    #     ttk.Entry(control_frame, textvariable=river_dir, state='readonly', width=60).grid(row=0, column=1, sticky='ew', padx=(0, 10))
-    #     ttk.Button(control_frame, text="📂 Select Directory", state='disabled').grid(row=0, column=2, padx=(0,5))
-    #     ttk.Button(control_frame, text="🔎 Scan Directory & Load", state='disabled', style='Accent.TButton').grid(row=0, column=3)
-    #     
-    #     # Content area
-    #     content = ttk.Frame(viz_tab)
-    #     content.pack(fill='both', expand=True, pady=10)
-    #     ttk.Label(content, text="🚧 River monitoring visualization will be implemented with column mapping", 
-    #              font=('Segoe UI', 11), foreground='#666').pack(pady=40)

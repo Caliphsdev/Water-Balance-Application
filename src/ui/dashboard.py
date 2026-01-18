@@ -11,8 +11,10 @@ from utils.config_manager import config
 from utils.app_logger import logger
 from utils.excel_timeseries_extended import get_extended_excel_repo
 from utils.excel_timeseries import get_default_excel_repo
+from utils.flow_volume_loader import get_flow_volume_loader
 from tkinter import messagebox
 from database.db_manager import DatabaseManager
+from ui.mouse_wheel_support import enable_canvas_mousewheel
 
 try:
     import matplotlib
@@ -108,51 +110,18 @@ class DashboardModule:
             self.facilities = self.db.get_storage_facilities()
             logger.info(f"  ✓ DB facilities fetch: {(time.perf_counter() - db_fetch_start)*1000:.0f}ms ({len(self.facilities)} facilities)")
             
-            # Get full calculated storage data (including closing volumes) for each facility
-            # OPTIMIZED: Call get_storage_data with capacity/surface_area to get full calculation
+            # Map storage metrics directly from database (no Excel dependency)
             calc_start = time.perf_counter()
             for facility in self.facilities:
-                code = facility['facility_code']
-                capacity = facility.get('total_capacity', 0)
-                surface_area = facility.get('surface_area', 0)
-                
-                try:
-                    # Get full storage calculation (opening, closing, inflows, outflows, evap, rainfall)
-                    storage_data = self._get_excel_repo().get_storage_data(
-                        code, self.latest_date, capacity, surface_area, self.db
-                    )
-                    
-                    # Merge Excel data into facility metadata (with None checks)
-                    if storage_data:
-                        facility['excel_inflow'] = storage_data.get('inflow_manual', 0)
-                        facility['excel_outflow'] = storage_data.get('outflow_manual', 0)
-                        facility['opening_volume'] = storage_data.get('opening_volume', 0)
-                        facility['closing_volume'] = storage_data.get('closing_volume', 0)
-                        facility['level_percent'] = storage_data.get('level_percent', 0)
-                        facility['inflow_total'] = storage_data.get('inflow_total', 0)
-                        facility['outflow_total'] = storage_data.get('outflow_total', 0)
-                    else:
-                        # Fallback if no data available
-                        facility['excel_inflow'] = 0
-                        facility['excel_outflow'] = 0
-                        facility['opening_volume'] = facility.get('current_volume', 0)
-                        facility['closing_volume'] = facility.get('current_volume', 0)
-                        facility['level_percent'] = 0
-                        facility['inflow_total'] = 0
-                        facility['outflow_total'] = 0
-                except Exception as ex:
-                    logger.warning(f"Failed to load storage data for {code}: {ex}")
-                    # Set safe defaults
-                    facility['excel_inflow'] = 0
-                    facility['excel_outflow'] = 0
-                    facility['opening_volume'] = facility.get('current_volume', 0)
-                    facility['closing_volume'] = facility.get('current_volume', 0)
-                    facility['level_percent'] = 0
-                    facility['inflow_total'] = 0
-                    facility['outflow_total'] = 0
-            
+                facility['excel_inflow'] = 0
+                facility['excel_outflow'] = 0
+                facility['opening_volume'] = facility.get('current_volume', 0)
+                facility['closing_volume'] = facility.get('current_volume', 0)
+                facility['level_percent'] = facility.get('current_level_percent', 0)
+                facility['inflow_total'] = 0
+                facility['outflow_total'] = 0
             calc_total = (time.perf_counter() - calc_start) * 1000
-            logger.info(f"  ✓ Storage calculations: {calc_total:.0f}ms ({len(self.facilities)} facilities)")
+            logger.info(f"  ✓ Storage (DB) mapping: {calc_total:.0f}ms ({len(self.facilities)} facilities)")
             
             # For sources, get metadata from database (for charts/display)
             # Excel column names are just for counting
@@ -182,6 +151,8 @@ class DashboardModule:
         if config.get('features.new_dashboard', False):
             self._create_environment_kpis_section()
             # Rainfall chart removed - not needed
+        # Add balance check results section
+        self._create_balance_check_section()
         # self._create_charts_section()  # Commented out - charts not needed
         # Closure error section removed - user has a plan for it
 
@@ -210,11 +181,35 @@ class DashboardModule:
         )
         title.pack(side='left')
         
-        # Date info subtitle
+        # Date info subtitle with volume calculation date
         date_str = self.latest_date.strftime('%B %Y') if self.latest_date else 'N/A'
+        
+        # Check if facilities have volume_calc_date to show when volumes were last updated
+        volume_dates = set()
+        for f in self.facilities:
+            vol_date = f.get('volume_calc_date')
+            if vol_date:
+                volume_dates.add(vol_date)
+        
+        if volume_dates:
+            # Show volume calculation date if available
+            vol_date_str = sorted(volume_dates)[-1] if volume_dates else None
+            if vol_date_str:
+                from datetime import datetime
+                try:
+                    vol_date_obj = datetime.strptime(vol_date_str, '%Y-%m-%d').date()
+                    vol_date_display = vol_date_obj.strftime('%B %Y')
+                    date_info = f'  •  Latest: {date_str} | DB Volumes: {vol_date_display}'
+                except:
+                    date_info = f'  •  Latest: {date_str}'
+            else:
+                date_info = f'  •  Latest: {date_str}'
+        else:
+            date_info = f'  •  Latest: {date_str}'
+        
         subtitle = tk.Label(
             header_frame,
-            text=f'  •  Latest: {date_str} (Closing Volumes)',
+            text=date_info,
             font=('Segoe UI', 9),
             bg=config.get_color('bg_main'),
             fg='#666'
@@ -231,9 +226,17 @@ class DashboardModule:
         total_sources = len(self.sources)
         total_facilities = len(self.facilities)
         total_capacity = sum(f.get('total_capacity', 0) for f in self.facilities)
-        # Use closing_volume from Excel (real-time calculated) instead of database current_volume (static)
-        total_volume = sum(f.get('closing_volume', 0) for f in self.facilities)
+        # Use current_volume from database (updated when calculations are saved)
+        total_opening = sum(f.get('current_volume', 0) for f in self.facilities)
+        total_volume = total_opening
         utilization = (total_volume / total_capacity * 100) if total_capacity > 0 else 0.0
+
+        # Debug logging to verify totals
+        try:
+            from utils.app_logger import logger
+            logger.info(f"Dashboard totals → Current (DB): {total_volume:,.0f} m³, Capacity: {total_capacity:,.0f} m³")
+        except Exception:
+            pass
 
         kpi_configs = [
             {
@@ -264,7 +267,7 @@ class DashboardModule:
                 'key': 'total_volume',
                 'title': 'Current Volume',
                 'value': f"{total_volume / 1000000:.2f}",
-                'unit': 'Mm³ (End)',
+                'unit': 'Mm³ (DB)',
                 'icon': '▤',
                 'color': config.get_color('primary')
             },
@@ -308,9 +311,9 @@ class DashboardModule:
             month = latest.month
             year = latest.year
 
-            # Rainfall and evaporation (regional)
-            rainfall_mm = self.db.get_regional_rainfall_monthly(month, year=None)
-            evaporation_mm = self.db.get_regional_evaporation_monthly(month, zone=None, year=None)
+            # Rainfall and evaporation (regional) - use year-specific values when available
+            rainfall_mm = self.db.get_regional_rainfall_monthly(month, year=year)
+            evaporation_mm = self.db.get_regional_evaporation_monthly(month, zone=None, year=year)
 
             # Seepage gain (sum across active facilities)
             # NOTE: Seepage methods were removed as seepage is now calculated automatically
@@ -329,6 +332,159 @@ class DashboardModule:
                 self.kpi_widgets[kpi['key']] = {'value': value_widget}
         except Exception as e:
             logger.warning(f"Environmental KPIs failed: {e}")
+
+    def _create_balance_check_section(self):
+        """Display last run balance check results (saved from Flow Diagram balance check)"""
+        try:
+            import json
+            from pathlib import Path
+            
+            # Load saved balance check results
+            results_path = Path('data/balance_check_last_run.json')
+            if not results_path.exists():
+                logger.info("No balance check results available yet - run balance check from Flow Diagram first")
+                return
+            
+            with open(results_path, 'r', encoding='utf-8') as f:
+                results = json.load(f)
+            
+            # Extract results
+            year = results.get('year', 2025)
+            month = results.get('month', 1)
+            month_name = results.get('month_name', 'Unknown')
+            inflows_total = results.get('inflows_total', 0.0)
+            outflows_total = results.get('outflows_total', 0.0)
+            recirculation_total = results.get('recirculation_total', 0.0)
+            balance_error_pct = results.get('balance_error_pct', 0.0)
+            timestamp = results.get('timestamp', 'Unknown')
+            
+            logger.info(f"Dashboard: Loaded balance check from {timestamp}")
+            
+            # Status color based on balance error
+            error_pct = abs(balance_error_pct)
+            if error_pct < 0.1:
+                status_color = config.get_color('success')
+                status_icon = "✅"
+                status_text = "Excellent"
+            elif error_pct < 5.0:
+                status_color = config.get_color('warning')
+                status_icon = "⚠️"
+                status_text = "Good"
+            else:
+                status_color = config.get_color('error')
+                status_icon = "❌"
+                status_text = "Check"
+            
+            # Create a section for balance check
+            section = tk.Frame(self.container, bg=config.get_color('bg_main'))
+            section.pack(fill='x', pady=(0, 15), padx=0)
+
+            # Small heading
+            heading_frame = tk.Frame(section, bg=config.get_color('bg_main'))
+            heading_frame.pack(fill='x', pady=(0, 6), padx=0)
+            
+            # Parse timestamp for display
+            try:
+                from datetime import datetime as dt
+                run_time = dt.fromisoformat(timestamp).strftime('%Y-%m-%d %H:%M')
+            except:
+                run_time = 'Unknown'
+            
+            tk.Label(
+                heading_frame,
+                text=f"⚖️  Balance Status  •  {month_name} {year}  •  Last Run: {run_time}",
+                font=config.get_font('heading_small'),
+                fg=config.get_color('primary'),
+                bg=config.get_color('bg_main'),
+                anchor='w'
+            ).pack(side='left')
+
+            # Mini cards grid
+            balance_grid = tk.Frame(section, bg=config.get_color('bg_main'))
+            balance_grid.pack(fill='x', padx=0)
+
+            # Balance metrics in compact card format
+            balance_cards = [
+                {
+                    'title': 'Total Inflows',
+                    'value': f"{inflows_total:,.0f}",
+                    'unit': 'm³',
+                    'icon': '💧',
+                    'color': config.get_color('info')
+                },
+                {
+                    'title': 'Total Outflows',
+                    'value': f"{outflows_total:,.0f}",
+                    'unit': 'm³',
+                    'icon': '🚰',
+                    'color': config.get_color('error')
+                },
+                {
+                    'title': 'Recirculation',
+                    'value': f"{recirculation_total:,.0f}",
+                    'unit': 'm³',
+                    'icon': '♻️',
+                    'color': config.get_color('success')
+                },
+                {
+                    'title': 'Balance Error',
+                    'value': f"{balance_error_pct:.2f}",
+                    'unit': '%',
+                    'icon': '📊',
+                    'color': status_color
+                },
+                {
+                    'title': 'Status',
+                    'value': status_text,
+                    'unit': 'Result',
+                    'icon': status_icon,
+                    'color': status_color
+                },
+            ]
+
+            # Create compact cards
+            for i, card_data in enumerate(balance_cards):
+                # Mini card frame
+                card = tk.Frame(
+                    balance_grid,
+                    bg='white',
+                    relief='solid',
+                    borderwidth=1,
+                    highlightbackground='#e0e0e0',
+                    highlightthickness=1
+                )
+                card.grid(row=0, column=i, padx=3, sticky='ew', pady=0)
+                balance_grid.columnconfigure(i, weight=1)
+
+                # Icon
+                icon_label = tk.Label(card, text=card_data['icon'], font=('Segoe UI', 18, 'bold'), 
+                                     bg='white', fg=card_data['color'])
+                icon_label.pack(pady=(6, 2))
+
+                # Value
+                value_label = tk.Label(
+                    card,
+                    text=str(card_data['value']),
+                    font=('Segoe UI', 10, 'bold'),
+                    fg=card_data['color'],
+                    bg='white'
+                )
+                value_label.pack()
+
+                # Unit
+                unit_label = tk.Label(card, text=card_data['unit'], font=('Segoe UI', 7),
+                                     fg='#757575', bg='white')
+                unit_label.pack(pady=(0, 1))
+
+                # Title
+                title_label = tk.Label(card, text=card_data['title'], font=('Segoe UI', 8),
+                                      fg='#2c3e50', bg='white')
+                title_label.pack(pady=(0, 4))
+
+            logger.info(f"✅ Balance check displayed: {month_name} {year}, Error={balance_error_pct:.2f}% (Last run: {run_time})")
+
+        except Exception as e:
+            logger.error(f"Balance check section failed: {e}", exc_info=True)
 
     def _create_rain_evap_trend_section(self):
         """Mini-trend: last 6 months rainfall vs evaporation."""
@@ -847,6 +1003,9 @@ class DashboardModule:
         
         canvas.create_window((0, 0), window=scrollable_frame, anchor='nw')
         canvas.configure(yscrollcommand=scrollbar.set)
+        
+        # Enable mouse wheel scrolling
+        enable_canvas_mousewheel(canvas)
         
         # Add facilities
         for facility in facilities:

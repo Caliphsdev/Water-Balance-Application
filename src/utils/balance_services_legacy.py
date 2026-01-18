@@ -118,15 +118,18 @@ class LegacyBalanceServices(InflowsService, OutflowsService, StorageService):
     def get_outflows(self, calculation_date: date, flags: DataQualityFlags) -> Outflows:
         bal = self._get_balance(calculation_date)
         out = bal.get("outflows", {})
-        # Scientific closure: outflows are only permanent losses leaving site
+        # System outflows: water permanently leaving the site
+        # EXCLUDED from outflows (to avoid double-counting):
+        #   • Evaporation: already in ΔStorage (reduces closing volume)
+        #   • Seepage Loss: already in ΔStorage (reduces closing volume)
+        #   • Plant Consumption: superseded by detailed water usage breakdown below
         components = {
+            "mining_consumption": out.get("mining_consumption", 0.0) or 0.0,
+            "domestic_consumption": out.get("domestic_consumption", 0.0) or 0.0,
             "product_moisture": out.get("product_moisture", 0.0) or 0.0,
             "tailings_retention": out.get("tailings_retention", 0.0) or 0.0,
             "dust_suppression": out.get("dust_suppression", 0.0) or 0.0,
             "discharge": out.get("discharge", 0.0) or 0.0,
-            # Include when available via timeseries
-            "mining_consumption": out.get("mining_consumption", 0.0) or 0.0,
-            "domestic_consumption": out.get("domestic_consumption", 0.0) or 0.0,
         }
         # Measured-first override: Meter Readings (PGM/Chromite) → Production sheet (fallback)
         try:
@@ -205,7 +208,7 @@ class LegacyBalanceServices(InflowsService, OutflowsService, StorageService):
                 # Silently ignore and keep legacy components
                 pass
 
-        # Note: exclude plant_consumption_net and evaporation from total outflows
+        # Total outflows = sum of all water leaving the system
         total = sum(components.values())
         return Outflows(total=total, components=components)
 

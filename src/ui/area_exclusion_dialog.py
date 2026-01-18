@@ -7,6 +7,7 @@ from tkinter import ttk
 from utils.balance_check_engine import get_balance_check_engine
 from utils.template_data_parser import get_template_parser
 from utils.app_logger import logger
+from ui.mouse_wheel_support import enable_canvas_mousewheel, enable_text_mousewheel
 
 
 class AreaExclusionDialog:
@@ -69,6 +70,7 @@ class AreaExclusionDialog:
         
         canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
         canvas.configure(yscrollcommand=scrollbar.set)
+        enable_canvas_mousewheel(canvas)
         
         # Get all areas
         all_areas = sorted(self.parser.get_areas())
@@ -101,6 +103,7 @@ class AreaExclusionDialog:
         info_text = tk.Text(info_frame, height=3, wrap=tk.WORD, font=('Segoe UI', 8),
                            relief=tk.FLAT, background='#f0f0f0', borderwidth=0)
         info_text.pack(fill=tk.X)
+        enable_text_mousewheel(info_text)
         info_text.insert('1.0',
             "Excluded areas will be removed from balance calculations.\n"
             "The balance equation will only use data from included areas.\n"

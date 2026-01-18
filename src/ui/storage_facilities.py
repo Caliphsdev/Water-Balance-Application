@@ -17,6 +17,7 @@ from tkinter import ttk, messagebox
 from datetime import datetime, date
 from utils.config_manager import config
 from database.db_manager import DatabaseManager
+from ui.mouse_wheel_support import enable_canvas_mousewheel, enable_text_mousewheel, enable_treeview_mousewheel
 
 
 class StorageFacilitiesModule:
@@ -425,6 +426,7 @@ class StorageFacilitiesModule:
             style='Custom.Treeview',
             height=12
         )
+        enable_treeview_mousewheel(self.tree)
         
         tree_scroll_y.config(command=self.tree.yview)
         tree_scroll_x.config(command=self.tree.xview)
@@ -834,6 +836,7 @@ class FacilityDialog:
         
         canvas.create_window((0, 0), window=scrollable_frame, anchor='nw')
         canvas.configure(yscrollcommand=scrollbar.set)
+        enable_canvas_mousewheel(canvas)
         
         canvas.pack(side='left', fill='both', expand=True)
         scrollbar.pack(side='right', fill='y')
@@ -1019,6 +1022,7 @@ class FacilityDialog:
             wrap='word'
         )
         desc_text.pack(fill='x', pady=(0, 15))
+        enable_text_mousewheel(desc_text)
         if self.facility and self.facility.get('description'):
             desc_text.insert('1.0', self.facility['description'])
         self.description_text = desc_text
@@ -1214,6 +1218,7 @@ class FacilityDialog:
         
         canvas.create_window((0, 0), window=scrollable_frame, anchor='nw')
         canvas.configure(yscrollcommand=scrollbar.set)
+        enable_canvas_mousewheel(canvas)
         
         canvas.pack(side='left', fill='both', expand=True, padx=5, pady=5)
         scrollbar.pack(side='right', fill='y')
@@ -1559,6 +1564,7 @@ class FacilityMonthlyParamsDialog:
         
         canvas.create_window((0, 0), window=scrollable_frame, anchor='nw')
         canvas.configure(yscrollcommand=scrollbar.set)
+        enable_canvas_mousewheel(canvas)
         
         canvas.pack(side='left', fill='both', expand=True, padx=20, pady=20)
         scrollbar.pack(side='right', fill='y')
@@ -1626,6 +1632,7 @@ class FacilityMonthlyParamsDialog:
         
         canvas.create_window((0, 0), window=scrollable_frame, anchor='nw')
         canvas.configure(yscrollcommand=scrollbar.set)
+        enable_canvas_mousewheel(canvas)
         
         canvas.pack(side='left', fill='both', expand=True, padx=20, pady=20)
         scrollbar.pack(side='right', fill='y')
@@ -1693,6 +1700,7 @@ class FacilityMonthlyParamsDialog:
         
         canvas.create_window((0, 0), window=scrollable_frame, anchor='nw')
         canvas.configure(yscrollcommand=scrollbar.set)
+        enable_canvas_mousewheel(canvas)
         
         canvas.pack(side='left', fill='both', expand=True, padx=20, pady=20)
         scrollbar.pack(side='right', fill='y')

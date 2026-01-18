@@ -9,6 +9,7 @@ from datetime import datetime
 from database.db_manager import DatabaseManager
 from ui.data_import import DataImportModule
 from utils.config_manager import config
+from ui.mouse_wheel_support import enable_listbox_mousewheel, enable_treeview_mousewheel
 
 
 class MonitoringDashboard:
@@ -143,6 +144,7 @@ class MonitoringDashboard:
         sb = tk.Scrollbar(site_frame, orient='vertical', command=self.site_listbox.yview)
         sb.pack(side='right', fill='y')
         self.site_listbox.configure(yscrollcommand=sb.set)
+        enable_listbox_mousewheel(self.site_listbox)
         # Populate category sites
         self._load_category_sites()
         # Parameter selector removed: parameters now displayed directly as table columns.
@@ -353,6 +355,7 @@ class MonitoringDashboard:
         table_frame.pack(fill='both', expand=True)
         cols = ('Item', 'Detail', 'Severity')
         tree = ttk.Treeview(table_frame, columns=cols, show='headings', height=8)
+        enable_treeview_mousewheel(tree)
         for c in cols:
             tree.heading(c, text=c)
             tree.column(c, width=160, anchor='w')
@@ -386,6 +389,7 @@ class MonitoringDashboard:
         y_scroll = tk.Scrollbar(table_frame, orient='vertical')
         tree = ttk.Treeview(table_frame, columns=columns, show='headings', height=12,
                             xscrollcommand=x_scroll.set, yscrollcommand=y_scroll.set)
+        enable_treeview_mousewheel(tree)
         x_scroll.config(command=tree.xview)
         y_scroll.config(command=tree.yview)
         # Position scrollbars

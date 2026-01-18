@@ -10,7 +10,7 @@ import json
 import tkinter as tk
 from tkinter import Canvas, Frame, Label, Scrollbar, messagebox, Button, ttk, simpledialog
 from pathlib import Path
-from datetime import date
+from datetime import date, datetime
 import warnings
 from openpyxl import load_workbook
 import uuid
@@ -29,6 +29,505 @@ from utils.excel_mapping_registry import (
     reset_excel_mapping_registry,
 )
 from utils.column_alias_resolver import get_column_alias_resolver
+from ui.mouse_wheel_support import enable_canvas_mousewheel, enable_listbox_mousewheel
+
+
+class FlowDiagramBalanceCheckDialog:
+    """Balance check dialog for flow diagram - user categorizes flowlines and sees balance calculation"""
+    
+    def __init__(self, parent, flow_diagram):
+        """
+        Args:
+            parent: Parent window
+            flow_diagram: DetailedNetworkFlowDiagram instance
+        """
+        self.parent = parent
+        self.flow_diagram = flow_diagram
+        self.dialog = None
+        self.categorizations = {}  # {edge_id: 'inflow'|'recirculation'|'outflow'|'ignore'}
+        self.category_vars = {}  # {edge_id: tk.StringVar}
+        self.result_label = None
+        self.category_source_info = ""
+        
+        # Load saved categorizations
+        self._load_categorizations()
+        
+    def _load_categorizations(self):
+        """Load saved flow categorizations from JSON"""
+        try:
+            config_path = Path(__file__).parent.parent.parent / 'data' / 'balance_check_flow_categories.json'
+            if config_path.exists():
+                with open(config_path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    # Load for current area with sensible fallback to 'default'
+                    # Prefer the diagram's area code; if missing, infer from title.
+                    inferred_area = self.flow_diagram.area_code or self.flow_diagram._get_area_code_from_title()
+                    area_code = inferred_area or 'default'
+                    base = data.get('default', {})
+                    area_specific = data.get(area_code, {})
+                    # Merge: area-specific overrides default baseline
+                    merged = dict(base)
+                    merged.update(area_specific)
+                    self.categorizations = merged
+                    # Build source info label text
+                    base_has = bool(base)
+                    area_has = bool(area_specific)
+                    if area_has and base_has:
+                        self.category_source_info = f"{area_code} + default baseline"
+                    elif area_has:
+                        self.category_source_info = f"{area_code}"
+                    elif base_has:
+                        self.category_source_info = "default baseline"
+                    else:
+                        self.category_source_info = "none (all ignore by default)"
+                    loaded_key = area_code if area_specific else 'default'
+                    logger.info(f"✅ Loaded balance check categories for {loaded_key}")
+        except Exception as e:
+            logger.warning(f"Could not load balance check categories: {e}")
+            self.categorizations = {}
+            self.category_source_info = "none (all ignore by default)"
+    
+    def _save_categorizations(self):
+        """Save flow categorizations to JSON"""
+        try:
+            config_path = Path(__file__).parent.parent.parent / 'data' / 'balance_check_flow_categories.json'
+            config_path.parent.mkdir(parents=True, exist_ok=True)
+            
+            # Load existing data
+            all_data = {}
+            if config_path.exists():
+                with open(config_path, 'r', encoding='utf-8') as f:
+                    all_data = json.load(f)
+            
+            # Update for current area
+            area_code = self.flow_diagram.area_code or 'default'
+            all_data[area_code] = self.categorizations
+            
+            # Save
+            with open(config_path, 'w', encoding='utf-8') as f:
+                json.dump(all_data, f, indent=2)
+            
+            logger.info(f"💾 Saved balance check categories for {area_code}")
+        except Exception as e:
+            logger.error(f"Failed to save balance check categories: {e}")
+    
+    def show(self):
+        """Open the balance check dialog"""
+        self.dialog = tk.Toplevel(self.parent)
+        self.dialog.title("⚖️ Flow Diagram Balance Check")
+        
+        # Calculate responsive window size based on screen dimensions
+        screen_width = self.dialog.winfo_screenwidth()
+        screen_height = self.dialog.winfo_screenheight()
+        # Use 85% of screen for safety margin (taskbar, etc.)
+        window_width = int(screen_width * 0.85)
+        window_height = int(screen_height * 0.85)
+        # Clamp to reasonable bounds
+        window_width = max(900, min(window_width, 1300))
+        window_height = max(700, min(window_height, 1000))
+        
+        # Center window on screen
+        x = (screen_width - window_width) // 2
+        y = (screen_height - window_height) // 2
+        self.dialog.geometry(f"{window_width}x{window_height}+{x}+{y}")
+        self.dialog.configure(bg='#2c3e50')
+        
+        # Make modal
+        self.dialog.transient(self.parent)
+        self.dialog.grab_set()
+        # Auto-save on window close (top-right X)
+        self.dialog.protocol("WM_DELETE_WINDOW", self._save_and_close)
+        
+        # Header
+        header_frame = tk.Frame(self.dialog, bg='#34495e', relief=tk.SOLID, borderwidth=1)
+        header_frame.pack(fill=tk.X, padx=10, pady=10)
+        
+        tk.Label(header_frame, text="⚖️ Balance Check", 
+                font=('Segoe UI', 16, 'bold'), bg='#34495e', fg='#e8eef5').pack(anchor='w', padx=15, pady=(10, 2))
+        tk.Label(header_frame, text="Categorize flowlines and verify water balance using: (Inflows - Recirculation - Outflows) / Inflows × 100", 
+                font=('Segoe UI', 10), bg='#34495e', fg='#95a5a6').pack(anchor='w', padx=15, pady=(0, 10))
+        
+        # Date selection
+        date_frame = tk.Frame(self.dialog, bg='#2c3e50')
+        date_frame.pack(fill=tk.X, padx=10, pady=(0, 10))
+        
+        tk.Label(date_frame, text="📅 Period:", font=('Segoe UI', 10, 'bold'), 
+                bg='#2c3e50', fg='#e8eef5').pack(side='left', padx=(0, 10))
+        
+        tk.Label(date_frame, text="Year:", bg='#2c3e50', fg='#e8eef5').pack(side='left', padx=(0, 5))
+
+        # Show which category set is active for clarity
+        info_frame = tk.Frame(self.dialog, bg='#2c3e50')
+        info_frame.pack(fill=tk.X, padx=10, pady=(0, 10))
+        tk.Label(
+            info_frame,
+            text=f"🔖 Active Categories: {self.category_source_info}",
+            font=('Segoe UI', 9),
+            bg='#2c3e50',
+            fg='#95a5a6'
+        ).pack(anchor='w', padx=0)
+        self.year_var = tk.StringVar(value=str(self.flow_diagram.current_year))
+        tk.Spinbox(date_frame, from_=2020, to=2100, textvariable=self.year_var, 
+                  width=6, font=('Segoe UI', 9)).pack(side='left', padx=(0, 15))
+        
+        tk.Label(date_frame, text="Month:", bg='#2c3e50', fg='#e8eef5').pack(side='left', padx=(0, 5))
+        self.month_var = tk.StringVar(value=str(self.flow_diagram.current_month))
+        months = ['January', 'February', 'March', 'April', 'May', 'June',
+                  'July', 'August', 'September', 'October', 'November', 'December']
+        month_combo = ttk.Combobox(date_frame, textvariable=self.month_var, 
+                                   values=months, state='readonly', width=11)
+        month_combo.current(self.flow_diagram.current_month - 1)
+        month_combo.pack(side='left', padx=(0, 15))
+        
+        tk.Button(date_frame, text="🔄 Recalculate", command=self._calculate_balance,
+                 bg='#3498db', fg='white', font=('Segoe UI', 9, 'bold'), padx=15).pack(side='left', padx=5)
+        
+        # Main content area - scrollable
+        main_frame = tk.Frame(self.dialog, bg='#2c3e50')
+        main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=(0, 10))
+        
+        canvas = tk.Canvas(main_frame, bg='#2c3e50', highlightthickness=0)
+        scrollbar = ttk.Scrollbar(main_frame, orient='vertical', command=canvas.yview)
+        scrollable_frame = tk.Frame(canvas, bg='#2c3e50')
+        
+        scrollable_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+        
+        # Enable mouse wheel scrolling
+        enable_canvas_mousewheel(canvas)
+        
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+        
+        # Flowlines table
+        self._create_flowlines_table(scrollable_frame)
+        
+        # Results section (centered)
+        results_frame = tk.Frame(self.dialog, bg='#34495e', relief=tk.SOLID, borderwidth=1)
+        # Center the results card within the dialog
+        results_frame.pack(padx=10, pady=(0, 10), anchor='center')
+        
+        tk.Label(results_frame, text="📊 Balance Calculation Results", 
+            font=('Segoe UI', 12, 'bold'), bg='#34495e', fg='#e8eef5').pack(anchor='center', padx=15, pady=(10, 5))
+        
+        self.result_label = tk.Label(results_frame, text="Click 'Recalculate' to see results", 
+                         font=('Segoe UI', 11), bg='#34495e', fg='#95a5a6', justify='left')
+        # Center the results text block while keeping left-justified content
+        self.result_label.pack(anchor='center', padx=15, pady=(0, 10))
+        
+        # Action buttons
+        btn_frame = tk.Frame(self.dialog, bg='#2c3e50')
+        btn_frame.pack(fill=tk.X, padx=10, pady=(0, 10))
+        
+        tk.Button(btn_frame, text="💾 Save Categories", command=self._save_and_close,
+                 bg='#27ae60', fg='white', font=('Segoe UI', 10, 'bold'), padx=20).pack(side='left', padx=5)
+        # Close also saves; reduces risk of losing work
+        tk.Button(btn_frame, text="✖ Close", command=self._save_and_close,
+                 bg='#95a5a6', fg='white', font=('Segoe UI', 10, 'bold'), padx=20).pack(side='right', padx=5)
+        
+        # Auto-calculate on open
+        self.dialog.after(100, self._calculate_balance)
+    
+    def _create_flowlines_table(self, parent):
+        """Create table showing all flowlines with categorization options and filters"""
+        # Filters row
+        filters_frame = tk.Frame(parent, bg='#2c3e50')
+        filters_frame.pack(fill=tk.X, pady=(0, 5))
+        
+        # Area filter (flows list automatically shows only mapped flows)
+        tk.Label(filters_frame, text="Area:", bg='#2c3e50', fg='#e8eef5', font=('Segoe UI', 9)).pack(side='left', padx=(0, 5))
+        self.area_filter_var = tk.StringVar(value='all')
+        area_options = ['all'] + self._collect_edge_areas()
+        area_combo = ttk.Combobox(filters_frame, textvariable=self.area_filter_var,
+                      values=area_options, state='readonly', width=18)
+        area_combo.current(0)
+        area_combo.pack(side='left')
+        area_combo.bind('<<ComboboxSelected>>', lambda e: self._refresh_flowlines_table())
+        # Keep reference for dynamic refresh
+        self.area_combo = area_combo
+        
+        # Table header
+        header_frame = tk.Frame(parent, bg='#34495e', relief=tk.SOLID, borderwidth=1)
+        header_frame.pack(fill=tk.X, pady=(0, 5))
+        
+        # Simplified headers (hide technical Flow ID for user-friendly UI)
+        headers = [
+            ("From → To", 560),
+            ("Category", 220)
+        ]
+        
+        for i, (label, width) in enumerate(headers):
+            tk.Label(header_frame, text=label, font=('Segoe UI', 9, 'bold'), 
+                    bg='#34495e', fg='#e8eef5', width=width//7, anchor='w').grid(row=0, column=i, padx=5, pady=8, sticky='w')
+        
+        # Flowlines content container (for filterable rebuilds)
+        if hasattr(self, 'table_content_frame') and self.table_content_frame.winfo_exists():
+            self.table_content_frame.destroy()
+        self.table_content_frame = tk.Frame(parent, bg='#2c3e50')
+        self.table_content_frame.pack(fill=tk.BOTH, expand=True)
+        
+        # Initial build
+        self._build_flowlines_rows(self.table_content_frame)
+
+    def _get_filtered_edges(self):
+        """Return edges filtered by mapping presence and selected area."""
+        edges = self.flow_diagram.area_data.get('edges', [])
+        area_filter = self.area_filter_var.get() if hasattr(self, 'area_filter_var') else 'all'
+        
+        filtered = []
+        for idx, edge in enumerate(edges):
+            edge_id = edge.get('id', f"edge_{idx}")
+            excel_mapping = edge.get('excel_mapping', '')
+            # Always show only mapped flows
+            if not excel_mapping:
+                continue
+            if isinstance(excel_mapping, dict):
+                if not excel_mapping.get('enabled') or not excel_mapping.get('column'):
+                    continue
+            if area_filter != 'all':
+                edge_area = edge.get('area') or edge.get('area_code') or edge.get('areaCode') or edge.get('areaCode'.lower())
+                if not edge_area and isinstance(excel_mapping, dict):
+                    edge_area = excel_mapping.get('sheet')
+                if str(edge_area) != area_filter:
+                    continue
+            filtered.append((idx, edge))
+        return filtered
+
+    def _collect_edge_areas(self):
+        """Collect unique area identifiers from edges for filtering."""
+        edges = self.flow_diagram.area_data.get('edges', [])
+        areas = []
+        seen = set()
+        for edge in edges:
+            area_val = edge.get('area') or edge.get('area_code') or edge.get('areaCode') or edge.get('areaCode'.lower())
+            if not area_val:
+                mapping = edge.get('excel_mapping', {})
+                if isinstance(mapping, dict):
+                    area_val = mapping.get('sheet')
+            if area_val and area_val not in seen:
+                seen.add(area_val)
+                areas.append(str(area_val))
+        areas.sort()
+        return areas
+
+    def _refresh_flowlines_table(self):
+        """Refresh table content after filter or category change."""
+        # Refresh area options dynamically
+        if hasattr(self, 'area_combo') and self.area_combo.winfo_exists():
+            options = ['all'] + self._collect_edge_areas()
+            current = self.area_filter_var.get() if hasattr(self, 'area_filter_var') else 'all'
+            self.area_combo['values'] = options
+            if current not in options:
+                current = 'all'
+                self.area_filter_var.set(current)
+            # Update current selection index
+            try:
+                idx = options.index(current)
+                self.area_combo.current(idx)
+            except ValueError:
+                self.area_combo.current(0)
+
+        if hasattr(self, 'table_content_frame') and self.table_content_frame.winfo_exists():
+            self._build_flowlines_rows(self.table_content_frame)
+
+    def _build_flowlines_rows(self, parent):
+        """Build rows into the given parent using current filters."""
+        # Clear any previous
+        for w in parent.winfo_children():
+            w.destroy()
+        
+        nodes = self.flow_diagram.area_data.get('nodes', [])
+        nodes_by_id = {n['id']: n for n in nodes}
+        
+        for idx, edge in self._get_filtered_edges():
+            edge_id = edge.get('id', f"edge_{idx}")
+            from_id = edge.get('from', '')
+            to_id = edge.get('to', '')
+            excel_mapping = edge.get('excel_mapping', '')
+            
+            from_label = nodes_by_id.get(from_id, {}).get('label', from_id)
+            to_label = nodes_by_id.get(to_id, {}).get('label', to_id)
+            
+            row_frame = tk.Frame(parent, bg='#2c3e50', relief=tk.SOLID, borderwidth=1)
+            row_frame.pack(fill=tk.X, pady=2)
+            
+            # From → To
+            flow_text = f"{from_label} → {to_label}"
+            tk.Label(row_frame, text=flow_text, font=('Segoe UI', 9), 
+                     bg='#2c3e50', fg='#e8eef5', width=560//7, anchor='w').grid(row=0, column=0, padx=5, pady=5, sticky='w')
+            
+            # Category dropdown
+            current_category = self.categorizations.get(edge_id, 'ignore')
+            category_var = self.category_vars.get(edge_id)
+            if category_var is None:
+                category_var = tk.StringVar(value=current_category)
+                self.category_vars[edge_id] = category_var
+            else:
+                category_var.set(current_category)
+            
+            category_combo = ttk.Combobox(row_frame, textvariable=category_var, 
+                                         values=['inflow', 'recirculation', 'outflow', 'ignore'],
+                                         state='readonly', width=18)
+            category_combo.grid(row=0, column=1, padx=5, pady=5, sticky='w')
+            category_combo.bind('<<ComboboxSelected>>', 
+                                lambda e, eid=edge_id: self._update_category(eid))
+
+    def _refresh_flowlines_table(self):
+        """Refresh table content after filter or category change."""
+        if hasattr(self, 'table_content_frame') and self.table_content_frame.winfo_exists():
+            self._build_flowlines_rows(self.table_content_frame)
+
+    # Tooltip removed per user request
+    
+    def _update_category(self, edge_id):
+        """Update categorization when user changes dropdown"""
+        self.categorizations[edge_id] = self.category_vars[edge_id].get()
+        # Refresh view if a filter is active
+        self._refresh_flowlines_table()
+    
+    def _calculate_balance(self):
+        """Calculate water balance using categorized flows"""
+        try:
+            # Refresh table to reflect latest mappings/categories
+            self._refresh_flowlines_table()
+            # Get year/month
+            year = int(self.year_var.get())
+            months = ['January', 'February', 'March', 'April', 'May', 'June',
+                     'July', 'August', 'September', 'October', 'November', 'December']
+            month_name = self.month_var.get()
+            month = months.index(month_name) + 1 if month_name in months else 1
+            
+            area_code = self.flow_diagram.area_code or 'default'
+            
+            # Get flow volumes from Excel
+            flow_loader = get_flow_volume_loader()
+            flow_loader.clear_cache()
+            
+            # Calculate totals by category
+            inflows_total = 0.0
+            recirculation_total = 0.0
+            outflows_total = 0.0
+            
+            inflows_list = []
+            recirculation_list = []
+            outflows_list = []
+            
+            edges = self.flow_diagram.area_data.get('edges', [])
+            
+            for idx, edge in enumerate(edges):
+                edge_id = edge.get('id', f"edge_{idx}")
+                category = self.categorizations.get(edge_id, 'ignore')
+                
+                if category == 'ignore':
+                    continue
+                
+                excel_mapping = edge.get('excel_mapping', '')
+                if not excel_mapping:
+                    continue
+                
+                # Extract volume from Excel
+                try:
+                    volume = flow_loader.get_flow_volume(area_code, excel_mapping, year, month)
+                    if volume is None:
+                        volume = 0.0
+                    
+                    if category == 'inflow':
+                        inflows_total += volume
+                        inflows_list.append((edge_id, volume))
+                    elif category == 'recirculation':
+                        recirculation_total += volume
+                        recirculation_list.append((edge_id, volume))
+                    elif category == 'outflow':
+                        outflows_total += volume
+                        outflows_list.append((edge_id, volume))
+                
+                except Exception as e:
+                    logger.warning(f"Could not get volume for {excel_mapping}: {e}")
+            
+            # Calculate balance
+            balance_diff = inflows_total - recirculation_total - outflows_total
+            balance_error_pct = (balance_diff / inflows_total * 100) if inflows_total != 0 else 0
+            
+            # Determine status
+            if abs(balance_error_pct) < 5.0:
+                status = "✅ CLOSED"
+                status_color = '#27ae60'
+            elif abs(balance_error_pct) < 10.0:
+                status = "⚠️ ACCEPTABLE"
+                status_color = '#f39c12'
+            else:
+                status = "❌ CHECK REQUIRED"
+                status_color = '#e74c3c'
+            
+            # Build result text
+            result_text = f"""
+📅 Period: {month_name} {year}
+🏭 Area: {area_code}
+
+📊 Balance Components:
+  • Total Inflows:        {inflows_total:>15,.0f} m³  ({len(inflows_list)} flows)
+  • Total Recirculation:  {recirculation_total:>15,.0f} m³  ({len(recirculation_list)} flows)
+  • Total Outflows:       {outflows_total:>15,.0f} m³  ({len(outflows_list)} flows)
+
+⚖️ Balance Equation:
+  {inflows_total:,.0f} - {recirculation_total:,.0f} - {outflows_total:,.0f} = {balance_diff:,.0f} m³
+
+📈 Balance Error:
+  ({balance_diff:,.0f} / {inflows_total:,.0f}) × 100 = {balance_error_pct:.2f}%
+
+Status: {status}
+"""
+            
+            # Update result label
+            self.result_label.config(text=result_text, fg='#e8eef5')
+            
+            # Save results for dashboard display
+            self._save_balance_results({
+                'timestamp': datetime.now().isoformat(),
+                'year': year,
+                'month': month,
+                'month_name': month_name,
+                'area_code': area_code,
+                'inflows_total': inflows_total,
+                'recirculation_total': recirculation_total,
+                'outflows_total': outflows_total,
+                'balance_diff': balance_diff,
+                'balance_error_pct': balance_error_pct,
+                'status': status,
+                'inflow_count': len(inflows_list),
+                'recirculation_count': len(recirculation_list),
+                'outflow_count': len(outflows_list)
+            })
+            
+            logger.info(f"✅ Balance check calculated: {balance_error_pct:.2f}% error")
+        
+        except Exception as e:
+            logger.error(f"Balance calculation error: {e}", exc_info=True)
+            self.result_label.config(text=f"❌ Error: {str(e)}", fg='#e74c3c')
+    
+    def _save_balance_results(self, results):
+        """Save balance check results for dashboard display"""
+        try:
+            results_path = Path(__file__).parent.parent.parent / 'data' / 'balance_check_last_run.json'
+            results_path.parent.mkdir(parents=True, exist_ok=True)
+            
+            with open(results_path, 'w', encoding='utf-8') as f:
+                json.dump(results, f, indent=2)
+            
+            logger.info(f"💾 Saved balance check results for dashboard")
+        except Exception as e:
+            logger.error(f"Failed to save balance results: {e}")
+    
+    def _save_and_close(self):
+        """Save categorizations and close dialog"""
+        # Update categorizations from vars
+        for edge_id, var in self.category_vars.items():
+            self.categorizations[edge_id] = var.get()
+        
+        self._save_categorizations()
+        messagebox.showinfo("Saved", "Flow categorizations saved successfully!")
+        self.dialog.destroy()
 
 
 # Flow type and color mapping (clean, evaporation/losses, dirty variants)
@@ -244,6 +743,12 @@ class DetailedNetworkFlowDiagram:
                bg='#16a085', fg='white', font=('Segoe UI', 10, 'bold'), padx=15).pack(side='left', padx=2)
         Button(excel_frame, text='🔧 Excel Setup', command=self._open_excel_setup_unified,
                bg='#e67e22', fg='white', font=('Segoe UI', 10, 'bold'), padx=15).pack(side='left', padx=2)
+        
+        # Spacer
+        Frame(excel_frame, width=20, bg='#2c3e50').pack(side='left')
+        
+        Button(excel_frame, text='⚖️ Balance Check', command=self._open_balance_check,
+               bg='#9b59b6', fg='white', font=('Segoe UI', 10, 'bold'), padx=15).pack(side='left', padx=2)
 
         # Simple help text
         info = Label(controls, 
@@ -1903,6 +2408,7 @@ class DetailedNetworkFlowDiagram:
                              font=('Segoe UI', 9), height=20, selectmode='single')
         listbox.pack(side='left', fill='both', expand=True)
         scrollbar.config(command=listbox.yview)
+        enable_listbox_mousewheel(listbox)
 
         # Group edges by area like _delete_line does
         edges_by_area = {}
@@ -2081,6 +2587,7 @@ class DetailedNetworkFlowDiagram:
                              font=('Segoe UI', 9), height=20, selectmode='extended')
         listbox.pack(side='left', fill='both', expand=True)
         scrollbar.config(command=listbox.yview)
+        enable_listbox_mousewheel(listbox)
         
         edges_by_area = {}
         for i, edge in enumerate(edges):
@@ -2332,6 +2839,7 @@ class DetailedNetworkFlowDiagram:
         listbox = tk.Listbox(list_frame, yscrollcommand=scrollbar.set, font=('Segoe UI', 9), height=15)
         listbox.pack(fill='both', expand=True)
         scrollbar.config(command=listbox.yview)
+        enable_listbox_mousewheel(listbox)
 
         # Populate listbox
         for idx, (edge_idx, edge) in enumerate(recirculation_edges):
@@ -2509,6 +3017,7 @@ class DetailedNetworkFlowDiagram:
         listbox = tk.Listbox(frame, yscrollcommand=scrollbar.set, font=('Segoe UI', 9))
         listbox.pack(fill='both', expand=True)
         scrollbar.config(command=listbox.yview)
+        enable_listbox_mousewheel(listbox)
         
         # Populate listbox
         for idx, (edge_idx, edge) in enumerate(recirculation_edges):
@@ -3928,6 +4437,7 @@ class DetailedNetworkFlowDiagram:
                                   bg='#f5f6f7', relief='solid', borderwidth=1)
         flow_listbox.pack(side='left', fill='both', expand=True)
         scrollbar.config(command=flow_listbox.yview)
+        enable_listbox_mousewheel(flow_listbox)
         
         # Populate listbox
         for idx, edge in unmapped:
@@ -4416,6 +4926,8 @@ class DetailedNetworkFlowDiagram:
 
             tree_cols = ('flow', 'sheet', 'column', 'status')
             tree_link = ttk.Treeview(body, columns=tree_cols, show='headings', selectmode='browse')
+            from ui.mouse_wheel_support import enable_treeview_mousewheel
+            enable_treeview_mousewheel(tree_link)
             for col_name, heading, width in (
                 ('flow', 'Flow', 360),
                 ('sheet', 'Sheet', 140),
@@ -5160,6 +5672,8 @@ class DetailedNetworkFlowDiagram:
         columns = ('id', 'flow', 'sheet', 'column', 'enabled')
         tree = ttk.Treeview(table_container, columns=columns, show='headings', 
                           selectmode='browse', style="Modern.Treeview")
+        from ui.mouse_wheel_support import enable_treeview_mousewheel
+        enable_treeview_mousewheel(tree)
         
         tree.heading('id', text='#')
         tree.heading('flow', text='Flow Connection')
@@ -5604,6 +6118,7 @@ class DetailedNetworkFlowDiagram:
                                      font=('Segoe UI', 10), height=20)
         sheets_listbox.pack(side='left', fill='both', expand=True)
         sheets_scrollbar.config(command=sheets_listbox.yview)
+        enable_listbox_mousewheel(sheets_listbox)
         
         def refresh_sheets():
             sheets_listbox.delete(0, tk.END)
@@ -5864,6 +6379,7 @@ class DetailedNetworkFlowDiagram:
                                       font=('Segoe UI', 10), height=18)
         columns_listbox.pack(side='left', fill='both', expand=True)
         columns_scrollbar.config(command=columns_listbox.yview)
+        enable_listbox_mousewheel(columns_listbox)
         
         def refresh_sheets_combo():
             try:
@@ -6265,6 +6781,7 @@ class DetailedNetworkFlowDiagram:
                                        font=('Segoe UI', 10), height=20)
         unmapped_listbox.pack(side='left', fill='both', expand=True)
         unmapped_scrollbar.config(command=unmapped_listbox.yview)
+        enable_listbox_mousewheel(unmapped_listbox)
         
         def refresh_unmapped():
             unmapped_listbox.delete(0, tk.END)
@@ -6410,6 +6927,29 @@ class DetailedNetworkFlowDiagram:
                 return code
         
         return 'UG2N'  # Default
+    
+    def _open_balance_check(self):
+        """Open the balance check dialog for flow categorization"""
+        try:
+            if not self.area_data.get('edges'):
+                messagebox.showwarning("No Flows", "No flowlines found in the diagram. Draw some flows first!")
+                return
+            
+            # Ensure area_code is initialized before opening the dialog
+            # so category loading picks the correct area-specific set.
+            if not self.area_code:
+                # Prefer explicit area_code from JSON, else infer from title.
+                inferred = self.area_data.get('area_code') or self._get_area_code_from_title()
+                self.area_code = inferred
+                logger.info(f"📍 Initialized area_code for balance check: {self.area_code}")
+
+            # Create and show balance check dialog
+            dialog = FlowDiagramBalanceCheckDialog(self.parent, self)
+            dialog.show()
+            
+        except Exception as e:
+            logger.error(f"Error opening balance check: {e}", exc_info=True)
+            messagebox.showerror("Error", f"Failed to open balance check:\n{e}")
 
 
 # For compatibility

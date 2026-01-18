@@ -18,6 +18,7 @@ from utils.excel_monitor import ExcelFileMonitor
 from utils.excel_timeseries_extended import ExcelTimeSeriesExtended
 from utils.cache_prewarm import prewarm_latest_month
 from licensing.license_manager import LicenseManager
+from ui.mouse_wheel_support import enable_canvas_mousewheel
 import threading
 
 
@@ -25,7 +26,11 @@ class MainWindow:
     """Main application window with professional layout"""
     
     def __init__(self, root):
-        """Initialize the main window layout"""
+        """Initialize the main window layout
+        
+        Args:
+            root: Tkinter root window
+        """
         self.root = root
         self.current_module = None
         self._module_cache = {}
@@ -50,11 +55,11 @@ class MainWindow:
         self._create_toolbar()
         self._create_statusbar()  # Pack statusbar BEFORE main layout
         self._create_main_layout()
-        # Maximize window for better fit across modules
-        self._maximize_window()
-
-        # Load default module (Dashboard) - Excel will load on-demand
-        self.load_module('dashboard')
+        
+        # Don't maximize yet - will happen after window reveal to prevent early visibility
+        # Don't load dashboard yet - will be loaded after window is revealed
+        self._dashboard_loaded = False
+        self._window_maximized = False
     
     def _create_toolbar(self):
         """Create top toolbar with menu and quick actions"""
@@ -653,6 +658,7 @@ class MainWindow:
         
         dashboard = DashboardModule(self.content_area)
         dashboard.load()
+        self._dashboard_loaded = True
 
     def _load_analytics(self):
         """Load the analytics & trends module"""
@@ -761,13 +767,7 @@ class MainWindow:
         canvas.pack(side='left', fill='both', expand=True)
         
         # Enable mouse wheel scrolling
-        def _on_mousewheel(event):
-            try:
-                canvas.yview_scroll(int(-1*(event.delta/120)), "units")
-            except tk.TclError:
-                # Canvas was destroyed (likely during tab switch), ignore
-                pass
-        canvas.bind_all("<MouseWheel>", _on_mousewheel)
+        enable_canvas_mousewheel(canvas)
         
         # Create main frame inside scrollable frame
         main_frame = tk.Frame(scrollable_frame, bg=bg_main)

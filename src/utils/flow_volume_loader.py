@@ -369,6 +369,43 @@ class FlowVolumeLoader:
         )
         return volumes
     
+    def get_flow_volume(self,
+                        area_code: str,
+                        excel_mapping: Dict,
+                        year: int,
+                        month: int) -> Optional[float]:
+        """Get a single flow volume using an edge's Excel mapping.
+
+        The mapping may specify a `sheet` and a `column`. If `sheet` is omitted,
+        it defaults to the area sheet derived from `area_code`.
+
+        Args:
+            area_code: Legacy area code (e.g., 'UG2N', 'UG2S'). Used when the
+                mapping does not provide an explicit sheet.
+            excel_mapping: Dictionary containing at least `column`, optionally
+                `sheet`, and `enabled` flags.
+            year: Year of interest.
+            month: Month of interest (1-12).
+
+        Returns:
+            Volume in m³ if found, otherwise None.
+        """
+        if not isinstance(excel_mapping, dict):
+            return None
+
+        if not excel_mapping.get('enabled', True):
+            return None
+
+        column = excel_mapping.get('column')
+        if not column:
+            return None
+
+        sheet = excel_mapping.get('sheet') or self._get_sheet_name(area_code)
+
+        # Load all volumes for the specific sheet and month, then pick the column
+        sheet_vols = self.get_all_volumes_for_month_from_sheet(sheet, year, month)
+        return sheet_vols.get(column)
+    
     def update_diagram_edges(self,
                             area_data: Dict,
                             area_code: str,
@@ -489,8 +526,10 @@ class FlowVolumeLoader:
         if not self.excel_path.exists():
             return []
         try:
-            xls = pd.ExcelFile(self.excel_path, engine='openpyxl')
-            return list(xls.sheet_names)
+            # Use context manager to avoid leaving the workbook handle open,
+            # which can block saving the Excel file while the app is running.
+            with pd.ExcelFile(self.excel_path, engine='openpyxl') as xls:
+                return list(xls.sheet_names)
         except Exception:
             return []
 

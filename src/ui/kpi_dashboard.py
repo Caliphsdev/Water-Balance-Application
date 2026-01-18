@@ -14,6 +14,7 @@ import time
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from database.db_manager import DatabaseManager
+from ui.mouse_wheel_support import enable_canvas_mousewheel
 from utils.water_balance_calculator import WaterBalanceCalculator
 from utils.app_logger import logger
 from utils.ui_notify import notifier
@@ -103,6 +104,7 @@ class KPIDashboard:
         
         canvas.create_window((0, 0), window=self.scrollable_frame, anchor="center")
         canvas.configure(yscrollcommand=scrollbar.set)
+        enable_canvas_mousewheel(canvas)
         
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")

@@ -85,36 +85,36 @@
       "column": "merplant_merp_ore_water__TO__merplant_merp_plant"
     },
     "UG2N::merplant_mpswd12_rain->merplant_mpswd12": {
-      "sheet": "Flows_MERP",
-      "column": "merplant_mpswd12_rain__TO__merplant_mpswd12"
+      "sheet": "Flows_Merensky Plant",
+      "column": "Merensky Dam Rainfall \u2192 Merensky Storm Water Dams"
     },
     "UG2N::merplant_mpgwa_boreholes->merplant_merp_soft": {
-      "sheet": "Flows_MERP",
-      "column": "merplant_mpgwa_boreholes__TO__merplant_merp_soft"
+      "sheet": "Flows_Merensky Plant",
+      "column": "Merensky Plant Borehole (MPGWA) \u2192 Merensky Plant Softening"
     },
     "UG2N::merplant_merp_soft->merplant_merp_res": {
-      "sheet": "Flows_MERP",
-      "column": "merplant_merp_soft__TO__merplant_merp_res"
+      "sheet": "Flows_Merensky Plant",
+      "column": "Merensky Plant Softening \u2192 Merensky Plant Reservoir"
     },
     "UG2N::merplant_merp_res->merplant_merp_off": {
-      "sheet": "Flows_MERP",
-      "column": "merplant_merp_res__TO__merplant_merp_off"
+      "sheet": "Flows_Merensky Plant",
+      "column": "Merensky Plant Reservoir \u2192 Merensky Plant Offices"
     },
     "UG2N::merplant_merp_off->merplant_merp_stp": {
-      "sheet": "Flows_MERP",
-      "column": "merplant_merp_off__TO__merplant_merp_stp"
+      "sheet": "Flows_Merensky Plant",
+      "column": "Merensky Plant Offices \u2192 Merensky Plant Sewage Treatment"
     },
     "UG2N::merplant_merp_stp->merplant_merp_stp_losses": {
-      "sheet": "Flows_MERP",
-      "column": "merplant_merp_stp__TO__merplant_merp_stp_losses"
+      "sheet": "Flows_Merensky Plant",
+      "column": "Merensky Plant Sewage Treatment \u2192 Merensky Sewage Losses"
     },
     "UG2N::merplant_merp_off->merplant_merp_off_consumption": {
-      "sheet": "Flows_MERP",
-      "column": "merplant_merp_off__TO__merplant_merp_off_consumption"
+      "sheet": "Flows_Merensky Plant",
+      "column": "Merensky Plant Offices \u2192 Merensky Office Consumption"
     },
     "UG2N::merplant_merp_soft->merplant_merp_off_losses": {
-      "sheet": "Flows_MERP",
-      "column": "merplant_merp_soft__TO__merplant_merp_off_losses"
+      "sheet": "Flows_Merensky Plant",
+      "column": "Merensky Plant Softening \u2192 Merensky Office Losses"
     },
     "UG2N::merplant_mpswd12->merplant_mpswd12_dust": {
       "sheet": "Flows_MERP",
@@ -125,24 +125,24 @@
       "column": "merplant_mpswd12__TO__merplant_mpswd12_evap"
     },
     "UG2N::merplant_mpswd12->merplant_mpswd12_spill": {
-      "sheet": "Flows_MERP",
-      "column": "merplant_mpswd12__TO__merplant_mpswd12_spill"
+      "sheet": "Flows_Merensky Plant",
+      "column": "Merensky Storm Water Dams \u2192 Merensky Dam Spill"
     },
     "UG2N::merplant_merp_plant->merplant_merp_plant_losses": {
-      "sheet": "Flows_MERP",
-      "column": "merplant_merp_plant__TO__merplant_merp_plant_losses"
+      "sheet": "Flows_Merensky Plant",
+      "column": "Merensky Concentrator Plant \u2192 Merensky Plant Losses"
     },
     "UG2N::merplant_merp_plant->merplant_merp_plant_product": {
-      "sheet": "Flows_MERP",
-      "column": "merplant_merp_plant__TO__merplant_merp_plant_product"
+      "sheet": "Flows_Merensky Plant",
+      "column": "Merensky Concentrator Plant \u2192 Water in Merensky Concentrate"
     },
     "UG2N::merplant_mprwsd1->merplant_merp_plant": {
       "sheet": "Flows_MERP",
       "column": "merplant_mprwsd1__TO__merplant_merp_plant"
     },
     "UG2N::merplant_merp_stp->merplant_mpswd12": {
-      "sheet": "Flows_MERP",
-      "column": "merplant_merp_stp__TO__merplant_mpswd12"
+      "sheet": "Flows_Merensky Plant",
+      "column": "Merensky Plant Sewage Treatment \u2192 Merensky Storm Water Dams"
     },
     "UG2N::oldtsf_nt_rwd_rain->oldtsf_nt_rwd": {
       "sheet": "Flows_NEWTSF",
@@ -449,20 +449,20 @@
       "column": "ug2plant_ug2p_plant__TO__junction_135_1229_2857"
     },
     "UG2N::merplant_merp_plant->merplant_mpswd12": {
-      "sheet": "Flows_MERP",
-      "column": "merplant_merp_plant__TO__merplant_mpswd12"
+      "sheet": "Flows_Merensky Plant",
+      "column": "Merensky Concentrator Plant \u2192 Merensky Storm Water Dams"
     },
     "UG2N::merplant_mpswd12->merplant_merp_plant": {
-      "sheet": "Flows_MERP",
-      "column": "merplant_mpswd12__TO__merplant_merp_plant"
+      "sheet": "Flows_Merensky Plant",
+      "column": "Merensky Storm Water Dams \u2192 Merensky Concentrator Plant"
     },
     "UG2N::ug2plant_ug2p_plant->ug2plant_ug2pcd1": {
       "sheet": "Flows_UG2P",
       "column": "ug2plant_ug2p_plant__TO__ug2plant_ug2pcd1"
     },
     "UG2N::merplant_mpswd12->merplant_mpswd12": {
-      "sheet": "Flows_MERP",
-      "column": "merplant_mpswd12__TO__merplant_mpswd12"
+      "sheet": "Flows_Merensky Plant",
+      "column": "Merensky Storm Water Dams \u2192 Merensky Storm Water Dams"
     },
     "UG2N::ug2plant_ug2pcd1->ug2plant_ug2pcd1": {
       "sheet": "Flows_UG2P",
@@ -494,15 +494,15 @@
     },
     "UG2N::spcd1->spcd1": {
       "sheet": "Flows_Stockpile1",
-      "column": "SPCD1 Rainfall \u2192 Stockpile Clean Dam 1"
+      "column": "Stockpile Clean Dam 1 \u2192 Stockpile Clean Dam 1"
     },
     "UG2N::stockpile_area->stockpile_area": {
       "sheet": "Flows_STOCKPILE",
       "column": "STOCKPILE_AREA \u2192 SPCD1"
     },
     "UG2N::ndcd->ndcd": {
-      "sheet": "Flows_UG2N",
-      "column": "NDCD \u2192 EVAPORATION"
+      "sheet": "Flows_UG2 North",
+      "column": "North Decline Clean Dams \u2192 North Decline Clean Dams"
     },
     "UG2N::ug2plant_ug2pcd1->ug2plant_ug2p_plant": {
       "sheet": "Flows_UG2P",
@@ -653,8 +653,8 @@
       "column": "MERPLANT_DWARSRIVIER \u2192 MERPLANT_MPRWSD1"
     },
     "UG2N::edge:d7760bb2-3bd1-4446-b8f0-6f86512c7329": {
-      "sheet": "Flows_MERP",
-      "column": "MERPLANT_MERP_PLANT \u2192  MERPLANT_MPRWSD1"
+      "sheet": "Flows_Merensky Plant",
+      "column": "Merensky River Water Dam \u2192 Merplant"
     },
     "UG2N::edge:fd71006a-6998-4c94-af5f-a2bf518b276a": {
       "sheet": "Flows_MERP",
@@ -695,6 +695,14 @@
     "UG2N::edge:f6027029-e4bd-4ea2-864f-aa60c375de01": {
       "sheet": "Flows_New TSF",
       "column": "Scavenger Boreholes(1-6) \u2192 New TSF Return Water Dams"
+    },
+    "UG2N::edge:1c04c22f-4899-4982-bad5-22ad26250423": {
+      "sheet": "Flows_Stockpile1",
+      "column": "Stockpile Area(Runoff) \u2192 Stockpile Clean Dam 1"
+    },
+    "UG2N::edge:ddc8d44c-5faf-40a1-afae-f1e6ba367ef1": {
+      "sheet": "Flows_UG2 Main",
+      "column": "UG2 Main Sewage Treatment \u2192 Main Decline Clean Dams (Group)"
     }
   },
   "meta": {

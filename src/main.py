@@ -77,8 +77,8 @@ class WaterBalanceApp:
             
             # IMPORTANT: Keep window completely hidden and off-screen until loading completes
             self.root.withdraw()
-            self.root.attributes('-alpha', 0.0)  # Completely transparent
-            self.root.geometry(f"+9999+9999")  # Move off-screen
+            self.root.attributes('-alpha', 0.0)  # Completely transparent - prevent any flashing
+            self.root.geometry(f"+9999+9999")  # Move far off-screen
             
             # Now create loading screen using main root as parent
             self.loading_screen = LoadingScreen(root=self.root)
@@ -147,6 +147,7 @@ class WaterBalanceApp:
                 self.loading_screen.set_status("Building interface...", 90)
                 self.main_window = MainWindow(self.root)
                 logger.info("Main window created successfully")
+                self.loading_screen.set_status("Finalizing...", 100)
                     
             except Exception as mw_err:
                 logger.exception(f"Main window failed to initialize: {mw_err}")
@@ -170,41 +171,115 @@ class WaterBalanceApp:
                 return True
             
             # Center window on screen
-            self.loading_screen.set_status("Finalizing...", 100)
             self._center_window()
             
-            # Schedule main window to appear after loading screen closes
-            # Wait for full loading screen duration (3.5s) + animation completion (1.2s) + fade out (300ms) + safety buffer (800ms)
-            loading_delay_ms = 3500 + 1200 + 300 + 800  # 5800ms total - ensures 100% is reached comfortably
+            # Schedule synchronized transition after loading completes
+            # Loading screen: 3500ms min display
+            # Add time for dashboard/window prep: 1000ms
+            # Total: 4500ms for smooth synchronized fade transition
+            loading_delay_ms = 4500
             
             def on_loading_complete():
-                """Called after loading screen closes - show app immediately."""
+                """Synchronized transition: fade out loading screen while fading in main window."""
+                # Step 1: Prepare main window (invisible, off-screen)
+                self.root.deiconify()  # Make visible (but still transparent)
+                self.root.geometry(self.target_geometry)  # Move to center
+                self.root.attributes('-alpha', 0.0)  # Start fully transparent
+                
+                # Step 2: Maximize window BEFORE dashboard load
+                if self.main_window and not self.main_window._window_maximized:
+                    logger.info("Maximizing window")
+                    self.main_window._maximize_window()
+                    self.main_window._window_maximized = True
+                
+                # Step 3: Load dashboard while main window still invisible
+                if self.main_window and not self.main_window._dashboard_loaded:
+                    logger.info("Loading dashboard")
+                    self.main_window.load_module('dashboard')
+                
+                # Step 4: Process pending events to ensure UI is fully rendered
+                self.root.update()
+                import time
+                time.sleep(0.05)  # Small delay to ensure all widgets rendered
+                
+                # Step 5: Synchronized smooth fade transition (300ms total)
+                # Loading screen fades out while main window fades in
                 try:
-                    if self.loading_screen:
-                        self.loading_screen.close()
+                    steps = 15  # More steps for smoother animation
+                    step_delay = 20  # milliseconds between steps
+                    
+                    for i in range(1, steps + 1):
+                        alpha_in = min(1.0, (i / steps))  # Main window fades in
+                        alpha_out = max(0.0, (1.0 - (i / steps)))  # Loading screen fades out
+                        
+                        # Update main window opacity
+                        try:
+                            self.root.attributes('-alpha', alpha_in)
+                        except:
+                            pass
+                        
+                        # Update loading screen opacity
+                        try:
+                            if self.loading_screen:
+                                self.loading_screen.root.attributes('-alpha', alpha_out)
+                        except:
+                            pass
+                        
+                        # Update display
+                        self.root.update_idletasks()
+                        
+                        # Sleep for smooth animation
+                        import time
+                        time.sleep(step_delay / 1000.0)
+                    
+                    # Ensure fully visible
+                    self.root.attributes('-alpha', 1.0)
+                    
+                    # Close loading screen (now invisible)
+                    try:
+                        self.loading_screen.stop_animation()
+                        if self.loading_screen.own_root:
+                            self.loading_screen.root.destroy()
+                            if self.loading_screen.hidden_root:
+                                self.loading_screen.hidden_root.destroy()
+                        else:
+                            self.loading_screen.root.withdraw()
                         self.loading_screen = None
+                    except:
+                        pass
+                        
+                except Exception as e:
+                    logger.warning(f"Transition error: {e}")
+                    # Fallback: just show window
+                    self.root.attributes('-alpha', 1.0)
+                    try:
+                        if self.loading_screen:
+                            self.loading_screen.root.withdraw()
+                    except:
+                        pass
+                
+                # Bring main window to front and focus
+                try:
+                    self.root.lift()
+                    self.root.focus_force()
                 except:
                     pass
-                
-                # Now reveal the main window
-                self.root.geometry(self.target_geometry)
-                self.root.attributes('-alpha', 0.0)  # Start transparent
-                self.root.deiconify()  # Make visible
-                self.root.lift()  # Bring to front
-                self.root.focus_force()  # Give focus
-                
-                # Smooth fade-in (100ms)
-                for i in range(1, 6):
-                    self.root.attributes('-alpha', i / 5)
-                    self.root.update()
-                    import time
-                    time.sleep(0.02)  # 20ms per step = 100ms total
             
             # Schedule to show app after loading screen fully completes
             self.root.after(loading_delay_ms, on_loading_complete)
             
             # Bind window close event
             self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+            
+            # Fix minimize/restore issue: ensure window properly restores from minimized state
+            def on_map_event(event):
+                """Handle window deiconify (restore from minimize)."""
+                if event.widget == self.root:
+                    self.root.attributes('-alpha', 1.0)  # Ensure fully visible
+                    self.root.lift()
+                    self.root.focus_force()
+            
+            self.root.bind("<Map>", on_map_event)
             
             logger.info("Application initialization complete")
             return True
@@ -411,7 +486,9 @@ class WaterBalanceApp:
                 return
         except:
             return
-            
+    
+    def on_closing(self):
+        """Handle application close event."""
         logger.user_action("Application close requested")
         if notifier.confirm("Are you sure you want to exit?", "Confirm Exit"):
             self.root._closing = True

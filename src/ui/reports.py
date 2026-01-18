@@ -7,6 +7,7 @@ from pathlib import Path
 from utils.report_generator import ReportGenerator
 from utils.config_manager import config
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from ui.mouse_wheel_support import enable_text_mousewheel
 
 class ReportsModule:
     """UI module for generating and exporting reports."""
@@ -72,6 +73,7 @@ class ReportsModule:
         ttk.Label(self.container, text="Status:", style='Heading2.TLabel').pack(anchor='w', pady=(10, 5))
         self.output_text = tk.Text(self.container, height=8, wrap='word')
         self.output_text.pack(fill='both', expand=True, pady=(0,0))
+        enable_text_mousewheel(self.output_text)
         self.output_text.insert('end', "Ready to generate flow diagram.\nSelect a month and click 'View Flow Diagram' to visualize water balance.\n")
         self.output_text.config(state='disabled')
 

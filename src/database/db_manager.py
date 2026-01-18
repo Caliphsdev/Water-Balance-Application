@@ -395,8 +395,9 @@ class DatabaseManager:
                 total_capacity, working_capacity, surface_area,
                 pump_start_level, pump_stop_level, high_level_alarm,
                 max_depth, purpose, water_quality,
-                current_volume, description, active, commissioned_date, feeds_to
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                current_volume, description, active, commissioned_date, feeds_to,
+                evap_active, is_lined
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """
         # Ensure pump_start > pump_stop for constraint
         pump_start = data.get('pump_start_level', 70.0)
@@ -416,7 +417,8 @@ class DatabaseManager:
             data.get('current_volume', 0),
             data.get('description'),
             data.get('active', 1), data.get('commissioned_date'),
-            data.get('feeds_to')
+            data.get('feeds_to'),
+            data.get('evap_active', 1), data.get('is_lined', 0)
         )
         result = self.execute_insert(query, params)
         self._invalidate_facilities_cache()
@@ -432,7 +434,7 @@ class DatabaseManager:
                 high_level_alarm = ?,
                 max_depth = ?,
                 description = ?, active = ?, purpose = ?, water_quality = ?,
-                feeds_to = ?, updated_at = CURRENT_TIMESTAMP
+                feeds_to = ?, evap_active = ?, is_lined = ?, updated_at = CURRENT_TIMESTAMP
             WHERE facility_id = ?
         """
         # Ensure pump_start > pump_stop
@@ -450,7 +452,8 @@ class DatabaseManager:
             data.get('high_level_alarm', 90.0),
             data.get('max_depth'),
             data.get('description'), data.get('active', 1), data.get('purpose', 'raw_water'),
-            data.get('water_quality', 'process'), data.get('feeds_to'), facility_id
+            data.get('water_quality', 'process'), data.get('feeds_to'),
+            data.get('evap_active', 1), data.get('is_lined', 0), facility_id
         )
         result = self.execute_update(query, params)
         self._invalidate_facilities_cache()
@@ -809,19 +812,24 @@ class DatabaseManager:
 
     def get_regional_rainfall_monthly(self, month: int, year: int = None) -> float:
         """Get regional rainfall for month (applies to all facilities in the area).
-        Falls back to 0 if not set.
+        Two-tier fallback: year-specific → baseline (year=NULL) → 0.
         """
         if year is None:
             query = "SELECT rainfall_mm FROM regional_rainfall_monthly WHERE month = ? AND year IS NULL LIMIT 1"
             results = self.execute_query(query, (month,))
         else:
+            # Try year-specific first
             query = "SELECT rainfall_mm FROM regional_rainfall_monthly WHERE month = ? AND year = ? LIMIT 1"
             results = self.execute_query(query, (month, year))
+            # Fallback to baseline if year-specific not found
+            if not results:
+                query = "SELECT rainfall_mm FROM regional_rainfall_monthly WHERE month = ? AND year IS NULL LIMIT 1"
+                results = self.execute_query(query, (month,))
         return results[0]['rainfall_mm'] if results else 0.0
 
     def get_regional_evaporation_monthly(self, month: int, zone: str = None, year: int = None) -> float:
         """Get regional evaporation for month (applies to all facilities).
-        Uses evaporation_rates table. Falls back to 0 if not set.
+        Uses evaporation_rates table. Two-tier fallback: year-specific → baseline (year=NULL) → 0.
         """
         if zone is None:
             from utils.config_manager import config
@@ -830,8 +838,13 @@ class DatabaseManager:
             query = "SELECT evaporation_mm FROM evaporation_rates WHERE month = ? AND zone = ? AND year IS NULL LIMIT 1"
             results = self.execute_query(query, (month, zone))
         else:
+            # Try year-specific first
             query = "SELECT evaporation_mm FROM evaporation_rates WHERE month = ? AND zone = ? AND year = ? LIMIT 1"
             results = self.execute_query(query, (month, zone, year))
+            # Fallback to baseline if year-specific not found
+            if not results:
+                query = "SELECT evaporation_mm FROM evaporation_rates WHERE month = ? AND zone = ? AND year IS NULL LIMIT 1"
+                results = self.execute_query(query, (month, zone))
         return results[0]['evaporation_mm'] if results else 0.0
 
     def get_facility_rainfall_monthly(self, facility_id: int, month: int, year: int = None) -> float:
@@ -1247,6 +1260,7 @@ class DatabaseManager:
             migrations = {
                 'evap_active': "ALTER TABLE storage_facilities ADD COLUMN evap_active BOOLEAN DEFAULT 1",
                 'is_lined': "ALTER TABLE storage_facilities ADD COLUMN is_lined BOOLEAN DEFAULT 0",
+                'volume_calc_date': "ALTER TABLE storage_facilities ADD COLUMN volume_calc_date DATE",
             }
             for col, stmt in migrations.items():
                 if col not in existing:

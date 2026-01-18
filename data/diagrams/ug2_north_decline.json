@@ -498,7 +498,7 @@
     },
     {
       "id": "stockpile_rainfall",
-      "label": "DIRECT RAINFALL\n(STOCKPILE)",
+      "label": "DIRECT RAINFALL\n",
       "type": "source",
       "shape": "rect",
       "x": 43.0,
@@ -513,7 +513,7 @@
     },
     {
       "id": "stockpile_rainfall_spcd1",
-      "label": "DIRECT RAINFALL\n(SPCD 1)",
+      "label": "DIRECT RAINFALL\n",
       "type": "source",
       "shape": "rect",
       "x": 43.0,
@@ -528,7 +528,7 @@
     },
     {
       "id": "ug2s_borehole",
-      "label": "BOREHOLE ABSTRACTION\n(MGDWA)",
+      "label": "BOREHOLE (MDGWA 1-5)",
       "type": "source",
       "shape": "rect",
       "x": 46.0,
@@ -543,7 +543,7 @@
     },
     {
       "id": "ug2s_rainfall",
-      "label": "DIRECT RAINFALL (MDGWA1-5)",
+      "label": "DIRECT RAINFALL ",
       "type": "source",
       "shape": "rect",
       "x": 45.0,
@@ -1974,9 +1974,9 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 48477.0,
       "color": "#4b78a8",
-      "label": "-",
+      "label": "48,477.00",
       "label_offset": 0.36455696202531646,
       "excel_mapping": {
         "enabled": true,
@@ -2002,9 +2002,9 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 19757.0,
       "color": "#4b78a8",
-      "label": "-",
+      "label": "19,757.00",
       "label_offset": 0.10158013544018059,
       "excel_mapping": {
         "enabled": true,
@@ -2030,9 +2030,9 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 39875.0,
       "color": "#4b78a8",
-      "label": "-",
+      "label": "39,875.00",
       "label_offset": 0.10899182561307902,
       "label_pos": {
         "x": 240.0,
@@ -2058,9 +2058,9 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 93447.0,
       "color": "#4b78a8",
-      "label": "-",
+      "label": "93,447.00",
       "label_offset": 0.41228070175438597,
       "excel_mapping": {
         "enabled": true,
@@ -2086,18 +2086,18 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 6952.0,
       "color": "#4b78a8",
-      "label": "-",
-      "label_offset": 0.4338025020390413,
+      "label": "6,952.00",
+      "label_offset": 0.07330069702902511,
       "excel_mapping": {
         "enabled": true,
         "sheet": "Flows_Merensky Plant",
-        "column": "Water in Merensky Ore → Merensky Concentrator Plant"
+        "column": "Merensky Dam Rainfall → Merensky Storm Water Dams"
       },
       "label_pos": {
-        "x": 566.996916725029,
-        "y": 3122.2169012510194
+        "x": 262.01238968655525,
+        "y": 3122.0366503485143
       }
     },
     {
@@ -2114,14 +2114,14 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 28336.0,
       "color": "#4b78a8",
-      "label": "-",
+      "label": "28,336.00",
       "label_offset": 0.2876712328767123,
       "excel_mapping": {
         "enabled": true,
         "sheet": "Flows_Merensky Plant",
-        "column": "Water in Merensky Ore → Merensky Concentrator Plant"
+        "column": "Merensky Plant Borehole (MPGWA) → Merensky Plant Softening"
       },
       "label_pos": {
         "x": 238.0,
@@ -2142,9 +2142,9 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 26919.0,
       "color": "#4b78a8",
-      "label": "-",
+      "label": "26,919.00",
       "label_offset": 0.0,
       "label_pos": {
         "x": 412.0,
@@ -2153,7 +2153,7 @@
       "excel_mapping": {
         "enabled": true,
         "sheet": "Flows_Merensky Plant",
-        "column": "Water in Merensky Ore → Merensky Concentrator Plant"
+        "column": "Merensky Plant Softening → Merensky Plant Reservoir"
       }
     },
     {
@@ -2174,9 +2174,9 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 26919.0,
       "color": "#4b78a8",
-      "label": "-",
+      "label": "26,919.00",
       "label_offset": 0.2745665841112593,
       "label_pos": {
         "x": 560.959573252048,
@@ -2185,7 +2185,7 @@
       "excel_mapping": {
         "enabled": true,
         "sheet": "Flows_Merensky Plant",
-        "column": "Water in Merensky Ore → Merensky Concentrator Plant"
+        "column": "Merensky Plant Reservoir → Merensky Plant Offices"
       }
     },
     {
@@ -2206,13 +2206,13 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 18843.0,
       "color": "#4b78a8",
-      "label": "-",
+      "label": "18,843.00",
       "excel_mapping": {
         "enabled": true,
         "sheet": "Flows_Merensky Plant",
-        "column": "Water in Merensky Ore → Merensky Concentrator Plant"
+        "column": "Merensky Plant Offices → Merensky Plant Sewage Treatment"
       }
     },
     {
@@ -2229,14 +2229,14 @@
         ]
       ],
       "flow_type": "evaporation",
-      "volume": "-",
+      "volume": 377.0,
       "color": "#000000",
-      "label": "-",
+      "label": "377.00",
       "label_offset": 0.8402860292807608,
       "excel_mapping": {
         "enabled": true,
         "sheet": "Flows_Merensky Plant",
-        "column": "Water in Merensky Ore → Merensky Concentrator Plant"
+        "column": "Merensky Plant Sewage Treatment → Merensky Sewage Losses"
       },
       "label_pos": {
         "x": 1320.0035646492886,
@@ -2257,14 +2257,14 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 8076.0,
       "color": "#4b78a8",
-      "label": "-",
+      "label": "8,076.00",
       "label_offset": 0.8857142857142857,
       "excel_mapping": {
         "enabled": true,
         "sheet": "Flows_Merensky Plant",
-        "column": "Water in Merensky Ore → Merensky Concentrator Plant"
+        "column": "Merensky Plant Offices → Merensky Office Consumption"
       },
       "label_pos": {
         "x": 1313.0,
@@ -2285,14 +2285,14 @@
         ]
       ],
       "flow_type": "evaporation",
-      "volume": "-",
+      "volume": 1417.0,
       "color": "#000000",
-      "label": "-",
+      "label": "1,417.00",
       "label_offset": 0.9151982378854625,
       "excel_mapping": {
         "enabled": true,
         "sheet": "Flows_Merensky Plant",
-        "column": "Water in Merensky Ore → Merensky Concentrator Plant"
+        "column": "Merensky Plant Softening → Merensky Office Losses"
       },
       "label_pos": {
         "x": 1313.0,
@@ -2313,9 +2313,9 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 3457.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "3,457.00",
       "label_offset": 0.6457008514216211,
       "excel_mapping": {
         "enabled": true,
@@ -2341,9 +2341,9 @@
         ]
       ],
       "flow_type": "evaporation",
-      "volume": "-",
+      "volume": 268.0,
       "color": "#000000",
-      "label": "-",
+      "label": "268.00",
       "label_offset": 0.5824742268041238,
       "excel_mapping": {
         "enabled": true,
@@ -2377,15 +2377,14 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": null,
       "color": "#e74c3c",
-      "label": "-",
       "label_offset": 0.8301075268817204,
       "bidirectional": false,
       "excel_mapping": {
         "enabled": true,
         "sheet": "Flows_Merensky Plant",
-        "column": "Merensky Storm Water Dams → Merensky Dam Dust Suppression"
+        "column": "Merensky Storm Water Dams → Merensky Dam Spill"
       },
       "label_pos": {
         "x": 1310.0,
@@ -2406,14 +2405,14 @@
         ]
       ],
       "flow_type": "evaporation",
-      "volume": "-",
+      "volume": -4839.0,
       "color": "#000000",
-      "label": "-",
+      "label": "-4,839.00",
       "label_offset": 0.8282352941176471,
       "excel_mapping": {
         "enabled": true,
         "sheet": "Flows_Merensky Plant",
-        "column": "Water in Merensky Ore → Merensky Concentrator Plant"
+        "column": "Merensky Concentrator Plant → Merensky Plant Losses"
       },
       "label_pos": {
         "x": 1315.0,
@@ -2434,14 +2433,14 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 8502.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "8,502.00",
       "label_offset": 0.8524590163934426,
       "excel_mapping": {
         "enabled": true,
         "sheet": "Flows_Merensky Plant",
-        "column": "Water in Merensky Ore → Merensky Concentrator Plant"
+        "column": "Merensky Concentrator Plant → Water in Merensky Concentrate"
       },
       "label_pos": {
         "x": 1327.0,
@@ -2466,9 +2465,9 @@
         ]
       ],
       "flow_type": "effluent",
-      "volume": "-",
+      "volume": 18466.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "18,466.00",
       "label_offset": 0.3475609756097561,
       "label_pos": {
         "x": 1071.0,
@@ -2478,7 +2477,7 @@
       "excel_mapping": {
         "enabled": true,
         "sheet": "Flows_Merensky Plant",
-        "column": "Water in Merensky Ore → Merensky Concentrator Plant"
+        "column": "Merensky Plant Sewage Treatment → Merensky Storm Water Dams"
       }
     },
     {
@@ -2495,7 +2494,7 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 61866.0,
       "color": "#4b78a8",
       "label_offset": 0.10930232558139535,
       "excel_mapping": {
@@ -2503,7 +2502,7 @@
         "sheet": "Flows_New TSF",
         "column": "New Tsf Rainrun → New Tsf Nt Rwd"
       },
-      "label": "-",
+      "label": "61,866.00",
       "label_pos": {
         "x": 249.0,
         "y": 2177.0
@@ -2523,7 +2522,7 @@
         ]
       ],
       "flow_type": "evaporation",
-      "volume": "-",
+      "volume": 26593.0,
       "color": "#000000",
       "label_offset": 0.8875538131474323,
       "excel_mapping": {
@@ -2531,7 +2530,7 @@
         "sheet": "Flows_New TSF",
         "column": "New TSF Return Water Dams → Oldtsf Evap"
       },
-      "label": "-",
+      "label": "26,593.00",
       "label_pos": {
         "x": 1305.0061039992158,
         "y": 2164.943776906574
@@ -2551,7 +2550,7 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": null,
       "color": "#e74c3c",
       "label_offset": 0.8737071240585765,
       "bidirectional": false,
@@ -2559,8 +2558,7 @@
         "enabled": true,
         "sheet": "Flows_New TSF",
         "column": "New TSF Return Water Dams → Oldtsf Spill"
-      },
-      "label": "-"
+      }
     },
     {
       "from": "oldtsf_new_tsf",
@@ -2576,9 +2574,9 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 1488.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "1,488.00",
       "label_offset": 0.8565737051792829,
       "excel_mapping": {
         "enabled": true,
@@ -2604,9 +2602,9 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 2943653.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "2,943,653.00",
       "label_offset": 0.8565737051792829,
       "excel_mapping": {
         "enabled": true,
@@ -2632,9 +2630,9 @@
         ]
       ],
       "flow_type": "evaporation",
-      "volume": "-",
+      "volume": 35460.0,
       "color": "#000000",
-      "label": "-",
+      "label": "35,460.00",
       "label_offset": 0.8628230616302187,
       "excel_mapping": {
         "enabled": true,
@@ -2660,9 +2658,9 @@
         ]
       ],
       "flow_type": "drainage",
-      "volume": "-",
+      "volume": 2486143.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "2,486,143.00",
       "label_offset": 0.5906040268456376,
       "bidirectional": false,
       "excel_mapping": {
@@ -2689,9 +2687,9 @@
         ]
       ],
       "flow_type": "evaporation",
-      "volume": "-",
+      "volume": 3227.0,
       "color": "#000000",
-      "label": "-",
+      "label": "3,227.00",
       "label_offset": 0.6442477876106195,
       "excel_mapping": {
         "enabled": true,
@@ -2717,7 +2715,7 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": null,
       "color": "#4b78a8",
       "label_offset": 0.8934707903780069,
       "bidirectional": false,
@@ -2725,8 +2723,7 @@
         "enabled": true,
         "sheet": "Flows_Old TSF",
         "column": "TSF Return Water Dams (TRTD) → Oldtsf Trtd Spill"
-      },
-      "label": "-"
+      }
     },
     {
       "from": "oldtsf_old_tsf",
@@ -2742,9 +2739,9 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 559670.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "559,670.00",
       "label_offset": 0.6857749469214437,
       "excel_mapping": {
         "enabled": true,
@@ -2774,9 +2771,9 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 1324.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "1,324.00",
       "label_offset": 0.8404255319148937,
       "excel_mapping": {
         "enabled": true,
@@ -2810,9 +2807,9 @@
         ]
       ],
       "flow_type": "return",
-      "volume": "-",
+      "volume": 5298.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "5,298.00",
       "label_offset": 0.29411764705882354,
       "bidirectional": false,
       "excel_mapping": {
@@ -2839,9 +2836,9 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 28336.0,
       "color": "#4b78a8",
-      "label": "-",
+      "label": "28,336.00",
       "label_offset": 0.4426877470355731,
       "excel_mapping": {
         "enabled": true,
@@ -2867,9 +2864,9 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 28336.0,
       "color": "#4b78a8",
-      "label": "-",
+      "label": "28,336.00",
       "label_offset": 0.4381443298969072,
       "excel_mapping": {
         "enabled": true,
@@ -2895,9 +2892,9 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 8076.0,
       "color": "#4b78a8",
-      "label": "-",
+      "label": "8,076.00",
       "label_offset": 0.8693069306930693,
       "excel_mapping": {
         "enabled": true,
@@ -2923,9 +2920,9 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 4236.0,
       "color": "#4b78a8",
-      "label": "-",
+      "label": "4,236.00",
       "label_offset": 0.09684684684684684,
       "label_pos": {
         "x": 263.0,
@@ -2951,9 +2948,9 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 10626.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "10,626.00",
       "label_offset": 0.6486486486486487,
       "excel_mapping": {
         "enabled": true,
@@ -2979,9 +2976,9 @@
         ]
       ],
       "flow_type": "evaporation",
-      "volume": "-",
+      "volume": 4481.0,
       "color": "#000000",
-      "label": "-",
+      "label": "4,481.00",
       "label_offset": 0.5821917808219178,
       "excel_mapping": {
         "enabled": true,
@@ -3011,7 +3008,7 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": null,
       "color": "#e74c3c",
       "label_offset": 0.7981651376146789,
       "bidirectional": false,
@@ -3023,8 +3020,7 @@
       "label_pos": {
         "x": 1313.0,
         "y": 1478.0
-      },
-      "label": "-"
+      }
     },
     {
       "from": "mers_sd",
@@ -3044,9 +3040,9 @@
         ]
       ],
       "flow_type": "dewatering",
-      "volume": "-",
+      "volume": 212517.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "212,517.00",
       "label_offset": 0.7461538461538462,
       "label_pos": {
         "x": 1145.0,
@@ -3076,9 +3072,9 @@
         ]
       ],
       "flow_type": "ug_return",
-      "volume": "-",
+      "volume": 180639.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "180,639.00",
       "label_offset": 0.34440559440559443,
       "label_pos": {
         "x": 868.0,
@@ -3104,9 +3100,9 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 114160.0,
       "color": "#4b78a8",
-      "label": "-",
+      "label": "114,160.00",
       "label_offset": 0.40625,
       "excel_mapping": {
         "enabled": true,
@@ -3128,9 +3124,9 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 108452.0,
       "color": "#4b78a8",
-      "label": "-",
+      "label": "108,452.00",
       "label_offset": 0.086685552407932,
       "excel_mapping": {
         "enabled": true,
@@ -3160,9 +3156,9 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 108452.0,
       "color": "#4b78a8",
-      "label": "-",
+      "label": "108,452.00",
       "label_offset": 0.6521739130434783,
       "excel_mapping": {
         "enabled": true,
@@ -3188,9 +3184,9 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 32536.0,
       "color": "#4b78a8",
-      "label": "-",
+      "label": "32,536.00",
       "label_offset": 0.9056338028169014,
       "excel_mapping": {
         "enabled": true,
@@ -3216,9 +3212,9 @@
         ]
       ],
       "flow_type": "evaporation",
-      "volume": "-",
+      "volume": 1895.0,
       "color": "#000000",
-      "label": "-",
+      "label": "1,895.00",
       "label_offset": 0.8653500897666068,
       "excel_mapping": {
         "enabled": true,
@@ -3244,9 +3240,9 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 17506.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "17,506.00",
       "label_offset": 0.6818181818181818,
       "excel_mapping": {
         "enabled": true,
@@ -3272,9 +3268,9 @@
         ]
       ],
       "flow_type": "evaporation",
-      "volume": "-",
+      "volume": 5166.0,
       "color": "#000000",
-      "label": "-",
+      "label": "5,166.00",
       "label_offset": 0.6033519553072626,
       "excel_mapping": {
         "enabled": true,
@@ -3304,9 +3300,9 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 109.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "109.00",
       "label_offset": 0.854251012145749,
       "excel_mapping": {
         "enabled": true,
@@ -3332,9 +3328,9 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 7337.0,
       "color": "#4b78a8",
-      "label": "-",
+      "label": "7,337.00",
       "label_offset": 0.3458823529411765,
       "excel_mapping": {
         "enabled": true,
@@ -3364,9 +3360,9 @@
         ]
       ],
       "flow_type": "ug_return",
-      "volume": "-",
+      "volume": 514763.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "514,763.00",
       "label_offset": 0.24109263657957244,
       "excel_mapping": {
         "enabled": true,
@@ -3392,7 +3388,7 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": null,
       "color": "#e74c3c",
       "label_offset": 0.42134831460674155,
       "bidirectional": false,
@@ -3404,8 +3400,7 @@
       "label_pos": {
         "x": 1111.0,
         "y": 1292.0
-      },
-      "label": "-"
+      }
     },
     {
       "from": "mers_mdcdg",
@@ -3425,9 +3420,9 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 1832.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "1,832.00",
       "label_offset": 0.08536585365853659,
       "excel_mapping": {
         "enabled": true,
@@ -3453,7 +3448,7 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 15112.0,
       "color": "#4b78a8",
       "label_offset": 0.14218009478672985,
       "label_pos": {
@@ -3465,7 +3460,7 @@
         "sheet": "Flows_Stockpile1",
         "column": "Stockpile Borehole (SPGWA) → Stockpile Offices"
       },
-      "label": "-"
+      "label": "15,112.00"
     },
     {
       "from": "stockpile_offices",
@@ -3481,7 +3476,7 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 4534.0,
       "color": "#4b78a8",
       "label_offset": 0.8885135135135135,
       "label_pos": {
@@ -3493,7 +3488,7 @@
         "sheet": "Flows_Stockpile1",
         "column": "Stockpile Offices → Stockpile Consumption"
       },
-      "label": "-"
+      "label": "4,534.00"
     },
     {
       "from": "stockpile_offices",
@@ -3509,7 +3504,7 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 10579.0,
       "color": "#e74c3c",
       "label_offset": 0.8885135135135135,
       "label_pos": {
@@ -3521,7 +3516,7 @@
         "sheet": "Flows_Stockpile1",
         "column": "Stockpile Offices → Stockpile Septic"
       },
-      "label": "-"
+      "label": "10,579.00"
     },
     {
       "from": "stockpile_rainfall_spcd1",
@@ -3537,7 +3532,7 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 3971.0,
       "color": "#4b78a8",
       "label_offset": 0.08281053952321205,
       "label_pos": {
@@ -3549,7 +3544,7 @@
         "sheet": "Flows_Stockpile1",
         "column": "SPCD1 Rainfall → Stockpile Clean Dam 1"
       },
-      "label": "-"
+      "label": "3,971.00"
     },
     {
       "from": "spcd1",
@@ -3565,7 +3560,7 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 19550.0,
       "color": "#e74c3c",
       "label_offset": 0.7105263157894737,
       "label_pos": {
@@ -3577,7 +3572,7 @@
         "sheet": "Flows_Stockpile1",
         "column": "Stockpile Clean Dam 1 → Stockpile Dust Suppression"
       },
-      "label": "-"
+      "label": "19,550.00"
     },
     {
       "from": "spcd1",
@@ -3593,7 +3588,7 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": null,
       "color": "#e74c3c",
       "label_offset": 0.7165775401069518,
       "label_pos": {
@@ -3605,8 +3600,7 @@
         "enabled": true,
         "sheet": "Flows_Stockpile1",
         "column": "Stockpile Clean Dam 1 → Stockpile Spill"
-      },
-      "label": "-"
+      }
     },
     {
       "from": "spcd1",
@@ -3626,7 +3620,7 @@
         ]
       ],
       "flow_type": "evaporation",
-      "volume": "-",
+      "volume": 1193.0,
       "color": "#000000",
       "label_offset": 0.8392070484581498,
       "label_pos": {
@@ -3638,7 +3632,7 @@
         "sheet": "Flows_Stockpile1",
         "column": "Stockpile Clean Dam 1 → Stockpile Evaporation2"
       },
-      "label": "-"
+      "label": "1,193.00"
     },
     {
       "from": "stockpile_rainfall",
@@ -3654,7 +3648,7 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 32371.0,
       "color": "#4b78a8",
       "label_offset": 0.1517094017094017,
       "label_pos": {
@@ -3666,7 +3660,7 @@
         "sheet": "Flows_Stockpile1",
         "column": "Stockpile Rainfall → Stockpile Area"
       },
-      "label": "-"
+      "label": "32,371.00"
     },
     {
       "from": "stockpile_area",
@@ -3682,7 +3676,7 @@
         ]
       ],
       "flow_type": "evaporation",
-      "volume": "-",
+      "volume": 631.0,
       "color": "#000000",
       "label_offset": 0.8600405679513184,
       "label_pos": {
@@ -3694,7 +3688,7 @@
         "sheet": "Flows_Stockpile1",
         "column": "Stockpile Area → Stockpile Evaporation"
       },
-      "label": "-"
+      "label": "631.00"
     },
     {
       "from": "stockpile_area",
@@ -3718,14 +3712,14 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 12435.0,
       "color": "#e74c3c",
       "excel_mapping": {
         "enabled": true,
         "sheet": "Flows_Stockpile1",
         "column": "Stockpile Area → Stockpile Clean Dam 1"
       },
-      "label": "-"
+      "label": "12,435.00"
     },
     {
       "from": "rainfall_inflow",
@@ -3741,9 +3735,9 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 5363.0,
       "color": "#4b78a8",
-      "label": "-",
+      "label": "5,363.00",
       "label_offset": 0.054827175208581644,
       "label_pos": {
         "x": 222.0,
@@ -3769,9 +3763,9 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 27.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "27.00",
       "label_offset": 0.5104895104895105,
       "label_pos": {
         "x": 1248.0,
@@ -3797,9 +3791,9 @@
         ]
       ],
       "flow_type": "evaporation",
-      "volume": "-",
+      "volume": 5923.0,
       "color": "#000000",
-      "label": "-",
+      "label": "5,923.00",
       "label_offset": 0.5104895104895105,
       "label_pos": {
         "x": 1248.0,
@@ -3829,7 +3823,7 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": null,
       "color": "#e74c3c",
       "label_offset": 0.8482142857142857,
       "label_pos": {
@@ -3841,8 +3835,7 @@
         "enabled": true,
         "sheet": "Flows_UG2 North",
         "column": "North Decline Clean Dams → Dust Suppression"
-      },
-      "label": "-"
+      }
     },
     {
       "from": "bh_ndgwa",
@@ -3858,9 +3851,9 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 71530.0,
       "color": "#4b78a8",
-      "label": "-",
+      "label": "71,530.00",
       "label_offset": 0.2469879518072289,
       "label_pos": {
         "x": 229.0,
@@ -3886,9 +3879,9 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 47485.0,
       "color": "#4b78a8",
-      "label": "-",
+      "label": "47,485.00",
       "label_offset": 0.2641509433962264,
       "label_pos": {
         "x": 414.0,
@@ -3922,9 +3915,9 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 47485.0,
       "color": "#4b78a8",
-      "label": "-",
+      "label": "47,485.00",
       "label_offset": 0.5151515151515151,
       "label_pos": {
         "x": 515.0,
@@ -3954,9 +3947,9 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 3706.0,
       "color": "#4b78a8",
-      "label": "-",
+      "label": "3,706.00",
       "label_offset": 0.7253521126760564,
       "label_pos": {
         "x": 478.0,
@@ -3982,9 +3975,9 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 2594.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "2,594.00",
       "label_offset": 0.89375,
       "label_pos": {
         "x": 1248.0,
@@ -4014,9 +4007,9 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 1112.0,
       "color": "#4b78a8",
-      "label": "-",
+      "label": "1,112.00",
       "label_offset": 0.95,
       "label_pos": {
         "x": 1249.0,
@@ -4042,9 +4035,9 @@
         ]
       ],
       "flow_type": "evaporation",
-      "volume": "-",
+      "volume": 14759.0,
       "color": "#000000",
-      "label": "-",
+      "label": "14,759.00",
       "label_offset": 0.9204275534441805,
       "label_pos": {
         "x": 1249.0,
@@ -4078,9 +4071,9 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 14246.0,
       "color": "#4b78a8",
-      "label": "-",
+      "label": "14,246.00",
       "label_offset": 0.8904761904761904,
       "label_pos": {
         "x": 1248.0,
@@ -4106,9 +4099,9 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 33240.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "33,240.00",
       "label_offset": 0.423728813559322,
       "label_pos": {
         "x": 624.0,
@@ -4134,9 +4127,9 @@
         ]
       ],
       "flow_type": "evaporation",
-      "volume": "-",
+      "volume": 947.0,
       "color": "#000000",
-      "label": "-",
+      "label": "947.00",
       "label_offset": 0.8864,
       "label_pos": {
         "x": 1246.0,
@@ -4162,9 +4155,9 @@
         ]
       ],
       "flow_type": "runoff",
-      "volume": "-",
+      "volume": 17288.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "17,288.00",
       "label_offset": 0.17346938775510204,
       "label_pos": {
         "x": 1095.0,
@@ -4195,9 +4188,9 @@
         ]
       ],
       "flow_type": "dewatering",
-      "volume": "-",
+      "volume": 245572.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "245,572.00",
       "label_offset": 0.32375,
       "label_pos": {
         "x": 914.0,
@@ -4227,9 +4220,9 @@
         ]
       ],
       "flow_type": "ug_return",
-      "volume": "-",
+      "volume": 187761.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "187,761.00",
       "label_offset": 0.1182033096926714,
       "label_pos": {
         "x": 915.0,
@@ -4263,9 +4256,9 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 983.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "983.00",
       "label_offset": 0.2971887550200803,
       "excel_mapping": {
         "enabled": true,
@@ -4299,9 +4292,9 @@
         ]
       ],
       "flow_type": "effluent",
-      "volume": "-",
+      "volume": 46425.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "46,425.00",
       "bidirectional": false,
       "is_junction": true,
       "junction_pos": {
@@ -4320,56 +4313,6 @@
       }
     },
     {
-      "from": "spcd1",
-      "to": "junction_129_1140_1242",
-      "segments": [
-        [
-          1096.0,
-          726.0
-        ],
-        [
-          1095.0,
-          767.0
-        ],
-        [
-          1095.0,
-          767.0
-        ],
-        [
-          1141.0,
-          767.0
-        ],
-        [
-          1141.0,
-          767.0
-        ],
-        [
-          1140.0,
-          822.0
-        ]
-      ],
-      "flow_type": "dirty",
-      "volume": "-",
-      "color": "#e74c3c",
-      "bidirectional": true,
-      "is_junction": true,
-      "junction_pos": {
-        "x": 1140.0,
-        "y": 822.0
-      },
-      "label_offset": 0.8842035690680767,
-      "label_pos": {
-        "x": 1140.5789821546596,
-        "y": 790.1559814937211
-      },
-      "excel_mapping": {
-        "enabled": true,
-        "sheet": "Flows_Stockpile1",
-        "column": "Stockpile Clean Dam 1 → Junction 129 1140 1242"
-      },
-      "label": "-"
-    },
-    {
       "from": "junction_132_288_2496",
       "to": "oldtsf_new_tsf",
       "segments": [
@@ -4383,9 +4326,9 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 283639.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "283,639.00",
       "bidirectional": false,
       "is_junction": false,
       "excel_mapping": {
@@ -4416,16 +4359,16 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 5497.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "5,497.00",
       "bidirectional": false,
       "is_junction": false,
       "label_offset": 0.08974358974358974,
       "excel_mapping": {
         "enabled": true,
         "sheet": "Flows_Merensky Plant",
-        "column": "Water in Merensky Ore → Merensky Concentrator Plant"
+        "column": "Merensky Concentrator Plant → Merensky Storm Water Dams"
       },
       "label_pos": {
         "x": 963.0,
@@ -4454,16 +4397,16 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 5497.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "5,497.00",
       "bidirectional": false,
       "is_junction": false,
       "label_offset": 0.810126582278481,
       "excel_mapping": {
         "enabled": true,
         "sheet": "Flows_Merensky Plant",
-        "column": "Water in Merensky Ore → Merensky Concentrator Plant"
+        "column": "Merensky Storm Water Dams → Merensky Concentrator Plant"
       },
       "label_pos": {
         "x": 1053.0,
@@ -4484,9 +4427,9 @@
         ]
       ],
       "flow_type": "recirculation",
-      "volume": "-",
+      "volume": 36.0,
       "color": "#9b59b6",
-      "label": "-",
+      "label": "36.00",
       "bidirectional": false,
       "is_recirculation": true,
       "recirculation_pos": {
@@ -4496,7 +4439,7 @@
       "excel_mapping": {
         "enabled": true,
         "sheet": "Flows_Merensky Plant",
-        "column": "Water in Merensky Ore → Merensky Concentrator Plant"
+        "column": "Merensky Storm Water Dams → Merensky Storm Water Dams"
       }
     },
     {
@@ -4513,7 +4456,7 @@
         ]
       ],
       "flow_type": "recirculation",
-      "volume": "-",
+      "volume": 5836.0,
       "color": "#9b59b6",
       "bidirectional": false,
       "is_recirculation": true,
@@ -4526,7 +4469,7 @@
         "sheet": "Flows_New TSF",
         "column": "New TSF Return Water Dams → New TSF Return Water Dams"
       },
-      "label": "-",
+      "label": "5,836.00",
       "label_font_size": 7.0,
       "box_width": 40,
       "box_height": 25
@@ -4545,9 +4488,9 @@
         ]
       ],
       "flow_type": "recirculation",
-      "volume": "-",
+      "volume": 68.0,
       "color": "#9b59b6",
-      "label": "-",
+      "label": "68.00",
       "bidirectional": false,
       "is_recirculation": true,
       "recirculation_pos": {
@@ -4577,9 +4520,9 @@
         ]
       ],
       "flow_type": "recirculation",
-      "volume": "-",
+      "volume": -114.0,
       "color": "#9b59b6",
-      "label": "-",
+      "label": "-114.00",
       "bidirectional": false,
       "is_recirculation": true,
       "recirculation_pos": {
@@ -4609,9 +4552,9 @@
         ]
       ],
       "flow_type": "recirculation",
-      "volume": "-",
+      "volume": -347.0,
       "color": "#9b59b6",
-      "label": "-",
+      "label": "-347.00",
       "bidirectional": false,
       "is_recirculation": true,
       "recirculation_pos": {
@@ -4641,9 +4584,9 @@
         ]
       ],
       "flow_type": "recirculation",
-      "volume": "-",
+      "volume": 77.0,
       "color": "#9b59b6",
-      "label": "-",
+      "label": "77.00",
       "bidirectional": false,
       "is_recirculation": true,
       "recirculation_pos": {
@@ -4670,14 +4613,14 @@
         ]
       ],
       "flow_type": "recirculation",
-      "volume": "-",
+      "volume": 190.0,
       "color": "#9b59b6",
-      "label": "-",
+      "label": "190.00",
       "bidirectional": false,
       "is_recirculation": true,
       "recirculation_pos": {
-        "x": 1062.0,
-        "y": 1122.0
+        "x": 1063.0,
+        "y": 1203.0
       },
       "excel_mapping": {
         "enabled": true,
@@ -4699,9 +4642,9 @@
         ]
       ],
       "flow_type": "recirculation",
-      "volume": "-",
+      "volume": 3014.0,
       "color": "#9b59b6",
-      "label": "-",
+      "label": "3,014.00",
       "bidirectional": false,
       "is_recirculation": true,
       "recirculation_pos": {
@@ -4711,7 +4654,7 @@
       "excel_mapping": {
         "enabled": true,
         "sheet": "Flows_Stockpile1",
-        "column": "SPCD1 Rainfall → Stockpile Clean Dam 1"
+        "column": "Stockpile Clean Dam 1 → Stockpile Clean Dam 1"
       },
       "label_font_size": 8.0,
       "box_width": 45,
@@ -4731,7 +4674,7 @@
         ]
       ],
       "flow_type": "recirculation",
-      "volume": "-",
+      "volume": 484.0,
       "color": "#9b59b6",
       "bidirectional": false,
       "is_recirculation": true,
@@ -4744,7 +4687,7 @@
         "sheet": "Flows_Stockpile1",
         "column": "Stockpile Area → Stockpile Area"
       },
-      "label": "-"
+      "label": "484.00"
     },
     {
       "from": "ndcd",
@@ -4760,9 +4703,9 @@
         ]
       ],
       "flow_type": "recirculation",
-      "volume": "-",
+      "volume": -26.0,
       "color": "#9b59b6",
-      "label": "-",
+      "label": "-26.00",
       "bidirectional": false,
       "is_recirculation": true,
       "recirculation_pos": {
@@ -4772,7 +4715,7 @@
       "excel_mapping": {
         "enabled": true,
         "sheet": "Flows_UG2 North",
-        "column": "North Decline Clean Dams → Evaporation"
+        "column": "North Decline Clean Dams → North Decline Clean Dams"
       }
     },
     {
@@ -4797,9 +4740,9 @@
         ]
       ],
       "flow_type": "evaporation",
-      "volume": "-",
+      "volume": 1417.0,
       "color": "#000000",
-      "label": "-",
+      "label": "1,417.00",
       "bidirectional": false,
       "is_junction": false,
       "label_offset": 0.9740163325909429,
@@ -4835,9 +4778,9 @@
         ]
       ],
       "flow_type": "evaporation",
-      "volume": "-",
+      "volume": 5708.0,
       "color": "#000000",
-      "label": "-",
+      "label": "5,708.00",
       "label_font_size": 8.0,
       "bidirectional": false,
       "is_junction": false,
@@ -4874,9 +4817,9 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 75916.0,
       "color": "#4b78a8",
-      "label": "-",
+      "label": "75,916.00",
       "label_font_size": 8.0,
       "bidirectional": false,
       "is_junction": false,
@@ -4905,9 +4848,9 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 1225.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "1,225.00",
       "label_font_size": 8.0,
       "bidirectional": false,
       "is_junction": false,
@@ -4936,9 +4879,9 @@
         ]
       ],
       "flow_type": "dewatering",
-      "volume": "-",
+      "volume": 587705.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "587,705.00",
       "label_font_size": 8.0,
       "bidirectional": false,
       "is_junction": false,
@@ -4975,9 +4918,9 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 173634.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "173,634.00",
       "label_font_size": 8.0,
       "bidirectional": false,
       "is_junction": true,
@@ -5010,9 +4953,9 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 11334.0,
       "color": "#4b78a8",
-      "label": "-",
+      "label": "11,334.00",
       "label_font_size": 8.0,
       "bidirectional": false,
       "is_junction": false,
@@ -5041,9 +4984,9 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 26447.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "26,447.00",
       "label_font_size": 8.0,
       "bidirectional": false,
       "is_junction": false,
@@ -5068,9 +5011,9 @@
         ]
       ],
       "flow_type": "evaporation",
-      "volume": "-",
+      "volume": 32779.0,
       "color": "#000000",
-      "label": "-",
+      "label": "32,779.00",
       "label_font_size": 8.0,
       "bidirectional": false,
       "is_junction": false,
@@ -5115,9 +5058,9 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 508180.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "508,180.00",
       "label_font_size": 8.0,
       "bidirectional": false,
       "is_junction": false,
@@ -5162,9 +5105,9 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 62270.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "62,270.00",
       "label_font_size": 8.0,
       "bidirectional": false,
       "is_junction": false,
@@ -5204,9 +5147,9 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 105786.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "105,786.00",
       "label_font_size": 8.0,
       "bidirectional": false,
       "is_junction": false,
@@ -5251,9 +5194,9 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 5953.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "5,953.00",
       "label_font_size": 8.0,
       "bidirectional": false,
       "is_junction": false,
@@ -5299,9 +5242,9 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 1548729.0,
       "color": "#4b78a8",
-      "label": "-",
+      "label": "1,548,729.00",
       "label_font_size": 8.0,
       "bidirectional": false,
       "is_junction": false,
@@ -5339,9 +5282,9 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 1548729.0,
       "color": "#4b78a8",
-      "label": "-",
+      "label": "1,548,729.00",
       "label_font_size": 8.0,
       "bidirectional": false,
       "is_junction": true,
@@ -5375,9 +5318,9 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 159715.0,
       "color": "#4b78a8",
-      "label": "-",
+      "label": "159,715.00",
       "label_font_size": 8.0,
       "bidirectional": false,
       "is_junction": false,
@@ -5415,9 +5358,9 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 3889500.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "3,889,500.00",
       "label_font_size": 8.0,
       "bidirectional": false,
       "is_junction": false,
@@ -5447,9 +5390,9 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 11747.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "11,747.00",
       "label_font_size": 8.0,
       "bidirectional": false,
       "is_junction": false,
@@ -5479,9 +5422,9 @@
         ]
       ],
       "flow_type": "evaporation",
-      "volume": "-",
+      "volume": 108847.0,
       "color": "#000000",
-      "label": "-",
+      "label": "108,847.00",
       "label_font_size": 8.0,
       "bidirectional": false,
       "is_junction": false,
@@ -5511,9 +5454,9 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 37.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "37.00",
       "label_font_size": 8.0,
       "bidirectional": false,
       "is_junction": false,
@@ -5543,9 +5486,9 @@
         ]
       ],
       "flow_type": "evaporation",
-      "volume": "-",
+      "volume": 166.0,
       "color": "#000000",
-      "label": "-",
+      "label": "166.00",
       "label_font_size": 8.0,
       "bidirectional": false,
       "is_junction": false,
@@ -5575,9 +5518,9 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 1548.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "1,548.00",
       "label_font_size": 8.0,
       "bidirectional": false,
       "is_junction": false,
@@ -5607,9 +5550,9 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 4888.0,
       "color": "#4b78a8",
-      "label": "-",
+      "label": "4,888.00",
       "label_font_size": 8.0,
       "bidirectional": false,
       "is_junction": false,
@@ -5639,9 +5582,9 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 54347.0,
       "color": "#4b78a8",
-      "label": "-",
+      "label": "54,347.00",
       "label_font_size": 8.0,
       "bidirectional": false,
       "is_junction": false,
@@ -5671,9 +5614,9 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 15489.0,
       "color": "#4b78a8",
-      "label": "-",
+      "label": "15,489.00",
       "label_font_size": 8.0,
       "bidirectional": false,
       "is_junction": false,
@@ -5711,9 +5654,9 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 1886.0,
       "color": "#4b78a8",
-      "label": "-",
+      "label": "1,886.00",
       "label_font_size": 8.0,
       "bidirectional": false,
       "is_junction": false,
@@ -5747,9 +5690,9 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 2694.0,
       "color": "#4b78a8",
-      "label": "-",
+      "label": "2,694.00",
       "label_font_size": 8.0,
       "bidirectional": false,
       "is_junction": false,
@@ -5787,7 +5730,7 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": null,
       "color": "#4b78a8",
       "label_font_size": 8.0,
       "bidirectional": false,
@@ -5801,8 +5744,7 @@
         "enabled": true,
         "sheet": "Flows_UG2 Plant",
         "column": "UG2 Plant Softening → UG2 Plant Reservoir"
-      },
-      "label": "-"
+      }
     },
     {
       "id": "223a2daf-035d-4126-a931-f8dadadfc25d",
@@ -5819,9 +5761,9 @@
         ]
       ],
       "flow_type": "evaporation",
-      "volume": "-",
+      "volume": 723.0,
       "color": "#000000",
-      "label": "-",
+      "label": "723.00",
       "label_font_size": 8.0,
       "bidirectional": false,
       "is_junction": false,
@@ -5859,9 +5801,9 @@
         ]
       ],
       "flow_type": "evaporation",
-      "volume": "-",
+      "volume": 2717.0,
       "color": "#000000",
-      "label": "-",
+      "label": "2,717.00",
       "label_font_size": 8.0,
       "bidirectional": false,
       "is_junction": false,
@@ -5890,9 +5832,9 @@
         ]
       ],
       "flow_type": "recirculation",
-      "volume": "-",
+      "volume": 36.0,
       "color": "#9b59b6",
-      "label": "-",
+      "label": "36.00",
       "bidirectional": false,
       "is_recirculation": true,
       "recirculation_pos": {
@@ -5939,9 +5881,9 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 1848.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "1,848.00",
       "label_font_size": 8.0,
       "bidirectional": false,
       "is_junction": false,
@@ -5979,9 +5921,9 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 25328.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "25,328.00",
       "label_font_size": 8.0,
       "bidirectional": false,
       "is_junction": false,
@@ -6019,9 +5961,9 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 22227.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "22,227.00",
       "label_font_size": 8.0,
       "bidirectional": false,
       "is_junction": false,
@@ -6067,7 +6009,7 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": null,
       "color": "#4b78a8",
       "label_font_size": 8.0,
       "bidirectional": false,
@@ -6081,8 +6023,7 @@
         "enabled": true,
         "sheet": "Flows_Merensky Plant",
         "column": "Merplant Kleindwars → Merensky River Water Dam"
-      },
-      "label": "-"
+      }
     },
     {
       "id": "7689ddc8-3a15-4e6e-8ce8-6048840246d8",
@@ -6107,7 +6048,7 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": null,
       "color": "#4b78a8",
       "label_font_size": 8.0,
       "bidirectional": false,
@@ -6125,8 +6066,7 @@
         "enabled": true,
         "sheet": "Flows_Merensky Plant",
         "column": "Merplant Dwarsrivier → Merensky River Water Dam"
-      },
-      "label": "-"
+      }
     },
     {
       "id": "d7760bb2-3bd1-4446-b8f0-6f86512c7329",
@@ -6151,7 +6091,7 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 0.0,
       "color": "#e74c3c",
       "label_font_size": 8.0,
       "bidirectional": false,
@@ -6164,9 +6104,9 @@
       "excel_mapping": {
         "enabled": true,
         "sheet": "Flows_Merensky Plant",
-        "column": "Merensky Concentrator Plant → Merensky River Water Dam"
+        "column": "Merensky River Water Dam → Merplant"
       },
-      "label": "-"
+      "label": "0.00"
     },
     {
       "id": "fd71006a-6998-4c94-af5f-a2bf518b276a",
@@ -6207,9 +6147,9 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 2531867.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "2,531,867.00",
       "label_font_size": 8.0,
       "bidirectional": false,
       "is_junction": false,
@@ -6239,9 +6179,9 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 3961796.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "3,961,796.00",
       "label_font_size": 8.0,
       "bidirectional": false,
       "is_junction": true,
@@ -6294,9 +6234,9 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 2388207.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "2,388,207.00",
       "label_font_size": 8.0,
       "bidirectional": false,
       "is_junction": false,
@@ -6350,9 +6290,9 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 2414928.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "2,414,928.00",
       "label_font_size": 8.0,
       "bidirectional": false,
       "is_junction": false,
@@ -6382,9 +6322,9 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 497448.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "497,448.00",
       "label_font_size": 8.0,
       "bidirectional": false,
       "is_junction": true,
@@ -6418,9 +6358,9 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 294595.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "294,595.00",
       "label_font_size": 8.0,
       "bidirectional": false,
       "is_junction": false,
@@ -6458,9 +6398,9 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 2415775.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "2,415,775.00",
       "label_font_size": 8.0,
       "bidirectional": false,
       "is_junction": true,
@@ -6502,9 +6442,9 @@
         ]
       ],
       "flow_type": "dirty",
-      "volume": "-",
+      "volume": 21371.0,
       "color": "#e74c3c",
-      "label": "-",
+      "label": "21,371.00",
       "label_font_size": 8.0,
       "bidirectional": false,
       "is_junction": true,
@@ -6546,7 +6486,7 @@
         ]
       ],
       "flow_type": "clean",
-      "volume": "-",
+      "volume": 75.0,
       "color": "#4b78a8",
       "label_font_size": 8.0,
       "bidirectional": false,
@@ -6561,7 +6501,95 @@
         "sheet": "Flows_New TSF",
         "column": "Scavenger Boreholes(1-6) → NT RWD 1&2"
       },
-      "label": "-"
+      "label": "75.00"
+    },
+    {
+      "id": "1c04c22f-4899-4982-bad5-22ad26250423",
+      "from": "junction_140_737_593",
+      "to": "spcd1",
+      "segments": [
+        [
+          737.0,
+          593.0
+        ],
+        [
+          1055.0,
+          593.0
+        ],
+        [
+          1055.0,
+          593.0
+        ],
+        [
+          1056.0,
+          670.0
+        ]
+      ],
+      "flow_type": "dirty",
+      "volume": 4835.0,
+      "color": "#e74c3c",
+      "label": "4,835.00",
+      "label_font_size": 8.0,
+      "bidirectional": false,
+      "is_junction": false,
+      "label_offset": 0.8052276559865094,
+      "label_pos": {
+        "x": 1055.4156829679596,
+        "y": 625.0075885328837
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_Stockpile1",
+        "column": "Stockpile Area(Runoff) → Stockpile Clean Dam 1"
+      }
+    },
+    {
+      "id": "ddc8d44c-5faf-40a1-afae-f1e6ba367ef1",
+      "from": "ug2s_stp",
+      "to": "ug2s_mdcdg",
+      "segments": [
+        [
+          812.5,
+          1042.0
+        ],
+        [
+          812.0,
+          1099.0
+        ],
+        [
+          812.0,
+          1099.0
+        ],
+        [
+          1071.0,
+          1098.0
+        ],
+        [
+          1071.0,
+          1098.0
+        ],
+        [
+          1071.0,
+          1133.0
+        ]
+      ],
+      "flow_type": "dirty",
+      "volume": 92864.0,
+      "color": "#e74c3c",
+      "label": "92,864.00",
+      "label_font_size": 8.0,
+      "bidirectional": false,
+      "is_junction": false,
+      "label_offset": 0.4980412033034197,
+      "label_pos": {
+        "x": 938.9633582779285,
+        "y": 1098.509793983483
+      },
+      "excel_mapping": {
+        "enabled": true,
+        "sheet": "Flows_UG2 Main",
+        "column": "UG2 Main Sewage Treatment → Main Decline Clean Dams (Group)"
+      }
     }
   ],
   "merplant_title": "Merensky Plant Area"

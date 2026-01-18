@@ -13,6 +13,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from database.db_manager import DatabaseManager
+from ui.mouse_wheel_support import enable_treeview_mousewheel
 
 
 class MeasurementsModule:
@@ -221,6 +222,7 @@ class MeasurementsModule:
             self.tree.column(col, width=width, anchor=anchor)
         
         self.tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        enable_treeview_mousewheel(self.tree)
         
         scroll_y.config(command=self.tree.yview)
         scroll_x.config(command=self.tree.xview)
