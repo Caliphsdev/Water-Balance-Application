@@ -23,37 +23,78 @@ import threading
 
 
 class MainWindow:
-    """Main application window with professional layout"""
+    """Main application window with professional layout (APPLICATION CONTAINER).
+    
+    This is the top-level UI container that:
+    1. Sets up the professional sidebar + content area layout
+    2. Manages module loading (Dashboard, Calculations, Settings, etc.)
+    3. Handles toolbar and status bar for user feedback
+    4. Coordinates Excel file monitoring and reload events
+    5. Manages license status display and updates
+    
+    Layout Structure:
+    - Toolbar (top): Menu button, title, quick actions
+    - Sidebar (left): Module navigation (Dashboard, Calculations, etc.)
+    - Content Area (main): Active module interface
+    - Status Bar (bottom): Current operation status, license status, progress
+    
+    Module Lazy Loading:
+    - Modules are loaded on first access (improves startup time)
+    - Cached after first load to avoid re-initialization
+    - Each module is independent and manages its own state
+    
+    Excel Monitoring:
+    - Monitors Excel file modifications in background
+    - Auto-reloads calculations when Excel changes
+    - Notifies user of changes
+    
+    Key Attributes:
+    - current_module: Name of currently active module
+    - _module_cache: Dict of loaded modules
+    - excel_monitor: Background file watcher for Excel changes
+    """
     
     def __init__(self, root):
-        """Initialize the main window layout
+        """Initialize the main window layout (BOOTSTRAP MAIN UI).
+        
+        Sets up the professional application layout with:
+        1. Toolbar: Application title, menu button, quick actions
+        2. Sidebar: Module navigation and selection
+        3. Main Content: Active module rendering area
+        4. Status Bar: Real-time operation feedback and license status
         
         Args:
-            root: Tkinter root window
+            root: Tkinter root window (pre-created by main.py)
+        
+        Side Effects:
+        - Initializes all UI components
+        - Sets up notification system callbacks
+        - Creates module cache for lazy loading
+        - Does NOT load dashboard yet (loaded after window reveal)
         """
         self.root = root
         self.current_module = None
-        self._module_cache = {}
+        self._module_cache = {}  # Cache loaded modules to avoid re-init
         self._pending_load = None
         self.sidebar_collapsed = False  # Initialize sidebar state
         
         # Log application start
         logger.info("Main window initializing")
         
-        # Set up notification system with status bar callback
+        # Set up notification system with status bar callback (for user feedback)
         notifier.set_status_bar_callback(self._update_status_message)
         
         # Excel loading will be lazy (on-demand when modules need it)
         self.excel_loaded = False
         self.excel_monitor = None
         
-        # Create main container
+        # Create main container (holds all sub-components)
         self.container = ttk.Frame(self.root)
         self.container.pack(fill='both', expand=True)
         
         # Build UI components (statusbar CREATED FIRST so it's packed in correct order)
         self._create_toolbar()
-        self._create_statusbar()  # Pack statusbar BEFORE main layout
+        self._create_statusbar()  # Pack statusbar BEFORE main layout (ensures it's on bottom)
         self._create_main_layout()
         
         # Don't maximize yet - will happen after window reveal to prevent early visibility

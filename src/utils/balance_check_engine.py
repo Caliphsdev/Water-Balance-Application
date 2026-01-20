@@ -100,38 +100,66 @@ class BalanceCheckEngine:
         self.metrics: Optional[OverallBalanceMetrics] = None
     
     def calculate_balance(self) -> OverallBalanceMetrics:
-        """Calculate overall and per-area balance metrics from template files
+        """Calculate overall and per-area balance metrics from template files (MASTER VALIDATOR).
         
-        Reads ALL flows from .txt template files:
-        - INFLOW_CODES_TEMPLATE.txt
-        - OUTFLOW_CODES_TEMPLATE_CORRECTED.txt
-        - DAM_RECIRCULATION_TEMPLATE.txt
+        This method reads ALL flows from immutable .txt template files and calculates:
+        - Total inflows across all areas (natural water entering system)
+        - Total outflows across all areas (water leaving system)
+        - Total recirculation (water recycled within system)
+        - Per-area metrics (balance for each mining area independently)
+        - Closure error (how well the balance equation closes)
+        
+        Template files loaded (read-only):
+        - INFLOW_CODES_TEMPLATE.txt: All natural water entering the system
+        - OUTFLOW_CODES_TEMPLATE_CORRECTED.txt: All water leaving the system
+        - DAM_RECIRCULATION_TEMPLATE.txt: All recycled/internal water transfers
         
         Returns:
-            OverallBalanceMetrics object with all calculations
+            OverallBalanceMetrics object with:
+            - Overall metrics: total_inflows, total_outflows, total_recirculation, error %
+            - Per-area breakdown: {area: AreaBalanceMetrics} for analysis by mining area
+            - Status indicators: is_balanced, status_label (GREEN/YELLOW/RED)
+        
+        Note: Uses ALL flows from templates - no configuration filtering.
+        Scientific basis: Fresh Inflows = Outflows + ΔStorage + Error
         """
         return self._calculate_from_templates()
 
-    
     def _calculate_from_templates(self) -> OverallBalanceMetrics:
-        """Calculate balance from template files (fallback)
+        """Calculate balance from template files (Internal calculation engine).
+        
+        Reads flows from the three immutable template files and aggregates them:
+        1. Sums all inflows (natural water entry points)
+        2. Sums all outflows (natural water exit points)
+        3. Sums all recirculation flows (recycled water)
+        4. Computes per-area metrics for each mining area
+        5. Calculates closure error (should be < 0.5% for balanced system)
         
         Returns:
-            OverallBalanceMetrics with calculations from templates
+            OverallBalanceMetrics: Complete balance snapshot with:
+            - Totals across all areas
+            - Per-area breakdown
+            - Closure metrics (balance_difference, balance_error_percent)
+        
+        Note: This method is called by calculate_balance() and should not be used directly.
         """
         metrics = OverallBalanceMetrics()
         
         all_areas = self.parser.get_areas()
 
+        # Sum all inflows from template
         for entry in self.parser.inflows:
             metrics.total_inflows += entry.value_m3
 
+        # Sum all outflows from template
         for entry in self.parser.outflows:
             metrics.total_outflows += entry.value_m3
 
+        # Sum all recirculation flows (self-loops within system)
         for entry in self.parser.recirculation:
             metrics.total_recirculation += entry.value_m3
 
+        # Count flow entries for metrics
         for entry in self.parser.inflows:
             metrics.inflow_count += 1
         for entry in self.parser.outflows:
@@ -139,12 +167,14 @@ class BalanceCheckEngine:
         for entry in self.parser.recirculation:
             metrics.recirculation_count += 1
         
-        # Calculate per-area metrics (for ALL areas)
+        # Calculate per-area metrics (for EACH mining area independently)
         for area in sorted(all_areas):
+            # Get flows for this specific area
             area_inflows = self.parser.get_inflows_by_area(area)
             area_outflows = self.parser.get_outflows_by_area(area)
             area_recirculation = self.parser.get_recirculation_by_area(area)
             
+            # Create area-specific metrics
             area_metrics = AreaBalanceMetrics(
                 area=area,
                 total_inflows=sum(e.value_m3 for e in area_inflows),
@@ -155,17 +185,26 @@ class BalanceCheckEngine:
                 recirculation_count=len(area_recirculation),
             )
             
+            # Store area metrics for later analysis
             metrics.area_metrics[area] = area_metrics
         
+        # Cache metrics for later retrieval
         self.metrics = metrics
         self._log_balance_summary(metrics)
         return metrics
     
     def _log_balance_summary(self, metrics: OverallBalanceMetrics):
-        """Log balance check summary"""
+        """Log balance check summary to console and log file (VISIBILITY).
         
+        Produces a formatted balance report showing:
+        - Total inflows, outflows, recirculation (across all areas)
+        - Balance difference and error percentage
+        - Per-area status (GREEN/YELLOW/RED indicators)
+        
+        This helps validate system balance at a glance.
+        """
         logger.info("=" * 70)
-        logger.info("WATER BALANCE CHECK SUMMARY")
+        logger.info("WATER BALANCE CHECK SUMMARY (SYSTEM-WIDE)")
         logger.info("=" * 70)
         logger.info(f"Total Inflows: {metrics.total_inflows:>20,.0f} m³ ({metrics.inflow_count} sources)")
         logger.info(f"Total Outflows: {metrics.total_outflows:>19,.0f} m³ ({metrics.outflow_count} flows)")

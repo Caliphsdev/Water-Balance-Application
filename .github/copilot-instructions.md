@@ -3,6 +3,37 @@
 ## 🎯 What This Is
 Python/Tkinter desktop app for mine water balance across 8 areas. Core flow: read templates → calculate balances → load Excel overlays → persist to SQLite → render dashboards. Scientific basis: **Fresh Inflows = Outflows + ΔStorage + Error** (seepage captured in storage change).
 
+## ⚡ CRITICAL: Code Comments on Every Edit (ENFORCED)
+
+**ALWAYS write comprehensive comments when editing ANY Python code.**
+
+**MANDATORY ENFORCEMENT:** See [**Comment Enforcement Rules**](instructions/COMMENT_ENFORCEMENT_RULES.md) for complete requirements.  
+**QUICK REFERENCE:** See [**Comment Quick Reference**](COMMENT_QUICK_REFERENCE.md) for 1-page summary.
+
+When you update, add, or fix code, you MUST:
+1. ✅ **Every new function/method** gets a full docstring (explain purpose, args, returns, raises)
+2. ✅ **Every class** gets a docstring (explain what it does, key methods, state)
+3. ✅ **Complex logic** gets inline comments (explain WHY not WHAT)
+4. ✅ **Cache/performance code** gets comments (explain strategy, TTL, invalidation)
+5. ✅ **Data transformations** get comments (explain source, format, business logic)
+6. ✅ **Database queries** get comments (explain sheet/table names, columns, joins)
+7. ✅ **Excel operations** get comments (distinguish between Meter Readings vs Flow Diagram Excel)
+
+**ENFORCEMENT:** Code without proper comments will be **REJECTED** on review. No exceptions.
+
+**COMMIT MESSAGE RULE:** Include comment updates in commit message:
+```
+Fix balance calculation for OLDTSF
+
+- Updated clear_cache() docstring to explain invalidation triggers
+- Added inline comments to _validate_facility_flows() for data quality checks
+- Clarified difference between METER_READINGS and FLOW_DIAGRAM Excel files
+```
+
+**If you update code WITHOUT adding/updating comments, the changes will be rejected by future maintainers.**
+
+See **📝 Code Comments Mandate** section below for full details and examples.
+
 ## 🐍 Python Environment (MANDATORY)
 
 **ALWAYS use the virtual environment for all Python operations:**
@@ -230,13 +261,115 @@ licensing:
 6. **Circular imports:** Importing from `ui` in `utils` → typically OK but watch for lazy imports in `__init__.py`
 7. **Excel path priority:** Forgot that code checks `timeseries_excel_path` first → old data if not in that path
 
+## � Code Comments Mandate (ENFORCED)
+
+**Every function, class, and significant code block MUST have comments.** This is non-negotiable for maintainability.
+
+### Comment Requirements (Enforce When Editing)
+1. **Module Docstring:** Every file starts with a docstring explaining purpose, data sources, and dependencies
+2. **Class Docstring:** Explain class purpose, key methods, and state management
+3. **Function/Method Docstring:** Document parameters, return values, and side effects (use triple quotes)
+4. **Inline Comments:** Explain WHY not WHAT; use for complex logic, non-obvious decisions, and data flows
+5. **Data Quality Comments:** Explain where data comes from and any transformations applied
+6. **Cache Comments:** Document all caching strategies, invalidation triggers, and performance implications
+7. **XML/Deprecated Code:** Mark obsolete sections clearly with dates and reasons
+
+### Example Comment Structure (Copy & Use)
+```python
+def calculate_balance(facility_code: str, month: int, year: int) -> Dict:
+    """Calculate water balance for facility and month (PRIMARY CALCULATION ENGINE).
+    
+    This is the core orchestrator that coordinates:
+    1. Reading meter data from Excel (Meter Readings sheet)
+    2. Applying facility-specific constants (capacity, evaporation rates)
+    3. Computing inflows, outflows, storage changes
+    4. Validating closure (error < 5%)
+    5. Caching results to avoid re-calculation
+    
+    Args:
+        facility_code: Facility ID (e.g., 'UG2N', 'OLDTSF')
+        month: Month (1-12)
+        year: Gregorian year
+    
+    Returns:
+        Dict with keys: balance_m3, error_pct, inflows, outflows, storage_change, kpis
+        All values in m³ except error_pct (percentage)
+    
+    Raises:
+        ValueError: If facility not found or month invalid
+        ExcelReadError: If meter data missing (check data quality)
+    
+    Example:
+        result = calc.calculate_balance('UG2N', 3, 2025)
+        if result['error_pct'] > 5:
+            logger.warning(f"High closure error for UG2N Mar2025: {result['error_pct']:.1f}%")
+    """
+    # Validate inputs first (fail fast on bad data)
+    # ...
+```
+
+### Where Comments Go (Decision Tree)
+| Scenario | Action |
+|----------|--------|
+| New function added | Add full docstring + inline comments for complex logic |
+| Editing existing code | Add/update docstring if changed signature; add inline comments if logic changed |
+| Removing dead code | Mark with `# DEPRECATED: [date] - [reason] - remove after [future date]` before deleting |
+| Cache involved | Comment the cache key format, TTL, and invalidation trigger |
+| Excel/DB query | Comment the sheet name, column names, and data transformations |
+| Loop with >3 iterations | Add comment explaining iteration logic |
+| Conditional branch | Comment WHY the branch exists (business rule, data validation, edge case) |
+
+### Anti-Patterns (REMOVE If Found)
+```python
+# BAD: Obvious comments that just repeat code
+volume = volume * 1000  # Multiply volume by 1000
+column = row[0]  # Get the first column
+
+# GOOD: Explain WHY and data context
+volume_m3 = volume_ml * 1000  # Convert from mL (meter readings) to m³ for calculation engine
+facility_code = row[0]  # Facility code from Excel "Meter Readings" A column (e.g., UG2N)
+```
+
+### Git Commit Message Requirement
+Include comment rationale in commit message:
+```
+Add balance_check_engine.calculate_balance() method
+
+- Implements core water balance equation: Fresh IN = Outflows + ΔStorage + Error
+- Validates inflows/outflows don't exceed facility capacity (data quality)
+- Caches results keyed by (date, facility) to avoid re-reads from Excel
+- Called from UI calculations.py on user request; results shown in Balance tab
+
+Updated comments for clarity on data sources (Meter Readings Excel vs Flow Diagram Excel).
+```
+
 ## 📚 Deep Dive Resources
 
-- **Balance Check Logic:** [docs/BALANCE_CHECK_README.md](../../docs/BALANCE_CHECK_README.md)
-- **Flow Diagram System:** [docs/FLOW_DIAGRAM_GUIDE.md](../../docs/FLOW_DIAGRAM_GUIDE.md)
-- **Component Rename:** [docs/features/COMPONENT_RENAME_SYSTEM_INDEX.md](../../docs/features/COMPONENT_RENAME_SYSTEM_INDEX.md)
-- **Excel Integration:** [docs/features/EXCEL_INTEGRATION_SUMMARY.md](../../docs/features/EXCEL_INTEGRATION_SUMMARY.md)
-- **Code Style:** [.github/instructions/python.instructions.md](./../instructions/python.instructions.md) (PEP 8, type hints, docstrings)
+### **COMMENT ENFORCEMENT (MANDATORY)**
+- **Enforcement Rules:** [.github/instructions/COMMENT_ENFORCEMENT_RULES.md](instructions/COMMENT_ENFORCEMENT_RULES.md) - **STRICT mandatory rules for all code changes**
+- **Quick Reference:** [.github/COMMENT_QUICK_REFERENCE.md](COMMENT_QUICK_REFERENCE.md) - **1-page summary for quick lookup**
+- **Implementation Summary:** [docs/COMMENT_UPDATES_SUMMARY.md](../docs/COMMENT_UPDATES_SUMMARY.md) - **Overview of standards established**
+
+### Architecture & Feature Documentation
+- **Balance Check Logic:** [docs/BALANCE_CHECK_README.md](../docs/BALANCE_CHECK_README.md)
+- **Flow Diagram System:** [docs/FLOW_DIAGRAM_GUIDE.md](../docs/FLOW_DIAGRAM_GUIDE.md)
+- **Component Rename:** [docs/features/COMPONENT_RENAME_SYSTEM_INDEX.md](../docs/features/COMPONENT_RENAME_SYSTEM_INDEX.md)
+- **Excel Integration:** [docs/features/EXCEL_INTEGRATION_SUMMARY.md](../docs/features/EXCEL_INTEGRATION_SUMMARY.md)
+- **Code Style:** [.github/instructions/python.instructions.md](instructions/python.instructions.md) (PEP 8, type hints, docstrings)
+
+## ✅ ENFORCEMENT CHECKPOINT
+
+**Before submitting ANY code change, verify:**
+1. ✅ All functions/methods have docstrings
+2. ✅ All parameters are documented with types
+3. ✅ Complex logic has inline comments
+4. ✅ Cache usage is documented (key, TTL, invalidation)
+5. ✅ Data sources are clear (which Excel/DB, tables, columns)
+6. ✅ Excel files are distinguished (Meter Readings vs Flow Diagram)
+7. ✅ Examples provided for non-obvious functions
+8. ✅ Commit message mentions comment updates
+
+**See:** [.github/instructions/COMMENT_ENFORCEMENT_RULES.md](instructions/COMMENT_ENFORCEMENT_RULES.md) for complete checklist and rejection criteria.
 
 ## 🗂️ Repository Hygiene
 

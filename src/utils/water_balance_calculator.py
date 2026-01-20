@@ -58,17 +58,30 @@ class WaterBalanceCalculator:
         return self._excel_repo
     
     def clear_cache(self) -> None:
-        """Clear all calculation and Excel data caches.
+        """Clear all calculation and Excel data caches (Critical for data consistency).
         
-        Call this when Excel file is updated externally or configuration changes.
-        Forces fresh read from Excel on next calculation.
+        MANDATORY: Call this method when:
+        1. User updates Excel file externally (new measurements, meter readings)
+        2. Configuration changes (Excel path updated, facility definitions modified)
+        3. Database is manually edited (water sources, storage facilities)
+        4. Monthly calculations are re-run (force fresh Excel read)
+        
+        Cache Architecture:
+        - _balance_cache: {date_key: {facility: balance_result}} - water balance for each facility
+        - _kpi_cache: {date_key: kpi_metrics} - key performance indicators
+        - _misc_cache: {date_key: misc_metrics} - miscellaneous calculations
+        - _excel_repo: File I/O cache for measurements and operational data
+        
+        Without clearing, stale Excel data will be reused, producing incorrect results
+        and cascading errors through downstream dashboards.
         """
         self._balance_cache.clear()
         self._kpi_cache.clear()
         self._misc_cache.clear()
-        # Clear Excel repository cache if it's been initialized
+        # Propagate cache clear to Excel repository if it's been initialized
         if self._excel_repo is not None:
             self._excel_repo.clear_cache()
+            logger.debug("Excel repository cache cleared")
     
     def _validate_facility_flows(self, facility_code: str, capacity: float,
                                 inflow_total: float, outflow_total: float,

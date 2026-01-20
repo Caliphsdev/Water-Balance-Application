@@ -20,15 +20,18 @@ class PumpTransferEngine:
     TRANSFER_INCREMENT = 5.0
     
     def __init__(self, db, calculator):
-        """Initialize pump transfer engine
+        """Initialize pump transfer engine (Automatic Water Redistribution).
+        
+        Sets up the automatic water transfer system that runs after each balance calculation
+        to redistribute water between facilities based on levels and priority rules.
         
         Args:
-            db: DatabaseManager instance
-            calculator: WaterBalanceCalculator instance
+            db: DatabaseManager instance (reads facility config, logs transfers)
+            calculator: WaterBalanceCalculator instance (accesses facility levels post-calc)
         """
         self.db = db
         self.calculator = calculator
-        self._transfer_cache = {}
+        self._transfer_cache = {}  # Cache for transfer calculations
     
     def calculate_pump_transfers(self, calculation_date: date) -> Dict[str, Dict]:
         """Calculate automatic pump transfers for all facilities

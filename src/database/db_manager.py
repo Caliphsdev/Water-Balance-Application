@@ -136,16 +136,38 @@ class DatabaseManager:
                 pass
     
     def get_connection(self) -> sqlite3.Connection:
-        """Get database connection with row factory"""
+        """Get database connection with row factory and foreign key enforcement.
+        
+        Returns a SQLite connection configured for this application:
+        - Row factory: Enables dict-like column access (rows["column_name"])
+        - Foreign keys: Enforces referential integrity (ON cascading deletes)
+        
+        Returns:
+            sqlite3.Connection: Configured database connection ready for queries
+            
+        Note: Connections should be closed after use. Context managers recommended.
+        """
         conn = sqlite3.connect(self.db_path)
-        conn.row_factory = sqlite3.Row  # Allow dict-like access
+        # Enable dict-like access to columns (easier than index-based access)
+        conn.row_factory = sqlite3.Row
+        # Enforce foreign key constraints (data integrity and referential consistency)
         conn.execute("PRAGMA foreign_keys = ON")
         return conn
 
     @staticmethod
     def _initialize_sqlite_adapters() -> None:
-        """Register adapters to avoid deprecated default date/datetime handling."""
-        # Serialize date/datetime to ISO strings explicitly (TEXT columns)
+        """Register adapters to suppress deprecated SQLite date/datetime warnings.
+        
+        SQLite 3.42+ changed default date handling to issue deprecation warnings.
+        This method configures explicit adapters to:
+        1. Serialize Python date/datetime to ISO 8601 strings (TEXT columns)
+        2. Suppress deprecation warnings that would clutter logs
+        
+        This is a one-time setup (called during __init__ on first DatabaseManager instantiation).
+        
+        Note: Converters are registered but optional; they're used only if detect_types is enabled.
+        """
+        # Serialize date/datetime to ISO strings explicitly (TEXT columns in database)
         sqlite3.register_adapter(date, lambda d: d.isoformat())
         sqlite3.register_adapter(datetime, lambda dt: dt.isoformat())
 
@@ -153,7 +175,7 @@ class DatabaseManager:
         sqlite3.register_converter("DATE", lambda s: date.fromisoformat(s.decode()))
         sqlite3.register_converter("TIMESTAMP", lambda s: datetime.fromisoformat(s.decode()))
 
-        # Silence the deprecation warnings proactively
+        # Proactively silence deprecation warnings to keep logs clean
         warnings.filterwarnings(
             "ignore",
             message="The default date adapter is deprecated",
@@ -168,7 +190,33 @@ class DatabaseManager:
         )
     
     def execute_query(self, query: str, params: tuple = None) -> List[Dict]:
-        """Execute SELECT query and return results as list of dicts"""
+        """Execute SELECT query and return results as list of dicts (MAIN READ METHOD).
+        
+        This is the PRIMARY read interface for dashboard and UI queries.
+        
+        Args:
+            query: SQL SELECT statement (can include ? placeholders for params)
+            params: Optional tuple of parameters to bind (SQL injection prevention)
+        
+        Returns:
+            List of dicts where each dict is a row (columns accessible by name)
+            Empty list if no results
+        
+        Raises:
+            sqlite3.OperationalError: If query is malformed or database unreachable
+            sqlite3.DatabaseError: If database is corrupted
+        
+        Example:
+            results = db.execute_query(
+                "SELECT facility_code, capacity FROM storage_facilities WHERE active = ?",
+                (True,)
+            )
+            for row in results:
+                print(f"Facility: {row['facility_code']}, Capacity: {row['capacity']} m³")
+        
+        Performance Note: Results are fetched into memory. For large result sets (>10k rows),
+        consider using execute_query_generator() to stream results instead.
+        """
         start_time = time.perf_counter()
         conn = self.get_connection()
         try:

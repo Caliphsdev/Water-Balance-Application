@@ -33,9 +33,35 @@ from ui.mouse_wheel_support import enable_canvas_mousewheel, enable_text_mousewh
 
 
 class CalculationsModule:
-    """Water balance calculations interface"""
+    """Water balance calculations interface (CORE UI MODULE FOR BALANCE ANALYSIS).
+    
+    This module provides the user interface for water balance calculations and analysis:
+    - Triggers balance calculations when user selects month/area
+    - Displays balance results in tabbed interface (Summary, Area Breakdown, Legacy)
+    - Shows KPIs (closure error, inflow/outflow totals, trends)
+    - Implements tooltips for balance metrics (educates users on water balance terms)
+    - Audits calculation inputs for data quality checks
+    
+    DATA SOURCES (Important):
+    - Meter Readings Excel (legacy_excel_path): "Meter Readings" sheet
+      * Contains tonnes milled, RWD, dewatering volumes, etc.
+      * Used by WaterBalanceCalculator for calculations
+    - Flow Diagram Excel (timeseries_excel_path): "Flows_*" sheets
+      * Contains flow volumes for visualization
+      * NOT used by this module (used by flow_diagram_dashboard.py)
+    
+    Display Tabs:
+    1. **Balance Summary**: Overall balance, closure error, status
+    2. **Area Breakdown**: Per-area inflows/outflows for each mining area
+    3. **Legacy Summary**: Historical view of balance components
+    4. **Inflows/Outflows/Storage**: Detailed tabular views of each component
+    
+    Scientific Basis: Fresh Inflows = Outflows + ΔStorage + Error
+    - Error should be <5% for acceptable closure
+    - Higher error indicates measurement or data quality issues
+    """
 
-    # Tooltip definitions for balance metrics
+    # Tooltip definitions for balance metrics (educate users on water balance concepts)
     BALANCE_TOOLTIPS = {
         'Fresh Inflows': 'Natural water entering the system: surface water, groundwater, rainfall, underground, ore moisture',
         'Dirty Inflows': 'Recycled/recirculated water: Return Water Dam (RWD) from treatment plants and processes',
@@ -52,15 +78,46 @@ class CalculationsModule:
     }
 
     # === UI HELPER FUNCTIONS ===
+    
     def add_metric_card(self, parent, label, value, color, icon=None):
+        """Display metric in visually prominent card (for summary dashboards).
+        
+        Creates a labeled frame with centered, bold value text in specified color.
+        Used for displaying key balance metrics like Total Inflows, Balance Error, etc.
+        
+        Args:
+            parent: Parent tkinter container (Frame or Canvas)
+            label: Metric name (e.g., "Fresh Inflows", "Balance Error")
+            value: Metric value as string (formatted with units if needed)
+            color: Text color for value (e.g., '#228B22' for green, '#FF6347' for red)
+            icon: Optional emoji/icon prefix (e.g., '✅', '⚠️')
+        
+        Returns:
+            ttk.LabelFrame: The created metric card widget
+        """
         frame = ttk.LabelFrame(parent, text=f"{icon or ''} {label}".strip(), padding=12)
         frame.pack(side=tk.LEFT, padx=8, pady=8, fill=tk.BOTH, expand=True)
+        # Bold, large value text for visibility
         value_label = tk.Label(frame, text=value, font=('Segoe UI', 15, 'bold'), fg=color)
         value_label.pack()
         return frame
     
     def _bind_balance_tooltip(self, widget, label):
-        """Bind floating tooltip to balance metric widget"""
+        """Bind floating tooltip to balance metric widget (CONTEXTUAL HELP).
+        
+        Displays explanatory tooltip when user hovers over metric labels.
+        Educates users on water balance terminology and interpretation of results.
+        
+        Args:
+            widget: Tkinter widget to bind tooltip to (usually a Label)
+            label: Metric label key (must be in BALANCE_TOOLTIPS dict)
+        
+        Implementation:
+        - Show tooltip on <Enter> event (hover)
+        - Hide tooltip on <Leave> event (mouse out)
+        - Tooltip follows mouse cursor with slight offset
+        - Prevents multiple tooltips from appearing simultaneously
+        """
         tooltip_text = self.BALANCE_TOOLTIPS.get(label, '')
         if not tooltip_text:
             return
@@ -68,20 +125,21 @@ class CalculationsModule:
         tooltip_window = None
         
         def show_tooltip(event):
+            """Display tooltip near cursor."""
             nonlocal tooltip_window
             if tooltip_window or not tooltip_text:
                 return
             
-            # Create tooltip window
+            # Create floating tooltip window (transparent, no frame)
             tooltip_window = tk.Toplevel(widget)
             tooltip_window.wm_overrideredirect(True)
             tooltip_window.wm_geometry(f"+{event.x_root+15}+{event.y_root+15}")
             
-            # Create tooltip frame
+            # Style tooltip frame
             tooltip_frame = tk.Frame(tooltip_window, bg='#34495e', relief=tk.SOLID, borderwidth=1)
             tooltip_frame.pack()
             
-            # Add text with word wrap
+            # Wrap text to reasonable width for readability
             label_widget = tk.Label(
                 tooltip_frame,
                 text=tooltip_text,
@@ -96,6 +154,7 @@ class CalculationsModule:
             label_widget.pack()
         
         def hide_tooltip(event):
+            """Hide tooltip on mouse leave."""
             nonlocal tooltip_window
             if tooltip_window:
                 try:
@@ -104,6 +163,7 @@ class CalculationsModule:
                     pass
                 tooltip_window = None
         
+        # Bind events to show/hide tooltip
         widget.bind('<Enter>', show_tooltip, add='+')
         widget.bind('<Leave>', hide_tooltip, add='+')
 
