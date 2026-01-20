@@ -3,7 +3,7 @@ app:
   version: 1.0.0
 branding:
   company_name: Water Balance Management
-  logo_path: C:\PROJECTS\Water-Balance-Application\config\branding\Logo Two rivers.png
+  logo_path: C:\PROJECTS\Water-Balance-Application\logo\Logo Two rivers.png
 colors:
   bg_header: '#0D47A1'
   bg_main: '#F5F6F7'

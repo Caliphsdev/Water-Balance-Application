@@ -32,7 +32,7 @@ docs/
 
 ### Configuration
 - All logos and icons are stored in `logo/` folder
-- Configuration references in `config/branding/`
+- Configuration references in `logo/`
 
 ### Integration Points
 - Toolbar: `src/ui/main_window.py` (line 106)
@@ -62,7 +62,7 @@ When adding new `.md` files to this `docs/` folder:
 
 - **Source Code:** `src/` - Application source code
 - **Configuration:** `config/` - Application configuration files
-- **Branding:** `config/branding/` - Centralized branding assets
+- **Branding:** `logo/` - Centralized branding assets
 - **Logos/Icons:** `logo/` - All visual branding assets
 - **Build Files:** Root level - Build scripts and configurations
 

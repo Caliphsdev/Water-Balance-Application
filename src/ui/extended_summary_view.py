@@ -156,7 +156,7 @@ class ExtendedSummaryView(ttk.Frame):
                 ax.text(0.50, 0.967, 'Extended Water Balance Summary', fontsize=12, weight='bold', va='center', ha='center', color='white')
                 # Fixed logo on right
                 try:
-                    fixed_logo = get_resource_path('assets/icons/Company Logo.png')
+                    fixed_logo = get_resource_path('logo/Company Logo.png')
                     if fixed_logo.exists():
                         import matplotlib.pyplot as _plt
                         logo_img = _plt.imread(str(fixed_logo))

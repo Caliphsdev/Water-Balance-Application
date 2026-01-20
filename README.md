@@ -43,7 +43,7 @@ Water-Balance-Application/
 │   ├── instructions/             # Coding conventions
 │   └── workflows/                # CI/CD pipelines
 │
-└── assets/, logo/, backups/      # Supporting files
+└── logo/, backups/               # Supporting files
 \\\
 
 ## 🚀 Getting Started

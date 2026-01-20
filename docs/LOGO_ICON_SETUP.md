@@ -16,7 +16,7 @@ Your logo and icon files are **properly organized and connected** to the applica
 - **Integration:** 
   - Loaded in [src/ui/main_window.py](../src/ui/main_window.py#L106) (toolbar header)
   - Sized to fit toolbar height (~50px, 2.5x aspect ratio)
-  - Configured as `config/branding/Logo Two rivers.png` in app_config.yaml
+  - Configured as `logo/Logo Two rivers.png` in app_config.yaml
 - **Display Location:** **Top Toolbar**, left side after hamburger menu button
 
 ### 2. **Company Logo**
@@ -94,10 +94,10 @@ magick convert icon_256x256.png -define icon:auto-resize=256,128,64,48,32,16 "Wa
 ```yaml
 branding:
   company_name: Water Balance Management
-  logo_path: C:\PROJECTS\Water-Balance-Application\config\branding\Logo Two rivers.png
+  logo_path: C:\PROJECTS\Water-Balance-Application\logo\Logo Two rivers.png
 ```
 
-**Note:** The `Logo Two rivers.png` is stored in `config/branding/` for centralized branding management.
+**Note:** The `Logo Two rivers.png` is stored in `logo/` for centralized branding management.
 
 ---
 
@@ -147,7 +147,7 @@ TASKBAR ICON: Water Balance.ico
 ### PyInstaller (`water_balance.spec`)
 ```python
 # Icons bundled in executable
-icon='assets/icons/Water Balance.ico'
+icon='logo/Water Balance.ico'
 ```
 
 ### Inno Setup (`installer.iss`)
@@ -170,12 +170,12 @@ Water-Balance-Application/
 ├── config/
 │   └── branding/
 │       └── Logo Two rivers.png    (Centralized branding reference for toolbar)
-└── assets/
+└── logo/
     └── icons/
         ├── (empty - no fallback needed)
 ```
 
-**Note:** All logos are sourced from the `logo/` folder. The `config/branding/Logo Two rivers.png` is a copy for centralized branding configuration.
+**Note:** All logos are sourced from the `logo/` folder. The `logo/Logo Two rivers.png` file is the centralized branding asset.
 
 ---
 
@@ -185,7 +185,7 @@ Water-Balance-Application/
 **File:** [src/ui/main_window.py](../src/ui/main_window.py#L102)
 ```python
 # Company logo (prefer branded TRP logo)
-preferred_logo = get_resource_path('config/branding/Logo Two rivers.png')
+preferred_logo = get_resource_path('logo/Logo Two rivers.png')
 fallback_logo = get_resource_path('logo/Logo Two rivers.png')
 logo_path = preferred_logo if preferred_logo.exists() else fallback_logo
 if logo_path.exists():
@@ -257,7 +257,7 @@ if logo_path.exists():
 - Fallback paths are configured for robustness
 
 ### 🔧 Optional Enhancements
-1. **Create symbolic link** from `logo/Logo Two rivers.png` to `config/branding/Logo Two rivers.png` for consistency
+1. Ensure `logo/Logo Two rivers.png` exists (centralized branding asset)
 2. **Add logo validation** on app startup to ensure files exist
 3. **Test icon rendering** on actual Windows installer to confirm display
 4. **Consider DPI-aware scaling** for high-resolution displays (already uses LANCZOS resampling)
@@ -303,7 +303,7 @@ if logo_path.exists():
 **Status:** ✅ Fully Connected and Integrated
 
 **Changes Made:**
-- ✅ Toolbar logo path corrected: `config/branding/` (primary) → `logo/` (fallback)
+- ✅ Toolbar logo path uses `logo/` (centralized)
 - ✅ About page logo path corrected: `logo/Company Logo.png`
 - ✅ Sidebar logo path corrected: `logo/Company Logo.png`
 - ✅ Window icon path corrected: `logo/Water Balance.ico`

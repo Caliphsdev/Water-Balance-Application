@@ -88,8 +88,8 @@ class ReportGenerator:
 
         bold = Font(bold=True)
         
-        # Add fixed TRP logo if available
-        fixed_logo = get_resource_path('assets/icons/Company Logo.png')
+        # Add fixed TRP logo if available (centralized in logo/)
+        fixed_logo = get_resource_path('logo/Company Logo.png')
         if fixed_logo.exists():
             try:
                 img = XLImage(str(fixed_logo))
@@ -168,7 +168,7 @@ class ReportGenerator:
             ax.text(0.02, 0.967, company, fontsize=15, weight='bold', va='center', color='white')
             ax.text(0.70, 0.967, 'Water Balance Report', fontsize=13, weight='bold', va='center', color='white')
             # Logo (fixed)
-            fixed_logo = get_resource_path('assets/icons/Company Logo.png')
+            fixed_logo = get_resource_path('logo/Company Logo.png')
             if fixed_logo.exists():
                 try:
                     logo_img = plt.imread(str(fixed_logo))

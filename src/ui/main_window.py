@@ -103,7 +103,7 @@ class MainWindow:
         try:
             from PIL import Image, ImageTk
             from utils.config_manager import get_resource_path
-            preferred_logo = get_resource_path('config/branding/Logo Two rivers.png')
+            preferred_logo = get_resource_path('logo/Logo Two rivers.png')
             fallback_logo = get_resource_path('logo/Logo Two rivers.png')
             logo_path = preferred_logo if preferred_logo.exists() else fallback_logo
             if logo_path.exists():
