@@ -60,9 +60,12 @@ Then imports from `utils`, `database`, `ui`, `models`. **Keep this in new files.
 - `DAM_RECIRCULATION_TEMPLATE.txt` (recirculation template)
 - Created dynamically from config at [src/utils/create_templates.py](src/utils/create_templates.py)
 
-**Excel Sheets** (two separate files):
-- **Meter Readings** (`legacy_excel_path`): "Meter Readings" sheet → used by `src/ui/calculations.py` for water balance
-- **Flow Diagrams** (`timeseries_excel_path`): "Flows_*" sheets (8 areas) → used by `src/ui/flow_diagram_dashboard.py`
+**Excel Sheets** (configured in [config/app_config.yaml](config/app_config.yaml)):
+- **Primary Template** (`data/Water_Balance_TimeSeries_Template.xlsx`): Master template for flow data
+  - Used as `template_excel_path` and `timeseries_excel_path` (configured in `app_config.yaml`)
+  - Contains "Flows_*" sheets for 8 areas
+- **Meter Readings** (`data/New Water Balance 20250930 Oct.xlsx`): Historical meter readings
+  - Used by `src/ui/calculations.py` for water balance calculations via `legacy_excel_path`
 
 **JSON Diagrams:** Node IDs map to component names; edges link flows with values. Colors auto-detected: `#228B22` (clean), `#FF6347` (waste), `#696969` (underground).
 
