@@ -45,9 +45,10 @@ Then imports from `utils`, `database`, `ui`, `models`. **Keep this in new files.
 ## 📂 Data Inputs & Flows
 
 **Immutable Templates** (read-only, never modify programmatically):
-- [INFLOW_CODES_TEMPLATE.txt](INFLOW_CODES_TEMPLATE.txt)
-- [OUTFLOW_CODES_TEMPLATE_CORRECTED.txt](OUTFLOW_CODES_TEMPLATE_CORRECTED.txt)
-- [DAM_RECIRCULATION_TEMPLATE.txt](DAM_RECIRCULATION_TEMPLATE.txt)
+- `INFLOW_CODES_TEMPLATE.txt` (loaded/created by [src/utils/template_data_parser.py](src/utils/template_data_parser.py))
+- `OUTFLOW_CODES_TEMPLATE_CORRECTED.txt` (output template)
+- `DAM_RECIRCULATION_TEMPLATE.txt` (recirculation template)
+- Created dynamically from config at [src/utils/create_templates.py](src/utils/create_templates.py)
 
 **Excel Sheets** (two separate files):
 - **Meter Readings** (`legacy_excel_path`): "Meter Readings" sheet → used by `src/ui/calculations.py` for water balance
@@ -57,10 +58,10 @@ Then imports from `utils`, `database`, `ui`, `models`. **Keep this in new files.
 
 ## 🚀 Key Workflows
 
-**Run app:** `python src/main.py` (respects `features.fast_startup` config). Alternates: `python src/main_launcher.py`, `python src/main_optimized.py`.
+**Run app:** `python src/main.py` (respects `features.fast_startup` config).
 
 **DB operations:**
-- **Init/Reset:** `.venv\Scripts\python -c "from database.schema import DatabaseSchema; DatabaseSchema().create_database()"`
+- **Init/Reset:** `.venv\Scripts\python -c "from src.database.schema import DatabaseSchema; DatabaseSchema().create_database()"`
 - **Backup:** `db.create_backup()` saves to `data/water_balance_dist.db.bak-<timestamp>`
 
 **Balance calculation** (invoked from [src/ui/calculations.py](src/ui/calculations.py)):
@@ -72,9 +73,9 @@ Then imports from `utils`, `database`, `ui`, `models`. **Keep this in new files.
 **Flow diagram reload:** In dashboard `_load_from_excel()` → fetch fresh `FlowVolumeLoader` → `loader.clear_cache()` → redraw JSON edges with new volumes.
 
 **Component rename workflow:**
-1. Edit [component_rename_config.json](component_rename_config.json) (old → new, Excel columns)
-2. Run: `python scripts/component_rename_manager.py --dry-run` (preview)
-3. Run: `python scripts/component_rename_manager.py` (apply to JSON, Excel, mappings)
+- Component management handled via [src/utils/excel_mapping_registry.py](src/utils/excel_mapping_registry.py)
+- Rename tracked in [data/excel_flow_links.json](data/excel_flow_links.json)
+- Updates flow IDs without modifying Python logic (decoupled design)
 
 ## ⚡ Performance & UX
 
@@ -183,18 +184,16 @@ licensing:
 
 ## 📚 Deep Dive Resources
 
-- **Balance Check Logic:** [docs/BALANCE_CHECK_README.md](docs/BALANCE_CHECK_README.md)
-- **Flow Diagram System:** [docs/FLOW_DIAGRAM_GUIDE.md](docs/FLOW_DIAGRAM_GUIDE.md)
-- **Component Rename:** [docs/features/COMPONENT_RENAME_SYSTEM_INDEX.md](docs/features/COMPONENT_RENAME_SYSTEM_INDEX.md)
-- **Excel Integration:** [docs/features/EXCEL_INTEGRATION_SUMMARY.md](docs/features/EXCEL_INTEGRATION_SUMMARY.md)
-- **Debug Scripts:** [scripts/debug/README.md](scripts/debug/README.md) (organized by type: excel_mapping, structure, area_specific, flow_checks, verification)
-- **Utilities:** [scripts/utilities/README.md](scripts/utilities/README.md) (56+ automation scripts; see prefix guide)
-- **Code Style:** [.github/instructions/python.instructions.md](../.github/instructions/python.instructions.md) (PEP 8, type hints, docstrings)
+- **Balance Check Logic:** [docs/BALANCE_CHECK_README.md](../../docs/BALANCE_CHECK_README.md)
+- **Flow Diagram System:** [docs/FLOW_DIAGRAM_GUIDE.md](../../docs/FLOW_DIAGRAM_GUIDE.md)
+- **Component Rename:** [docs/features/COMPONENT_RENAME_SYSTEM_INDEX.md](../../docs/features/COMPONENT_RENAME_SYSTEM_INDEX.md)
+- **Excel Integration:** [docs/features/EXCEL_INTEGRATION_SUMMARY.md](../../docs/features/EXCEL_INTEGRATION_SUMMARY.md)
+- **Code Style:** [.github/instructions/python.instructions.md](./../instructions/python.instructions.md) (PEP 8, type hints, docstrings)
 
 ## 🗂️ Repository Hygiene
 
-- **Docs:** Prefer updating existing `.md` guides instead of creating new files. Consolidate into [docs/features/INDEX.md](docs/features/INDEX.md).
-- **Scripts:** Avoid ad-hoc scripts at root. Extend utilities in [scripts/](scripts/) or [src/](src/) where they fit logically. Delete temporary scripts after use.
-- **Assets:** New assets go to existing folders (`docs/`, `scripts/`, `data/`); keep root clean.
+- **Docs:** Prefer updating existing `.md` guides instead of creating new files. Consolidate into [docs/features/INDEX.md](../../docs/features/INDEX.md).
+- **Assets:** New assets go to `logo/`, `data/`, or `docs/` folders; keep root clean.
 - **Outputs:** Write one-off analysis to temp locations; remove after use to avoid clutter.
 - **virtualenv:** Use [.venv](.venv); run via `.venv\Scripts\python` and install via `.venv\Scripts\python -m pip install ...`. Do not create new environments.
+- **Branding:** Centralized logos live in [logo/](../../logo/) (Logo Two rivers.png, Company Logo.png, Water Balance.ico).
