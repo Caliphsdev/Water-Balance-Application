@@ -1,6 +1,12 @@
 """
 Calculations Module
 Water balance calculations and projections interface
+
+DATA SOURCES:
+- Meter Readings Excel (legacy_excel_path): "Meter Readings" sheet with tonnes milled, RWD, dewatering volumes
+  → Used by this module for water balance calculations
+- Flow Diagram Excel (timeseries_excel_path): "Flows_*" sheets with flow volumes
+  → Used by Flow Diagram module, NOT by this Calculations module
 """
 
 import tkinter as tk
@@ -22,7 +28,6 @@ from utils.template_data_parser import get_template_parser
 from utils.balance_check_engine import get_balance_check_engine
 from utils.balance_engine import BalanceEngine
 from utils.balance_services_legacy import LegacyBalanceServices
-from ui.area_exclusion_dialog import AreaExclusionDialog
 from utils.inputs_audit import collect_inputs_audit
 from ui.mouse_wheel_support import enable_canvas_mousewheel, enable_text_mousewheel
 
@@ -159,6 +164,9 @@ class CalculationsModule:
         self.year_var = None
         self.month_var = None
         self.manual_inputs_vars = {}
+        self.facility_flows_month_var = None
+        self.facility_flows_year_var = None
+        self.facility_flows_tree = None
 
     def load(self):
         """Load the calculations module"""
@@ -234,6 +242,9 @@ class CalculationsModule:
         except Exception:
             db_latest = None
         try:
+            # Load METER READINGS Excel (legacy_excel_path: data\New Water Balance...xlsx)
+            # This file contains the "Meter Readings" sheet with tonnes milled, RWD, etc.
+            # NOT the flow diagram Excel (which has Flows_* sheets)
             excel_repo = get_default_excel_repo()
             latest_date = excel_repo.get_latest_date()
         except Exception:
@@ -256,13 +267,16 @@ class CalculationsModule:
         month_combo.set(calendar.month_abbr[default_month])
         month_combo.pack(side=tk.LEFT, padx=(0, 20))
         
-        # Compose an actual date as last day of selected month
+        # Compose an actual date: use latest available date in selected month from Excel
         def update_calc_date_var(*_):
             try:
                 y = int(self.year_var.get())
                 m = list(calendar.month_abbr).index(self.month_var.get())
+                
+                # Default to last day of month (fastest path - no Excel access during init)
                 last_day = calendar.monthrange(y, m)[1]
                 composed = date(y, m, last_day)
+                
                 self.calc_date_var.set(composed.strftime('%Y-%m-%d'))
                 # Date changed → reset override and prefill ore tonnage
                 self._on_calc_date_change()
@@ -344,6 +358,10 @@ class CalculationsModule:
         self.days_of_operation_frame = ttk.Frame(notebook)
         notebook.add(self.days_of_operation_frame, text="⏳ Days of Operation")
 
+        # Tab 5: Facility Flows (per-facility inflows/outflows by month)
+        self.facility_flows_frame = ttk.Frame(notebook)
+        notebook.add(self.facility_flows_frame, text="🏭 Facility Flows")
+
         # Template Balance (QA) and Template Check Summary tabs removed per request
 
         # Hidden for now - can be enabled later
@@ -374,6 +392,9 @@ class CalculationsModule:
 
         # Build manual inputs UI once tabs exist
         self._build_manual_inputs_tab()
+        
+        # Build facility flows UI
+        self._build_facility_flows_tab()
 
     def _show_placeholder(self):
         """Show initial placeholder prompting user to run calculation on demand"""
@@ -482,6 +503,229 @@ class CalculationsModule:
         except Exception as exc:
             logger.error(f"Failed to save manual inputs: {exc}", exc_info=True)
             messagebox.showerror("Save failed", f"Could not save manual inputs:\n{exc}")
+
+    def _build_facility_flows_tab(self):
+        """Create facility-level inflows/outflows input interface"""
+        if not hasattr(self, 'facility_flows_frame') or not self.facility_flows_frame.winfo_exists():
+            return
+
+        for w in self.facility_flows_frame.winfo_children():
+            w.destroy()
+
+        header = ttk.Label(self.facility_flows_frame, text="Facility-Level Inflows & Outflows (m³)", font=('Segoe UI', 12, 'bold'))
+        header.pack(anchor='w', pady=(4, 2))
+
+        ttk.Label(self.facility_flows_frame, 
+                  text="Enter per-facility monthly inflows (pumped in) and outflows (pumped out). Data stored by month and year.", 
+                  foreground='#555').pack(anchor='w', pady=(0, 8))
+
+        # Control panel: Month/Year selector and action buttons
+        control = ttk.Frame(self.facility_flows_frame)
+        control.pack(fill=tk.X, pady=(8, 0), padx=4)
+
+        ttk.Label(control, text="Month:", font=('Segoe UI', 10)).pack(side=tk.LEFT, padx=(0, 5))
+        self.facility_flows_month_var = tk.IntVar(value=datetime.now().month)
+        month_combo = ttk.Combobox(control, textvariable=self.facility_flows_month_var, 
+                                   values=list(range(1, 13)), width=8, state='readonly')
+        month_combo.pack(side=tk.LEFT, padx=(0, 15))
+
+        ttk.Label(control, text="Year:", font=('Segoe UI', 10)).pack(side=tk.LEFT, padx=(0, 5))
+        self.facility_flows_year_var = tk.IntVar(value=datetime.now().year)
+        year_combo = ttk.Combobox(control, textvariable=self.facility_flows_year_var, 
+                                  values=list(range(2020, 2030)), width=8, state='readonly')
+        year_combo.pack(side=tk.LEFT, padx=(0, 15))
+
+        ttk.Button(control, text="Load Data", command=self._load_facility_flows_data).pack(side=tk.LEFT, padx=3)
+        ttk.Button(control, text="💾 Save All", command=self._save_facility_flows_data, style='Accent.TButton').pack(side=tk.LEFT, padx=3)
+        ttk.Button(control, text="Clear Month", command=self._clear_facility_flows_month).pack(side=tk.LEFT, padx=3)
+
+        # Treeview for facility flows
+        tree_frame = ttk.Frame(self.facility_flows_frame)
+        tree_frame.pack(fill=tk.BOTH, expand=True, pady=8, padx=4)
+
+        columns = ('facility_name', 'inflow', 'outflow', 'net')
+        self.facility_flows_tree = ttk.Treeview(tree_frame, columns=columns, height=15, selectmode='browse')
+        
+        self.facility_flows_tree.column('#0', width=120)
+        self.facility_flows_tree.column('facility_name', width=180)
+        self.facility_flows_tree.column('inflow', width=120)
+        self.facility_flows_tree.column('outflow', width=120)
+        self.facility_flows_tree.column('net', width=100)
+
+        self.facility_flows_tree.heading('#0', text='Facility Code')
+        self.facility_flows_tree.heading('facility_name', text='Facility Name')
+        self.facility_flows_tree.heading('inflow', text='Inflow (m³)')
+        self.facility_flows_tree.heading('outflow', text='Outflow (m³)')
+        self.facility_flows_tree.heading('net', text='Net (m³)')
+
+        self.facility_flows_tree.pack(fill=tk.BOTH, expand=True)
+
+        # Scrollbar
+        scrollbar = ttk.Scrollbar(tree_frame, orient=tk.VERTICAL, command=self.facility_flows_tree.yview)
+        self.facility_flows_tree.configure(yscroll=scrollbar.set)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        # Bind double-click to edit values
+        self.facility_flows_tree.bind('<Double-1>', self._on_facility_flow_cell_double_click)
+
+        # Load data for current month/year
+        self._load_facility_flows_data()
+
+    def _load_facility_flows_data(self):
+        """Load facility flows from database for selected month/year"""
+        try:
+            month = self.facility_flows_month_var.get()
+            year = self.facility_flows_year_var.get()
+
+            # Clear treeview
+            for item in self.facility_flows_tree.get_children():
+                self.facility_flows_tree.delete(item)
+
+            # Populate from DB
+            facilities = self.db.get_storage_facilities(active_only=False)
+            for facility in facilities:
+                fac_id = facility['facility_id']
+                fac_code = facility['facility_code']
+                fac_name = facility['facility_name']
+
+                inflow = self.db.get_facility_inflow_monthly(fac_id, month, year) or 0.0
+                outflow = self.db.get_facility_outflow_monthly(fac_id, month, year) or 0.0
+                net = inflow - outflow
+
+                self.facility_flows_tree.insert('', 'end', iid=f'fac_{fac_id}',
+                                               text=fac_code,
+                                               values=(fac_name, f'{inflow:.0f}', f'{outflow:.0f}', f'{net:.0f}'))
+        except Exception as e:
+            logger.error(f"Error loading facility flows: {e}", exc_info=True)
+            messagebox.showerror('Error', f'Failed to load facility flows: {e}')
+
+    def _on_facility_flow_cell_double_click(self, event):
+        """Handle double-click to edit facility flow values"""
+        region = self.facility_flows_tree.identify_region(event.x, event.y)
+        if region != 'cell':
+            return
+
+        item_id = self.facility_flows_tree.identify('item', event.x, event.y)
+        column = self.facility_flows_tree.identify_column(event.x)
+        
+        # Column mapping: #0=code, #1=name, #2=inflow, #3=outflow, #4=net
+        # We want to edit columns #2 (inflow) and #3 (outflow)
+        if column == '#2':  # Inflow column
+            column_name = 'Inflow (m³)'
+        elif column == '#3':  # Outflow column
+            column_name = 'Outflow (m³)'
+        else:
+            return  # Ignore other columns
+        
+        item_values = list(self.facility_flows_tree.item(item_id)['values'])
+        col_index = 1 if column == '#2' else 2  # 1=inflow (values[1]), 2=outflow (values[2])
+        old_value = item_values[col_index]
+        
+        # Create popup dialog
+        popup = tk.Toplevel(self.facility_flows_frame)
+        popup.title('Edit Flow Value')
+        popup_width, popup_height = 420, 220
+        # Center on screen
+        screen_w = popup.winfo_screenwidth()
+        screen_h = popup.winfo_screenheight()
+        pos_x = int((screen_w - popup_width) / 2)
+        pos_y = int((screen_h - popup_height) / 2)
+        popup.geometry(f'{popup_width}x{popup_height}+{pos_x}+{pos_y}')
+        popup.resizable(False, False)
+        popup.transient(self.facility_flows_frame)
+        popup.grab_set()
+        popup.configure(bg='#f5f7fb')
+
+        content = tk.Frame(popup, bg='#f5f7fb', padx=18, pady=14)
+        content.pack(fill=tk.BOTH, expand=True)
+
+        ttk.Label(content, text=f'Edit {column_name}', font=('Segoe UI', 12, 'bold'), background='#f5f7fb').pack(anchor='w', pady=(0, 6))
+        ttk.Label(content, text=f'Current value: {old_value}', foreground='#666', background='#f5f7fb').pack(anchor='w', pady=(0, 12))
+
+        entry = ttk.Entry(content, width=36, font=('Segoe UI', 11))
+        entry.pack(fill=tk.X, pady=(0, 12))
+        entry.insert(0, str(old_value))
+        entry.focus()
+        entry.select_range(0, tk.END)
+
+        def save_edit():
+            try:
+                new_value = float(entry.get())
+                if new_value < 0:
+                    messagebox.showerror('Invalid', 'Values must be ≥ 0')
+                    return
+                item_values[col_index] = f'{new_value:.0f}'
+                self.facility_flows_tree.item(item_id, values=item_values)
+                popup.destroy()
+            except ValueError:
+                messagebox.showerror('Invalid', 'Please enter a numeric value')
+
+        def cancel():
+            popup.destroy()
+
+        buttons = tk.Frame(content, bg='#f5f7fb')
+        buttons.pack(fill=tk.X, pady=(4, 0))
+        ttk.Button(buttons, text='Save', command=save_edit, style='Accent.TButton').pack(side=tk.RIGHT, padx=(6, 0))
+        ttk.Button(buttons, text='Cancel', command=cancel).pack(side=tk.RIGHT)
+
+        entry.bind('<Return>', lambda e: save_edit())
+        entry.bind('<Escape>', lambda e: cancel())
+
+    def _save_facility_flows_data(self):
+        """Save all facility flows for selected month/year to database"""
+        try:
+            month = self.facility_flows_month_var.get()
+            year = self.facility_flows_year_var.get()
+            save_count = 0
+
+            # Iterate through all rows in treeview
+            for item_id in self.facility_flows_tree.get_children():
+                values = self.facility_flows_tree.item(item_id)['values']
+                if values:
+                    fac_id = int(item_id.split('_')[1])
+                    inflow = float(values[1]) if values[1] else 0.0
+                    outflow = float(values[2]) if values[2] else 0.0
+
+                    # Save to DB (only if value > 0)
+                    if inflow > 0:
+                        self.db.set_facility_inflow_monthly(fac_id, month, inflow, year)
+                        save_count += 1
+                    else:
+                        # Delete if zero
+                        self.db.delete_facility_inflow(fac_id, month, year)
+
+                    if outflow > 0:
+                        self.db.set_facility_outflow_monthly(fac_id, month, outflow, year)
+                        save_count += 1
+                    else:
+                        # Delete if zero
+                        self.db.delete_facility_outflow(fac_id, month, year)
+
+            messagebox.showinfo('Saved', f'Facility flows for {month:02d}/{year} saved ({save_count} entries)!')
+            
+            # Recalculate balance to show updated closure error
+            self._calculate_balance()
+        except Exception as e:
+            logger.error(f"Error saving facility flows: {e}", exc_info=True)
+            messagebox.showerror('Error', f'Failed to save facility flows: {e}')
+
+    def _clear_facility_flows_month(self):
+        """Clear all facility flows for current month/year"""
+        if messagebox.askyesno('Confirm', f'Clear all facility flows for month {self.facility_flows_month_var.get():02d}/{self.facility_flows_year_var.get()}?'):
+            try:
+                month = self.facility_flows_month_var.get()
+                year = self.facility_flows_year_var.get()
+
+                for item_id in self.facility_flows_tree.get_children():
+                    fac_id = int(item_id.split('_')[1])
+                    self.db.delete_facility_inflow(fac_id, month, year)
+                    self.db.delete_facility_outflow(fac_id, month, year)
+
+                messagebox.showinfo('Cleared', f'Facility flows cleared for {month:02d}/{year}')
+                self._load_facility_flows_data()
+            except Exception as e:
+                logger.error(f"Error clearing facility flows: {e}", exc_info=True)
+                messagebox.showerror('Error', f'Failed to clear flows: {e}')
     
     def _calculate_balance(self):
         """Perform water balance calculation"""
@@ -490,8 +734,24 @@ class CalculationsModule:
         logger.info("⏱️  Calculations: on-demand run started")
         
         try:
+            # Validate Meter Readings Excel file exists before proceeding
+            excel_repo = get_default_excel_repo()
+            if not excel_repo.config.file_path.exists():
+                messagebox.showerror(
+                    "Excel File Missing",
+                    f"Meter Readings Excel file not found:\n\n{excel_repo.config.file_path}\n\n"
+                    "This file contains tonnes milled, RWD, and dewatering volumes.\n"
+                    "Please configure the path in Settings > Data Sources (legacy_excel_path)."
+                )
+                logger.error(f"❌ Meter Readings Excel not found: {excel_repo.config.file_path}")
+                return
+            
             calc_date = datetime.strptime(self.calc_date_var.get(), '%Y-%m-%d').date()
             ore_tonnes = None
+            
+            # Clear caches to ensure fresh Excel data is read
+            self.calculator.clear_cache()
+            logger.info("  ✓ Caches cleared (fresh Excel read enabled)")
             
             # Calculate balance
             balance_calc_start = time.perf_counter()
@@ -648,8 +908,6 @@ class CalculationsModule:
         
         params_data = [
             ("Calculation Date", calc_date_str, "📅"),
-            ("Excluded Areas", ", ".join(self.balance_engine.get_excluded_areas()) or "None", "⛔"),
-            ("Included Areas", f"{len([a for a in metrics.area_metrics.keys() if a not in self.balance_engine.get_excluded_areas()])} areas", "🏭"),
         ]
         
         for i, (label, value, icon) in enumerate(params_data):
@@ -760,23 +1018,9 @@ class CalculationsModule:
         if not metrics:
             return
         
-        excluded_areas = self.balance_engine.get_excluded_areas()
-        
-        # Header
-        header_text = "⚖️ Water Balance Check (Overall)"
-        if excluded_areas:
-            header_text += f" - {len(excluded_areas)} area(s) excluded"
-        
         ttk.Label(self.balance_summary_frame, 
-                 text=header_text, 
+                 text="⚖️ Water Balance Check (Overall)", 
                  font=('Segoe UI', 14, 'bold')).pack(pady=(0, 20))
-        
-        # Exclusions info if any
-        if excluded_areas:
-            self.add_info_box(self.balance_summary_frame,
-                             f"⚠️ Excluded areas: {', '.join(excluded_areas)}\n"
-                             "These areas are NOT included in balance calculations below.",
-                             icon="⚙️")
         
         # Info box explaining the calculation
         self.add_info_box(self.balance_summary_frame,
@@ -2759,17 +3003,6 @@ class CalculationsModule:
     def refresh_data(self):
         """Refresh module data"""
         self._show_placeholder()
-
-    def _show_exclusion_manager(self):
-        """Show area exclusion manager dialog"""
-        dialog = AreaExclusionDialog(self.parent)
-        if dialog.show():
-            logger.info("Area exclusions updated")
-            if self.current_balance:
-                messagebox.showinfo("Exclusions Updated",
-                    "Area exclusions have been updated.\n"
-                    "Click 'Calculate Balance' again to see results with new exclusions.")
-    
 
     def _on_calc_date_change(self):
         """Handle date changes whether via calendar selection or manual typing."""

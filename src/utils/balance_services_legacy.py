@@ -141,10 +141,8 @@ class LegacyBalanceServices(InflowsService, OutflowsService, StorageService):
         if use_prod:
             try:
                 from utils.excel_timeseries import get_default_excel_repo
-                from utils.excel_timeseries_extended import get_extended_excel_repo
                 
                 legacy_repo = get_default_excel_repo()
-                extended_repo = get_extended_excel_repo()
                 
                 # PRIORITY 1: Meter Readings (PGM + Chromite wet tons and moisture)
                 # Note: Column headers may have trailing spaces
@@ -173,14 +171,15 @@ class LegacyBalanceServices(InflowsService, OutflowsService, StorageService):
                         weighted_moist = (float(pgm_wet) * float(pgm_moist) + float(chr_wet) * float(chr_moist)) / total_wet
                         conc_moist_pct = weighted_moist
                 
-                # PRIORITY 2: Production sheet (fallback for concentrate if Meter Readings missing, primary for tailings)
+                # PRIORITY 2: Production sheet removed (Excel now contains only Flow Diagram data)
+                # Skip concentrate and tailings moisture from extended Excel
                 if conc_t is None:
-                    conc_t = extended_repo.get_concentrate_produced(calculation_date)
+                    conc_t = None  # Extended sheets removed
                 if conc_moist_pct is None:
-                    conc_moist_pct = extended_repo.get_concentrate_moisture(calculation_date)
+                    conc_moist_pct = None
                 
-                # Tailings moisture always from Production sheet (not in Meter Readings)
-                tails_moist_pct = extended_repo.get_tailings_moisture(calculation_date)
+                # Tailings moisture always from Production sheet (removed)
+                tails_moist_pct = None
                 
                 # Get ore tonnes for tailings calculation
                 ore_t = 0.0

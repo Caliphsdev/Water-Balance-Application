@@ -15,9 +15,9 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from database.db_manager import DatabaseManager
-from utils.excel_timeseries_extended import ExcelTimeSeriesExtended
+# ExcelTimeSeriesExtended removed - Excel now has only Flow Diagram data
 from utils.app_logger import logger
-from utils.config_manager import config
+from utils.config_manager import config, get_resource_path
 
 try:
     import matplotlib
@@ -38,7 +38,8 @@ class ChartsDashboard:
     def __init__(self, parent):
         self.parent = parent
         self.db = DatabaseManager()
-        self.excel = ExcelTimeSeriesExtended()
+        # ExcelTimeSeriesExtended removed
+n        self.excel = None
         self.main_frame = None
         self.figure = None
         self.canvas = None
@@ -284,11 +285,11 @@ class ChartsDashboard:
         # Read data from Excel file using configurable path
         import pandas as pd
         from pathlib import Path
-        from utils.config_manager import ConfigManager
+        from utils.config_manager import ConfigManager, get_resource_path
         
         config = ConfigManager()
         excel_path_str = config.get('data_sources.legacy_excel_path', 'data/New Water Balance  20250930 Oct.xlsx')
-        base_dir = Path(__file__).parent.parent.parent
+        base_dir = Path(get_resource_path(''))
         excel_path = base_dir / excel_path_str if not Path(excel_path_str).is_absolute() else Path(excel_path_str)
         
         if not excel_path.exists():

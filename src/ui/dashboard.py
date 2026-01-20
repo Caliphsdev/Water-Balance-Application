@@ -9,8 +9,8 @@ from datetime import datetime, date, timedelta
 
 from utils.config_manager import config
 from utils.app_logger import logger
-from utils.excel_timeseries_extended import get_extended_excel_repo
 from utils.excel_timeseries import get_default_excel_repo
+# Extended Excel sheets removed - only Meter Readings Excel used now
 from utils.flow_volume_loader import get_flow_volume_loader
 from tkinter import messagebox
 from database.db_manager import DatabaseManager
@@ -62,10 +62,9 @@ class DashboardModule:
         self.facilities = []
     
     def _get_excel_repo(self):
-        """Lazy-load extended Excel repository"""
-        if self.excel_repo is None:
-            self.excel_repo = get_extended_excel_repo()
-        return self.excel_repo
+        """Lazy-load extended Excel repository (DEPRECATED - sheets removed)"""
+        # Extended Excel sheets no longer exist - return None
+        return None
     
     def _get_meter_repo(self):
         """Lazy-load meter Excel repository"""
@@ -107,11 +106,13 @@ class DashboardModule:
         try:
             # Get full facility metadata from database
             db_fetch_start = time.perf_counter()
-            self.facilities = self.db.get_storage_facilities()
+            # Force fresh fetch to pick up latest persisted volumes from calculations
+            self.facilities = self.db.get_storage_facilities(use_cache=False)
             logger.info(f"  ✓ DB facilities fetch: {(time.perf_counter() - db_fetch_start)*1000:.0f}ms ({len(self.facilities)} facilities)")
             
             # Map storage metrics directly from database (no Excel dependency)
             calc_start = time.perf_counter()
+            total_vol_check = 0
             for facility in self.facilities:
                 facility['excel_inflow'] = 0
                 facility['excel_outflow'] = 0
@@ -120,8 +121,9 @@ class DashboardModule:
                 facility['level_percent'] = facility.get('current_level_percent', 0)
                 facility['inflow_total'] = 0
                 facility['outflow_total'] = 0
+                total_vol_check += facility.get('current_volume', 0)
             calc_total = (time.perf_counter() - calc_start) * 1000
-            logger.info(f"  ✓ Storage (DB) mapping: {calc_total:.0f}ms ({len(self.facilities)} facilities)")
+            logger.info(f"  ✓ Storage (DB) mapping: {calc_total:.0f}ms ({len(self.facilities)} facilities) - Total vol: {total_vol_check:,.0f} m³")
             
             # For sources, get metadata from database (for charts/display)
             # Excel column names are just for counting
@@ -181,29 +183,46 @@ class DashboardModule:
         )
         title.pack(side='left')
         
+        # Refresh button in header
+        refresh_btn = tk.Button(
+            header_frame,
+            text='🔄 Refresh',
+            font=('Segoe UI', 10),
+            bg='#3498db',
+            fg='white',
+            activebackground='#2980b9',
+            activeforeground='white',
+            relief='flat',
+            bd=0,
+            padx=15,
+            pady=6,
+            cursor='hand2',
+            command=self.load
+        )
+        refresh_btn.pack(side='right', padx=10)
+        
         # Date info subtitle with volume calculation date
         date_str = self.latest_date.strftime('%B %Y') if self.latest_date else 'N/A'
         
         # Check if facilities have volume_calc_date to show when volumes were last updated
-        volume_dates = set()
+        volume_dates = []
         for f in self.facilities:
             vol_date = f.get('volume_calc_date')
-            if vol_date:
-                volume_dates.add(vol_date)
-        
-        if volume_dates:
-            # Show volume calculation date if available
-            vol_date_str = sorted(volume_dates)[-1] if volume_dates else None
-            if vol_date_str:
-                from datetime import datetime
+            parsed = None
+            if isinstance(vol_date, (datetime, date)):
+                parsed = vol_date.date() if isinstance(vol_date, datetime) else vol_date
+            elif isinstance(vol_date, str):
                 try:
-                    vol_date_obj = datetime.strptime(vol_date_str, '%Y-%m-%d').date()
-                    vol_date_display = vol_date_obj.strftime('%B %Y')
-                    date_info = f'  •  Latest: {date_str} | DB Volumes: {vol_date_display}'
-                except:
-                    date_info = f'  •  Latest: {date_str}'
-            else:
-                date_info = f'  •  Latest: {date_str}'
+                    parsed = datetime.fromisoformat(vol_date).date()
+                except ValueError:
+                    parsed = None
+            if parsed:
+                volume_dates.append(parsed)
+
+        if volume_dates:
+            latest_vol_date = max(volume_dates)
+            vol_date_display = latest_vol_date.strftime('%B %Y')
+            date_info = f'  •  Latest: {date_str} | DB Volumes: {vol_date_display}'
         else:
             date_info = f'  •  Latest: {date_str}'
         
@@ -339,8 +358,13 @@ class DashboardModule:
             import json
             from pathlib import Path
             
-            # Load saved balance check results
-            results_path = Path('data/balance_check_last_run.json')
+            # Load saved balance check results from user-writable directory in EXE mode
+            import os
+            user_dir = os.environ.get('WATERBALANCE_USER_DIR')
+            if user_dir:
+                results_path = Path(user_dir) / 'data' / 'balance_check_last_run.json'
+            else:
+                results_path = Path('data/balance_check_last_run.json')
             if not results_path.exists():
                 logger.info("No balance check results available yet - run balance check from Flow Diagram first")
                 return
@@ -1101,9 +1125,11 @@ class DashboardModule:
             total_sources = len(self.sources)
             total_facilities = len(self.facilities)
             total_capacity = sum(f.get('total_capacity', 0) for f in self.facilities)
-            # Use closing_volume from Excel (real-time calculated) instead of database current_volume (static)
+            # Use closing_volume (which is set from current_volume during load)
             total_volume = sum(f.get('closing_volume', 0) for f in self.facilities)
             utilization = (total_volume / total_capacity * 100) if total_capacity > 0 else 0.0
+
+            logger.info(f"Dashboard _update_data: Volume={total_volume:,.0f} m³ ({total_volume/1000000:.2f} Mm³), Util={utilization:.1f}%")
 
             if 'total_sources' in self.kpi_widgets:
                 self.kpi_widgets['total_sources']['value'].config(text=str(total_sources))

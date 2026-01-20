@@ -21,8 +21,8 @@ except Exception:  # pragma: no cover - optional runtime dependency
     requests = None
 
 # Support contact information
-SUPPORT_EMAIL = "support@water-balance.com"
-SUPPORT_PHONE = "+27 123 456 7890"
+SUPPORT_EMAIL = "caliphs@transafreso.com"
+SUPPORT_PHONE = "+27 82 355 8130"
 
 
 class LicenseClient:
@@ -92,17 +92,21 @@ class LicenseClient:
         """Validate license row against Google Sheet.
 
         Returns a dict with keys: valid, status, expiry_date, message, transfer_count.
+        Raises exceptions for network errors so caller can handle grace period.
         """
         try:
             records = self._get_records()
         except Exception as exc:
             logger.error(f"Failed to fetch records: {exc}")
-            return {"valid": False, "status": "error", "message": str(exc)}
+            # Re-raise network errors so LicenseManager can apply grace period
+            raise
 
         for row in records:
             if str(row.get("license_key", "")).strip() != str(license_key).strip():
                 continue
             
+            logger.debug(f"License row matched: {row}")
+
             status = str(row.get("status", "")).lower() or "pending"
             if status == "revoked":
                 return {
@@ -114,7 +118,7 @@ class LicenseClient:
                 return {
                     "valid": False,
                     "status": status,
-                    "message": f"License expired. Renew at {SUPPORT_EMAIL}."
+                    "message": f"License expired. Renew at {SUPPORT_EMAIL} or {SUPPORT_PHONE}."
                 }
 
             # Optionally enforce hardware match on server by storing hashed components
@@ -146,26 +150,39 @@ class LicenseClient:
 
             expiry_value = row.get("expiry_date")
             expiry_str = str(expiry_value).strip() if expiry_value else ""
-            expiry_date = None
+            parsed_expiry = None
             if expiry_str:
                 try:
-                    expiry_date = dt.datetime.strptime(expiry_str, "%Y-%m-%d").date()
+                    parsed_expiry = dt.datetime.strptime(expiry_str, "%Y-%m-%d").date()
                 except Exception:
-                    pass
-            
-            if expiry_date and expiry_date < dt.date.today():
+                    # Keep raw string if parsing fails (still show to user)
+                    parsed_expiry = None
+
+            if parsed_expiry and parsed_expiry < dt.date.today():
                 return {
                     "valid": False,
                     "status": "expired",
-                    "message": f"License expired on {expiry_date.isoformat()}. Renew at {SUPPORT_EMAIL}."
+                    "message": f"License expired on {parsed_expiry.isoformat()}. Renew at {SUPPORT_EMAIL} or {SUPPORT_PHONE}."
                 }
 
+            # Include hardware binding info for strict-mode checks upstream
             return {
                 "valid": True,
                 "status": status,
-                "expiry_date": expiry_date.isoformat() if expiry_date else None,
+                "expiry_date": parsed_expiry.isoformat() if parsed_expiry else (expiry_str or None),
+                "expiry_raw": expiry_str or None,
                 "message": "License validated",
                 "transfer_count": row.get("transfer_count"),
+                "has_hw_binding": has_hw_binding,
+                "hardware_components_json": (
+                    {
+                        "mac": str(row.get("hw_component_1", "")) or None,
+                        "cpu": str(row.get("hw_component_2", "")) or None,
+                        "board": str(row.get("hw_component_3", "")) or None,
+                    }
+                    if has_hw_binding
+                    else None
+                ),
             }
 
         return {"valid": False, "status": "not_found", "message": "License key not found"}

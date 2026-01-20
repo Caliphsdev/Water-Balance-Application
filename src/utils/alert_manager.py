@@ -351,7 +351,13 @@ class AlertManager:
         """
         # Get all active alerts with auto_resolve enabled
         active_alerts = self.db.execute_query("""
-            SELECT a.*, r.auto_resolve, r.metric_name, r.condition_operator, r.threshold_value
+            SELECT 
+                a.*, 
+                r.rule_code, r.rule_name, r.rule_category,
+                r.metric_name, r.condition_operator, r.threshold_value, r.threshold_unit,
+                r.severity, r.alert_title, r.alert_message,
+                r.show_popup, r.send_email, r.email_recipients,
+                r.auto_resolve, r.active, r.priority, r.description
             FROM alerts a
             JOIN alert_rules r ON a.rule_id = r.rule_id
             WHERE a.status = 'active' AND r.auto_resolve = 1

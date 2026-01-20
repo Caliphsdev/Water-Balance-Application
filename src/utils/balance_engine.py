@@ -94,14 +94,19 @@ class BalanceEngine:
         outflows = self.outflows_service.get_outflows(calculation_date, flags)
         storage = self.storage_service.get_storage(calculation_date, flags)
 
-        # Total inflows = Fresh + Dirty (RWD, underground dewatering)
-        total_inflows = fresh_in.total + dirty.total
+        # Closure uses FRESH inflows only (recycled/dirty water excluded from mass balance)
+        # Scientific principle: Fresh IN = Outflows + ΔStorage + Error
+        # Recycled water is accounted for in storage change (returns to TSF)
+        fresh_inflows_only = fresh_in.total  # Excludes RWD and dirty sources
         
         error_m3, error_pct = BalanceCalculator.compute_closure(
-            total_inflows,
+            fresh_inflows_only,  # Use FRESH only, not total
             outflows.total,
             storage.delta,
         )
+        
+        # Total inflows = Fresh + Dirty (used for KPI reporting only, not for closure)
+        total_inflows = fresh_in.total + dirty.total
 
         kpis = None
         if self.mode == "OPERATIONS":

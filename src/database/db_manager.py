@@ -4,12 +4,14 @@ Handles all database operations with connection pooling and error handling
 """
 
 import sqlite3
+import warnings
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 from datetime import datetime, date
 import json
 import sys
 import time
+import shutil
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from utils.config_manager import config
@@ -22,6 +24,8 @@ class DatabaseManager:
     _constants_checked = False
     # Class-level flag for one-time unused constants cleanup
     _unused_cleanup_done = False
+    # One-time sqlite adapter initialization
+    _sqlite_adapters_initialized = False
     
     def __init__(self, db_path: str = None):
         """Initialize database manager
@@ -32,18 +36,27 @@ class DatabaseManager:
         4) Fallback to project `<repo>/data/water_balance.db`
         """
         if db_path is None:
-            # Project base directory
+            # Project base directory (may point to Program Files when frozen)
             base_dir = Path(__file__).parent.parent.parent
 
-            # Config-provided path takes precedence when present
+            # If launcher set a user data directory, prefer it for any relative path
+            import os
+            user_dir = os.environ.get('WATERBALANCE_USER_DIR')
+
             cfg_path = config.get('database.path', None)
 
             if cfg_path:
-                db_path = base_dir / cfg_path if not Path(cfg_path).is_absolute() else Path(cfg_path)
+                cfg_path = Path(cfg_path)
+                if cfg_path.is_absolute():
+                    db_path = cfg_path
+                else:
+                    # Relative path → place under user data dir when available, otherwise under base_dir
+                    if user_dir:
+                        db_path = Path(user_dir) / cfg_path
+                    else:
+                        db_path = base_dir / cfg_path
             else:
-                # If launcher set a user data directory, prefer it for DB location
-                import os
-                user_dir = os.environ.get('WATERBALANCE_USER_DIR')
+                # No configured path: default to user data dir if available
                 if user_dir:
                     db_path = Path(user_dir) / 'data' / 'water_balance.db'
                 else:
@@ -62,8 +75,31 @@ class DatabaseManager:
         # Ensure database exists
         if not self.db_path.exists():
             from database.schema import DatabaseSchema
-            schema = DatabaseSchema(str(self.db_path))
-            schema.create_database()
+            from utils.app_logger import logger
+            
+            # Create the directory if it doesn't exist
+            self.db_path.parent.mkdir(parents=True, exist_ok=True)
+            
+            # Try to seed from bundled database (in PyInstaller _internal folder or dev repo)
+            bundled_db = Path(__file__).parent.parent.parent / '_internal' / 'data' / 'water_balance.db'
+            if not bundled_db.exists():
+                # Dev fallback
+                bundled_db = Path(__file__).parent.parent.parent / 'data' / 'water_balance.db'
+            
+            if bundled_db.exists() and bundled_db != self.db_path:
+                try:
+                    # Copy bundled database (has all the water sources and reference data)
+                    shutil.copy2(bundled_db, self.db_path)
+                    logger.info(f"Database seeded from bundled copy: {bundled_db}")
+                except Exception as e:
+                    logger.warning(f"Failed to seed database from {bundled_db}, creating empty schema: {e}")
+                    # Fall back to creating empty database
+                    schema = DatabaseSchema(str(self.db_path))
+                    schema.create_database()
+            else:
+                # No bundled database, create fresh schema
+                schema = DatabaseSchema(str(self.db_path))
+                schema.create_database()
         
         # Log resolved DB path (DEBUG level - not shown on console)
         try:
@@ -76,19 +112,27 @@ class DatabaseManager:
         self._ensure_extended_calculation_columns()
         # Ensure storage facilities table has newer columns (evap_active, is_lined)
         self._ensure_storage_facility_columns()
-        # Ensure new environmental constants (only check once per process)
-        if not DatabaseManager._constants_checked:
-            try:
-                self._ensure_all_constants()
-                DatabaseManager._constants_checked = True
-            except Exception:
-                pass  # Non-critical
+        # Ensure required system constants exist (idempotent)
+        try:
+            self._ensure_all_constants()
+            DatabaseManager._constants_checked = True
+        except Exception:
+            pass  # Non-critical
         # Auto-remove constants not used by the latest calculation engine (once per process)
         if not DatabaseManager._unused_cleanup_done:
             try:
                 self._auto_remove_constants_not_used_in_calculator()
                 DatabaseManager._unused_cleanup_done = True
             except Exception:
+                pass
+
+        # One-time sqlite adapter registration to silence default adapter warnings
+        if not DatabaseManager._sqlite_adapters_initialized:
+            try:
+                self._initialize_sqlite_adapters()
+                DatabaseManager._sqlite_adapters_initialized = True
+            except Exception:
+                # Non-critical; continue without custom adapters
                 pass
     
     def get_connection(self) -> sqlite3.Connection:
@@ -97,6 +141,31 @@ class DatabaseManager:
         conn.row_factory = sqlite3.Row  # Allow dict-like access
         conn.execute("PRAGMA foreign_keys = ON")
         return conn
+
+    @staticmethod
+    def _initialize_sqlite_adapters() -> None:
+        """Register adapters to avoid deprecated default date/datetime handling."""
+        # Serialize date/datetime to ISO strings explicitly (TEXT columns)
+        sqlite3.register_adapter(date, lambda d: d.isoformat())
+        sqlite3.register_adapter(datetime, lambda dt: dt.isoformat())
+
+        # Converters optional; keep behavior consistent if enabled via detect_types
+        sqlite3.register_converter("DATE", lambda s: date.fromisoformat(s.decode()))
+        sqlite3.register_converter("TIMESTAMP", lambda s: datetime.fromisoformat(s.decode()))
+
+        # Silence the deprecation warnings proactively
+        warnings.filterwarnings(
+            "ignore",
+            message="The default date adapter is deprecated",
+            category=DeprecationWarning,
+            module="sqlite3",
+        )
+        warnings.filterwarnings(
+            "ignore",
+            message="The default datetime adapter is deprecated",
+            category=DeprecationWarning,
+            module="sqlite3",
+        )
     
     def execute_query(self, query: str, params: tuple = None) -> List[Dict]:
         """Execute SELECT query and return results as list of dicts"""
@@ -1085,6 +1154,68 @@ class DatabaseManager:
         notes = f"Set via dashboard by {user}"
         return self.execute_update(query, (month, zone, year, evaporation_mm, notes))
 
+    def delete_facility_inflow(self, facility_id: int, month: int, year: int = None) -> int:
+        """Delete facility inflow entry for a month"""
+        if year is None:
+            query = "DELETE FROM facility_inflow_monthly WHERE facility_id = ? AND month = ? AND year IS NULL"
+            return self.execute_update(query, (facility_id, month))
+        else:
+            query = "DELETE FROM facility_inflow_monthly WHERE facility_id = ? AND month = ? AND year = ?"
+            return self.execute_update(query, (facility_id, month, year))
+
+    def delete_facility_outflow(self, facility_id: int, month: int, year: int = None) -> int:
+        """Delete facility outflow entry for a month"""
+        if year is None:
+            query = "DELETE FROM facility_outflow_monthly WHERE facility_id = ? AND month = ? AND year IS NULL"
+            return self.execute_update(query, (facility_id, month))
+        else:
+            query = "DELETE FROM facility_outflow_monthly WHERE facility_id = ? AND month = ? AND year = ?"
+            return self.execute_update(query, (facility_id, month, year))
+
+    def delete_facility_abstraction(self, facility_id: int, month: int, year: int = None) -> int:
+        """Delete facility abstraction entry for a month"""
+        if year is None:
+            query = "DELETE FROM facility_abstraction_monthly WHERE facility_id = ? AND month = ? AND year IS NULL"
+            return self.execute_update(query, (facility_id, month))
+        else:
+            query = "DELETE FROM facility_abstraction_monthly WHERE facility_id = ? AND month = ? AND year = ?"
+            return self.execute_update(query, (facility_id, month, year))
+
+    def list_facility_flows(self, facility_id: int = None, month: int = None, year: int = None) -> List[Dict]:
+        """List facility flows with optional filtering by facility/month/year"""
+        query = """
+            SELECT 
+                f.facility_id, f.facility_code, f.facility_name,
+                COALESCE(i.month, o.month) as month,
+                COALESCE(i.year, o.year) as year,
+                COALESCE(i.inflow_m3, 0) as inflow_m3,
+                COALESCE(o.outflow_m3, 0) as outflow_m3,
+                (COALESCE(i.inflow_m3, 0) - COALESCE(o.outflow_m3, 0)) as net_flow_m3
+            FROM storage_facilities f
+            LEFT JOIN facility_inflow_monthly i ON f.facility_id = i.facility_id
+            LEFT JOIN facility_outflow_monthly o ON f.facility_id = o.facility_id
+            WHERE 1=1
+        """
+        params = []
+        
+        if facility_id:
+            query += " AND f.facility_id = ?"
+            params.append(facility_id)
+        if month:
+            query += " AND COALESCE(i.month, o.month) = ?"
+            params.append(month)
+        if year:
+            query += " AND COALESCE(i.year, o.year) = ?"
+            params.append(year)
+        
+        query += " ORDER BY f.facility_code, COALESCE(i.month, o.month)"
+        
+        try:
+            return self.execute_query(query, tuple(params) if params else ())
+        except Exception as e:
+            logger.error(f"Error listing facility flows: {e}")
+            return []
+
     def auto_generate_facility_flows_from_balance(self, facility_id: int, calculation_date, closing_volume: float, 
                                                    opening_volume: float, rainfall_volume: float, 
                                                    evaporation_volume: float, seepage_volume: float) -> Dict[str, float]:
@@ -1273,7 +1404,7 @@ class DatabaseManager:
             conn.close()
 
     def _ensure_all_constants(self):
-        """Batch-check and create missing constants (called once per process)"""
+        """Ensure required system constants exist (idempotent)."""
         # Get all existing constant keys in one query
         existing_keys = set()
         try:
@@ -1284,14 +1415,22 @@ class DatabaseManager:
         
         # Define all required constants
         required_constants = [
-            ('EVAP_PAN_COEFF', 0.70, 'factor', 'Evaporation', 
-             'Pan coefficient to scale monthly S-pan evaporation to site conditions', 1, 0.3, 1.2),
-            ('ore_moisture_percent', 3.4, 'percent', 'Plant', 
-             'Average moisture percent of ore feed (used to derive water inflow from wet ore)', 1, 1.0, 8.0),
-            ('ore_density', 2.7, 't/m³', 'Plant', 
+            # Core calculation constants used by the app (kept stable across builds)
+            ('tailings_moisture_pct', 20.0, '%', 'Optimization',
+             'Tailings retained moisture percent used in retention loss', 1, 0.0, 100.0),
+            ('dust_suppression_rate', 0.2, 'm³/t', 'Plant',
+             'Dust suppression water requirement per tonne of ore processed', 1, 0.01, 0.50),
+            ('ore_density', 2.7, 't/m³', 'Plant',
              'Bulk density of run-of-mine ore used for moisture volume conversion', 1, 2.4, 3.2),
-            ('dust_suppression_rate', 0.02, 'm³/t', 'Plant', 
-             'Dust suppression water requirement per tonne of ore processed', 1, 0.01, 0.05),
+            ('ore_moisture_percent', 5.0, 'percent', 'Plant',
+             'Average moisture percent of ore feed (used to derive water inflow from wet ore)', 1, 1.0, 8.0),
+            ('lined_seepage_rate_pct', 0.1, '%', 'Seepage',
+             'Monthly seepage loss rate for lined facilities', 1, 0.0, 1.0),
+            ('unlined_seepage_rate_pct', 0.5, '%', 'Seepage',
+             'Monthly seepage loss rate for unlined facilities', 1, 0.0, 2.0),
+            # Legacy constant retained for backwards compatibility; may be unused
+            ('EVAP_PAN_COEFF', 0.70, 'factor', 'Evaporation',
+             'Pan coefficient to scale monthly S-pan evaporation to site conditions', 1, 0.3, 1.2),
         ]
         
         # Insert only missing constants
@@ -1344,7 +1483,22 @@ class DatabaseManager:
                 continue
 
         # Build removal list: zero usage in calculator, and not Optimization category
-        removable = [k for k in keys if usage.get(k, 0) == 0 and categories.get(k, '').lower() != 'optimization']
+        # Protect required categories and specific keys from deletion
+        protected_cats = {'optimization', 'plant', 'seepage'}
+        protected_keys = {
+            'tailings_moisture_pct',
+            'dust_suppression_rate',
+            'ore_density',
+            'ore_moisture_percent',
+            'lined_seepage_rate_pct',
+            'unlined_seepage_rate_pct',
+        }
+        removable = [
+            k for k in keys
+            if (usage.get(k, 0) == 0)
+            and (categories.get(k, '').lower() not in protected_cats)
+            and (k not in protected_keys)
+        ]
         if not removable:
             return 0
 

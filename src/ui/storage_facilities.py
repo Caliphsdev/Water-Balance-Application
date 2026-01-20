@@ -30,6 +30,7 @@ class StorageFacilitiesModule:
         self.facility_types = []
         self.filtered_facilities = []
         self.tree = None
+        self.volume_source_text = "Current volume from database"
         
         # Search/filter variables - pass master widget to avoid 'too early to create variable' error
         self.search_var = tk.StringVar(master=self.parent)
@@ -481,25 +482,15 @@ class StorageFacilitiesModule:
         self.info_label.pack(side='left', padx=20, fill='x', expand=True)
         
     def _get_latest_year_month(self):
-        """Get the latest year/month present in both Excel files."""
+        """Get the latest year/month present in Meter Readings Excel."""
         try:
             from utils.excel_timeseries import get_default_excel_repo
-            from utils.excel_timeseries_extended import get_extended_excel_repo
             repo1 = get_default_excel_repo()
-            repo2 = get_extended_excel_repo()
             latest1 = repo1.get_latest_date()
-            repo2._load()
-            latest2 = None
-            if repo2._storage_df is not None and not repo2._storage_df.empty:
-                valid_dates = repo2._storage_df['Date'].dropna()
-                if not valid_dates.empty:
-                    latest2 = valid_dates.max().date()
-            # Use the latest of both
-            candidates = [d for d in [latest1, latest2] if d]
-            if not candidates:
+            # Extended Excel sheets removed (Excel now contains only Flow Diagram data)
+            if latest1 is None:
                 return None, None
-            latest = max(candidates)
-            return latest.year, latest.month
+            return latest1.year, latest1.month
         except Exception:
             return None, None
 
@@ -512,11 +503,10 @@ class StorageFacilitiesModule:
             return self._excel_cache
         
         try:
-            from utils.excel_timeseries_extended import get_extended_excel_repo
-            repo = get_extended_excel_repo()
-            repo._load()
-            df = repo._storage_df
-            if df is None or df.empty:
+            # Extended Excel sheets removed (Excel now contains only Flow Diagram data)
+            # Return empty cache as extended storage data no longer available
+            if True:  # Bypass extended Excel code
+                return {}
                 return {}
             mask = (df['Date'].dt.year == year) & (df['Date'].dt.month == month)
             month_df = df[mask]
@@ -555,17 +545,57 @@ class StorageFacilitiesModule:
             # Load facilities (all, including inactive) - force cache bypass for fresh data
             self.facilities = self.db.get_storage_facilities(active_only=False, use_cache=False)
             
-            # Find latest year/month in both Excel files
+            # Determine the freshest calc date already persisted
+            calc_dates = []
+            for facility in self.facilities:
+                raw_date = facility.get('volume_calc_date')
+                parsed_date = None
+                if isinstance(raw_date, datetime):
+                    parsed_date = raw_date.date()
+                elif isinstance(raw_date, date):
+                    parsed_date = raw_date
+                elif isinstance(raw_date, str):
+                    try:
+                        parsed_date = datetime.fromisoformat(raw_date).date()
+                    except ValueError:
+                        parsed_date = None
+                if parsed_date:
+                    calc_dates.append(parsed_date)
+
+            latest_calc_date = max(calc_dates) if calc_dates else None
+
+            # Find latest year/month in both Excel files for gap-fill
+            year = month = None
+            monthly_data = {}
             year, month = self._get_latest_year_month()
             if year and month:
-                # Aggregate all rows for each facility in that month
                 monthly_data = self._aggregate_monthly_storage(year, month)
-                # Update facilities with aggregated Excel data
+
+            # Fill only facilities without a persisted calc-date volume
+            if monthly_data:
                 for facility in self.facilities:
+                    if facility.get('volume_calc_date'):
+                        continue
                     code = facility['facility_code']
                     if code in monthly_data:
-                        # Use aggregated inflow/outflow for display
-                        facility['current_volume'] = monthly_data[code]['inflow'] - monthly_data[code]['outflow']
+                        facility['current_volume'] = (
+                            monthly_data[code]['inflow'] - monthly_data[code]['outflow']
+                        )
+
+            # Record source for footer messaging
+            if latest_calc_date and monthly_data:
+                self.volume_source_text = (
+                    f"Calc volumes ({latest_calc_date:%Y-%m-%d}); "
+                    f"gaps filled with Excel {year}-{month:02d}"
+                )
+            elif latest_calc_date:
+                self.volume_source_text = f"Calc volumes ({latest_calc_date:%Y-%m-%d})"
+            elif monthly_data and year and month:
+                self.volume_source_text = (
+                    f"Excel volumes {year}-{month:02d} (inflow - outflow)"
+                )
+            else:
+                self.volume_source_text = "Volumes from database (no calc date or Excel data)"
             
             self.filtered_facilities = self.facilities.copy()
             
@@ -680,8 +710,11 @@ class StorageFacilitiesModule:
         active = sum(1 for f in self.filtered_facilities if f['active'])
         
         self.info_label.config(
-            text=f"Showing {filtered} of {total} facilities  •  {active} active  •  "
-                 f"Updated {datetime.now().strftime('%Y-%m-%d %H:%M')}"
+            text=(
+                f"Showing {filtered} of {total} facilities  •  {active} active  •  "
+                f"{self.volume_source_text}  •  "
+                f"Updated {datetime.now().strftime('%Y-%m-%d %H:%M')}"
+            )
         )
         
     def _show_add_dialog(self):
@@ -803,6 +836,8 @@ class FacilityDialog:
         self.type_var = tk.StringVar(value=facility['type_name'] if facility else '')
         self.capacity_var = tk.StringVar(value=str(facility['total_capacity']) if facility and facility['total_capacity'] else '')
         self.current_volume_var = tk.StringVar(value=str(facility['current_volume']) if facility and facility['current_volume'] else '0')
+        # Track if volume was set by calculation (read-only if true)
+        self.volume_calc_date = facility.get('volume_calc_date') if facility else None
         self.surface_area_var = tk.StringVar(value=str(facility['surface_area']) if facility and facility['surface_area'] else '')
         self.pump_start_var = tk.StringVar(value=str(facility['pump_start_level']) if facility and facility['pump_start_level'] else '70')
         self.pump_stop_var = tk.StringVar(value=str(facility['pump_stop_level']) if facility and facility['pump_stop_level'] else '20')
@@ -898,6 +933,29 @@ class FacilityDialog:
             ("Current Volume (m³)", self.current_volume_var, "Current water volume"),
             ("Surface Area (m²)", self.surface_area_var, "Surface area for evaporation calculations"),
         ]
+        
+        # Warning if volume was set by calculation (editable but with notice)
+        if self.volume_calc_date and self.mode == 'edit':
+            warning_frame = tk.Frame(container, bg='#FFF3CD', relief='solid', borderwidth=1)
+            warning_frame.pack(fill='x', pady=(0, 10))
+            warning_icon = tk.Label(
+                warning_frame,
+                text="⚠️",
+                font=('Segoe UI', 12),
+                bg='#FFF3CD',
+                fg='#856404'
+            )
+            warning_icon.pack(side='left', padx=(10, 5), pady=8)
+            warning_text = tk.Label(
+                warning_frame,
+                text=f"Current Volume was set by calculation on {self.volume_calc_date}. Manual edits will break the monthly volume chain and require recalculation of subsequent months.",
+                font=config.get_font('body_small'),
+                bg='#FFF3CD',
+                fg='#856404',
+                wraplength=700,
+                justify='left'
+            )
+            warning_text.pack(side='left', padx=(0, 10), pady=8)
         
         for label_text, var, placeholder in capacity_fields:
             self._create_field(container, label_text, var, placeholder)
@@ -1305,6 +1363,34 @@ class FacilityDialog:
         
     def _save(self):
         """Validate and save the storage facility"""
+        # Check if user is changing a calculated volume
+        if self.volume_calc_date and self.mode == 'edit':
+            original_volume = float(self.facility['current_volume']) if self.facility.get('current_volume') else 0
+            try:
+                new_volume = float(self.current_volume_var.get().strip()) if self.current_volume_var.get().strip() else 0
+            except ValueError:
+                new_volume = 0
+            
+            # If volume changed, show confirmation
+            if abs(original_volume - new_volume) > 0.01:  # Allow for floating point tolerance
+                from tkinter import messagebox
+                result = messagebox.askyesno(
+                    "Confirm Manual Override",
+                    f"This facility's current volume was set by calculation on {self.volume_calc_date}.\\n\\n"
+                    f"Changing from {original_volume:,.0f} m\u00b3 to {new_volume:,.0f} m\u00b3 will:\\n"
+                    f"  \u2022 Break the monthly volume chain\\n"
+                    f"  \u2022 Require recalculation of all subsequent months\\n"
+                    f"  \u2022 Clear the calculation date\\n\\n"
+                    f"Are you sure you want to manually override this calculated value?",
+                    icon='warning'
+                )
+                if not result:
+                    return  # User cancelled
+                
+                # Clear the calculation date since user is manually overriding
+                # This will allow future calculations to use this manual value
+                # Note: We'll set volume_calc_date=None in the update
+        
         # Validate required fields
         if not self.facility_code_var.get().strip():
             messagebox.showerror("Validation Error", "Facility Code is required")
@@ -1386,6 +1472,12 @@ class FacilityDialog:
             'evap_active': 1 if self.evap_active_var.get() else 0,
             'is_lined': 1 if self.is_lined_var.get() else 0
         }
+        
+        # If user manually changed a calculated volume, clear the calc date
+        if self.volume_calc_date and self.mode == 'edit':
+            original_volume = float(self.facility['current_volume']) if self.facility.get('current_volume') else 0
+            if abs(original_volume - current_volume) > 0.01:
+                data['volume_calc_date'] = None  # Clear calculation date on manual override
         
         # Collect connections in priority order
         connections = []

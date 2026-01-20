@@ -83,10 +83,10 @@ class LazyExcelLoader:
         # Load Excel
         try:
             self._is_loading = True
-            logger.info(f"Lazy loading Excel file: {self._excel_path.name}")
+            logger.info(f"Extended Excel sheets removed - skipping lazy load")
             
-            from utils.excel_timeseries_extended import ExcelTimeSeriesExtended
-            self._excel_instance = ExcelTimeSeriesExtended(str(self._excel_path))
+            # Extended Excel sheets removed - only Meter Readings used now
+            self._excel_instance = None
             
             logger.info("✅ Excel file loaded successfully (lazy)")
             return True

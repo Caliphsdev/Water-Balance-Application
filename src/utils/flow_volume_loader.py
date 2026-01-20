@@ -1,8 +1,15 @@
-"""
-On-demand Excel-based flow volume loader for flow diagram segments.
+r"""
+Flow Volume Loader - Flow Diagram Excel Data
 
-Reads monthly flow volumes directly from Excel without database storage.
-Each flow segment is registered in Excel and volumes are fetched on-demand.
+This module handles the FLOW DIAGRAM Excel file (timeseries_excel_path).
+File: test_templates\Water_Balance_TimeSeries_Template.xlsx
+Sheets: "Flows_UG2 North", "Flows_Merensky Plant", "Flows_Old TSF", etc.
+Contains: Flow volumes for the flow diagram visualization
+
+IMPORTANT: This is NOT the Meter Readings Excel file!
+- Meter Readings Excel (legacy_excel_path) has "Meter Readings" sheet
+- That file is handled by excel_timeseries.py
+- This file handles flow volumes for the Flow Diagram dashboard
 """
 
 import sys
@@ -15,7 +22,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import pandas as pd
 from utils.app_logger import logger
-from utils.config_manager import config
+from utils.config_manager import config, get_resource_path
 
 # Suppress openpyxl warnings about print areas and defined names
 warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')
@@ -46,6 +53,8 @@ class FlowVolumeLoader:
         """
         # Use provided path or fallback to config
         self._df_cache: Dict[str, pd.DataFrame] = {}  # Cache for each sheet
+        self._workbook_cache = None  # Performance: cache workbook object
+        self._last_modified = None  # Track file changes
         self.excel_path = self._resolve_excel_path(excel_path)
 
     def _resolve_excel_path(self, override_path: Optional[Path]) -> Path:
@@ -70,7 +79,8 @@ class FlowVolumeLoader:
         if cfg_path.is_absolute():
             return cfg_path
 
-        base_dir = Path(__file__).resolve().parents[2]
+        # Use get_resource_path() to work in both dev and bundled EXE modes
+        base_dir = get_resource_path('')
         return base_dir / cfg_path
     
     def _get_sheet_name(self, area_code: str) -> str:
@@ -91,6 +101,27 @@ class FlowVolumeLoader:
         return self.AREA_CODE_TO_SHEET.get(area_code, f'Flows_{area_code}')
     
     def _load_sheet(self, sheet_name: str) -> pd.DataFrame:
+        """
+        Load a specific sheet from Excel with caching and modification time check.
+        
+        Args:
+            sheet_name: Name of Excel sheet to load
+        
+        Returns:
+            DataFrame with flow data
+        """
+        # Performance: check if file was modified and invalidate cache
+        if self.excel_path.exists():
+            current_mtime = self.excel_path.stat().st_mtime
+            if self._last_modified and current_mtime != self._last_modified:
+                # File changed - clear cache
+                self._df_cache.clear()
+                self._workbook_cache = None
+            self._last_modified = current_mtime
+        
+        # Return cached if available
+        if sheet_name in self._df_cache:
+            return self._df_cache[sheet_name]
         """Load a sheet from Excel with caching and resilient header detection."""
         # Refresh path from config so Settings changes are picked up without restart
         new_path = self._resolve_excel_path(None)

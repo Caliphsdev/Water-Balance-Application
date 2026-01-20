@@ -6,7 +6,6 @@ Uses template data without writing to database except constants when missing
 from dataclasses import dataclass, field
 from typing import Dict, Optional
 from utils.template_data_parser import get_template_parser
-from utils.area_exclusion_manager import get_area_exclusion_manager
 from utils.app_logger import logger
 
 
@@ -98,7 +97,6 @@ class BalanceCheckEngine:
     
     def __init__(self):
         self.parser = get_template_parser()
-        self.exclusion_manager = get_area_exclusion_manager()
         self.metrics: Optional[OverallBalanceMetrics] = None
     
     def calculate_balance(self) -> OverallBalanceMetrics:
@@ -108,8 +106,6 @@ class BalanceCheckEngine:
         - INFLOW_CODES_TEMPLATE.txt
         - OUTFLOW_CODES_TEMPLATE_CORRECTED.txt
         - DAM_RECIRCULATION_TEMPLATE.txt
-        
-        Respects area exclusions only (no flow filtering)
         
         Returns:
             OverallBalanceMetrics object with all calculations
@@ -125,34 +121,23 @@ class BalanceCheckEngine:
         """
         metrics = OverallBalanceMetrics()
         
-        # Get included areas (respecting exclusions)
         all_areas = self.parser.get_areas()
-        included_areas = self.exclusion_manager.get_included_areas(all_areas)
-        excluded_areas = self.exclusion_manager.get_excluded_areas()
-        
-        # Calculate totals (only for included areas - ALL flows)
+
         for entry in self.parser.inflows:
-            if entry.area not in excluded_areas:
-                metrics.total_inflows += entry.value_m3
-        
+            metrics.total_inflows += entry.value_m3
+
         for entry in self.parser.outflows:
-            if entry.area not in excluded_areas:
-                metrics.total_outflows += entry.value_m3
-        
+            metrics.total_outflows += entry.value_m3
+
         for entry in self.parser.recirculation:
-            if entry.area not in excluded_areas:
-                metrics.total_recirculation += entry.value_m3
-        
-        # Count entries for included areas only
+            metrics.total_recirculation += entry.value_m3
+
         for entry in self.parser.inflows:
-            if entry.area not in excluded_areas:
-                metrics.inflow_count += 1
+            metrics.inflow_count += 1
         for entry in self.parser.outflows:
-            if entry.area not in excluded_areas:
-                metrics.outflow_count += 1
+            metrics.outflow_count += 1
         for entry in self.parser.recirculation:
-            if entry.area not in excluded_areas:
-                metrics.recirculation_count += 1
+            metrics.recirculation_count += 1
         
         # Calculate per-area metrics (for ALL areas)
         for area in sorted(all_areas):
@@ -173,18 +158,14 @@ class BalanceCheckEngine:
             metrics.area_metrics[area] = area_metrics
         
         self.metrics = metrics
-        self._log_balance_summary(metrics, excluded_areas)
+        self._log_balance_summary(metrics)
         return metrics
     
-    def _log_balance_summary(self, metrics: OverallBalanceMetrics, excluded_areas: list = None):
+    def _log_balance_summary(self, metrics: OverallBalanceMetrics):
         """Log balance check summary"""
-        if excluded_areas is None:
-            excluded_areas = []
         
         logger.info("=" * 70)
         logger.info("WATER BALANCE CHECK SUMMARY")
-        if excluded_areas:
-            logger.info(f"(Excluded areas: {', '.join(excluded_areas)})")
         logger.info("=" * 70)
         logger.info(f"Total Inflows: {metrics.total_inflows:>20,.0f} m³ ({metrics.inflow_count} sources)")
         logger.info(f"Total Outflows: {metrics.total_outflows:>19,.0f} m³ ({metrics.outflow_count} flows)")
@@ -214,28 +195,6 @@ class BalanceCheckEngine:
         else:
             return f"{value:.0f}"
     
-    def get_excluded_areas(self) -> list:
-        """Get list of currently excluded areas"""
-        return self.exclusion_manager.get_excluded_areas()
-    
-    def get_included_areas(self) -> list:
-        """Get list of currently included areas"""
-        return self.exclusion_manager.get_included_areas(self.parser.get_areas())
-    
-    def exclude_area(self, area: str):
-        """Exclude an area from future calculations"""
-        self.exclusion_manager.exclude_area(area)
-        logger.info(f"Area {area} excluded - recalculate for new results")
-    
-    def include_area(self, area: str):
-        """Re-include an area in calculations"""
-        self.exclusion_manager.include_area(area)
-        logger.info(f"Area {area} re-included - recalculate for new results")
-    
-    def is_area_excluded(self, area: str) -> bool:
-        """Check if area is excluded"""
-        return self.exclusion_manager.is_excluded(area)
-
 
 # Singleton instance
 _engine_instance = None

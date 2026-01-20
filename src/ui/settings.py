@@ -9,7 +9,7 @@ from datetime import datetime
 
 from database.db_manager import DatabaseManager
 from utils.backup_manager import BackupManager
-from utils.config_manager import config
+from utils.config_manager import config, get_resource_path
 from utils.alert_manager import alert_manager
 from utils.app_logger import logger
 from ui.mouse_wheel_support import (
@@ -38,6 +38,23 @@ class SettingsModule:
 
     def _build_ui(self):
         """Build modern settings interface"""
+        try:
+            self._build_ui_safe()
+        except Exception as e:
+            # Show error instead of blank screen
+            import traceback
+            error_msg = f"Settings failed to load:\n{str(e)}\n\nTraceback:\n{traceback.format_exc()}"
+            tk.Label(self.container, text="⚠️ Settings Error", font=('Segoe UI', 16, 'bold'), 
+                    fg='#cc3333', bg='#f5f6f7').pack(pady=20)
+            error_text = tk.Text(self.container, height=20, width=80, wrap='word', bg='white', 
+                                font=('Consolas', 9))
+            error_text.pack(padx=20, pady=10, fill='both', expand=True)
+            error_text.insert('1.0', error_msg)
+            error_text.config(state='disabled')
+            messagebox.showerror('Settings Error', f'Failed to load Settings:\n\n{str(e)[:200]}')
+    
+    def _build_ui_safe(self):
+        """Build modern settings interface (wrapped by error handler)"""
         # Header with icon and description
         header = tk.Frame(self.container, bg='white', relief=tk.FLAT, bd=0)
         header.pack(fill='x', padx=0, pady=(0, 0))
@@ -89,28 +106,62 @@ class SettingsModule:
         self.notebook.pack(fill='both', expand=True)
         
         # Create tab frames
-        self.branding_frame = ttk.Frame(self.notebook)
+        # Branding removed: fixed TRP branding (no user uploads)
         self.constants_frame = ttk.Frame(self.notebook)
         self.environmental_frame = ttk.Frame(self.notebook)
         self.data_sources_frame = ttk.Frame(self.notebook)
         self.backup_frame = ttk.Frame(self.notebook)
         
         # Add tabs with icons
-        self.notebook.add(self.branding_frame, text='  🎨 Branding  ')
         self.notebook.add(self.constants_frame, text='  📊 Constants  ')
         self.notebook.add(self.environmental_frame, text='  🌦️ Environmental  ')
         self.notebook.add(self.data_sources_frame, text='  📂 Data Sources  ')
         self.notebook.add(self.backup_frame, text='  💾 Backup  ')
         
-        # Build each tab
-        self._build_branding_tab()
-        self._build_constants_tab()
-        self._build_environmental_tab()
-        self._build_data_sources_tab()
-        self._build_backup_tab()
+        # Build each tab with error handling
+        try:
+            self._build_constants_tab()
+        except Exception as e:
+            self._show_tab_error(self.constants_frame, 'Constants', e)
+        
+        try:
+            self._build_environmental_tab()
+        except Exception as e:
+            self._show_tab_error(self.environmental_frame, 'Environmental', e)
+        
+        try:
+            self._build_data_sources_tab()
+        except Exception as e:
+            self._show_tab_error(self.data_sources_frame, 'Data Sources', e)
+        
+        try:
+            self._build_backup_tab()
+        except Exception as e:
+            self._show_tab_error(self.backup_frame, 'Backup', e)
         
 
 
+    def _show_tab_error(self, parent_frame, tab_name, exception):
+        """Display error message in a tab that failed to load"""
+        import traceback
+        error_frame = tk.Frame(parent_frame, bg='#f5f6f7')
+        error_frame.pack(fill='both', expand=True, padx=40, pady=40)
+        
+        tk.Label(error_frame, text=f"⚠️ {tab_name} Tab Error", 
+                font=('Segoe UI', 14, 'bold'), fg='#cc3333', bg='#f5f6f7').pack(pady=(0, 10))
+        
+        tk.Label(error_frame, text=str(exception), 
+                font=('Segoe UI', 10), fg='#2c3e50', bg='#f5f6f7', wraplength=600).pack(pady=10)
+        
+        details_text = tk.Text(error_frame, height=15, width=80, wrap='word', bg='white', 
+                              font=('Consolas', 8), relief=tk.FLAT, bd=1)
+        details_text.pack(fill='both', expand=True, pady=10)
+        details_text.insert('1.0', traceback.format_exc())
+        details_text.config(state='disabled')
+        
+        tk.Label(error_frame, text="💡 Copy this error and share it for troubleshooting", 
+                font=('Segoe UI', 9, 'italic'), fg='#7f8c8d', bg='#f5f6f7').pack(pady=(10, 0))
+    
     def _build_branding_tab(self):
         """Build branding configuration with modern card layout"""
         # Create scrollable content area
@@ -348,7 +399,7 @@ class SettingsModule:
         category_combo = ttk.Combobox(
             filter_inner,
             textvariable=self.category_filter,
-            values=['All', 'Plant', 'Evaporation', 'Operating', 'Optimization', 'calculation'],
+            values=['All', 'Plant', 'Seepage', 'Evaporation', 'Operating', 'Optimization', 'calculation'],
             state='readonly',
             width=15
         )
@@ -1199,120 +1250,132 @@ class SettingsModule:
         tk.Label(info_inner, text='Configure paths to Excel files used by the application',
                  font=('Segoe UI', 10), fg='#7f8c8d', bg='#e8eef5').pack(anchor='w', pady=(5, 10))
 
-        tk.Label(info_inner, text='💡 If you move Excel files to a different location, update the paths here.',
+        tk.Label(info_inner, text='� HOW IT WORKS:', font=('Segoe UI', 9, 'bold'), fg='#2c3e50', bg='#e8eef5').pack(anchor='w', pady=(5, 3))
+        tk.Label(info_inner, text='1. Application Inputs Excel is PRIMARY - loads flow volumes for calculations',
+                 font=('Segoe UI', 9), fg='#7f8c8d', bg='#e8eef5').pack(anchor='w', pady=1)
+        tk.Label(info_inner, text='2. TRP Water Balance Excel is OPTIONAL - only used for historical analysis',
+                 font=('Segoe UI', 9), fg='#7f8c8d', bg='#e8eef5').pack(anchor='w', pady=1)
+        tk.Label(info_inner, text='3. If Application Inputs file is missing, app will not function',
+                 font=('Segoe UI', 9), fg='#7f8c8d', bg='#e8eef5').pack(anchor='w', pady=(1, 10))
+
+        tk.Label(info_inner, text='💡 If you move Excel files, update the paths here and restart the app.',
                  font=('Segoe UI', 9), fg='#0066cc', bg='#e8eef5').pack(anchor='w')
 
-        # Legacy Excel file
-        legacy_card = tk.Frame(container, bg='#e8eef5', relief=tk.FLAT, bd=1, highlightbackground='#c5d3e6', highlightthickness=1)
-        legacy_card.pack(fill='x', pady=(0, 20))
+        # Template Excel file (MOVE THIS FIRST - IT'S PRIMARY)
+        template_card = tk.Frame(container, bg='#d4edda', relief=tk.FLAT, bd=2, highlightbackground='#28a745', highlightthickness=2)
+        template_card.pack(fill='x', pady=(0, 20))
 
-        legacy_inner = tk.Frame(legacy_card, bg='#e8eef5')
-        legacy_inner.pack(fill='x', padx=20, pady=16)
-
-        tk.Label(legacy_inner, text='📊 TRP Water Balance Excel', font=('Segoe UI', 12, 'bold'), bg='#e8eef5', fg='#2c3e50').pack(anchor='w')
-        tk.Label(legacy_inner, text='TRP historical water balance data (optional)',
-                 font=('Segoe UI', 10), bg='#e8eef5', fg='#7f8c8d').pack(anchor='w', pady=(3, 0))
-        tk.Label(legacy_inner, text='Used for historical analysis and legacy charts. App works without this file.',
-                 font=('Segoe UI', 9), fg='#7f8c8d', bg='#e8eef5').pack(anchor='w', pady=(2, 10))
-
-        legacy_path_frame = tk.Frame(legacy_inner, bg='#e8eef5')
-        legacy_path_frame.pack(fill='x', pady=(0, 10))
-
-        tk.Label(legacy_path_frame, text='Current Path:', font=('Segoe UI', 9), bg='#e8eef5', fg='#2c3e50').pack(side='left')
-
-        legacy_path = config.get('data_sources.legacy_excel_path', 'data/New Water Balance  20250930 Oct.xlsx')
-        self.legacy_path_label = tk.Label(legacy_path_frame, text=legacy_path,
-                                          fg='#0066cc', bg='#e8eef5', font=('Segoe UI', 9, 'italic'))
-        self.legacy_path_label.pack(side='left', padx=(5, 10))
-
-        # Status indicator
-        base_dir = Path(__file__).parent.parent.parent
-        legacy_full = base_dir / legacy_path if not Path(legacy_path).is_absolute() else Path(legacy_path)
-        status_text = '✓ Found' if legacy_full.exists() else '❌ Missing'
-        status_color = '#28a745' if legacy_full.exists() else '#dc3545'
-        self.legacy_status_label = tk.Label(legacy_path_frame, text=status_text,
-                                            fg=status_color, bg='#e8eef5', font=('Segoe UI', 9, 'bold'))
-        self.legacy_status_label.pack(side='left')
-
-        legacy_btn_frame = tk.Frame(legacy_inner, bg='#e8eef5')
-        legacy_btn_frame.pack(fill='x', pady=(10, 0))
-
-        tk.Button(legacy_btn_frame, text='📁 Browse...', command=self._select_legacy_excel,
-                  bg='#0066cc', fg='white', font=('Segoe UI', 9), relief=tk.FLAT, padx=10, pady=6, cursor='hand2',
-                  activebackground='#0052a3', activeforeground='white').pack(side='left', padx=(0, 10))
-        tk.Button(legacy_btn_frame, text='🔄 Reset to Default', command=self._reset_legacy_path,
-                  bg='#0066cc', fg='white', font=('Segoe UI', 9), relief=tk.FLAT, padx=10, pady=6, cursor='hand2',
-                  activebackground='#0052a3', activeforeground='white').pack(side='left')
-
-        # Template Excel file
-        template_card = tk.Frame(container, bg='#e8eef5', relief=tk.FLAT, bd=1, highlightbackground='#c5d3e6', highlightthickness=1)
-        template_card.pack(fill='x', pady=(0, 15))
-
-        template_inner = tk.Frame(template_card, bg='#e8eef5')
+        template_inner = tk.Frame(template_card, bg='#d4edda')
         template_inner.pack(fill='x', padx=20, pady=16)
 
-        tk.Label(template_inner, text='📝 Application Inputs Excel', font=('Segoe UI', 12, 'bold'), bg='#e8eef5', fg='#2c3e50').pack(anchor='w')
-        tk.Label(template_inner, text='Primary data input file (required)',
-                 font=('Segoe UI', 10), fg='#7f8c8d', bg='#e8eef5').pack(anchor='w', pady=(3, 0))
-        tk.Label(template_inner, text='This file is monitored for changes and auto-reloaded. App requires this file to function.',
-                 font=('Segoe UI', 9), fg='#7f8c8d', bg='#e8eef5').pack(anchor='w', pady=(2, 10))
+        tk.Label(template_inner, text='🟢 REQUIRED #1: Flow Diagram Excel (Flows_* sheets)', font=('Segoe UI', 12, 'bold'), bg='#d4edda', fg='#155724').pack(anchor='w')
+        tk.Label(template_inner, text='Flow volumes for diagram visualization (REQUIRED)',
+                 font=('Segoe UI', 10), fg='#155724', bg='#d4edda').pack(anchor='w', pady=(3, 0))
+        tk.Label(template_inner, text='Must have sheets: Flows_UG2 North, Flows_Merensky Plant, etc. Monitored for live updates.',
+                 font=('Segoe UI', 9), fg='#155724', bg='#d4edda').pack(anchor='w', pady=(2, 10))
 
-        template_path_frame = tk.Frame(template_inner, bg='#e8eef5')
+        template_path_frame = tk.Frame(template_inner, bg='#d4edda')
         template_path_frame.pack(fill='x', pady=(0, 10))
 
-        tk.Label(template_path_frame, text='Current Path:', font=('Segoe UI', 9), bg='#e8eef5', fg='#2c3e50').pack(side='left')
+        tk.Label(template_path_frame, text='Current Path:', font=('Segoe UI', 9), bg='#d4edda', fg='#155724').pack(side='left')
 
         template_path = config.get('data_sources.template_excel_path', 'templates/Water_Balance_TimeSeries_Template.xlsx')
-        self.template_path_label = tk.Label(template_path_frame, text=template_path,
-                                            fg='#0066cc', bg='#e8eef5', font=('Segoe UI', 9, 'italic'))
+        self.template_path_label = tk.Label(template_path_frame, text=template_path or 'Not configured',
+                                            fg='#0066cc', bg='#d4edda', font=('Segoe UI', 9, 'italic'))
         self.template_path_label.pack(side='left', padx=(5, 10))
 
         # Status indicator
-        base_dir = Path(__file__).parent.parent.parent
-        template_full = base_dir / template_path if not Path(template_path).is_absolute() else Path(template_path)
-        status_text = '✓ Found' if template_full.exists() else '❌ Missing'
-        status_color = '#28a745' if template_full.exists() else '#dc3545'
+        base_dir = Path(get_resource_path(''))  # Use get_resource_path for PyInstaller compatibility
+        template_full = base_dir / template_path if template_path and not Path(template_path).is_absolute() else (Path(template_path) if template_path else None)
+        status_text = '✓ Found' if (template_full and template_full.exists()) else ('⚠ Not configured' if not template_full else '❌ Missing')
+        status_color = '#28a745' if (template_full and template_full.exists()) else ('#ffa500' if not template_full else '#dc3545')
         self.template_status_label = tk.Label(template_path_frame, text=status_text,
-                                              fg=status_color, bg='#e8eef5', font=('Segoe UI', 9, 'bold'))
+                                              fg=status_color, bg='#d4edda', font=('Segoe UI', 9, 'bold'))
         self.template_status_label.pack(side='left')
 
-        template_btn_frame = tk.Frame(template_inner, bg='#e8eef5')
+        template_btn_frame = tk.Frame(template_inner, bg='#d4edda')
         template_btn_frame.pack(fill='x', pady=(10, 0))
 
         tk.Button(template_btn_frame, text='📁 Browse...', command=self._select_template_excel,
-                  bg='#0066cc', fg='white', font=('Segoe UI', 9), relief=tk.FLAT, padx=10, pady=6, cursor='hand2',
-                  activebackground='#0052a3', activeforeground='white').pack(side='left', padx=(0, 10))
+                  bg='#28a745', fg='white', font=('Segoe UI', 9), relief=tk.FLAT, padx=10, pady=6, cursor='hand2',
+                  activebackground='#218838', activeforeground='white').pack(side='left', padx=(0, 10))
         tk.Button(template_btn_frame, text='🔄 Reset to Default', command=self._reset_template_path,
-                  bg='#0066cc', fg='white', font=('Segoe UI', 9), relief=tk.FLAT, padx=10, pady=6, cursor='hand2',
-                  activebackground='#0052a3', activeforeground='white').pack(side='left', padx=(0, 10))
+                  bg='#28a745', fg='white', font=('Segoe UI', 9), relief=tk.FLAT, padx=10, pady=6, cursor='hand2',
+                  activebackground='#218838', activeforeground='white').pack(side='left', padx=(0, 10))
         tk.Button(template_btn_frame, text='📂 Open Folder', command=self._open_template_folder,
-                  bg='#0066cc', fg='white', font=('Segoe UI', 9), relief=tk.FLAT, padx=10, pady=6, cursor='hand2',
-                  activebackground='#0052a3', activeforeground='white').pack(side='left')
+                  bg='#28a745', fg='white', font=('Segoe UI', 9), relief=tk.FLAT, padx=10, pady=6, cursor='hand2',
+                  activebackground='#218838', activeforeground='white').pack(side='left')
+
+        # Meter Readings Excel file
+        legacy_card = tk.Frame(container, bg='#d4edda', relief=tk.FLAT, bd=2, highlightbackground='#28a745', highlightthickness=2)
+        legacy_card.pack(fill='x', pady=(0, 20))
+
+        legacy_inner = tk.Frame(legacy_card, bg='#d4edda')
+        legacy_inner.pack(fill='x', padx=20, pady=16)
+
+        tk.Label(legacy_inner, text='🟢 REQUIRED #2: Meter Readings Excel (Calculations Data)', font=('Segoe UI', 12, 'bold'), bg='#d4edda', fg='#155724').pack(anchor='w')
+        tk.Label(legacy_inner, text='Tonnes milled, RWD, dewatering volumes for calculations (REQUIRED)',
+                 font=('Segoe UI', 10), bg='#d4edda', fg='#155724').pack(anchor='w', pady=(3, 0))
+        tk.Label(legacy_inner, text='Must have sheet: Meter Readings. Used by Calculations dashboard for water balance.',
+                 font=('Segoe UI', 9), fg='#155724', bg='#d4edda').pack(anchor='w', pady=(2, 10))
+
+        legacy_path_frame = tk.Frame(legacy_inner, bg='#d4edda')
+        legacy_path_frame.pack(fill='x', pady=(0, 10))
+
+        tk.Label(legacy_path_frame, text='Current Path:', font=('Segoe UI', 9), bg='#d4edda', fg='#155724').pack(side='left')
+
+        legacy_path = config.get('data_sources.legacy_excel_path', 'data/New Water Balance  20250930 Oct.xlsx')
+        self.legacy_path_label = tk.Label(legacy_path_frame, text=legacy_path or 'Not configured',
+                                          fg='#0066cc', bg='#d4edda', font=('Segoe UI', 9, 'italic'))
+        self.legacy_path_label.pack(side='left', padx=(5, 10))
+
+        # Status indicator
+        base_dir = Path(get_resource_path(''))
+        legacy_full = base_dir / legacy_path if legacy_path and not Path(legacy_path).is_absolute() else (Path(legacy_path) if legacy_path else None)
+        status_text = '✓ Found' if (legacy_full and legacy_full.exists()) else ('⚠ Not configured' if not legacy_full else '❌ Missing')
+        status_color = '#28a745' if (legacy_full and legacy_full.exists()) else ('#ffa500' if not legacy_full else '#dc3545')
+        self.legacy_status_label = tk.Label(legacy_path_frame, text=status_text,
+                                            fg=status_color, bg='#d4edda', font=('Segoe UI', 9, 'bold'))
+        self.legacy_status_label.pack(side='left')
+
+        legacy_btn_frame = tk.Frame(legacy_inner, bg='#d4edda')
+        legacy_btn_frame.pack(fill='x', pady=(10, 0))
+
+        tk.Button(legacy_btn_frame, text='📁 Browse...', command=self._select_legacy_excel,
+                  bg='#28a745', fg='white', font=('Segoe UI', 9), relief=tk.FLAT, padx=10, pady=6, cursor='hand2',
+                  activebackground='#218838', activeforeground='white').pack(side='left', padx=(0, 10))
+        tk.Button(legacy_btn_frame, text='🔄 Reset to Default', command=self._reset_legacy_path,
+                  bg='#28a745', fg='white', font=('Segoe UI', 9), relief=tk.FLAT, padx=10, pady=6, cursor='hand2',
+                  activebackground='#218838', activeforeground='white').pack(side='left')
 
         # Warning card
-        warning_card = tk.Frame(container, bg='#e8eef5', relief=tk.FLAT, bd=1, highlightbackground='#c5d3e6', highlightthickness=1)
-        warning_card.pack(fill='x')
+        warning_card = tk.Frame(container, bg='#e7f3ff', relief=tk.FLAT, bd=1, highlightbackground='#0066cc', highlightthickness=1)
+        warning_card.pack(fill='x', pady=(0, 20))
 
-        warning_inner = tk.Frame(warning_card, bg='#e8eef5')
+        warning_inner = tk.Frame(warning_card, bg='#e7f3ff')
         warning_inner.pack(fill='x', padx=20, pady=16)
 
-        tk.Label(warning_inner, text='⚠️ Important Notes', font=('Segoe UI', 12, 'bold'), bg='#e8eef5', fg='#2c3e50').pack(anchor='w', pady=(0, 10))
+        tk.Label(warning_inner, text='📋 Data Flow & Important Notes', font=('Segoe UI', 12, 'bold'), bg='#e7f3ff', fg='#004085').pack(anchor='w', pady=(0, 10))
 
-        warnings = [
-            "• Changes take effect immediately but require app restart for full reload",
-            "• Ensure Excel files exist at the specified paths",
-            "• Use absolute paths or paths relative to application root",
-            "• Backup your Excel files before making path changes",
-            "• Template file should be accessible for read/write operations"
+        notes = [
+            "🟢 BOTH FILES REQUIRED - App needs both Excel files to function fully",
+            "📊 Flow Diagram Excel → Flow volumes for diagram visualization",
+            "📈 Meter Readings Excel → Tonnes milled, RWD, dewatering for calculations",
+            "ℹ Flow Diagram Excel has sheets: Flows_UG2 North, Flows_Merensky Plant, etc.",
+            "ℹ Meter Readings Excel has sheet: Meter Readings",
+            "⚠ Changes to paths take effect after you restart the app",
+            "⚠ Ensure both file paths are correct before restarting",
+            "💡 Use file browser button to find and select Excel files on your computer"
         ]
 
-        for warning in warnings:
-            tk.Label(warning_inner, text=warning, font=('Segoe UI', 9), fg='#7f8c8d', bg='#e8eef5').pack(anchor='w', pady=2)
+        for note in notes:
+            color = '#155724' if note.startswith('✓') else ('#004085' if note.startswith('ℹ') else '#856404')
+            tk.Label(warning_inner, text=note, font=('Segoe UI', 9), fg=color, bg='#e7f3ff').pack(anchor='w', pady=2)
     
     def _select_legacy_excel(self):
         """Select legacy Excel file"""
         current_path = config.get('data_sources.legacy_excel_path', 'data/New Water Balance  20250930 Oct.xlsx')
-        initial_dir = Path(current_path).parent if Path(current_path).exists() else Path.cwd()
+        initial_dir = Path(current_path).parent if current_path and Path(current_path).exists() else Path.cwd()
         
         filename = filedialog.askopenfilename(
             title='Select TRP Water Balance Excel File',
@@ -1352,7 +1415,7 @@ class SettingsModule:
     def _select_template_excel(self):
         """Select template Excel file"""
         current_path = config.get('data_sources.template_excel_path', 'templates/Water_Balance_TimeSeries_Template.xlsx')
-        initial_dir = Path(current_path).parent if Path(current_path).exists() else Path.cwd()
+        initial_dir = Path(current_path).parent if current_path and Path(current_path).exists() else Path.cwd()
         
         filename = filedialog.askopenfilename(
             title='Select Application Inputs Excel File',
@@ -1456,21 +1519,10 @@ class SettingsModule:
         """Force reload Excel data after path change"""
         try:
             from utils.app_logger import logger
-            logger.info("🔄 Excel path changed - forcing data reload...")
+            logger.info("🔄 Excel path changed - extended sheets removed, only Meter Readings used...")
             
-            # Clear singleton instances to force reload
-            from utils.excel_timeseries_extended import ExcelTimeSeriesExtended
-            
-            # Reset singleton
-            if ExcelTimeSeriesExtended._instance is not None:
-                ExcelTimeSeriesExtended._instance._loaded = False
-                ExcelTimeSeriesExtended._instance._initialized = False
-                ExcelTimeSeriesExtended._instance = None
-                logger.info("✓ Excel singleton reset")
-            
-            # Recreate with new path
-            _ = ExcelTimeSeriesExtended()
-            logger.info("✓ Excel data reloaded from new path")
+            # Extended Excel sheets removed - no reload needed
+            logger.info("✓ Extended Excel sheets no longer exist")
             
             # Notify user
             from utils.ui_notify import notifier

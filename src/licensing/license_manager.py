@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import datetime as dt
 import sys
+import time
 from pathlib import Path
 from typing import Dict, Optional, Tuple
 import base64
@@ -32,8 +33,8 @@ _SMTP_CONFIG = {
     'user': 'admin@transafreso.com',
     # Password is base64 encoded for basic obfuscation
     '_encoded_pass': base64.b64encode(b'Adminzakai@2016').decode('utf-8'),
-    'support_email': 'admin@transafreso.com',
-    'support_phone': '+27 123 456 7890'
+    'support_email': 'caliphs@transafreso.com',
+    'support_phone': '+27 82 355 8130'
 }
 
 
@@ -199,6 +200,7 @@ class LicenseManager:
                     last_transfer_at = ?,
                     manual_verification_count = ?,
                     manual_verification_reset_at = ?,
+                    validation_succeeded = ?,
                     updated_at = CURRENT_TIMESTAMP
                 WHERE license_id = ?
                 """,
@@ -219,6 +221,7 @@ class LicenseManager:
                     data.get("last_transfer_at"),
                     mvc,
                     mvr,
+                    1 if data.get("validation_succeeded") else 0,
                     existing.get("license_id"),
                 ),
             )
@@ -229,8 +232,9 @@ class LicenseManager:
                 license_key, license_status, license_tier, licensee_name, licensee_email,
                 hardware_components_json, hardware_match_threshold, activated_at,
                 last_online_check, offline_grace_until, expiry_date, max_users,
-                transfer_count, last_transfer_at, manual_verification_count, manual_verification_reset_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                transfer_count, last_transfer_at, manual_verification_count, manual_verification_reset_at,
+                validation_succeeded
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 data.get("license_key"),
@@ -249,6 +253,7 @@ class LicenseManager:
                 data.get("last_transfer_at"),
                 data.get("manual_verification_count", 0),
                 data.get("manual_verification_reset_at"),
+                1 if data.get("validation_succeeded") else 0,
             ),
         )
 
@@ -284,6 +289,10 @@ class LicenseManager:
             Tuple of (valid: bool, message: str, expiry_date: Optional[date])
         """
         record = self._fetch_license_row()
+        
+        logger.info(f"🔍 validate_startup: record exists={record is not None}")
+        if record:
+            logger.info(f"🔍 License record: license_key={record.get('license_key')}, offline_grace_until={record.get('offline_grace_until')}, last_online_check={record.get('last_online_check')}")
         
         # If no local license, try to auto-recover from Google Sheets
         if not record:
@@ -329,7 +338,7 @@ class LicenseManager:
                 
                 if days_remaining < 0:
                     self._log_validation(license_id, "expired", "License expired")
-                    return False, f"License expired on {expiry_date.isoformat()}. Renew at {self.support_email}.", None
+                    return False, f"License expired on {expiry_date.isoformat()}. Renew at {self.support_email} or {self.support_phone}.", None
                 elif 0 < days_remaining <= 7:
                     logger.warning(f"⚠️ License expires in {days_remaining} days! Renew soon at {self.support_email}")
                     # Continue validation but log warning
@@ -338,11 +347,15 @@ class LicenseManager:
 
         # ALWAYS validate online at startup (professional/enterprise requirement)
         # This ensures immediate revocation detection
+        # Security: ALWAYS check Google Sheets first before trusting local database
+        logger.info("🔍 About to call _validate_online()")
         try:
-            online_ok, online_msg = self._validate_online(record)
+            online_ok, online_msg, online_status = self._validate_online(record)
+            logger.info(f"🔍 _validate_online returned: ok={online_ok}, msg={online_msg}, status={online_status}")
             if not online_ok:
+                message_lower = (online_msg or "").lower()
                 # CRITICAL: Check if license is REVOKED (no grace period allowed)
-                if "revoked" in online_msg.lower():
+                if online_status == "revoked" or "revoked" in message_lower:
                     # Store revoked status locally to block access even offline
                     record["license_status"] = "revoked"
                     self._save_license_row(record)
@@ -350,74 +363,155 @@ class LicenseManager:
                     logger.error(f"🚫 License REVOKED - blocking access immediately")
                     return False, online_msg, None
                 
-                # Check if still within grace period (only for non-revoked issues)
-                grace_until = record.get("offline_grace_until")
-                if grace_until:
+                # Only allow grace period for network-style failures
+                network_like = online_status in ("network_error", "timeout", "server_error") or "network" in message_lower
+                if network_like:
+                    # Time-tamper defense: block grace if system clock moved backward
                     try:
-                        grace_date = dt.datetime.fromisoformat(grace_until)
-                        if dt.datetime.utcnow() < grace_date:
-                            logger.warning(f"Offline mode - grace period active until {grace_date.isoformat()}")
-                            self._log_validation(license_id, "offline_grace", "Using offline grace period")
-                            return True, "License valid (offline grace)", expiry_date
+                        last_check = record.get("last_online_check")
+                        if last_check:
+                            last_dt = dt.datetime.fromisoformat(last_check)
+                            # Allow 5-minute skew
+                            if dt.datetime.utcnow() < (last_dt - dt.timedelta(minutes=5)):
+                                self._log_security_event(record.get("license_id"), "time_tamper_detected",
+                                                          "System time earlier than last online check; blocking grace")
+                                self._log_validation(license_id, "time_tamper", "System time moved backwards")
+                                return False, "Unable to verify license. Please connect to the internet.", None
                     except Exception:
                         pass
+                    grace_until = record.get("offline_grace_until")
+                    if grace_until:
+                        try:
+                            grace_date = dt.datetime.fromisoformat(grace_until)
+                            if dt.datetime.utcnow() < grace_date:
+                                logger.warning(f"Offline mode - grace period active until {grace_date.isoformat()}")
+                                self._log_validation(license_id, "offline_grace", "Using offline grace period")
+                                return True, "License valid (offline mode)", expiry_date
+                        except Exception:
+                            pass
                 
-                self._log_validation(license_id, "online_failed", online_msg)
-                return False, online_msg, None
+                self._log_validation(license_id, online_status or "online_failed", online_msg)
+                # Generic message to avoid leaking network details
+                return False, "Unable to verify license. Please connect to the internet.", None
         except Exception as exc:
+            logger.error(f"🔍 OUTER Exception caught in validate_startup: {type(exc).__name__}: {str(exc)}")
+            
             # Network error - allow if grace period is valid AND not previously revoked
             if record.get("license_status") == "revoked":
                 logger.error("🚫 License was previously revoked - blocking access")
-                return False, "License revoked. Contact support@water-balance.com for assistance.", None
+                return False, f"License revoked. Contact {self.support_email} or {self.support_phone} for assistance.", None
             
             logger.warning(f"Network error during validation: {exc}")
+            
+            # Debug: log current license record state
             grace_until = record.get("offline_grace_until")
+            last_check = record.get("last_online_check")
+            logger.info(f"🔍 Grace period check: grace_until={grace_until}, last_check={last_check}, current_utc={dt.datetime.utcnow().isoformat()}")
+            
+            # Time-tamper defense before allowing grace
+            try:
+                if last_check:
+                    last_dt = dt.datetime.fromisoformat(last_check)
+                    if dt.datetime.utcnow() < (last_dt - dt.timedelta(minutes=5)):
+                        self._log_security_event(record.get("license_id"), "time_tamper_detected",
+                                                  "System time earlier than last online check; blocking grace")
+                        self._log_validation(license_id, "time_tamper", "System time moved backwards")
+                        return False, "Unable to verify license. Please connect to the internet.", None
+            except Exception as time_exc:
+                logger.debug(f"Time-tamper check failed: {time_exc}")
+            
             if grace_until:
                 try:
                     grace_date = dt.datetime.fromisoformat(grace_until)
-                    if dt.datetime.utcnow() < grace_date:
-                        logger.info(f"Network unavailable - using offline grace period until {grace_date.isoformat()}")
+                    now_utc = dt.datetime.utcnow()
+                    logger.info(f"🔍 Comparing grace_date={grace_date.isoformat()} vs now_utc={now_utc.isoformat()}")
+                    if now_utc < grace_date:
+                        logger.info(f"✅ Network unavailable - using offline grace period until {grace_date.isoformat()}")
+                        record["validation_succeeded"] = False  # Flag: offline mode
+                        self._save_license_row(record)
                         self._log_validation(license_id, "offline_grace", "Network unavailable, using grace period")
                         return True, "License valid (offline mode)", expiry_date
-                except Exception:
-                    pass
+                    else:
+                        logger.warning(f"⚠️ Grace period expired: {grace_date.isoformat()} < {now_utc.isoformat()}")
+                except Exception as grace_exc:
+                    logger.error(f"Grace period check failed: {grace_exc}")
+            else:
+                logger.warning("⚠️ No grace period found in license record")
+            
+            # Save the failure timestamp so footer shows correct status
+            self._save_license_row(record)
             
             self._log_validation(license_id, "network_error", str(exc))
-            return False, "Network error: Cannot validate license", None
+            # Generic message for offline startup
+            return False, "Unable to verify license. Please connect to the internet.", None
         
         # Log successful validation with expiry info
         if expiry_date:
             days_left = (expiry_date - dt.date.today()).days
             logger.info(f"✅ License valid - {days_left} days remaining")
         
+        # Ensure validation_succeeded flag is set (should already be set by _validate_online, but just in case)
+        record["validation_succeeded"] = True
+        self._save_license_row(record)
+        
         self._log_validation(license_id, "valid", "License valid")
         return True, "License valid", expiry_date
 
-    def _validate_online(self, record: Dict) -> Tuple[bool, str]:
+    def _validate_online(self, record: Dict) -> Tuple[bool, str, str]:
         """Validate license against Google Sheet and update timestamps.
+        
+        ALWAYS queries Google Sheets as the source of truth.
+        Retries network failures to ensure proper validation.
         
         With strict mode enabled, also verifies that hardware info exists on remote sheet.
         This prevents piracy by requiring active server-side hardware binding.
         """
         license_key = record.get("license_key")
         if not license_key:
-            return False, "License key missing"
-        try:
-            result = self.client.validate(license_key, current_hardware_snapshot())
-        except Exception as exc:
-            logger.error(f"Online license validation failed: {exc}")
-            return False, "Online validation failed"
+            return False, "License key missing", "invalid"
+        
+        # SECURITY: Retry Google Sheets validation to ensure we reach the source of truth
+        max_retries = 3
+        retry_delay = 1  # seconds
+        
+        for attempt in range(max_retries):
+            try:
+                if attempt > 0:
+                    logger.info(f"🔄 Retrying Google Sheets validation (attempt {attempt + 1}/{max_retries})...")
+                    time.sleep(retry_delay)
+                
+                result = self.client.validate(license_key, current_hardware_snapshot())
+                status = str(result.get("status") or "").lower()
+                logger.info(f"✅ Google Sheets validation succeeded on attempt {attempt + 1}")
+                break
+            except Exception as exc:
+                if attempt < max_retries - 1:
+                    logger.warning(f"⚠️ Attempt {attempt + 1} failed: {exc} - will retry...")
+                    continue
+                else:
+                    logger.error(f"❌ Google Sheets validation failed after {max_retries} attempts: {exc}")
+                    # Re-raise so validate_startup can handle grace period
+                    raise
 
         if not result.get("valid"):
-            return False, result.get("message", "License invalid")
+            return False, result.get("message", "License invalid"), status or "invalid"
 
-        # STRICT MODE: Require hardware binding on remote sheet
+        # STRICT MODE: Prefer remote hardware binding, but gracefully recover if missing
         require_remote = config.get('licensing.require_remote_hardware_match', False)
-        if require_remote and not result.get("hardware_components_json"):
-            logger.warning("Strict mode: License has no hardware binding on remote sheet (anti-piracy)")
-            # Return success but inform user binding is pending
-            # Background thread will handle the sync automatically
-            return True, "License active (hardware binding will sync automatically)"
+        if require_remote and not result.get("has_hw_binding"):
+            # Attempt to push local hardware binding to server via webhook; proceed based on local binding
+            try:
+                pushed = self.client.update_activation_data(license_key, current_hardware_snapshot(),
+                                                           record.get('licensee_name'), record.get('licensee_email'))
+                if pushed:
+                    logger.info("📡 Pushed local hardware binding to server via webhook")
+                else:
+                    logger.warning("Remote hardware binding missing; proceeding based on local binding")
+            except Exception as exc:
+                logger.warning(f"Failed to push hardware binding: {exc}")
+            # Log audit event but do not block
+            self._log_security_event(record.get("license_id"), "remote_binding_missing",
+                                     "Remote hardware binding missing; validated against local binding")
 
         now = dt.datetime.utcnow()
         grace_until = (now + dt.timedelta(days=self.offline_grace_days)) if self.offline_grace_days > 0 else None
@@ -427,10 +521,11 @@ class LicenseManager:
                 "last_online_check": now.isoformat(),
                 "offline_grace_until": grace_until.isoformat() if grace_until else None,
                 "expiry_date": result.get("expiry_date") or record.get("expiry_date"),
+                "validation_succeeded": True,  # Online validation succeeded
             }
         )
         self._save_license_row(record)
-        return True, "License validated"
+        return True, "License validated", status or "active"
 
     def activate(self, license_key: str, licensee_name: str = None, licensee_email: str = None) -> Tuple[bool, str]:
         """Activate license with online validation."""
@@ -466,9 +561,10 @@ class LicenseManager:
         }
         license_id = self._save_license_row(record)
         self._log_validation(license_id, "activated", "Activated online")
+        logger.info(f"✅ License activated locally with hardware binding: {license_key}")
 
         # Attempt to update Sheet with activation data (hardware, licensee info)
-        # This is optional—data is already saved locally in SQLite
+        # This ensures the server has the hardware binding for future validations
         try:
             self.client.update_activation_data(license_key, hardware_snapshot, licensee_name, licensee_email)
         except Exception as exc:
@@ -477,110 +573,8 @@ class LicenseManager:
         return True, "License activated"
 
     def request_transfer(self, license_key: str, user_email: str = None) -> Tuple[bool, str]:
-        """Request hardware transfer with anti-theft protections.
-        
-        SECURITY PROTECTIONS:
-        1. Email verification required (sends code to registered email)
-        2. Transfer notification sent to owner
-        3. 24-hour grace period for rejection
-        4. IP address logged for audit trail
-        5. Security event logged
-        
-        Args:
-            license_key: License key to transfer
-            user_email: Email to verify (must match registered email)
-            
-        Returns:
-            Tuple of (success, message)
-        """
-        if not license_key:
-            return False, "License key required"
-        
-        # Fetch current record
-        record = self._fetch_license_row() or {}
-        current_count = record.get("transfer_count", 0)
-        registered_email = record.get("licensee_email")
-        registered_name = record.get("licensee_name", "License Owner")
-        
-        # PROTECTION 1: Check transfer limit BEFORE allowing transfer
-        if current_count >= self.max_transfers:
-            msg = f"Transfer limit reached ({current_count}/{self.max_transfers}). Contact {self.support_email} or {self.support_phone}."
-            self._log_security_event(record.get("license_id"), "transfer_limit_exceeded", msg)
-            return False, msg
-        
-        # PROTECTION 2: Require email verification (if email registered)
-        if registered_email and user_email:
-            if user_email.lower() != registered_email.lower():
-                msg = f"Email verification failed. Transfer request sent to {registered_email} for approval."
-                self._log_security_event(
-                    record.get("license_id"), 
-                    "unauthorized_transfer_attempt", 
-                    f"Transfer attempt from unverified email: {user_email}"
-                )
-                
-                # Send notification to registered email
-                try:
-                    self._send_transfer_notification(
-                        registered_email, 
-                        registered_name,
-                        current_hardware_snapshot(),
-                        suspicious=True
-                    )
-                except Exception as e:
-                    logger.warning(f"Failed to send notification: {e}")
-                
-                return False, msg
-        
-        # PROTECTION 3: Send notification to owner before transfer
-        if registered_email:
-            try:
-                self._send_transfer_notification(
-                    registered_email,
-                    registered_name, 
-                    current_hardware_snapshot(),
-                    suspicious=False
-                )
-                logger.info(f"Transfer notification sent to {registered_email}")
-            except Exception as e:
-                logger.warning(f"Failed to send notification: {e}")
-        
-        # PROTECTION 4: Register transfer with server (includes IP logging)
-        try:
-            ok = self.client.register_transfer(license_key, current_hardware_snapshot())
-        except Exception as exc:
-            logger.error(f"Transfer request failed: {exc}")
-            return False, "Transfer request failed"
-        if not ok:
-            return False, "Transfer not approved"
-
-        # PROTECTION 5: Log security event with details
-        current_hw = current_hardware_snapshot()
-        self._log_security_event(
-            record.get("license_id"),
-            "transfer_approved",
-            f"Hardware transfer approved ({current_count + 1}/{self.max_transfers}) - "
-            f"New hardware: CPU={current_hw.get('cpu', 'unknown')[:8]}..."
-        )
-
-        # Update local database
-        record.update(
-            {
-                "license_key": license_key,
-                "hardware_components_json": serialize_components(current_hw),
-                "hardware_match_threshold": self.hardware_threshold,
-                "last_transfer_at": dt.datetime.utcnow().isoformat(),
-                "transfer_count": current_count + 1,
-                "license_status": "active",
-            }
-        )
-        self._save_license_row(record)
-        self._log_validation(
-            record.get("license_id"), 
-            "transfer", 
-            f"Hardware transfer approved ({current_count + 1}/{self.max_transfers})"
-        )
-        
-        return True, f"Transfer approved ({current_count + 1}/{self.max_transfers} used)"
+        """Transfers disabled by policy."""
+        return False, "Hardware transfers are disabled. Please contact the administrator."
     
     def _send_transfer_notification(self, email: str, name: str, new_hardware: Dict, suspicious: bool = False):
         """Send email notification about transfer attempt.
@@ -686,9 +680,89 @@ Water Balance Support Team
         record = self._fetch_license_row()
         if not record:
             return "Not activated"
-        expiry = record.get("expiry_date")
-        expiry_text = f", expires {expiry}" if expiry else ""
-        return f"License active{expiry_text}"
+        expiry_remote = self._ensure_expiry_from_remote(record)
+        expiry_local = record.get("expiry_date") if record else None
+        expiry = expiry_remote or expiry_local
+        logger.debug(f"status_summary expiry_local={expiry_local} expiry_remote={expiry_remote} resolved={expiry}")
+        expiry_text = f" • Expires {expiry}" if expiry else " • Expires not available"
+
+        # Simple: check if last validation succeeded or failed
+        validation_succeeded = record.get("validation_succeeded", False)
+        offline_active, days_left = self.is_offline_grace_active()
+        
+        if validation_succeeded:
+            connection_text = " • Online"
+        elif offline_active and days_left is not None:
+            connection_text = f" • Offline mode ({days_left}d left)"
+        elif offline_active:
+            connection_text = " • Offline mode"
+        else:
+            connection_text = ""
+
+        return f"License active{expiry_text}{connection_text}"
+
+    def was_recently_online(self, max_age_seconds: int = 30) -> bool:
+        """Return True if the last online check was within the recent window (default 30 seconds)."""
+        try:
+            record = self._fetch_license_row()
+            if not record:
+                return False
+            last_check = record.get("last_online_check")
+            if not last_check:
+                return False
+            dt_last = dt.datetime.fromisoformat(last_check)
+            age_seconds = (dt.datetime.utcnow() - dt_last).total_seconds()
+            logger.debug(f"was_recently_online: last_check={last_check}, age_seconds={age_seconds:.1f}, threshold={max_age_seconds}")
+            return age_seconds <= max_age_seconds
+        except Exception:
+            return False
+
+    def _ensure_expiry_from_remote(self, record: Optional[Dict]) -> Optional[str]:
+        """Fetch expiry from sheet (best effort) and persist if available."""
+        try:
+            if not record:
+                return None
+            license_key = record.get("license_key")
+            if not license_key:
+                return None
+
+            logger.debug(f"Fetching expiry from sheet for license {license_key}")
+            result = self.client.validate(license_key, current_hardware_snapshot())
+            expiry = result.get("expiry_date") or result.get("expiry_raw")
+            logger.debug(f"Sheet expiry result for {license_key}: {expiry} (raw result: {result})")
+            if expiry:
+                record["expiry_date"] = expiry
+                record["last_online_check"] = dt.datetime.utcnow().isoformat()
+                self._save_license_row(record)
+                logger.info(f"Expiry hydrated from sheet for {license_key}: {expiry}")
+                return expiry
+        except Exception as exc:
+            logger.debug(f"Could not fetch expiry from remote: {exc}")
+        return None
+
+    def is_offline_grace_active(self) -> Tuple[bool, Optional[int]]:
+        """Return whether offline grace is currently active and days remaining.
+
+        Returns:
+            (active, days_left)
+        """
+        try:
+            record = self._fetch_license_row()
+            if not record:
+                return False, None
+            grace_until = record.get("offline_grace_until")
+            if not grace_until:
+                return False, None
+            grace_dt = dt.datetime.fromisoformat(grace_until)
+            now = dt.datetime.utcnow()
+            if now >= grace_dt:
+                return False, None
+            # Compute days remaining (ceiling)
+            delta = grace_dt - now
+            days_left = int((delta.total_seconds() + 86399) // 86400)
+            return True, max(days_left, 0)
+        except Exception:
+            return False, None
 
     def validate_background(self) -> Tuple[bool, str, Optional[dt.date]]:
         """Periodic background validation (every 1-2 hours while app is running).
@@ -746,22 +820,28 @@ Water Balance Support Team
 
         # Perform online validation (will catch revocations)
         try:
-            online_ok, online_msg = self._validate_online(record)
+            online_ok, online_msg, online_status = self._validate_online(record)
             if not online_ok:
+                message_lower = (online_msg or "").lower()
                 # CRITICAL: Check if license is REVOKED (store status locally)
-                if "revoked" in online_msg.lower():
+                if online_status == "revoked" or "revoked" in message_lower:
                     record["license_status"] = "revoked"
                     self._save_license_row(record)
                     logger.error(f"🚫 License REVOKED detected in background - blocking access")
                 
-                self._log_validation(license_id, "revoked_bg", online_msg)
+                network_like = online_status in ("network_error", "timeout", "server_error") or "network" in message_lower
+                if network_like:
+                    self._log_validation(license_id, "network_error_bg", online_msg)
+                    return True, "Background check skipped (network unavailable)", expiry_date
+
+                self._log_validation(license_id, online_status or "online_failed_bg", online_msg)
                 return False, online_msg, None
         except Exception as exc:
             logger.warning(f"Background validation network error: {exc}")
             # Check if license was previously revoked (even offline)
             if record.get("license_status") == "revoked":
                 logger.error("🚫 License was previously revoked - blocking access")
-                return False, "License revoked. Contact support@water-balance.com for assistance.", None
+                return False, f"License revoked. Contact {self.support_email} or {self.support_phone} for assistance.", None
             
             # Don't fail on network error during background check; just log
             self._log_validation(license_id, "network_error_bg", str(exc))

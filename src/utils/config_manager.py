@@ -1,12 +1,38 @@
-"""
+r"""
 Configuration Manager
 Loads and manages application configuration from YAML files
+
+KEY EXCEL DATA SOURCE PATHS (both REQUIRED):
+1. data_sources.legacy_excel_path → Meter Readings Excel
+   - File: data\New Water Balance  20250930 Oct.xlsx
+   - Sheet: "Meter Readings" 
+   - Used by: Calculations dashboard (excel_timeseries.py)
+   - Contains: Tonnes milled, RWD, dewatering volumes
+
+2. data_sources.timeseries_excel_path → Flow Diagram Excel
+   - File: test_templates\Water_Balance_TimeSeries_Template.xlsx
+   - Sheets: "Flows_UG2 North", "Flows_Merensky Plant", etc.
+   - Used by: Flow Diagram dashboard (flow_volume_loader.py)
+   - Contains: Flow volumes for diagram visualization
 """
 
 import yaml
 import os
+import sys
 from pathlib import Path
 from typing import Any, Dict
+
+
+def get_resource_path(relative_path: str) -> Path:
+    """Get absolute path to resource, works for dev and PyInstaller bundle"""
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = Path(sys._MEIPASS)
+    except Exception:
+        # Development mode - use project root
+        base_path = Path(__file__).parent.parent.parent
+    
+    return base_path / relative_path
 
 
 class ConfigManager:
@@ -25,19 +51,52 @@ class ConfigManager:
             self.load_config()
     
     def load_config(self, config_path: str = None):
-        """Load configuration from YAML file"""
+        """Load configuration from YAML file with EXE fallback copy.
+        - EXE mode: prefer `%LOCALAPPDATA%/WaterBalance/config/app_config.yaml`.
+          If missing, read packaged `_internal/config/app_config.yaml` and save a copy to user config.
+        - Dev mode: use project `config/app_config.yaml`.
+        """
+        base_dir = Path(__file__).parent.parent.parent
         if config_path is None:
-            # Check for user data directory (set by launcher for EXE)
             user_dir = os.environ.get('WATERBALANCE_USER_DIR')
-            
             if user_dir:
-                # EXE mode: use AppData/Local/WaterBalance/config
-                config_path = Path(user_dir) / "config" / "app_config.yaml"
+                # Target user config path
+                user_cfg = Path(user_dir) / "config" / "app_config.yaml"
+                packaged_cfg = None
+                # Compute packaged config path when running frozen
+                try:
+                    import sys as _sys
+                    if getattr(_sys, 'frozen', False):
+                        exe_base = Path(_sys.executable).parent
+                        # Support both legacy _internal/config and direct config folder
+                        candidates = [
+                            exe_base / "_internal" / "config" / "app_config.yaml",
+                            exe_base / "config" / "app_config.yaml",
+                        ]
+                        for cand in candidates:
+                            if cand.exists():
+                                packaged_cfg = cand
+                                break
+                except Exception:
+                    packaged_cfg = None
+                # Prefer user config; if missing, fallback to packaged and create user copy
+                if user_cfg.exists():
+                    config_path = user_cfg
+                elif packaged_cfg and packaged_cfg.exists():
+                    try:
+                        text = packaged_cfg.read_text(encoding='utf-8')
+                        # Ensure directory exists then write
+                        user_cfg.parent.mkdir(parents=True, exist_ok=True)
+                        user_cfg.write_text(text, encoding='utf-8')
+                        config_path = user_cfg
+                    except Exception:
+                        # Read-only fallback: use packaged directly
+                        config_path = packaged_cfg
+                else:
+                    config_path = user_cfg  # Will trigger default config creation path below
             else:
-                # Development mode: use project config
-                base_dir = Path(__file__).parent.parent.parent
+                # Dev mode
                 config_path = base_dir / "config" / "app_config.yaml"
-        
         try:
             with open(config_path, 'r') as f:
                 self._config = yaml.safe_load(f)
@@ -47,7 +106,6 @@ class ConfigManager:
         except yaml.YAMLError as e:
             print(f"Error parsing config file: {e}")
             self._config = self._get_default_config()
-        
         # Store config path for saving
         self._config_path = config_path
     
@@ -104,8 +162,9 @@ class ConfigManager:
         return self.get(f'colors.{color_name}', '#000000')
     
     def get_logo_path(self) -> str:
-        """Get current logo file path"""
-        return self.get('branding.logo_path', '')
+        """Return fixed bundled logo path (TRP)."""
+        path = get_resource_path('assets/icons/Company Logo.png')
+        return str(path) if path.exists() else ''
     
     def set_logo_path(self, path: str):
         """Set logo path and save to config"""
@@ -115,14 +174,18 @@ class ConfigManager:
         self._save_config()
     
     def get_company_name(self) -> str:
-        """Get company name for reports"""
-        return self.get('branding.company_name', 'Water Balance Management')
+        """Get company name for reports (fixed default)."""
+        return self.get('branding.company_name', 'TransAfrica Resources')
     
     def set_company_name(self, name: str):
         """Set company name"""
         if 'branding' not in self._config:
             self._config['branding'] = {}
         self._config['branding']['company_name'] = name
+        self._save_config()
+    
+    def save_config(self):
+        """Public method to save current config to file"""
         self._save_config()
     
     def _save_config(self):

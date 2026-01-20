@@ -10,8 +10,32 @@ from datetime import datetime
 import sys
 
 # Create logs directory
-LOGS_DIR = Path(__file__).parent.parent.parent / 'logs'
-LOGS_DIR.mkdir(exist_ok=True)
+def _resolve_logs_dir() -> Path:
+    """Resolve logs directory with safe, per-user defaults.
+    - In EXE mode (PyInstaller), prefer `%LOCALAPPDATA%/WaterBalance/logs`.
+      If `WATERBALANCE_USER_DIR` is set, use `<WATERBALANCE_USER_DIR>/logs`.
+    - In dev mode, use `<repo>/logs`.
+    """
+    import os
+    # If running as frozen EXE, avoid Program Files and use AppData
+    if getattr(sys, 'frozen', False):
+        env_dir = os.environ.get('WATERBALANCE_USER_DIR')
+        if env_dir:
+            return Path(env_dir) / 'logs'
+        local_appdata = os.getenv('LOCALAPPDATA')
+        if local_appdata:
+            return Path(local_appdata) / 'WaterBalance' / 'logs'
+        # Fallbacks
+        home = Path.home()
+        candidate = home / 'AppData' / 'Local' / 'WaterBalance' / 'logs'
+        if (home / 'AppData' / 'Local').exists():
+            return candidate
+        return home / '.waterbalance' / 'logs'
+    # Dev mode: repo logs
+    return Path(__file__).parent.parent.parent / 'logs'
+
+LOGS_DIR = _resolve_logs_dir()
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
 
 # Log file paths
 APP_LOG = LOGS_DIR / 'water_balance.log'

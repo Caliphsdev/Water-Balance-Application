@@ -1,63 +1,200 @@
 # Water Balance Application - AI Agent Instructions
 
-- **What this is**: Python/Tkinter desktop app for mine water balance across 8 areas. Core flows: templates → calculations → optional Excel overlays → SQLite persistence → interactive dashboards.
+## 🎯 What This Is
+Python/Tkinter desktop app for mine water balance across 8 areas. Core flow: read templates → calculate balances → load Excel overlays → persist to SQLite → render dashboards. Scientific basis: **Fresh Inflows = Outflows + ΔStorage + Error** (seepage captured in storage change).
 
-## Architecture Map
-- **Controllers**: [src/main.py](src/main.py) bootstraps `WaterBalanceApp` with fast-startup; [src/ui/main_window.py](src/ui/main_window.py) handles navigation.
-- **Calculations**: [src/utils/water_balance_calculator.py](src/utils/water_balance_calculator.py) heavy engine with caches (`_balance_cache`, `_kpi_cache`, `_misc_cache`). Balance check lives in [src/utils/balance_check_engine.py](src/utils/balance_check_engine.py) fed by [src/utils/template_data_parser.py](src/utils/template_data_parser.py).
-- **Data loading**: Excel on-demand via [src/utils/flow_volume_loader.py](src/utils/flow_volume_loader.py) (path priority: `data_sources.timeseries_excel_path` → `data_sources.template_excel_path` → fallback). JSON diagrams under `data/diagrams/<area>_flow_diagram.json` rendered by [src/ui/flow_diagram_dashboard.py](src/ui/flow_diagram_dashboard.py).
-- **Persistence**: SQLite handled by [src/database/db_manager.py](src/database/db_manager.py) and [src/database/schema.py](src/database/schema.py); auto-creates `data/water_balance.db` if missing.
-- **Entry variants**: Standard [src/main.py](src/main.py); fallback [src/main_launcher.py](src/main_launcher.py); experimental [src/main_optimized.py](src/main_optimized.py).
+## 🏗️ Architecture Map
 
-## Core Patterns
-- **Singletons everywhere**: Always use getters (`get_flow_volume_loader()`, `get_template_parser()`, `get_balance_check_engine()`, `db`, `config`, `logger`, `error_handler`). Never instantiate classes directly. If settings change a path, call the module `reset_*` (e.g., `reset_flow_volume_loader()`) then re-fetch.
-- **Config**: Centralized in [config/app_config.yaml](config/app_config.yaml). Update via `config.set(...)`, persist automatically, `config.load_config()` after external edits. Feature flags under `features.*` (notably `fast_startup`).
-- **Import shim**: Every module in `src/` prepends `Path(__file__).parent.parent` to `sys.path`—keep this in new files.
-- **Fast startup**: Background DB load via [src/utils/async_loader.py](src/utils/async_loader.py); UI must respect `app.db_loaded` before DB-dependent actions.
-- **Error/logging**: Use [src/utils/error_handler.py](src/utils/error_handler.py) (`error_handler.handle(...)` returns tech/user messages + severity). Log with [src/utils/app_logger.py](src/utils/app_logger.py); use `logger.performance()` for timing.
+**Data Flow Layers:**
+- **Input Templates** → [src/utils/template_data_parser.py](src/utils/template_data_parser.py) parses 3 immutable `.txt` files (inflow/outflow/recirculation codes)
+- **Calculations** → [src/utils/water_balance_calculator.py](src/utils/water_balance_calculator.py) (heavy engine, multi-level caches) + [src/utils/balance_check_engine.py](src/utils/balance_check_engine.py) (validation metrics)
+- **Excel Overlays** → [src/utils/flow_volume_loader.py](src/utils/flow_volume_loader.py) loads volumes on-demand (path priority: `timeseries_excel_path` > `template_excel_path` > fallback)
+- **Persistence** → [src/database/db_manager.py](src/database/db_manager.py) + [src/database/schema.py](src/database/schema.py) (SQLite, 11 tables, auto-init)
+- **UI Rendering** → [src/ui/calculations.py](src/ui/calculations.py) (balance tabs) + [src/ui/flow_diagram_dashboard.py](src/ui/flow_diagram_dashboard.py) (JSON diagrams at `data/diagrams/<area>_flow_diagram.json`)
 
-## Repository Hygiene
-- Prefer updating existing docs instead of creating new `.md` files; consolidate into existing guides (README, feature docs) when adding notes.
-- Avoid adding ad-hoc scripts; extend existing utilities in [scripts](scripts) or `src/` where they logically fit. Delete any temporary script once its purpose is served.
-- Keep root directory tidy—store new assets under existing folders (e.g., `docs/`, `scripts/`, `data/`).
-- When generating outputs for one-off analysis, write to temporary locations and remove after use to avoid clutter.
+**Key Components:**
+- **Bootstrap** [src/main.py](src/main.py) sets `WATERBALANCE_USER_DIR` env var (app-data path) before all imports; async DB load via [src/utils/async_loader.py](src/utils/async_loader.py)
+- **Navigation** [src/ui/main_window.py](src/ui/main_window.py)
+- **Config** [config/app_config.yaml](config/app_config.yaml) (centralized; YAML backed)
 
-## Environment
-- Use the existing virtualenv at [.venv](../.venv); run tools via `.venv\Scripts\python` and install via `.venv\Scripts\python -m pip install ...`. Do not create new environments.
+## 🔧 Core Patterns
 
-## Data Inputs & Flows
-- Templates (read-only): [INFLOW_CODES_TEMPLATE.txt](INFLOW_CODES_TEMPLATE.txt), [OUTFLOW_CODES_TEMPLATE_CORRECTED.txt](OUTFLOW_CODES_TEMPLATE_CORRECTED.txt), [DAM_RECIRCULATION_TEMPLATE.txt](DAM_RECIRCULATION_TEMPLATE.txt). Parsed once by `get_template_parser()`.
-- Excel overlays: `flow_volume_loader.get_flow_volumes_for_month(...)` resolves paths in priority order; call `clear_cache()` before reloads.
-- Diagrams: Flow diagram uses `excel_mapping` on edges (mapped vs unmapped). Waypoints and colors auto-detected (clean/waste/underground) in [src/ui/flow_diagram_dashboard.py](src/ui/flow_diagram_dashboard.py).
+**Singleton Mandate:** Never `MyClass()` directly. Always use module-level getters:
+- `get_template_parser()`, `get_flow_volume_loader()`, `get_balance_check_engine()`, `get_balance_engine()`
+- `db` (DatabaseManager), `config` (ConfigManager), `logger` (AppLogger), `error_handler` (ErrorHandler)
+- After config/path changes, call `reset_*()` (e.g., `reset_flow_volume_loader()`) then re-fetch to pick up new state.
 
-## Key Workflows
-- Run app: `python src/main.py` (honors fast startup). Alternate: `python src/main_launcher.py` or `python src/main_optimized.py`.
-- Tests: `pytest src/database/test_database.py` (schema/connectivity). DB init/reset: `python -c "from database.schema import DatabaseSchema; DatabaseSchema().create_database()"`.
-- Balance calc flow: in [src/ui/calculations.py](src/ui/calculations.py) `_calculate_balance()` invokes `WaterBalanceCalculator.calculate_water_balance()` + `BalanceCheckEngine.calculate_balance()`; tabs: Balance Summary, Area Breakdown, legacy Summary/Inflows/Outflows/Storage.
-- Flow diagram loading: in `_load_from_excel()` (dashboard) fetch fresh loader, `clear_cache()`, then redraw edges.
+**Caching Strategy:** Multi-tier with explicit invalidation:
+- `WaterBalanceCalculator._balance_cache`, `._kpi_cache`, `._misc_cache` (dict-keyed by date/area)
+- DB Manager has `use_cache=False` option; `invalidate_all_caches()` on schema edits
+- Call `.clear_cache()` on loaders before Excel reload
+- **Rationale:** Avoid re-parsing Excel/templates; speed up repeated calculations in same session
 
-## Performance & UX Notes
-- Reuse caches in calculator before hitting DB. Avoid blocking UI thread; offload heavy work or respect async loader.
-- Log timings for hot paths; keep template files immutable in code.
+**Config Pattern:** `config.set(key, value)` auto-persists to YAML. Feature flags: `config.get('features.fast_startup')`.
 
-## Common Pitfalls
-- Forgetting singleton reset after config/path changes → stale data (flows, Excel, config).
-- Bypassing `config` or `db` singletons → inconsistencies.
-- Omitting `sys.path.insert(...)` in new modules under `src/` → import failures.
-- Modifying template `.txt` files programmatically → user data loss.
-- Ignoring `db_loaded` during startup → UI errors.
+**Import Shim:** Every module in `src/` starts:
+```python
+sys.path.insert(0, str(Path(__file__).parent.parent))
+```
+Then imports from `utils`, `database`, `ui`, `models`. **Keep this in new files.**
 
-## Component Rename System
-When renaming a component (e.g., `offices` → `office_building`), use the automated system:
-1. Edit `component_rename_config.json` with old/new names and Excel columns
-2. Run: `python component_rename_manager.py --dry-run` (preview)
-3. Run: `python component_rename_manager.py` (apply)
-- **What updates**: JSON node IDs, edge references, mappings, Excel columns across all 8 flow sheets
-- **Docs**: [COMPONENT_RENAME_SYSTEM_INDEX.md](COMPONENT_RENAME_SYSTEM_INDEX.md) (start here); [COMPONENT_RENAME_QUICK_REFERENCE.md](COMPONENT_RENAME_QUICK_REFERENCE.md) (quick copy-paste).
-- **Key**: Always preview first with `--dry-run`; supports batch renames.
+**Fast Startup:** UI thread shows loading screen while [src/utils/async_loader.py](src/utils/async_loader.py) loads DB in background. UI checks `app.db_loaded` before DB-dependent actions.
 
-## Pointers for Deep Dives
-- Balance check docs: [BALANCE_CHECK_README.md](BALANCE_CHECK_README.md).
-- Flow diagram usage: [FLOW_DIAGRAM_GUIDE.md](FLOW_DIAGRAM_GUIDE.md).
-- Component rename system: [COMPONENT_RENAME_SYSTEM_INDEX.md](COMPONENT_RENAME_SYSTEM_INDEX.md).
-- Style/perf guides: [.github/instructions/python.instructions.md](../.github/instructions/python.instructions.md), [.github/instructions/performance-optimization.instructions.md](../.github/instructions/performance-optimization.instructions.md).
+**Error Handling:** `error_handler.handle(exception)` returns `(tech_msg, user_msg, severity)`. Log with `logger.performance(label)` for timings.
+
+## 📂 Data Inputs & Flows
+
+**Immutable Templates** (read-only, never modify programmatically):
+- [INFLOW_CODES_TEMPLATE.txt](INFLOW_CODES_TEMPLATE.txt)
+- [OUTFLOW_CODES_TEMPLATE_CORRECTED.txt](OUTFLOW_CODES_TEMPLATE_CORRECTED.txt)
+- [DAM_RECIRCULATION_TEMPLATE.txt](DAM_RECIRCULATION_TEMPLATE.txt)
+
+**Excel Sheets** (two separate files):
+- **Meter Readings** (`legacy_excel_path`): "Meter Readings" sheet → used by `src/ui/calculations.py` for water balance
+- **Flow Diagrams** (`timeseries_excel_path`): "Flows_*" sheets (8 areas) → used by `src/ui/flow_diagram_dashboard.py`
+
+**JSON Diagrams:** Node IDs map to component names; edges link flows with values. Colors auto-detected: `#228B22` (clean), `#FF6347` (waste), `#696969` (underground).
+
+## 🚀 Key Workflows
+
+**Run app:** `python src/main.py` (respects `features.fast_startup` config). Alternates: `python src/main_launcher.py`, `python src/main_optimized.py`.
+
+**DB operations:**
+- **Init/Reset:** `.venv\Scripts\python -c "from database.schema import DatabaseSchema; DatabaseSchema().create_database()"`
+- **Backup:** `db.create_backup()` saves to `data/water_balance_dist.db.bak-<timestamp>`
+
+**Balance calculation** (invoked from [src/ui/calculations.py](src/ui/calculations.py)):
+1. `WaterBalanceCalculator.calculate_water_balance(area, month, year)` → dict with balance + KPIs
+2. `BalanceCheckEngine.calculate_balance(...)` → metrics (inflows/outflows/error %)
+3. `BalanceEngine` → advanced (fresh vs recycled inflows, pump transfers)
+4. Results shown in tabs: Balance Summary, Area Breakdown, legacy Summary/Inflows/Outflows/Storage
+
+**Flow diagram reload:** In dashboard `_load_from_excel()` → fetch fresh `FlowVolumeLoader` → `loader.clear_cache()` → redraw JSON edges with new volumes.
+
+**Component rename workflow:**
+1. Edit [component_rename_config.json](component_rename_config.json) (old → new, Excel columns)
+2. Run: `python scripts/component_rename_manager.py --dry-run` (preview)
+3. Run: `python scripts/component_rename_manager.py` (apply to JSON, Excel, mappings)
+
+## ⚡ Performance & UX
+
+**Cache reuse:** Always check calculator caches before hitting DB. Avoid blocking UI with heavy Excel reads; use async_loader.
+
+**Log hot paths:** Use `logger.performance('label')` to track slow calculations. Performance instructions: [.github/instructions/performance-optimization.instructions.md](../.github/instructions/performance-optimization.instructions.md).
+
+## 🚰 Pump Transfer System
+
+Automatic facility-to-facility water redistribution controlled by [src/utils/pump_transfer_engine.py](src/utils/pump_transfer_engine.py):
+
+**Trigger & Thresholds:**
+- Runs post-calculation when facility level reaches `pump_start_level` (default 70%)
+- Applies 5% incremental transfers via `TRANSFER_INCREMENT`
+- Uses facility `feeds_to` config (comma-separated destination codes in priority order)
+
+**Configuration:**
+- Each facility's `pump_start_level`, `feeds_to`, `active` status stored in DB
+- Destination priority determined by order in `feeds_to`
+- Destination must have capacity available (not above its own `pump_start_level`)
+
+**Example Flow:**
+```
+Source (NDCD1): level=75% → triggers pump (≥70%)
+  ↓ (5% transfer)
+Destination 1 (PLANT_RWD): priority=1
+  ↓ (if full, try next)
+Destination 2 (AUXILIARY): priority=2
+```
+
+**Workflow:** In [src/ui/calculations.py](src/ui/calculations.py), after `WaterBalanceCalculator.calculate_water_balance()`, call `pump_transfer_engine.calculate_pump_transfers(date)` to populate transfer volumes in dashboard.
+
+## 📊 Excel Mapping Registry
+
+Persistent mapping layer in [src/utils/excel_mapping_registry.py](src/utils/excel_mapping_registry.py):
+
+**Purpose:** Links logical flow IDs to Excel column locations across sheets, enabling safe refactoring without breaking calculations.
+
+**Singleton Pattern:**
+- Use `get_excel_mapping_registry()` singleton getter
+- Call `reset_excel_mapping_registry()` after Excel file changes
+- Data persisted to `data/excel_flow_links.json` (configurable via `data_sources.column_flow_links_path`)
+
+**API:**
+- `link_column_to_flow(flow_id, sheet_name, column_name)` → maps logical flow to physical column
+- `get_column_for_flow(flow_id, sheet_name)` → retrieves mapped column (or None if unmapped)
+- Thread-safe with RLock; auto-creates directories
+
+**Example:** Flow "Plant_Consumption" → sheet "Flows_UG2North" → column "PlantConsumption_m3" (stored in JSON).
+
+**Why:** Decouples Excel column renaming from code; enables component rename system to update only JSON + Excel without touching Python logic.
+
+## 🔐 Licensing System
+
+License activation, validation, and enforcement via [src/licensing/license_manager.py](src/licensing/license_manager.py) and [src/licensing/](src/licensing/).
+
+**Startup Validation:**
+- `LicenseManager.validate_startup()` called in [src/main.py](src/main.py) before UI renders
+- Performs **online check** to Google Sheets (immediate revocation detection)
+- Falls back to **offline grace** (default 7 days) if network fails
+- Auto-recovers license if reinstalled on same hardware
+
+**License Tiers & Check Intervals:**
+- **trial**: 1-hour check interval (active monitoring)
+- **standard**: 24-hour check interval (daily validation)
+- **premium**: 168-hour check interval (weekly validation)
+- Configured in `app_config.yaml` under `licensing.check_intervals`
+
+**States & Flows:**
+1. **No License** → `validate_startup()` prompts activation dialog (show [src/ui/license_dialog.py](src/ui/license_dialog.py))
+2. **License Found** → online validation; if success → set `offline_grace_until` timestamp
+3. **Online Fails** → check grace period; if within grace → allow offline use; if expired → show error
+4. **Hardware Mismatch** → if ≥2 components differ, requires manual verification (email support)
+
+**Transfer Tracking:**
+- Max transfers per hardware: `licensing.max_transfers` (default 3)
+- Logged in `license_info` table with `transfer_count` and `last_transfer_at`
+- Auto-recovery attempts count as transfers; exceeded → manual intervention required
+
+**Config (app_config.yaml):**
+```yaml
+licensing:
+  offline_grace_days: 7
+  check_interval_hours: 24
+  check_intervals: { trial: 1, standard: 24, premium: 168 }
+  max_transfers: 3
+  hardware_match_threshold: 2
+  require_remote_hardware_match: true
+  sheet_url: https://docs.google.com/spreadsheets/d/...
+```
+
+**Workflow for Agents:**
+- **Adding license logic:** Import `get_license_manager()` singleton; call `.validate_startup()` early in bootstrap
+- **Debugging validation:** Check `license_validation_log` and `license_audit_log` tables
+- **Testing offline:** Rename/delete `license_info` table, run app within 7-day grace window
+
+## ⚠️ Common Pitfalls
+
+1. **Stale singletons:** After config/path change, forgot to `reset_*()` → reads old Excel path
+2. **Direct instantiation:** `FlowVolumeLoader()` instead of `get_flow_volume_loader()` → new instance, loses cache
+3. **Missing sys.path shim:** New module in `src/` without `sys.path.insert(...)` → import errors
+4. **Template mutations:** Writing to `.txt` template files → data loss on reload
+5. **DB_loaded race:** UI tries balance calc before `app.db_loaded = True` → crashes
+6. **Circular imports:** Importing from `ui` in `utils` → typically OK but watch for lazy imports in `__init__.py`
+7. **Excel path priority:** Forgot that code checks `timeseries_excel_path` first → old data if not in that path
+
+## 📚 Deep Dive Resources
+
+- **Balance Check Logic:** [docs/BALANCE_CHECK_README.md](docs/BALANCE_CHECK_README.md)
+- **Flow Diagram System:** [docs/FLOW_DIAGRAM_GUIDE.md](docs/FLOW_DIAGRAM_GUIDE.md)
+- **Component Rename:** [docs/features/COMPONENT_RENAME_SYSTEM_INDEX.md](docs/features/COMPONENT_RENAME_SYSTEM_INDEX.md)
+- **Excel Integration:** [docs/features/EXCEL_INTEGRATION_SUMMARY.md](docs/features/EXCEL_INTEGRATION_SUMMARY.md)
+- **Debug Scripts:** [scripts/debug/README.md](scripts/debug/README.md) (organized by type: excel_mapping, structure, area_specific, flow_checks, verification)
+- **Utilities:** [scripts/utilities/README.md](scripts/utilities/README.md) (56+ automation scripts; see prefix guide)
+- **Code Style:** [.github/instructions/python.instructions.md](../.github/instructions/python.instructions.md) (PEP 8, type hints, docstrings)
+
+## 🗂️ Repository Hygiene
+
+- **Docs:** Prefer updating existing `.md` guides instead of creating new files. Consolidate into [docs/features/INDEX.md](docs/features/INDEX.md).
+- **Scripts:** Avoid ad-hoc scripts at root. Extend utilities in [scripts/](scripts/) or [src/](src/) where they fit logically. Delete temporary scripts after use.
+- **Assets:** New assets go to existing folders (`docs/`, `scripts/`, `data/`); keep root clean.
+- **Outputs:** Write one-off analysis to temp locations; remove after use to avoid clutter.
+- **virtualenv:** Use [.venv](.venv); run via `.venv\Scripts\python` and install via `.venv\Scripts\python -m pip install ...`. Do not create new environments.

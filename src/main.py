@@ -6,30 +6,155 @@ Author: Water Balance Development Team
 Version: 1.0.0
 """
 
-import tkinter as tk
-from tkinter import ttk, messagebox
-from ttkthemes import ThemedTk
 import sys
+import os
 from pathlib import Path
-import threading
-import time
+
+# CRITICAL: Set WATERBALANCE_USER_DIR BEFORE any other imports
+# This ensures db_manager, config_manager, and license_manager use correct paths
+if getattr(sys, 'frozen', False):
+    # Running as compiled EXE
+    # Set base directory to where the EXE is located
+    BASE_DIR = Path(sys.executable).parent
+    # Configure a per-user writable data directory under AppData\Local
+    try:
+        local_appdata = os.getenv('LOCALAPPDATA')
+        if local_appdata:
+            user_base = Path(local_appdata) / 'WaterBalance'
+        else:
+            # Fallback to home/AppData/Local or hidden folder
+            home = Path.home()
+            user_base = (home / 'AppData' / 'Local' / 'WaterBalance') if (home / 'AppData' / 'Local').exists() else (home / '.waterbalance')
+        # Ensure base exists (subfolders created lazily by modules)
+        user_base.mkdir(parents=True, exist_ok=True)
+        os.environ['WATERBALANCE_USER_DIR'] = str(user_base)
+    except Exception:
+        # Last-resort fallback to home hidden folder
+        os.environ['WATERBALANCE_USER_DIR'] = str(Path.home() / '.waterbalance')
+else:
+    # Running as Python script in development
+    BASE_DIR = Path(__file__).parent.parent
 
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent))
 
+# NOW safe to import modules that depend on WATERBALANCE_USER_DIR
+import tkinter as tk
+from tkinter import ttk, messagebox
+from ttkthemes import ThemedTk
+import threading
+import time
+import shutil
+
 from utils.config_manager import config
 from utils.app_logger import logger
-from utils.ui_notify import notifier
 from utils.error_handler import error_handler
 from ui.main_window import MainWindow
 from database.db_manager import db
-from utils.flow_volume_loader import get_flow_volume_loader, reset_flow_volume_loader
 from ui.loading_screen import LoadingScreen
 from licensing.license_manager import LicenseManager
 from ui.license_dialog import show_license_dialog
+from utils.ui_notify import notifier
 
-# New: Async loading support (Phase 1: Fast Startup)
+# Performance: Import heavy modules lazily when needed
 from utils.async_loader import get_loader, load_database_blocking
+
+
+def _initialize_deployment_data():
+    """Copy essential data files (diagrams, templates, configs, Excel) to user directory on first run (EXE mode only)"""
+    if not getattr(sys, 'frozen', False):
+        return  # Dev mode - no need to copy
+    
+    user_dir = os.environ.get('WATERBALANCE_USER_DIR')
+    if not user_dir:
+        return
+    
+    user_path = Path(user_dir)
+    exe_dir = Path(sys.executable).parent
+    
+    # In PyInstaller, packaged data is in _internal/
+    packaged_internal = exe_dir / '_internal'
+    
+    if not packaged_internal.exists():
+        print(f"[DEPLOY] Packaged _internal directory not found: {packaged_internal}")
+        return
+    
+    # === 1. Copy data directories (diagrams, templates) ===
+    packaged_data = packaged_internal / 'data'
+    if packaged_data.exists():
+        dirs_to_copy = ['diagrams', 'templates']
+        for rel_dir in dirs_to_copy:
+            src = packaged_data / rel_dir
+            dst = user_path / 'data' / rel_dir
+            if src.exists() and not dst.exists():
+                try:
+                    dst.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copytree(src, dst)
+                    print(f"[DEPLOY] ✓ Deployed {rel_dir} to user directory")
+                except Exception as e:
+                    print(f"[DEPLOY] ✗ Failed to deploy {rel_dir}: {e}")
+    
+    # === 2. Copy writable config files ===
+    packaged_config = packaged_internal / 'config'
+    if packaged_config.exists():
+        config_files = ['balance_check_config.json', 
+                       'balance_check_flow_categories.json', 'column_aliases.json',
+                       'excel_flow_links.json', 'flow_friendly_names.json']
+        dst_config = user_path / 'config'
+        dst_config.mkdir(parents=True, exist_ok=True)
+        
+        for filename in config_files:
+            src = packaged_config / filename
+            dst = dst_config / filename
+            if src.exists() and not dst.exists():
+                try:
+                    shutil.copy2(src, dst)
+                    print(f"[DEPLOY] ✓ Deployed config: {filename}")
+                except Exception as e:
+                    print(f"[DEPLOY] ✗ Failed to deploy {filename}: {e}")
+    
+    # === 3. Copy Excel templates to user directory ===
+    packaged_templates = packaged_internal / 'test_templates'
+    if packaged_templates.exists():
+        dst_templates = user_path / 'templates'
+        dst_templates.mkdir(parents=True, exist_ok=True)
+        
+        for excel_file in packaged_templates.glob('*.xlsx'):
+            dst = dst_templates / excel_file.name
+            if not dst.exists():
+                try:
+                    shutil.copy2(excel_file, dst)
+                    print(f"[DEPLOY] ✓ Deployed Excel template: {excel_file.name}")
+                except Exception as e:
+                    print(f"[DEPLOY] ✗ Failed to deploy {excel_file.name}: {e}")
+    
+    # === 4. Copy diagrams folder (critical for flow diagram module) ===
+    diagrams_src = packaged_data / 'diagrams' if packaged_data.exists() else None
+    diagrams_dst = user_path / 'data' / 'diagrams'
+    if diagrams_src and diagrams_src.exists() and not diagrams_dst.exists():
+        try:
+            diagrams_dst.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copytree(diagrams_src, diagrams_dst)
+            print(f"[DEPLOY] ✓ Deployed diagrams folder to {diagrams_dst}")
+        except Exception as e:
+            print(f"[DEPLOY] ✗ Failed to deploy diagrams: {e}")
+    
+    # === 5. Copy data JSON configs to user directory ===
+    if packaged_data.exists():
+        json_files = ['balance_check_config.json', 'balance_check_flow_categories.json',
+                     'column_aliases.json', 'excel_flow_links.json', 'flow_friendly_names.json']
+        dst_data = user_path / 'data'
+        dst_data.mkdir(parents=True, exist_ok=True)
+        
+        for filename in json_files:
+            src = packaged_data / filename
+            dst = dst_data / filename
+            if src.exists() and not dst.exists():
+                try:
+                    shutil.copy2(src, dst)
+                    print(f"[DEPLOY] ✓ Deployed data config: {filename}")
+                except Exception as e:
+                    print(f"[DEPLOY] ✗ Failed to deploy {filename}: {e}")
 
 
 class WaterBalanceApp:
@@ -91,6 +216,17 @@ class WaterBalanceApp:
             
             self.root.title(config.window_title)
             logger.info(f"Window created: {config.window_geometry}")
+            
+            # Set window icon (top-left corner icon)
+            try:
+                from utils.config_manager import get_resource_path
+                icon_path = get_resource_path('logo/Water Balance.ico')
+                if icon_path.exists():
+                    self.root.iconbitmap(str(icon_path))
+                    logger.info(f"Window icon set: {icon_path}")
+            except Exception as e:
+                logger.warning(f"Could not set window icon: {e}")
+            
             # Closing state flag to prevent double-confirm/destroy
             self.root._closing = False
             
@@ -147,6 +283,10 @@ class WaterBalanceApp:
                 self.loading_screen.set_status("Building interface...", 90)
                 self.main_window = MainWindow(self.root)
                 logger.info("Main window created successfully")
+                
+                # Refresh footer to show current Online/Offline status after validation
+                self.main_window.refresh_footer()
+                
                 self.loading_screen.set_status("Finalizing...", 100)
                     
             except Exception as mw_err:
@@ -607,6 +747,19 @@ class WaterBalanceApp:
 
 def main():
     """Application entry point"""
+    # Deploy data files FIRST, before anything else
+    _initialize_deployment_data()
+    
+    # CRITICAL: Force db to re-initialize with correct path after WATERBALANCE_USER_DIR is set
+    # The db singleton was created during import, before the environment variable was set
+    if getattr(sys, 'frozen', False):
+        user_dir = os.environ.get('WATERBALANCE_USER_DIR')
+        if user_dir:
+            correct_db_path = Path(user_dir) / 'data' / 'water_balance.db'
+            # Re-initialize db with correct path
+            db.__init__(str(correct_db_path))
+            logger.info(f"Database path corrected for deployment: {correct_db_path}")
+    
     try:
         logger.info("=" * 60)
         logger.info("Starting Water Balance Management System")
@@ -630,13 +783,13 @@ def main():
                 root.destroy()
                 sys.exit(1)
             elif "Hardware mismatch" in reason:
-                # Allow transfer attempt
-                success = show_license_dialog(parent=root, mode="transfer")
+                messagebox.showerror(
+                    "License Mismatch",
+                    f"{reason}\n\nHardware transfers are disabled. Please contact the administrator to move this license to a new machine."
+                )
                 root.destroy()
-                if not success:
-                    messagebox.showerror("License Required", f"{reason}\n\nPlease activate to continue.")
-                    logger.critical("Application terminated: license validation failed")
-                    sys.exit(1)
+                logger.critical("Application terminated: hardware mismatch with transfers disabled")
+                sys.exit(1)
             else:
                 # Regular activation dialog
                 success = show_license_dialog(parent=root, mode="activate")
@@ -646,12 +799,16 @@ def main():
                     logger.critical("Application terminated: license validation failed")
                     sys.exit(1)
             
-            # Re-validate after activation/transfer
-            is_valid, reason, expiry_date = manager.validate_startup()
-            if not is_valid:
-                messagebox.showerror("License Invalid", reason)
+            # After activation, verify local license is saved (skip immediate online check)
+            # The webhook sync to Google Sheet is async and may take a few seconds
+            # We already validated during activation, so just check local DB
+            record = manager._fetch_license_row()
+            if not record or record.get("license_status") != "active":
+                messagebox.showerror("License Invalid", "Activation succeeded but license data not saved properly.")
                 logger.critical("Application terminated: license validation failed after activation")
                 sys.exit(1)
+            logger.info(f"✅ License activated successfully - {record.get('license_key')}")
+            # Note: Next startup will do full online validation after sheet has synced
         
         app = WaterBalanceApp()
         app.run()  # run() already calls initialize()

@@ -15,7 +15,7 @@ from utils.ui_notify import notifier
 from utils.alert_manager import alert_manager
 from ui.mousewheel import apply_mousewheel_recursive
 from utils.excel_monitor import ExcelFileMonitor
-from utils.excel_timeseries_extended import ExcelTimeSeriesExtended
+# ExcelTimeSeriesExtended removed - Excel now has only Flow Diagram data
 from utils.cache_prewarm import prewarm_latest_month
 from licensing.license_manager import LicenseManager
 from ui.mouse_wheel_support import enable_canvas_mousewheel
@@ -99,20 +99,22 @@ class MainWindow:
         title_frame = tk.Frame(self.toolbar, bg=bg_header)
         title_frame.pack(side='left', padx=20, pady=10)
         
-        # Company logo (if available)
-        logo_path = config.get_logo_path()
-        if logo_path and Path(logo_path).exists():
-            try:
-                from PIL import Image, ImageTk
+        # Company logo (prefer branded TRP logo)
+        try:
+            from PIL import Image, ImageTk
+            from utils.config_manager import get_resource_path
+            preferred_logo = get_resource_path('config/branding/Logo Two rivers.png')
+            fallback_logo = get_resource_path('logo/Logo Two rivers.png')
+            logo_path = preferred_logo if preferred_logo.exists() else fallback_logo
+            if logo_path.exists():
                 img = Image.open(logo_path)
-                # Resize to fit toolbar height (maintain aspect ratio)
                 toolbar_height = config.get('ui.toolbar_height', 50)
                 img.thumbnail((int(toolbar_height * 2.5), toolbar_height - 10), Image.Resampling.LANCZOS)
                 self.logo_photo = ImageTk.PhotoImage(img)
                 logo_label = tk.Label(title_frame, image=self.logo_photo, bg=bg_header)
                 logo_label.pack(side='left', padx=(0, 15))
-            except Exception as e:
-                logger.warning(f"Could not load logo: {e}")
+        except Exception as e:
+            logger.warning(f"Could not load logo: {e}")
         
         app_title = tk.Label(
             title_frame,
@@ -122,6 +124,20 @@ class MainWindow:
             bg=bg_header
         )
         app_title.pack(side='left')
+        
+        # Toolbar connection hint (hidden; footer handles connection state)
+        try:
+            self.offline_hint_label = tk.Label(
+                title_frame,
+                text="",
+                font=config.get_font('caption'),
+                fg='#4caf50',
+                bg=bg_header
+            )
+            self.offline_hint_label.pack(side='left', padx=(12, 0))
+            self._refresh_offline_hint()
+        except Exception as e:
+            logger.debug(f"Could not initialize offline hint: {e}")
     
     def _update_license_status_label(self, is_valid: bool = None, expiry_date = None):
         """Update the license status display in toolbar.
@@ -184,6 +200,8 @@ class MainWindow:
             
             # Update status label with ACTUAL verification result (not a fresh call)
             self._update_license_status_label(is_valid=is_valid, expiry_date=expiry_date)
+            # Refresh toolbar/footer offline hints after validation
+            self._refresh_offline_hint()
             
             # Update button state based on new verification count
             self._update_verify_button_state()
@@ -204,7 +222,7 @@ class MainWindow:
                 else:
                     messagebox.showerror(
                         "License Invalid",
-                        f"❌ License verification failed:\n\n{message}\n\nPlease contact support@water-balance.com"
+                        f"❌ License verification failed:\n\n{message}\n\nPlease contact caliphs@transafreso.com or +27 82 355 8130"
                     )
                     logger.warning(f"Manual license verification failed: {message}")
                 
@@ -311,6 +329,40 @@ class MainWindow:
         
         for module_id, label, tooltip in help_items:
             self._create_nav_button(module_id, label, tooltip)
+        
+        # TransAfrica company logo at bottom of sidebar
+        logo_frame = tk.Frame(self.sidebar, bg=bg_sidebar)
+        logo_frame.pack(side='bottom', fill='x', pady=(10, 20))
+        
+        try:
+            from PIL import Image, ImageTk
+            from utils.config_manager import get_resource_path
+            logo_path = get_resource_path('logo/Company Logo.png')
+            if logo_path.exists():
+                img = Image.open(logo_path)
+                # Resize logo to fit sidebar width (max 180px wide)
+                img.thumbnail((180, 60), Image.Resampling.LANCZOS)
+                self.sidebar_logo_photo = ImageTk.PhotoImage(img)
+                logo_label = tk.Label(
+                    logo_frame,
+                    image=self.sidebar_logo_photo,
+                    bg=bg_sidebar,
+                    cursor='hand2'
+                )
+                logo_label.pack(pady=5)
+                # Click to open About page
+                logo_label.bind('<Button-1>', lambda e: self.load_module('about'))
+                
+                # Add subtle branding text below logo
+                tk.Label(
+                    logo_frame,
+                    text="TransAfrica Resources",
+                    font=('Segoe UI', 8),
+                    fg='#95a5a6',
+                    bg=bg_sidebar
+                ).pack()
+        except Exception as e:
+            logger.debug(f"Could not load sidebar logo: {e}")
 
 
     def _validate_excel_path_startup(self):
@@ -653,7 +705,7 @@ class MainWindow:
             return False
     
     def _load_dashboard(self):
-        """Load the dashboard module"""
+        """Load the dashboard module (always reload to show latest DB data)"""
         from ui.dashboard import DashboardModule
         
         dashboard = DashboardModule(self.content_area)
@@ -682,10 +734,12 @@ class MainWindow:
         module.load()
     
     def _load_calculations(self):
-        """Load the calculations module"""
-        # Lazy load Excel if needed (calculations may use Excel data)
-        self._ensure_excel_loaded('calculations')
+        """Load the calculations module
         
+        Note: Calculations uses get_default_excel_repo() which handles its own
+        Excel loading (legacy_excel_path: Meter Readings Excel). No pre-loading needed.
+        Missing files degrade gracefully (return 0.0 values). Status shown in Settings.
+        """
         from ui.calculations import CalculationsModule
         
         module = CalculationsModule(self.content_area)
@@ -777,14 +831,35 @@ class MainWindow:
         header_frame = tk.Frame(main_frame, bg=bg_main)
         header_frame.pack(fill='x', pady=(0, 40))
         
-        company = tk.Label(
-            header_frame,
-            text="🏢 TransAfrica Resources",
-            font=('Segoe UI', 28, 'bold'),
-            fg=accent,
-            bg=bg_main
-        )
-        company.pack(pady=(0, 10))
+        # Company logo in About header
+        try:
+            from PIL import Image, ImageTk
+            from utils.config_manager import get_resource_path
+            logo_path = get_resource_path('logo/Company Logo.png')
+            if logo_path.exists():
+                img = Image.open(logo_path)
+                img.thumbnail((320, 80), Image.Resampling.LANCZOS)
+                self.about_logo_photo = ImageTk.PhotoImage(img)
+                logo_label = tk.Label(header_frame, image=self.about_logo_photo, bg=bg_main)
+                logo_label.pack(pady=(0, 8))
+            else:
+                company = tk.Label(
+                    header_frame,
+                    text="TransAfrica Resources",
+                    font=('Segoe UI', 24, 'bold'),
+                    fg=accent,
+                    bg=bg_main
+                )
+                company.pack(pady=(0, 10))
+        except Exception:
+            company = tk.Label(
+                header_frame,
+                text="TransAfrica Resources",
+                font=('Segoe UI', 24, 'bold'),
+                fg=accent,
+                bg=bg_main
+            )
+            company.pack(pady=(0, 10))
         
         app_title = tk.Label(
             header_frame,
@@ -849,8 +924,8 @@ class MainWindow:
             ("💧", "Complete Water Tracking", "6 inflow sources + 7 outflow components with detailed breakdown"),
             ("🏗️", "Storage Management", "Track multiple facilities with real-time volume and capacity monitoring"),
             ("📈", "Real-time Calculations", "Advanced water balance engine with closure error validation"),
-            ("📋", "Professional Reporting", "Generate compliance reports and export data for analysis"),
-            ("⚙️", "Configurable Parameters", "Adjust mining rates, TSF return %, seepage losses, and more"),
+            ("📋", "Data Export", "Export charts and analytical visualizations for documentation"),
+            ("⚙️", "Configurable Parameters", "Adjust mining rates, seepage losses, and operational parameters"),
             ("🎨", "Modern Interface", "Intuitive user experience with professional styling and navigation"),
             ("📡", "Excel Integration", "Seamless integration with Water_Balance_TimeSeries_Template.xlsx")
         ]
@@ -937,7 +1012,7 @@ class MainWindow:
             )
             value_widget.pack(side='left', fill='x', expand=True)
         
-        # CONTACT SECTION
+        # CONTACT SECTION - Two-column grid layout for perfect alignment
         contact_frame = tk.Frame(main_frame, bg='#f5f5f5', relief='solid', bd=1)
         contact_frame.pack(fill='x', pady=(30, 30), padx=0)
         
@@ -950,36 +1025,114 @@ class MainWindow:
         )
         contact_title.pack(pady=(15, 10), padx=15)
         
-        contact_info = [
-            ("Email", "caliphs@transafreso.com"),
-            ("Email", "kali@transafreso.com"),
-            ("Phone", "+27 82 355 8130"),
-            ("Phone", "+27 235 76 07")
+        # Create grid container
+        grid_container = tk.Frame(contact_frame, bg='#f5f5f5')
+        grid_container.pack(fill='x', padx=15, pady=(0, 15))
+        
+        # Contact data structured by person
+        contacts = [
+            {
+                "role": "Administrator",
+                "name": "Ms Moloko Florence Morethe",
+                "email": "mfmorethe@transafreso.com",
+                "phone": "+27 83 870 6569"
+            },
+            {
+                "role": "Project Lead",
+                "name": "Prof Caliphs Zvinowanda",
+                "email": "caliphs@transafreso.com",
+                "phone": "+27 82 355 8130"
+            },
+            {
+                "role": "Lead Developer",
+                "name": "Mr Caliphs Zvinowanda (Jnr)",
+                "email": "kali@transafreso.com",
+                "phone": "+27 65 235 7607"
+            },
+            {
+                "role": "IT Support",
+                "name": "Mr Musa Zvinowanda",
+                "email": "musaz@transafreso.com",
+                "phone": "+27 65 901 5149"
+            }
         ]
         
-        for contact_type, contact_value in contact_info:
-            contact_item = tk.Frame(contact_frame, bg='#f5f5f5')
-            contact_item.pack(fill='x', pady=4, padx=15)
+        # Create grid rows
+        for idx, contact in enumerate(contacts):
+            # Role/Name row
+            row = tk.Frame(grid_container, bg='#f5f5f5')
+            row.pack(fill='x', pady=(8 if idx > 0 else 0, 2))
             
-            type_label = tk.Label(
-                contact_item,
-                text=f"{contact_type}:",
+            role_label = tk.Label(
+                row,
+                text=f"{contact['role']}:",
                 font=('Segoe UI', 10, 'bold'),
                 fg='#333333',
                 bg='#f5f5f5',
-                width=10,
-                anchor='w'
+                anchor='w',
+                width=15
             )
-            type_label.pack(side='left')
+            role_label.grid(row=0, column=0, sticky='w', padx=(0, 10))
             
-            value_label = tk.Label(
-                contact_item,
-                text=contact_value,
+            name_label = tk.Label(
+                row,
+                text=contact['name'],
                 font=('Segoe UI', 10),
                 fg='#666666',
-                bg='#f5f5f5'
+                bg='#f5f5f5',
+                anchor='w'
             )
-            value_label.pack(side='left', padx=10)
+            name_label.grid(row=0, column=1, sticky='w')
+            
+            # Email row
+            email_row = tk.Frame(grid_container, bg='#f5f5f5')
+            email_row.pack(fill='x', pady=2)
+            
+            email_label = tk.Label(
+                email_row,
+                text="Email:",
+                font=('Segoe UI', 10, 'bold'),
+                fg='#333333',
+                bg='#f5f5f5',
+                anchor='w',
+                width=15
+            )
+            email_label.grid(row=0, column=0, sticky='w', padx=(0, 10))
+            
+            email_value = tk.Label(
+                email_row,
+                text=contact['email'],
+                font=('Segoe UI', 10),
+                fg='#666666',
+                bg='#f5f5f5',
+                anchor='w'
+            )
+            email_value.grid(row=0, column=1, sticky='w')
+            
+            # Phone row
+            phone_row = tk.Frame(grid_container, bg='#f5f5f5')
+            phone_row.pack(fill='x', pady=2)
+            
+            phone_label = tk.Label(
+                phone_row,
+                text="Phone:",
+                font=('Segoe UI', 10, 'bold'),
+                fg='#333333',
+                bg='#f5f5f5',
+                anchor='w',
+                width=15
+            )
+            phone_label.grid(row=0, column=0, sticky='w', padx=(0, 10))
+            
+            phone_value = tk.Label(
+                phone_row,
+                text=contact['phone'],
+                font=('Segoe UI', 10),
+                fg='#666666',
+                bg='#f5f5f5',
+                anchor='w'
+            )
+            phone_value.grid(row=0, column=1, sticky='w')
         
         # DEVELOPER INFORMATION SECTION
         dev_title = tk.Label(
@@ -996,16 +1149,28 @@ class MainWindow:
         
         developers = [
             {
-                "name": "Caliphs Nyamudzanha",
-                "role": "Lead Developer & Project Manager",
-                "expertise": "Full-stack Python development, UI/UX design, water balance calculations",
+                "name": "Prof Caliphs Zvinowanda",
+                "role": "Project Lead",
+                "expertise": "Water balance systems, environmental compliance, mining operations",
                 "contact": "caliphs@transafreso.com"
             },
             {
-                "name": "Kali Nyamudzanha",
-                "role": "Developer & Business Analyst",
-                "expertise": "Database design, reporting systems, business process optimization",
+                "name": "Mr Caliphs Zvinowanda (Jnr)",
+                "role": "Lead Developer",
+                "expertise": "Python/Tkinter, SQLite, Excel integration, UI/UX",
                 "contact": "kali@transafreso.com"
+            },
+            {
+                "name": "Mr Musa Zvinowanda",
+                "role": "IT Support",
+                "expertise": "Deployment, troubleshooting, user support",
+                "contact": "musaz@transafreso.com"
+            },
+            {
+                "name": "Ms Moloko Florence Morethe",
+                "role": "Administrator",
+                "expertise": "Coordination, client support, documentation",
+                "contact": "mfmorethe@transafreso.com"
             }
         ]
         
@@ -1062,13 +1227,14 @@ class MainWindow:
         info_title.pack(anchor='w', pady=(30, 12))
         
         info_items = [
-            ("Default Mining Water Rate:", "1.43 m³/tonne"),
-            ("Default TSF Return Rate:", "56%"),
-            ("Seepage Loss Rate:", "0.5% per month"),
-            ("Closure Error Threshold:", "±5% (Excel standard)"),
-            ("Calculation Basis:", "Monthly periods"),
-            ("Database:", "SQLite (water_balance.db)"),
-            ("Python Version:", "3.11+")
+            ("Operating System:", "Windows 10 or 11 (64-bit)"),
+            ("Runtime:", "Standalone EXE (PyInstaller)"),
+            ("Database:", "SQLite (data/water_balance.db)"),
+            ("Excel Integration:", "Optional; supports Office 2016+ (.xlsx)"),
+            ("Minimum Hardware:", "4 GB RAM, 2 CPU cores, 200 MB disk"),
+            ("Recommended:", "8 GB RAM, 4+ cores, 1920×1080 display"),
+            ("Network:", "Offline capable; internet only for updates/support"),
+            ("Version:", f"{config.app_version}")
         ]
         
         for label, value in info_items:
@@ -1098,7 +1264,7 @@ class MainWindow:
         # COPYRIGHT
         copyright = tk.Label(
             main_frame,
-            text="© 2025 TransAfrica Resources (Pty) Ltd. All rights reserved.",
+            text="© 2026 TransAfrica Resources (Pty) Ltd. All rights reserved.",
             font=('Segoe UI', 9),
             fg=text_secondary,
             bg=bg_main
@@ -1117,11 +1283,32 @@ class MainWindow:
         
         status_text = module_names.get(self.current_module, 'Ready')
         self.statusbar_label.config(text=status_text)
+        # Also refresh license footer text and toolbar offline hint
+        try:
+            self.license_label.config(text=LicenseManager().status_summary())
+            self._refresh_offline_hint()
+        except Exception:
+            pass
     
     def _update_status_message(self, message: str):
         """Update status bar with custom message (used by notifier)"""
         if hasattr(self, 'statusbar_label'):
             self.statusbar_label.config(text=message)
+
+    def refresh_footer(self):
+        """Refresh footer license status label (e.g., after validation)."""
+        try:
+            self.license_label.config(text=LicenseManager().status_summary())
+        except Exception as e:
+            logger.debug(f"Could not refresh footer: {e}")
+    
+    def _refresh_offline_hint(self):
+        """Keep toolbar clean; connection state shown only in footer."""
+        try:
+            self.offline_hint_label.config(text="")
+            self.offline_hint_label.pack_configure()
+        except Exception as e:
+            logger.debug(f"Could not refresh offline hint: {e}")
     
     # Toolbar action methods removed - use sidebar navigation instead
     
@@ -1187,3 +1374,4 @@ class MainWindow:
         view = ExtendedSummaryView(self.content_area)
         view.load()
         view.pack(fill='both', expand=True, padx=15, pady=10)
+

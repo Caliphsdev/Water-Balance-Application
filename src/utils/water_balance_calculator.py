@@ -46,11 +46,29 @@ class WaterBalanceCalculator:
         self._capacity_warnings = []
     
     def _get_excel_repo(self):
-        """Lazy-load Excel repository on first access"""
+        r"""Lazy-load Excel repository on first access.
+        
+        Loads METER READINGS Excel (legacy_excel_path: data\New Water Balance...xlsx)
+        which contains "Meter Readings" sheet with tonnes milled, RWD, dewatering, etc.
+        
+        NOT the Flow Diagram Excel (timeseries_excel_path) which has Flows_* sheets.
+        """
         if self._excel_repo is None:
             self._excel_repo = get_default_excel_repo()
         return self._excel_repo
     
+    def clear_cache(self) -> None:
+        """Clear all calculation and Excel data caches.
+        
+        Call this when Excel file is updated externally or configuration changes.
+        Forces fresh read from Excel on next calculation.
+        """
+        self._balance_cache.clear()
+        self._kpi_cache.clear()
+        self._misc_cache.clear()
+        # Clear Excel repository cache if it's been initialized
+        if self._excel_repo is not None:
+            self._excel_repo.clear_cache()
     
     def _validate_facility_flows(self, facility_code: str, capacity: float,
                                 inflow_total: float, outflow_total: float,
@@ -1212,9 +1230,10 @@ class WaterBalanceCalculator:
         
         # Per-facility monthly inflows/outflows/abstraction from dashboard DB
         month = calculation_date.month
-        facility_inflow_m3 = self.db.get_facility_inflow_monthly(facility_id, month)
-        facility_outflow_m3 = self.db.get_facility_outflow_monthly(facility_id, month)
-        facility_abstraction_m3 = self.db.get_facility_abstraction_monthly(facility_id, month)
+        year = calculation_date.year
+        facility_inflow_m3 = self.db.get_facility_inflow_monthly(facility_id, month, year)
+        facility_outflow_m3 = self.db.get_facility_outflow_monthly(facility_id, month, year)
+        facility_abstraction_m3 = self.db.get_facility_abstraction_monthly(facility_id, month, year)
         
         inflows = facility_inflow_m3
         outflows = facility_outflow_m3 + facility_abstraction_m3
@@ -1241,7 +1260,10 @@ class WaterBalanceCalculator:
                     outflows += m['total_volume'] or 0
         
         # Regional rainfall and evaporation (apply to all facilities in the area)
-        surface_area = facility.get('surface_area', 0)
+        # Guard against None to avoid float * NoneType errors when applying rainfall/evap
+        surface_area = facility.get('surface_area')
+        if surface_area is None:
+            surface_area = 0.0
         # Respect evap_active flag: if disabled, skip rainfall/evap for this facility
         evap_flag = facility.get('evap_active', 1)
         if evap_flag in (None, ''):
@@ -1802,7 +1824,7 @@ class WaterBalanceCalculator:
         - Tracks which calculation date the volumes correspond to via volume_calc_date
         """
         try:
-            facilities = self.db.get_storage_facilities()
+            facilities = self.db.get_storage_facilities(use_cache=False)
             
             # Preload shared rainfall/evap data for persist step
             month = calculation_date.month
@@ -1871,15 +1893,77 @@ class WaterBalanceCalculator:
         Saves all components and optionally persists storage volumes
         Returns existing calc_id if duplicate found, or new calc_id if saved
         """
+        # Resolve ore tonnes first (use Excel if not provided)
+        # This ensures duplicate detection uses the same value as the calculation
+        resolved_ore_tonnes = ore_tonnes
+        if resolved_ore_tonnes is None:
+            try:
+                excel_tonnes = self._get_excel_repo().get_monthly_value(calculation_date, "Tonnes Milled")
+                if excel_tonnes and excel_tonnes > 0:
+                    resolved_ore_tonnes = float(excel_tonnes)
+                else:
+                    resolved_ore_tonnes = 0.0
+            except Exception:
+                resolved_ore_tonnes = 0.0
+        
+        # Check for duplicate calculation FIRST (before any calculations)
+        existing_id = self._check_duplicate_calculation(calculation_date, resolved_ore_tonnes)
+        previous_closing_volumes = None
+
+        if existing_id:
+            # Capture current (closing) volumes before any snapshot restore so we can
+            # compare against the newly calculated closings and restore if needed.
+            facilities_current = self.db.get_storage_facilities(use_cache=False)
+            previous_closing_volumes = {
+                f['facility_code']: f.get('current_volume', 0.0) or 0.0
+                for f in facilities_current
+            }
+            restored = self._restore_opening_from_snapshot(existing_id)
+            if not restored:
+                logger.info("No opening snapshot found; using current volumes as openings")
+
+        # Ensure we have an opening snapshot for this calculation date to keep
+        # repeated calculations idempotent.
+        if not self._has_opening_snapshot(calculation_date):
+            facilities_for_snapshot = self.db.get_storage_facilities(use_cache=False)
+            opening_snapshot = {
+                f['facility_code']: f.get('current_volume', 0.0) or 0.0
+                for f in facilities_for_snapshot
+            }
+            self._save_opening_snapshot(calculation_date, opening_snapshot)
+        
+        # Calculate water balance (will use current volumes from DB as opening)
         balance = self.calculate_water_balance(calculation_date, ore_tonnes)
         
-        # Check for duplicate calculation
-        existing_id = self._check_duplicate_calculation(calculation_date, balance['ore_processed'])
         if existing_id:
-            logger.info(f"Duplicate calculation found for {calculation_date} with {balance['ore_processed']} tonnes - using existing ID {existing_id}")
-            return existing_id
+            # Duplicate found - check if results changed (user may have updated inputs)
+            # Compare calculated storage change with previous calculation's storage change
+            volumes_changed = self._check_if_volumes_changed(
+                balance, calculation_date, existing_id, previous_closing_volumes
+            )
+            
+            if volumes_changed:
+                # Inputs changed (e.g., surface water, manual inputs) - update volumes
+                logger.info(f"Duplicate calculation found for {calculation_date} (calc_id={existing_id}) - volumes changed, updating")
+                # Delete old calculation
+                self.db.execute_update("DELETE FROM calculations WHERE calc_id = ?", (existing_id,))
+                # persist_storage stays True - we need to update volumes
+            else:
+                # True duplicate (same inputs, same results) - don't update volumes
+                logger.info(f"Duplicate calculation found for {calculation_date} (calc_id={existing_id}) - identical results, keeping current volumes")
+                self.db.execute_update("DELETE FROM calculations WHERE calc_id = ?", (existing_id,))
+                # Don't persist storage volumes - they're already correct
+                persist_storage = False
+                # Restore closing volumes if we temporarily reverted to openings
+                if previous_closing_volumes:
+                    for code, vol in previous_closing_volumes.items():
+                        self.db.execute_update(
+                            "UPDATE storage_facilities SET current_volume = ? WHERE facility_code = ?",
+                            (vol, code),
+                        )
+                    self.db.invalidate_all_caches()
         
-        # Persist storage volumes if requested (Excel: update facility current volumes)
+        # Persist storage volumes for NEW calculations or changed duplicates
         if persist_storage:
             self.persist_storage_volumes(calculation_date)
         
@@ -1962,6 +2046,66 @@ class WaterBalanceCalculator:
         
         return calc_id
     
+    def _check_if_volumes_changed(
+        self,
+        balance: Dict,
+        calc_date: date,
+        existing_calc_id: int,
+        previous_facility_volumes: Optional[Dict[str, float]] = None,
+    ) -> bool:
+        """
+        Check if calculated closing volumes differ from the previously saved calculation.
+        Returns True if any volume changed (net or per-facility), False if identical.
+        """
+        try:
+            # Get the previous calculation's storage change data
+            prev_calc_query = """
+                SELECT storage_change FROM calculations 
+                WHERE calc_id = ?
+            """
+            prev_result = self.db.execute_query(prev_calc_query, (existing_calc_id,))
+            
+            if not prev_result or not prev_result[0].get('storage_change'):
+                logger.info("No previous calculation storage data - assuming volumes changed")
+                return True
+            
+            prev_storage_change = float(prev_result[0]['storage_change'])
+            
+            if 'storage_change' not in balance:
+                logger.warning("No storage_change in current balance - assuming volumes changed")
+                return True
+            
+            current_storage_change = balance['storage_change'].get('net_storage_change', 0)
+            diff = abs(current_storage_change - prev_storage_change)
+            if diff > 0.1:
+                logger.info(f"Storage change differs: Previous={prev_storage_change:.0f}, Current={current_storage_change:.0f}, Diff={diff:.0f} m³")
+                return True
+
+            # Net matches; compare per-facility closing volumes with current DB volumes
+            facilities_balance = balance['storage_change'].get('facilities', {}) or {}
+            if facilities_balance:
+                current_facilities = previous_facility_volumes or {
+                    f['facility_code']: f.get('current_volume', 0.0)
+                    for f in self.db.get_storage_facilities(use_cache=False)
+                }
+                for code, values in facilities_balance.items():
+                    closing = values.get('closing')
+                    current_vol = current_facilities.get(code)
+                    if closing is None or current_vol is None:
+                        continue
+                    if abs(closing - current_vol) > 0.1:
+                        logger.info(
+                            f"Closing volume differs for {code}: current={current_vol:.1f}, closing={closing:.1f}"
+                        )
+                        return True
+
+            logger.info(f"Storage change matches ({current_storage_change:.0f} m³) and per-facility closings match - true duplicate")
+            return False
+            
+        except Exception as e:
+            logger.error(f"Failed to check volume changes: {e}")
+            return True  # safer to update on error
+    
     def _check_duplicate_calculation(self, calc_date: date, ore_tonnes: float) -> Optional[int]:
         """
         Check if a calculation with the same date and ore tonnes already exists
@@ -1984,6 +2128,107 @@ class WaterBalanceCalculator:
         if result:
             return result[0]['calc_id']
         return None
+
+    def _has_opening_snapshot(self, calc_date: date) -> bool:
+        """Return True if an opening snapshot already exists for the date."""
+        try:
+            result = self.db.execute_query(
+                "SELECT 1 FROM opening_volume_snapshots WHERE calc_date = ? LIMIT 1",
+                (calc_date,),
+            )
+            return bool(result)
+        except Exception:
+            # Table may not exist yet; treat as missing snapshot
+            return False
+    
+    def _save_opening_snapshot(self, calc_date: date, snapshot: Dict[str, float]) -> None:
+        """
+        Save opening volume snapshot for a calculation date
+        This allows us to restore exact opening values when handling duplicates
+        """
+        try:
+            # Store in a simple table: calc_date, facility_code, opening_volume
+            for facility_code, opening_volume in snapshot.items():
+                query = """
+                    INSERT OR REPLACE INTO opening_volume_snapshots 
+                    (calc_date, facility_code, opening_volume)
+                    VALUES (?, ?, ?)
+                """
+                self.db.execute_update(query, (calc_date, facility_code, opening_volume))
+            
+            logger.info(f"Saved opening snapshot for {calc_date} ({len(snapshot)} facilities)")
+            
+        except Exception as e:
+            # If table doesn't exist, create it
+            if "no such table" in str(e).lower():
+                logger.info("Creating opening_volume_snapshots table...")
+                create_query = """
+                    CREATE TABLE IF NOT EXISTS opening_volume_snapshots (
+                        calc_date DATE NOT NULL,
+                        facility_code TEXT NOT NULL,
+                        opening_volume REAL NOT NULL,
+                        PRIMARY KEY (calc_date, facility_code)
+                    )
+                """
+                self.db.execute_update(create_query)
+                # Retry the insert
+                for facility_code, opening_volume in snapshot.items():
+                    query = """
+                        INSERT OR REPLACE INTO opening_volume_snapshots 
+                        (calc_date, facility_code, opening_volume)
+                        VALUES (?, ?, ?)
+                    """
+                    self.db.execute_update(query, (calc_date, facility_code, opening_volume))
+                logger.info(f"Saved opening snapshot for {calc_date} ({len(snapshot)} facilities)")
+            else:
+                logger.error(f"Failed to save opening snapshot: {e}")
+    
+    def _restore_opening_from_snapshot(self, calc_id: int) -> bool:
+        """
+        Restore opening volumes from saved snapshot for the calculation's date
+        Returns True if successful, False otherwise
+        """
+        try:
+            # Get calc_date from calc_id
+            calc_query = "SELECT calc_date FROM calculations WHERE calc_id = ?"
+            calc_result = self.db.execute_query(calc_query, (calc_id,))
+            
+            if not calc_result:
+                logger.warning(f"No calculation found with calc_id={calc_id}")
+                return False
+            
+            calc_date = calc_result[0]['calc_date']
+            
+            # Retrieve snapshot
+            snapshot_query = """
+                SELECT facility_code, opening_volume 
+                FROM opening_volume_snapshots 
+                WHERE calc_date = ?
+            """
+            snapshot = self.db.execute_query(snapshot_query, (calc_date,))
+            
+            if not snapshot:
+                logger.warning(f"No opening snapshot found for {calc_date}")
+                return False
+            
+            # Restore volumes to database
+            for row in snapshot:
+                facility_code = row['facility_code']
+                opening_volume = row['opening_volume']
+                
+                update_query = """
+                    UPDATE storage_facilities 
+                    SET current_volume = ? 
+                    WHERE facility_code = ?
+                """
+                self.db.execute_update(update_query, (opening_volume, facility_code))
+            
+            logger.info(f"Restored {len(snapshot)} facility volumes from snapshot")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Failed to restore from snapshot: {e}")
+            return False
     
     def get_calculation_history(self, start_date: date, 
                                 end_date: date) -> List[Dict]:

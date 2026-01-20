@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle, FancyArrowPatch
 
 from .water_balance_calculator import WaterBalanceCalculator
-from .config_manager import config
+from .config_manager import config, get_resource_path
 
 class ReportGenerator:
     """Generates PDF and Excel water balance reports."""
@@ -88,15 +88,16 @@ class ReportGenerator:
 
         bold = Font(bold=True)
         
-        # Add logo if available
-        logo_path = config.get_logo_path()
-        if logo_path and Path(logo_path).exists():
+        # Add fixed TRP logo if available
+        fixed_logo = get_resource_path('assets/icons/Company Logo.png')
+        if fixed_logo.exists():
             try:
-                img = XLImage(logo_path)
+                img = XLImage(str(fixed_logo))
                 img.width = 120
                 img.height = 48
                 ws_summary.add_image(img, 'F1')
-            except: pass
+            except:
+                pass
 
         company = config.get_company_name()
         ws_summary.append([company])
@@ -166,15 +167,16 @@ class ReportGenerator:
             company = config.get_company_name()
             ax.text(0.02, 0.967, company, fontsize=15, weight='bold', va='center', color='white')
             ax.text(0.70, 0.967, 'Water Balance Report', fontsize=13, weight='bold', va='center', color='white')
-            # Logo (optional)
-            logo_path = config.get_logo_path()
-            if logo_path and Path(logo_path).exists():
+            # Logo (fixed)
+            fixed_logo = get_resource_path('assets/icons/Company Logo.png')
+            if fixed_logo.exists():
                 try:
-                    logo_img = plt.imread(logo_path)
+                    logo_img = plt.imread(str(fixed_logo))
                     ax_logo = fig.add_axes([0.88, 0.945, 0.10, 0.05])
                     ax_logo.imshow(logo_img)
                     ax_logo.axis('off')
-                except: pass
+                except:
+                    pass
             t = data['totals']
             # Summary metrics table
             table_data = [

@@ -29,8 +29,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from utils.excel_timeseries import get_default_excel_repo
-from utils.excel_timeseries_extended import get_extended_excel_repo
-from utils.config_manager import config
+from utils.config_manager import config, get_resource_path
 
 
 @dataclass
@@ -61,7 +60,7 @@ def _audit_legacy_excel(calc_date: date) -> Dict[str, Any]:
         legacy_path = 'data/New Water Balance  20250930 Oct.xlsx'
     legacy_path = Path(legacy_path)
     if not legacy_path.is_absolute():
-        legacy_path = Path(__file__).resolve().parents[2] / legacy_path
+        legacy_path = Path(get_resource_path('')) / legacy_path
     result["path"] = str(legacy_path)
     result["exists"] = legacy_path.exists()
 
@@ -211,8 +210,10 @@ def _audit_legacy_excel(calc_date: date) -> Dict[str, Any]:
             except Exception:
                 checks.append(HeaderCheck(name=h, found=False, value=None))
         result["headers"] = [asdict(c) for c in checks]
-    except Exception:
+    except Exception as e:
         # Repo may fail to load; leave defaults
+        from utils.app_logger import logger
+        logger.error(f"[ERROR in _audit_legacy_excel] Exception: {e}", exc_info=True)
         pass
 
     return result
@@ -220,81 +221,20 @@ def _audit_legacy_excel(calc_date: date) -> Dict[str, Any]:
 
 def _audit_extended_excel(calc_date: date) -> Dict[str, Any]:
     """
-    Audit the template/extended Excel workbook if configured.
-
-    Returns a dict with file path (if discernible), sheet presence, and
-    a few month-level values when available.
+    Audit the template/extended Excel workbook (DEPRECATED).
+    
+    NOTE: Water_Balance_TimeSeries_Template.xlsx has been simplified to contain
+    only Flow Diagram data. The 6 sheets (Environmental, Storage_Facilities,
+    Production, Consumption, Seepage_Losses, Discharge) have been REMOVED.
+    
+    This function is kept for backward compatibility but returns empty results.
     """
-    details: Dict[str, Any] = {
+    return {
         "path": None,
         "exists": False,
         "sheets": {},
         "values": {},
     }
-
-    # Derive configured path
-    try:
-        template_path = config.get('data_sources.template_excel_path', 'templates/Water_Balance_TimeSeries_Template.xlsx')
-    except Exception:
-        template_path = 'templates/Water_Balance_TimeSeries_Template.xlsx'
-    path = Path(template_path)
-    if not path.is_absolute():
-        path = Path(__file__).resolve().parents[2] / path
-    details["path"] = str(path)
-    details["exists"] = path.exists()
-
-    try:
-        repo = get_extended_excel_repo()
-        # Probe a few representative month values; functions are safe if sheet missing
-        try:
-            rainfall = repo.get_rainfall(calc_date)
-        except Exception:
-            rainfall = None
-        try:
-            evap = repo.get_custom_evaporation(calc_date)
-        except Exception:
-            evap = None
-        try:
-            total_discharge = float(repo.get_total_discharge(calc_date))
-        except Exception:
-            total_discharge = None
-        # Production sheet (optional)
-        try:
-            conc_t = repo.get_concentrate_produced(calc_date)
-        except Exception:
-            conc_t = None
-        try:
-            conc_moist_pct = repo.get_concentrate_moisture(calc_date)
-        except Exception:
-            conc_moist_pct = None
-        try:
-            tails_moist_pct = repo.get_tailings_moisture(calc_date)
-        except Exception:
-            tails_moist_pct = None
-
-        details["values"] = {
-            "rainfall_mm": rainfall,
-            "evaporation_mm": evap,
-            "total_discharge_m3": total_discharge,
-            "concentrate_t": conc_t,
-            "concentrate_moisture_pct": conc_moist_pct,
-            "tailings_moisture_pct": tails_moist_pct,
-        }
-
-        # Infer sheet presence by whether DataFrame attributes look populated
-        # We cannot access the internal DFs directly; instead, call getters and
-        # infer availability from non-None/None returns on the same month.
-        details["sheets"] = {
-            "Environmental": (rainfall is not None) or (evap is not None),
-            "Discharge": total_discharge is not None,
-            "Production": (conc_t is not None) or (conc_moist_pct is not None) or (tails_moist_pct is not None),
-            # Storage and others require row-level checks; we mark unknown if file missing
-        }
-    except Exception:
-        # Extended repo may not be configured; leave defaults
-        pass
-
-    return details
 
 
 def collect_inputs_audit(calc_date: date) -> Dict[str, Any]:

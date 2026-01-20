@@ -65,10 +65,9 @@ class ExcelConfigDialog:
             # Save selection
             self.selected_path = file_path
             
-            # Update config
+            # Update config using public API
             try:
-                config._config['data_sources']['template_excel_path'] = file_path
-                config.save_config()
+                config.set('data_sources.template_excel_path', file_path)
                 
                 logger.info(f"Excel path configured: {file_path}")
                 messagebox.showinfo(

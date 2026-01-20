@@ -15,6 +15,7 @@ import warnings
 from openpyxl import load_workbook
 import uuid
 import sys
+import os
 
 # Suppress openpyxl warnings about print areas
 warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')
@@ -52,10 +53,46 @@ class FlowDiagramBalanceCheckDialog:
         # Load saved categorizations
         self._load_categorizations()
         
+    def _copy_bundled_categories_if_needed(self, user_dir: str) -> None:
+        """Copy bundled categories from app bundle to user directory on first run.
+        
+        In EXE mode, if user directory doesn't have categories, copy the bundled
+        development categories as defaults for the first installation.
+        """
+        if not user_dir:
+            return  # Not in EXE mode
+        
+        user_config_path = Path(user_dir) / 'data' / 'balance_check_flow_categories.json'
+        if user_config_path.exists():
+            return  # User already has categories, don't overwrite
+        
+        # Try to find bundled categories in PyInstaller bundle
+        try:
+            bundled_path = Path(sys._MEIPASS) / 'data' / 'balance_check_flow_categories.json'
+            if bundled_path.exists():
+                # Copy bundled categories to user directory
+                user_config_path.parent.mkdir(parents=True, exist_ok=True)
+                with open(bundled_path, 'r', encoding='utf-8') as src:
+                    bundled_data = json.load(src)
+                with open(user_config_path, 'w', encoding='utf-8') as dst:
+                    json.dump(bundled_data, dst, indent=2)
+                logger.info(f"✅ Copied bundled balance check categories to {user_config_path}")
+        except (AttributeError, FileNotFoundError, Exception) as e:
+            # Not in PyInstaller bundle or bundled file not found - no action needed
+            pass
+    
     def _load_categorizations(self):
         """Load saved flow categorizations from JSON"""
         try:
-            config_path = Path(__file__).parent.parent.parent / 'data' / 'balance_check_flow_categories.json'
+            # Use user data directory (EXE mode) or project data folder (dev mode)
+            user_dir = os.environ.get('WATERBALANCE_USER_DIR')
+            if user_dir:
+                # First-run: copy bundled categories if user doesn't have any
+                self._copy_bundled_categories_if_needed(user_dir)
+                config_path = Path(user_dir) / 'data' / 'balance_check_flow_categories.json'
+            else:
+                config_path = Path(__file__).parent.parent.parent / 'data' / 'balance_check_flow_categories.json'
+            
             if config_path.exists():
                 with open(config_path, 'r', encoding='utf-8') as f:
                     data = json.load(f)
@@ -90,7 +127,13 @@ class FlowDiagramBalanceCheckDialog:
     def _save_categorizations(self):
         """Save flow categorizations to JSON"""
         try:
-            config_path = Path(__file__).parent.parent.parent / 'data' / 'balance_check_flow_categories.json'
+            # Use user data directory (EXE mode) or project data folder (dev mode)
+            user_dir = os.environ.get('WATERBALANCE_USER_DIR')
+            if user_dir:
+                config_path = Path(user_dir) / 'data' / 'balance_check_flow_categories.json'
+            else:
+                config_path = Path(__file__).parent.parent.parent / 'data' / 'balance_check_flow_categories.json'
+            
             config_path.parent.mkdir(parents=True, exist_ok=True)
             
             # Load existing data
@@ -509,7 +552,12 @@ Status: {status}
     def _save_balance_results(self, results):
         """Save balance check results for dashboard display"""
         try:
-            results_path = Path(__file__).parent.parent.parent / 'data' / 'balance_check_last_run.json'
+            # Save to per-user data directory in EXE mode to avoid Program Files permission issues
+            user_dir = os.environ.get('WATERBALANCE_USER_DIR')
+            if user_dir:
+                results_path = Path(user_dir) / 'data' / 'balance_check_last_run.json'
+            else:
+                results_path = Path(__file__).parent.parent.parent / 'data' / 'balance_check_last_run.json'
             results_path.parent.mkdir(parents=True, exist_ok=True)
             
             with open(results_path, 'w', encoding='utf-8') as f:
@@ -526,7 +574,7 @@ Status: {status}
             self.categorizations[edge_id] = var.get()
         
         self._save_categorizations()
-        messagebox.showinfo("Saved", "Flow categorizations saved successfully!")
+        messagebox.showinfo("✅ Saved", "Flow categorizations saved successfully!\n\nYour categories will be remembered the next time you open Balance Check.")
         self.dialog.destroy()
 
 
@@ -982,7 +1030,15 @@ class DetailedNetworkFlowDiagram:
 
     def _load_diagram_data(self):
         """Load diagram JSON - loads the master UG2N diagram which contains all areas"""
-        self.json_file = Path(__file__).parent.parent.parent / 'data' / 'diagrams' / 'ug2_north_decline.json'
+        import os
+        # Resolve diagram path: EXE mode → WATERBALANCE_USER_DIR, Dev mode → project data folder
+        user_dir = os.environ.get('WATERBALANCE_USER_DIR')
+        if user_dir:
+            # EXE/deployment mode: use user data directory
+            self.json_file = Path(user_dir) / 'data' / 'diagrams' / 'ug2_north_decline.json'
+        else:
+            # Development mode: use project source tree
+            self.json_file = Path(__file__).parent.parent.parent / 'data' / 'diagrams' / 'ug2_north_decline.json'
         
         if not self.json_file.exists():
             messagebox.showerror("Error", f"Master diagram not found: {self.json_file}")
@@ -1012,7 +1068,12 @@ class DetailedNetworkFlowDiagram:
             return
         excel_path = getattr(self.flow_loader, 'excel_path', None)
         if not excel_path or not Path(excel_path).exists():
-            messagebox.showerror('Excel Not Found', f"Excel file not found:\n{excel_path}")
+            messagebox.showerror(
+                'Excel File Missing',
+                f"Flow Diagram Excel file not found:\n\n{excel_path}\n\n"
+                "This file contains flow volumes for the diagram visualization.\n"
+                "Please configure the path in Settings > Data Sources (timeseries_excel_path)."
+            )
             return
 
         def _collect_issues(wb):
@@ -1064,8 +1125,10 @@ class DetailedNetworkFlowDiagram:
             excel_path = getattr(self.flow_loader, 'excel_path', None)
             if not excel_path or not Path(excel_path).exists():
                 messagebox.showerror(
-                    'Excel Not Found',
-                    f"Excel file not found or unavailable for repair:\n{excel_path}"
+                    'Excel File Missing',
+                    f"Flow Diagram Excel file not found:\n\n{excel_path}\n\n"
+                    "This file contains flow volumes for the diagram visualization.\n"
+                    "Please configure the path in Settings > Data Sources (timeseries_excel_path)."
                 )
                 return 0
 
@@ -5563,7 +5626,12 @@ class DetailedNetworkFlowDiagram:
                         try:
                             excel_path = getattr(self.flow_loader, 'excel_path', None)
                             if not excel_path or not Path(excel_path).exists():
-                                messagebox.showerror("Excel Not Found", f"Excel file not found:\n{excel_path}")
+                                messagebox.showerror(
+                                    "Excel File Missing",
+                                    f"Flow Diagram Excel file not found:\n\n{excel_path}\n\n"
+                                    "This file contains flow volumes for the diagram visualization.\n"
+                                    "Please configure the path in Settings > Data Sources (timeseries_excel_path)."
+                                )
                                 return
                             wb = load_workbook(excel_path)
                             ws = wb[sheet]
@@ -6083,7 +6151,12 @@ class DetailedNetworkFlowDiagram:
         # Get Excel path
         excel_path = self.flow_loader.excel_path
         if not excel_path or not Path(excel_path).exists():
-            messagebox.showerror("Excel Not Found", f"Excel file not found:\n{excel_path}")
+            messagebox.showerror(
+                "Excel File Missing",
+                f"Flow Diagram Excel file not found:\n\n{excel_path}\n\n"
+                "This file contains flow volumes for the diagram visualization.\n"
+                "Please configure the path in Settings > Data Sources (timeseries_excel_path)."
+            )
             return
         
         dialog = self._create_styled_dialog("Excel Structure Manager", 950, 700)

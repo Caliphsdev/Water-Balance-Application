@@ -72,15 +72,38 @@ class LoadingScreen:
         title_frame = tk.Frame(main_frame, bg=self.bg_light)
         title_frame.pack(fill='x', pady=(24, 8))
         
-        # Company icon - smaller for dialog
-        company_label = tk.Label(
-            title_frame,
-            text="🏢",
-            font=('Segoe UI', 28),
-            fg=self.text_primary,
-            bg=self.bg_light
-        )
-        company_label.pack(pady=(0, 4))
+        # TransAfrica company logo - professional branding
+        try:
+            from PIL import Image, ImageTk
+            from utils.config_manager import get_resource_path
+            logo_path = get_resource_path('logo/Company Logo.png')
+            if logo_path.exists():
+                img = Image.open(logo_path)
+                # Resize logo for loading screen (max 80px height)
+                img.thumbnail((200, 80), Image.Resampling.LANCZOS)
+                self.logo_photo = ImageTk.PhotoImage(img)
+                logo_label = tk.Label(title_frame, image=self.logo_photo, bg=self.bg_light)
+                logo_label.pack(pady=(0, 8))
+            else:
+                # Fallback to icon if logo not found
+                company_label = tk.Label(
+                    title_frame,
+                    text="🏢",
+                    font=('Segoe UI', 28),
+                    fg=self.text_primary,
+                    bg=self.bg_light
+                )
+                company_label.pack(pady=(0, 4))
+        except Exception as e:
+            # Fallback to icon if image loading fails
+            company_label = tk.Label(
+                title_frame,
+                text="🏢",
+                font=('Segoe UI', 28),
+                fg=self.text_primary,
+                bg=self.bg_light
+            )
+            company_label.pack(pady=(0, 4))
         
         title = tk.Label(
             title_frame,

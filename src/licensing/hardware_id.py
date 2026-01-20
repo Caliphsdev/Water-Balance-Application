@@ -18,7 +18,19 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 def _run_command(command: List[str]) -> str:
     """Run a subprocess command and return stripped output."""
     try:
-        output = subprocess.check_output(command, stderr=subprocess.DEVNULL, shell=False)
+        # On Windows, use CREATE_NO_WINDOW to prevent console flash
+        startupinfo = None
+        if platform.system().lower() == "windows":
+            startupinfo = subprocess.STARTUPINFO()
+            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            startupinfo.wShowWindow = subprocess.SW_HIDE
+        
+        output = subprocess.check_output(
+            command, 
+            stderr=subprocess.DEVNULL, 
+            shell=False,
+            startupinfo=startupinfo
+        )
         return output.decode(errors="ignore").strip()
     except Exception:
         return ""

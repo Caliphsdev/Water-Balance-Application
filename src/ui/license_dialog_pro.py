@@ -236,13 +236,9 @@ class ProfessionalLicenseDialog(ttk.Window):
             bootstyle="secondary"
         ).pack(side=LEFT, padx=(0, 10))
         
-        # Primary action button
-        if self.mode == "transfer":
-            primary_text = "Request Transfer"
-            primary_command = self._on_transfer
-        else:
-            primary_text = "Activate License"
-            primary_command = self._on_activate
+        # Primary action button (activation only)
+        primary_text = "Activate License"
+        primary_command = self._on_activate
         
         self.primary_btn = ttk.Button(
             action_frame,
@@ -260,8 +256,8 @@ class ProfessionalLicenseDialog(ttk.Window):
         
         ttk.Separator(footer_frame, orient=HORIZONTAL).pack(fill=X, pady=(0, 10))
         
-        support_email = config.get("licensing.support_email", "support@water-balance.com")
-        support_phone = config.get("licensing.support_phone", "+27 123 456 7890")
+        support_email = config.get("licensing.support_email", "caliphs@transafreso.com")
+        support_phone = config.get("licensing.support_phone", "+27 82 355 8130")
         
         ttk.Label(
             footer_frame,
@@ -342,30 +338,6 @@ class ProfessionalLicenseDialog(ttk.Window):
             self.after(1000, self._close_success)
         else:
             logger.error(f"Activation failed: {msg}")
-            self._show_status("❌", msg, "error")
-            self.primary_btn.config(state="normal")
-    
-    def _on_transfer(self):
-        """Handle transfer button click"""
-        key = self.license_var.get().strip()
-        if not key:
-            self._show_status("❌", "Please enter a license key", "error")
-            return
-        
-        # Show progress
-        self._show_status("⏳", "Requesting hardware transfer...", "info")
-        self.primary_btn.config(state="disabled")
-        self.update()
-        
-        # Attempt transfer
-        ok, msg = self.manager.request_transfer(key)
-        
-        if ok:
-            logger.info("Transfer approved successfully")
-            self._show_status("✅", msg, "success")
-            self.after(1000, self._close_success)
-        else:
-            logger.error(f"Transfer failed: {msg}")
             self._show_status("❌", msg, "error")
             self.primary_btn.config(state="normal")
     

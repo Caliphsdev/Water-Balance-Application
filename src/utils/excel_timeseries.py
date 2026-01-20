@@ -1,3 +1,17 @@
+r"""
+Excel Time Series Repository - Meter Readings Data
+
+This module handles the METER READINGS Excel file (legacy_excel_path).
+File: data\New Water Balance  20250930 Oct.xlsx
+Sheet: "Meter Readings"
+Contains: Tonnes milled, RWD, dewatering volumes, etc.
+
+IMPORTANT: This is NOT the Flow Diagram Excel file!
+- Flow Diagram Excel (timeseries_excel_path) has Flows_* sheets
+- That file is handled by flow_volume_loader.py
+- This file handles the Meter Readings for calculations
+"""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -6,6 +20,8 @@ from pathlib import Path
 from typing import Dict, Any, Optional
 
 import pandas as pd
+
+from utils.config_manager import get_resource_path
 
 
 @dataclass
@@ -145,6 +161,15 @@ class ExcelTimeSeriesRepository:
             val = 0.0
         return val, row["Date"]
     
+    def clear_cache(self) -> None:
+        """Clear cached Excel data to force reload on next access.
+        
+        Call this after external updates to the Excel file to ensure
+        fresh data is read on the next calculation.
+        """
+        self._df = None
+        self._value_cache.clear()
+    
     def get_latest_date(self) -> Optional[date]:
         """Return the most recent date available in the Excel data.
         
@@ -172,10 +197,17 @@ class ExcelTimeSeriesRepository:
 def get_default_excel_repo() -> ExcelTimeSeriesRepository:
     """Get default Excel repository (lazy-loaded, no warnings on init)"""
     from utils.config_manager import config
-    base_dir = Path(__file__).resolve().parents[2]
-    # Get path from config or use default
-    excel_path = config.get('data_sources.legacy_excel_path', 'data/New Water Balance  20250930 Oct.xlsx')
-    file_path = base_dir / excel_path if not Path(excel_path).is_absolute() else Path(excel_path)
+    base_dir = Path(get_resource_path(''))
+    # Use legacy_excel_path for Meter Readings sheet (historical TRP data)
+    # This is separate from timeseries_excel_path which has Flows_* sheets
+    excel_path = config.get('data_sources.legacy_excel_path')
+    
+    # Handle None excel_path (fresh installation, not configured)
+    if excel_path:
+        file_path = base_dir / excel_path if not Path(excel_path).is_absolute() else Path(excel_path)
+    else:
+        # Default to data folder placeholder (will show warning when accessed)
+        file_path = base_dir / 'data' / 'New Water Balance  20250930 Oct.xlsx'
     
     # Don't warn on init - file will be checked when actually loaded
     cfg = ExcelTimeSeriesConfig(file_path=file_path)

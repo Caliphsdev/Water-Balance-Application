@@ -66,19 +66,19 @@ class DatabaseSchema:
                 from database.migrate_wb_schema import migrate as migrate_wb
                 migrate_wb()
             except Exception as wb_err:
-                print(f"⚠️ Warning: wb_* topology migration skipped: {wb_err}")
+                print(f"[WARNING] wb_* topology migration skipped: {wb_err}")
             self._create_reports_table(cursor)
             
             # Insert initial reference data
             self._insert_initial_data(cursor)
             
             conn.commit()
-            print(f"✅ Database created successfully: {self.db_path}")
+            print(f"[OK] Database created successfully: {self.db_path}")
             return True
             
         except sqlite3.Error as e:
             conn.rollback()
-            print(f"❌ Error creating database: {e}")
+            print(f"[ERROR] Error creating database: {e}")
             return False
         finally:
             conn.close()
@@ -119,12 +119,19 @@ class DatabaseSchema:
             if 'max_value' not in cols:
                 cursor.execute("ALTER TABLE system_constants ADD COLUMN max_value REAL")
 
+            # Ensure license_info has validation_succeeded column for online/offline status tracking
+            cursor.execute("PRAGMA table_info(license_info)")
+            license_cols = [row[1] for row in cursor.fetchall()]
+            if 'validation_succeeded' not in license_cols:
+                cursor.execute("ALTER TABLE license_info ADD COLUMN validation_succeeded INTEGER DEFAULT 0")
+                print("Added validation_succeeded column to license_info table")
+
             # Ensure optional wb_* topology tables exist (idempotent)
             try:
                 from database.migrate_wb_schema import migrate as migrate_wb
                 migrate_wb()
             except Exception as wb_err:
-                print(f"⚠️ Warning: wb_* topology migration skipped: {wb_err}")
+                print(f"[WARNING] wb_* topology migration skipped: {wb_err}")
             
             conn.commit()
             print(f"Database migrated successfully: {self.db_path}")
@@ -132,7 +139,7 @@ class DatabaseSchema:
             
         except sqlite3.Error as e:
             conn.rollback()
-            print(f"❌ Error migrating database: {e}")
+            print(f"[ERROR] Error migrating database: {e}")
             return False
         finally:
             conn.close()
@@ -900,6 +907,7 @@ class DatabaseSchema:
                 last_transfer_at TIMESTAMP,
                 manual_verification_count INTEGER DEFAULT 0,
                 manual_verification_reset_at TIMESTAMP,
+                validation_succeeded INTEGER DEFAULT 0,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
@@ -1082,7 +1090,56 @@ class DatabaseSchema:
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, alert_rules)
         
-        print("✅ Initial reference data inserted")
+        # Default storage facilities (pre-populated for new installs)
+        storage_facilities = [
+            ('DAM1', 'Process Dam 1', 'dam', None, 50000.0, None, 12000.0, 70.0, 20.0, 90.0, 0.0, 0.0, None, None, None, None, 0, 1, None, None),
+            ('DEBROCHEN', 'De Brochen Dam', 'dam', None, 9020000.0, None, 500000.0, 70.0, 20.0, 90.0, 0.0, 0.0, 'raw_water', None, None, None, 0, 1, '2010-01-01', None),
+            ('FWD', 'Freshwater Dam', 'Dam', None, 960000.0, None, 80000.0, 70.0, 10.0, 90.0, 485762.26, 50.60, 'raw_water', 'process', 'MDSWD3-4', None, 1, 1, None, None),
+            ('INYONI', 'Inyoni Dam', 'dam', None, 500000.0, None, 50000.0, 70.0, 10.0, 90.0, 191574.88, 38.31, 'raw_water', 'process', 'NDCD1-4', None, 0, 1, '2010-01-01', None),
+            ('MDCD5-6', 'Merensky Decline Clean Dams 5-6', 'dam', 3, 40000.0, None, 2500.0, 70.0, 10.0, 90.0, 14561.92, 36.40, 'clean_water', 'process', 'NDCD1-4,MDSWD3-4', None, 1, 1, None, None),
+            ('MDSWD3-4', 'Merensky Decline Storm Water Dams 3-4', 'dam', 3, 35000.0, None, 2000.0, 70.0, 5.0, 90.0, 19561.82, 55.89, 'storm_water', 'process', None, None, 1, 1, None, None),
+            ('OLD_TSF', 'Old Tailings Storage Facility', 'dam', None, 1000000.0, None, 100000.0, 70.0, 20.0, 90.0, 0.0, 0.0, 'return_water', None, None, None, 0, 1, None, None),
+            ('PLANT_RWD', 'Plant Return Water Dam', 'dam', None, 100000.0, None, 10000.0, 70.0, 20.0, 90.0, 38466.99, 38.47, 'return_water', 'process', 'MDSWD3-4', None, 1, 1, None, None),
+            ('PWD', 'Process Water Dam', 'Dam', None, 1500000.0, None, 120000.0, 70.0, 20.0, 90.0, 85770.65, 5.72, 'raw_water', 'process', 'PLANT_RWD', None, 1, 1, None, None),
+            ('RWD', 'Raw Water Dam', 'Dam', None, 2000000.0, None, 150000.0, 70.0, 10.0, 90.0, 972618.92, 48.63, 'raw_water', 'process', 'MDCD5-6', None, 1, 1, None, None),
+        ]
+        cursor.executemany(
+            """INSERT OR IGNORE INTO storage_facilities (
+                facility_code, facility_name, facility_type, area_id, 
+                total_capacity, working_capacity, surface_area,
+                pump_start_level, pump_stop_level, high_level_alarm,
+                current_volume, current_level_percent,
+                purpose, water_quality, feeds_to, receives_from,
+                is_lined, active, commissioned_date, max_depth
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            storage_facilities
+        )
+        
+        # Default rainfall data (pre-populated for new installs)
+        rainfall_data = [
+            (1, None, 75.0, 'dashboard'),
+            (2, None, 65.0, 'dashboard'),
+            (3, None, 80.0, 'dashboard'),
+            (4, None, 45.0, 'dashboard'),
+            (5, None, 30.0, 'dashboard'),
+            (6, None, 20.0, 'dashboard'),
+            (7, None, 15.0, 'dashboard'),
+            (8, None, 18.0, 'dashboard'),
+            (9, None, 25.0, 'dashboard'),
+            (10, None, 40.0, 'dashboard'),
+            (11, None, 55.0, 'dashboard'),
+            (12, None, 70.0, 'dashboard'),
+            (9, 2025, 90.0, 'dashboard'),
+            (10, 2025, 100.0, 'dashboard'),
+            (11, 2025, 120.0, 'dashboard'),
+            (12, 2025, 130.0, 'dashboard'),
+        ]
+        cursor.executemany(
+            "INSERT OR IGNORE INTO regional_rainfall_monthly (month, year, rainfall_mm, data_source) VALUES (?, ?, ?, ?)",
+            rainfall_data
+        )
+        
+        print("[OK] Initial reference data inserted")
     
     def verify_database(self):
         """Verify database integrity"""
@@ -1102,21 +1159,21 @@ class DatabaseSchema:
                 'groundwater_inflow_monthly', 'data_quality_checks'
             ]
             
-            print("\n📊 Database Verification:")
+            print("\n[INFO] Database Verification:")
             print(f"  Tables created: {len(tables)}")
             
             for table in expected_tables:
                 if table in tables:
                     cursor.execute(f"SELECT COUNT(*) FROM {table}")
                     count = cursor.fetchone()[0]
-                    print(f"  ✅ {table}: {count} records")
+                    print(f"  [OK] {table}: {count} records")
                 else:
-                    print(f"  ❌ {table}: MISSING")
+                    print(f"  [MISSING] {table}: MISSING")
             
             return True
             
         except sqlite3.Error as e:
-            print(f"❌ Verification error: {e}")
+            print(f"[ERROR] Verification error: {e}")
             return False
         finally:
             conn.close()

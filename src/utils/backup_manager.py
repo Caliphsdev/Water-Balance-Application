@@ -1,19 +1,39 @@
 """Backup Manager - handles database backup and restore operations."""
 from pathlib import Path
 import shutil
+import os
 from datetime import datetime
 from typing import Optional
 
 from utils.config_manager import config
 
 class BackupManager:
-    def __init__(self, db_path: str = None, backup_dir: str = 'backups'):
+    def __init__(self, db_path: str = None, backup_dir: str = None):
         base_dir = Path(__file__).parent.parent.parent
         if db_path is None:
             db_path = base_dir / config.get('database.path', 'data/water_balance.db')
         self.db_path = Path(db_path)
-        self.backup_dir = Path(backup_dir)
-        self.backup_dir.mkdir(parents=True, exist_ok=True)
+
+        # FIX: Always prefer a user-writable directory; fallback to LocalAppData if env missing.
+        if backup_dir is None:
+            user_dir = os.environ.get('WATERBALANCE_USER_DIR')
+            if not user_dir:
+                local_appdata = os.getenv('LOCALAPPDATA')
+                if local_appdata:
+                    user_dir = str(Path(local_appdata) / 'WaterBalance')
+                else:
+                    user_dir = str(Path.home() / '.waterbalance')
+            self.backup_dir = Path(user_dir) / 'backups'
+        else:
+            self.backup_dir = Path(backup_dir)
+
+        # Now safe to create directory in writable location; if it fails, fall back to user home.
+        try:
+            self.backup_dir.mkdir(parents=True, exist_ok=True)
+        except PermissionError:
+            fallback_dir = Path.home() / '.waterbalance' / 'backups'
+            fallback_dir.mkdir(parents=True, exist_ok=True)
+            self.backup_dir = fallback_dir
 
     def create_backup(self, label: Optional[str] = None) -> Path:
         if not self.db_path.exists():

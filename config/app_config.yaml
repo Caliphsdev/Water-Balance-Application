@@ -23,10 +23,10 @@ colors:
 data_sources:
   dam_recirculation_path: data\templates\DAM_RECIRCULATION_TEMPLATE.txt
   inflow_codes_path: data\templates\INFLOW_CODES_TEMPLATE.txt
-  legacy_excel_path: D:/Downloads/New Water Balance  20250930 Oct.xlsx
+  legacy_excel_path: data\New Water Balance  20250930 Oct.xlsx
   outflow_codes_path: data\templates\OUTFLOW_CODES_TEMPLATE_CORRECTED.txt
-  template_excel_path: test_templates\Water_Balance_TimeSeries_Template.xlsx
-  timeseries_excel_path: test_templates\Water_Balance_TimeSeries_Template.xlsx
+  template_excel_path: data\Water_Balance_TimeSeries_Template.xlsx
+  timeseries_excel_path: data\Water_Balance_TimeSeries_Template.xlsx
 database:
   path: data/water_balance.db
 environmental:

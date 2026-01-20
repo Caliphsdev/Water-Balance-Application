@@ -6,7 +6,7 @@ from tkinter import ttk, filedialog, messagebox
 from datetime import date, timedelta
 from pathlib import Path
 from database.db_manager import db
-from utils.config_manager import config
+from utils.config_manager import config, get_resource_path
 
 class ExtendedSummaryView(ttk.Frame):
     def __init__(self, parent):
@@ -154,12 +154,12 @@ class ExtendedSummaryView(ttk.Frame):
                 company = config.get_company_name()
                 ax.text(0.02, 0.967, company, fontsize=14, weight='bold', va='center', ha='left', color='white')
                 ax.text(0.50, 0.967, 'Extended Water Balance Summary', fontsize=12, weight='bold', va='center', ha='center', color='white')
-                # Optional logo on right
+                # Fixed logo on right
                 try:
-                    logo_path = config.get_logo_path()
-                    if logo_path and Path(logo_path).exists():
+                    fixed_logo = get_resource_path('assets/icons/Company Logo.png')
+                    if fixed_logo.exists():
                         import matplotlib.pyplot as _plt
-                        logo_img = _plt.imread(logo_path)
+                        logo_img = _plt.imread(str(fixed_logo))
                         ax_logo = fig.add_axes([0.90, 0.945, 0.075, 0.05])
                         ax_logo.imshow(logo_img)
                         ax_logo.axis('off')

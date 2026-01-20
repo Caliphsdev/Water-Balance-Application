@@ -157,7 +157,7 @@ class LicenseDialog(tk.Toplevel):
         
         if mode == "transfer":
             self.status_label.config(
-                text="⚠️ Hardware mismatch detected.\nEnter your registered email to authorize transfer to this device.",
+                text="⚠️ Hardware mismatch detected. Transfers are disabled. Please contact the administrator to move this license.",
                 fg='#ff9800'
             )
             self.email_entry.focus_set()
@@ -183,28 +183,10 @@ class LicenseDialog(tk.Toplevel):
         )
         cancel_btn.pack(side='left', padx=(0, 8))
         
-        # Buttons on right side
+        # Buttons on right side (only Activate)
         right_button_frame = tk.Frame(button_frame, bg=self.bg_color)
         right_button_frame.pack(side='right')
         
-        # Request Transfer button
-        transfer_btn = tk.Button(
-            right_button_frame,
-            text="Request Transfer",
-            font=('Segoe UI', 9, 'bold'),
-            fg='white',
-            bg=self.accent_color,
-            activebackground=self.accent_hover,
-            relief='flat',
-            bd=0,
-            padx=16,
-            pady=8,
-            command=self._on_transfer,
-            cursor='hand2'
-        )
-        transfer_btn.pack(side='left', padx=(0, 8))
-        
-        # Activate button (primary action)
         activate_btn = tk.Button(
             right_button_frame,
             text="Activate License",
@@ -258,35 +240,6 @@ class LicenseDialog(tk.Toplevel):
                 self.parent.destroy()
         else:
             self.status_label.config(text=msg)
-
-    def _on_transfer(self):
-        key = self.license_var.get().strip()
-        email = self.email_var.get().strip()
-        
-        # Validate email is provided
-        if not email:
-            self.status_label.config(text="❌ Email is required for transfer verification")
-            self.email_entry.focus_set()
-            return
-        
-        # Basic email format validation
-        if "@" not in email or "." not in email.split("@")[-1]:
-            self.status_label.config(text="❌ Please enter a valid email address")
-            self.email_entry.focus_set()
-            return
-        
-        ok, msg = self.manager.request_transfer(key, user_email=email)
-        if ok:
-            logger.info(f"License transfer approved for email: {email}")
-            self.result = True
-            messagebox.showinfo("Transfer", "✅ Transfer approved!\n\nHardware updated successfully.\nCheck your email for confirmation.", parent=self)
-            self.destroy()
-        else:
-            self.status_label.config(text=f"❌ {msg}")
-            # If email mismatch, highlight the email field
-            if "email" in msg.lower() or "invalid" in msg.lower():
-                self.email_entry.focus_set()
-                self.email_entry.select_range(0, tk.END)
 
     def _on_close(self):
         self.result = False

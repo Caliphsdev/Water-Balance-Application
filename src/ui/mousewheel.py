@@ -18,13 +18,28 @@ import tkinter as tk
 from tkinter import ttk
 
 
-_SYSTEM = platform.system().lower()
+# Lazy-loaded to avoid platform detection delays on import
+_SYSTEM = None
+
+
+def _get_system():
+    """Get the system platform, cached after first call."""
+    global _SYSTEM
+    if _SYSTEM is None:
+        try:
+            _SYSTEM = platform.system().lower()
+        except Exception:
+            # Fallback to 'linux' if platform detection fails
+            _SYSTEM = 'linux'
+    return _SYSTEM
 
 
 def _bind_widget_mousewheel(widget, yview_target):
     """Bind mousewheel events to a widget using the provided yview target."""
+    system = _get_system()
+    
     def _on_mousewheel(event):
-        if _SYSTEM in ('windows', 'darwin'):
+        if system in ('windows', 'darwin'):
             # event.delta is multiple of 120 typically
             yview_target.yview_scroll(int(-event.delta / 120), 'units')
         # Linux handled via Button-4/5
@@ -36,14 +51,14 @@ def _bind_widget_mousewheel(widget, yview_target):
         yview_target.yview_scroll(1, 'units')
 
     def _activate(_event=None):
-        if _SYSTEM in ('windows', 'darwin'):
+        if system in ('windows', 'darwin'):
             widget.bind_all('<MouseWheel>', _on_mousewheel, add='+')
         else:
             widget.bind_all('<Button-4>', _on_linux_up, add='+')
             widget.bind_all('<Button-5>', _on_linux_down, add='+')
 
     def _deactivate(_event=None):
-        if _SYSTEM in ('windows', 'darwin'):
+        if system in ('windows', 'darwin'):
             widget.unbind_all('<MouseWheel>')
         else:
             widget.unbind_all('<Button-4>')
