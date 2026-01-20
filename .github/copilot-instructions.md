@@ -13,6 +13,41 @@ Python/Tkinter desktop app for mine water balance across 8 areas. Core flow: rea
 
 **Never use system Python or create new virtual environments.** The project uses a single `.venv` environment configured in the root. If running tests or utilities, always activate: `.venv\Scripts\Activate.ps1` (PowerShell).
 
+## 🧪 Testing Requirements (MANDATORY)
+
+**Every feature must have corresponding tests.**
+
+**Test Creation Rules:**
+- Create tests for **every new function, class, and feature** before or immediately after implementation
+- Test files go in `tests/` directory, mirroring `src/` structure (e.g., `src/utils/foo.py` → `tests/utils/test_foo.py`)
+- Use `pytest` as the testing framework
+- Run tests before committing: `.venv\Scripts\python -m pytest tests/ -v`
+- Aim for **>80% code coverage** on core logic (utils, database, calculations)
+- Use fixtures and mocks to isolate units
+- Document non-obvious test cases with comments
+
+**Test Categories:**
+- **Unit Tests:** Individual functions/methods (fast, isolated)
+- **Integration Tests:** Multi-component workflows (DB, Excel, calculations)
+- **UI Tests:** Dialog flows, state changes (use mocking where possible)
+
+**Examples:**
+- New calculator function → write unit test in `tests/utils/test_calculator.py`
+- New Excel loader → write integration test in `tests/utils/test_excel_loader.py`
+- New UI dialog → write UI test in `tests/ui/test_dialog.py`
+
+**Workflow:**
+1. Write test (TDD preferred, but post-implementation OK)
+2. Implement feature
+3. Run: `.venv\Scripts\python -m pytest tests/ -v`
+4. Achieve green tests
+5. Commit with test code included
+
+**Pro Tips:**
+- Use `pytest-cov` to check coverage: `.venv\Scripts\python -m pytest tests/ --cov=src`
+- Use `pytest-mock` for mocking external dependencies
+- Use fixtures in `tests/conftest.py` for shared test data
+
 ## 🏗️ Architecture Map
 
 **Data Flow Layers:**
