@@ -3,6 +3,16 @@
 ## 🎯 What This Is
 Python/Tkinter desktop app for mine water balance across 8 areas. Core flow: read templates → calculate balances → load Excel overlays → persist to SQLite → render dashboards. Scientific basis: **Fresh Inflows = Outflows + ΔStorage + Error** (seepage captured in storage change).
 
+## 🐍 Python Environment (MANDATORY)
+
+**ALWAYS use the virtual environment for all Python operations:**
+- **Run application:** `.venv\Scripts\python src/main.py`
+- **Install packages:** `.venv\Scripts\python -m pip install <package>`
+- **Run scripts:** `.venv\Scripts\python <script_path>`
+- **Database operations:** `.venv\Scripts\python -c "<command>"`
+
+**Never use system Python or create new virtual environments.** The project uses a single `.venv` environment configured in the root. If running tests or utilities, always activate: `.venv\Scripts\Activate.ps1` (PowerShell).
+
 ## 🏗️ Architecture Map
 
 **Data Flow Layers:**
@@ -58,7 +68,7 @@ Then imports from `utils`, `database`, `ui`, `models`. **Keep this in new files.
 
 ## 🚀 Key Workflows
 
-**Run app:** `python src/main.py` (respects `features.fast_startup` config).
+**Run app:** `.venv\Scripts\python src/main.py` (respects `features.fast_startup` config). See [🐍 Python Environment](#-python-environment-mandatory) section above.
 
 **DB operations:**
 - **Init/Reset:** `.venv\Scripts\python -c "from src.database.schema import DatabaseSchema; DatabaseSchema().create_database()"`
