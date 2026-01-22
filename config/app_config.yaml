@@ -57,21 +57,37 @@ fonts:
     size: 13
     weight: bold
 licensing:
+  api_key: a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6
   background_check_interval_seconds: 43200
   check_interval_hours: 24
   check_intervals:
     premium: 168
     standard: 24
     trial: 1
-  hardware_match_threshold: 2
-  max_transfers: 3
+  hardware_similarity_threshold: 0.6
   offline_grace_days: 7
   request_timeout: 10
   require_remote_hardware_match: true
   service_account_json: C:\keys\water-balance-license-manager-08ee91774e72.json
   sheet_name: licenses
-  sheet_url: https://docs.google.com/spreadsheets/d/1_WA6A8rCg5Av2CNzArEI_aqalW_DMYelq8a6OPcd_js/edit?usp=sharing
-  webhook_url: https://script.google.com/macros/s/AKfycbxlHMnrSJu2dn5E7nZCTLIT4rin9epM6FrI0oVYKeotTtY5_b_wBRv6AnzwKIcB-_Zi/exec
+  sheet_url: https://docs.google.com/spreadsheets/d/1sba11B6sx6nPyOvueOKm3b3pN5hqVYG_Yw1P6Knb8xU/edit?usp=sharing
+  tier_features:
+    premium:
+      api_access: true
+      export_enabled: true
+      max_calculations_per_month: 1000
+      priority_support: true
+    standard:
+      api_access: false
+      export_enabled: true
+      max_calculations_per_month: 100
+      priority_support: false
+    trial:
+      api_access: false
+      export_enabled: false
+      max_calculations_per_month: 10
+      priority_support: false
+  webhook_url: https://script.google.com/macros/s/AKfycbyjOR-JUYuSTEIuInChx8uxhZk0RDreiHZrBS4jWINKCV9lXu0ylxXaFf4m_DBhCn7zeQ/exec
 session:
   current_user: admin
 storage:

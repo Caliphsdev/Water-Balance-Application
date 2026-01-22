@@ -790,10 +790,22 @@ class CalculationsModule:
     def _calculate_balance(self):
         """Perform water balance calculation"""
         import time
+        from licensing.license_manager import LicenseManager
         calc_start = time.perf_counter()
         logger.info("⏱️  Calculations: on-demand run started")
         
         try:
+            # Check calculation quota for trial licenses
+            license_manager = LicenseManager()
+            allowed, quota_msg = license_manager.check_calculation_quota()
+            if not allowed:
+                messagebox.showwarning(
+                    "Calculation Limit Reached",
+                    f"🚫 {quota_msg}\n\n"
+                    "Contact caliphs@transafreso.com or +27 82 355 8130 to upgrade your license."
+                )
+                logger.warning(f"❌ Calculation blocked: {quota_msg}")
+                return
             # Validate Meter Readings Excel file exists before proceeding
             excel_repo = get_default_excel_repo()
             if not excel_repo.config.file_path.exists():

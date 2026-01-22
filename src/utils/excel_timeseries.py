@@ -81,6 +81,10 @@ class ExcelTimeSeriesRepository:
         df["Year"] = df["Date"].apply(lambda d: d.year if pd.notna(d) else None)
         df["Month"] = df["Date"].apply(lambda d: d.month if pd.notna(d) else None)
         self._df = df
+        
+        # Normalize column names: strip whitespace from all headers
+        # This prevents hardcoded try/except pairs in caller code (e.g., "PGM Concentrate Moisture ")
+        self.normalize_column_names()
 
     def get_monthly_value(self, calculation_date: date, header_name: str) -> float:
         """Return the value for a given header and month date.
@@ -160,6 +164,19 @@ class ExcelTimeSeriesRepository:
         except (TypeError, ValueError):
             val = 0.0
         return val, row["Date"]
+    
+    def normalize_column_names(self) -> None:
+        """Normalize Excel column names by stripping whitespace.
+        
+        Excel sometimes has trailing spaces in headers (e.g., "PGM Concentrate Moisture ")
+        This centralizes the normalization so calculation code doesn't need try/except pairs.
+        Internally renames all columns to strip leading/trailing whitespace.
+        """
+        if self._df is None or self._df.empty:
+            return
+        
+        # Strip whitespace from all column names
+        self._df.columns = [col.strip() if isinstance(col, str) else col for col in self._df.columns]
     
     def clear_cache(self) -> None:
         """Clear cached Excel data to force reload on next access.

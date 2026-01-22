@@ -771,7 +771,9 @@ def main():
         if not is_valid:
             logger.warning(f"License check failed: {reason}")
             root = tk.Tk()
-            root.withdraw()
+            # Don't withdraw - let dialogs show properly on top of root window
+            root.geometry("1x1+0+0")  # Minimal invisible window
+            root.overrideredirect(True)
             
             # Show informative error message to user based on reason
             if "revoked" in reason.lower():
@@ -782,6 +784,19 @@ def main():
                 logger.critical("Application terminated: license revoked")
                 root.destroy()
                 sys.exit(1)
+            elif "expired" in reason.lower():
+                # License expired - show notification FIRST, then dialog to enter new key
+                messagebox.showwarning(
+                    "License Expired",
+                    f"⏰ Your license has expired.\n\n{reason}\n\nPlease enter a valid license key to continue."
+                )
+                logger.warning("Showing license activation dialog for expired license")
+                success = show_license_dialog(parent=root, mode="activate")
+                root.destroy()
+                if not success:
+                    # User cancelled - exit quietly (already saw warning and dialog)
+                    logger.critical("Application terminated: expired license not renewed")
+                    sys.exit(1)
             elif "Hardware mismatch" in reason:
                 messagebox.showerror(
                     "License Mismatch",
@@ -791,7 +806,7 @@ def main():
                 logger.critical("Application terminated: hardware mismatch with transfers disabled")
                 sys.exit(1)
             else:
-                # Regular activation dialog
+                # Regular activation dialog for other validation failures
                 success = show_license_dialog(parent=root, mode="activate")
                 root.destroy()
                 if not success:

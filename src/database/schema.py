@@ -908,6 +908,8 @@ class DatabaseSchema:
                 manual_verification_count INTEGER DEFAULT 0,
                 manual_verification_reset_at TIMESTAMP,
                 validation_succeeded INTEGER DEFAULT 0,
+                max_calculations INTEGER DEFAULT 10,
+                calculation_count INTEGER DEFAULT 0,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )

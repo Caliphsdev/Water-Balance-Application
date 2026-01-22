@@ -186,13 +186,32 @@ class MainWindow:
         Args:
             is_valid: Optional override for license validity (e.g., from verify button result)
             expiry_date: Optional override for expiry date
+        
+        Notes:
+            Uses the cached license record when available to avoid repeated online
+            validation calls during UI refreshes. Startup validation in `main.py`
+            already performs the authoritative online check; this method keeps the
+            toolbar responsive by relying on the locally persisted license row.
         """
         try:
-            # If not provided, fetch fresh status
+            # If not provided, prefer cached DB status to avoid hitting Google Sheets on every refresh.
             if is_valid is None:
                 from licensing.license_manager import LicenseManager
+                from datetime import datetime
                 manager = LicenseManager()
-                is_valid, msg, expiry_date = manager.validate_startup()
+
+                record = manager._fetch_license_row()  # Read-only access; avoids repeated online validation
+                if record:
+                    raw_expiry = record.get("expiry_date")
+                    if raw_expiry:
+                        try:
+                            expiry_date = datetime.strptime(raw_expiry, "%Y-%m-%d").date()
+                        except Exception:
+                            expiry_date = None
+                    # Treat status as valid if not explicitly revoked/expired; startup validation already enforced.
+                    is_valid = record.get("license_status") not in {"revoked", "expired"}
+                else:
+                    is_valid = False
             
             if is_valid:
                 if expiry_date:
@@ -583,60 +602,72 @@ class MainWindow:
                     pass
     
     def load_module(self, module_id, **kwargs):
-        """Load a module into the content area
+        """Load a module into the content area with caching to speed navigation.
         
         Args:
             module_id: ID of the module to load
             **kwargs: Additional parameters to pass to module loaders
+                - force_reload: When True, rebuilds the module even if cached
         """
         # Debounce: cancel pending load if user clicks rapidly
         if self._pending_load:
             self.root.after_cancel(self._pending_load)
             self._pending_load = None
         
-        # Skip if already on this module (unless kwargs provided)
-        if module_id == self.current_module and not kwargs:
+        force_reload = kwargs.get('force_reload', False)
+        
+        # Skip if already on this module (unless kwargs provided or forced reload)
+        if module_id == self.current_module and not force_reload and not kwargs:
             return
         
         def _do_load():
             self._pending_load = None
             try:
                 logger.user_action(f"Loading module: {module_id}")
-                
-                # Clear current content
+
+                # Hide all existing module frames without destroying them; cached frames can be re-used.
                 for widget in self.content_area.winfo_children():
-                    widget.destroy()
+                    widget.pack_forget()
                 
-                # Force update to clear widgets immediately
-                self.content_area.update_idletasks()
-            
-                # Highlight active nav button
+                # Highlight active nav button early for immediate feedback
                 self._highlight_nav_button(module_id)
-                
-                # Load module based on ID
                 self.current_module = module_id
-                
+
+                cached = self._module_cache.get(module_id)
+                if cached and not force_reload:
+                    # Fast path: show cached frame to avoid re-running DB/Excel loads
+                    cached['frame'].pack(fill='both', expand=True)
+                    self._update_statusbar()
+                    logger.info(f"Module restored from cache: {module_id}")
+                    return
+
+                # Build a fresh wrapper frame for the module (cached after load)
+                wrapper = tk.Frame(self.content_area, bg=config.get_color('bg_main'))
+                wrapper.pack(fill='both', expand=True)
+                self._module_cache[module_id] = {'frame': wrapper}
+
+                # Load module based on ID into the wrapper
                 if module_id == 'dashboard':
-                    self._load_dashboard()
+                    self._load_dashboard(wrapper)
                 elif module_id == 'analytics':
-                    self._load_analytics()
+                    self._load_analytics(wrapper)
                 elif module_id == 'monitoring_data':
-                    self._load_monitoring_data()
+                    self._load_monitoring_data(wrapper)
                 elif module_id == 'storage':
-                    self._load_storage_facilities()
+                    self._load_storage_facilities(wrapper)
                 elif module_id == 'calculations':
-                    self._load_calculations()
+                    self._load_calculations(wrapper)
                 elif module_id == 'flow_diagram':
-                    self._load_flow_diagram()
+                    self._load_flow_diagram(wrapper)
                 elif module_id == 'settings':
-                    self._load_settings(tab=kwargs.get('tab'))
+                    self._load_settings(parent=wrapper, tab=kwargs.get('tab'))
                 elif module_id == 'help':
                     from ui.help_documentation import HelpDocumentation
-                    help_module = HelpDocumentation(self.content_area)
+                    help_module = HelpDocumentation(wrapper)
                     help_module.create_ui()
                 elif module_id == 'about':
-                    self._load_about()
-            
+                    self._load_about(parent=wrapper)
+
                 self._update_statusbar()
                 logger.info(f"Module loaded successfully: {module_id}")
 
@@ -745,59 +776,72 @@ class MainWindow:
             logger.warning(f"Excel not available for module: {module_name}")
             return False
     
-    def _load_dashboard(self):
-        """Load the dashboard module (always reload to show latest DB data)"""
+    def _load_dashboard(self, parent):
+        """Load the dashboard module into a provided parent frame.
+        
+        Caching Note:
+            Dashboard instances are cached by navigation to keep module switches
+            instant. Users can still force a fresh reload via `force_reload` or
+            the in-module refresh button for updated DB/Excel data.
+        """
         from ui.dashboard import DashboardModule
         
-        dashboard = DashboardModule(self.content_area)
+        dashboard = DashboardModule(parent)
         dashboard.load()
         self._dashboard_loaded = True
 
-    def _load_analytics(self):
-        """Load the analytics & trends module"""
+    def _load_analytics(self, parent):
+        """Load the analytics & trends module into a cached parent frame."""
         from ui.analytics_dashboard import AnalyticsDashboard
         
-        analytics = AnalyticsDashboard(self.content_area)
+        analytics = AnalyticsDashboard(parent)
         analytics.load()
     
-    def _load_monitoring_data(self):
-        """Load the monitoring data module"""
+    def _load_monitoring_data(self, parent):
+        """Load the monitoring data module into a cached parent frame."""
         from ui.monitoring_data import MonitoringDataModule
         
-        module = MonitoringDataModule(self.content_area)
+        module = MonitoringDataModule(parent)
         module.load()
     
-    def _load_storage_facilities(self):
-        """Load the storage facilities management module"""
+    def _load_storage_facilities(self, parent):
+        """Load the storage facilities management module into a cached parent frame."""
         from ui.storage_facilities import StorageFacilitiesModule
         
-        module = StorageFacilitiesModule(self.content_area)
+        module = StorageFacilitiesModule(parent)
         module.load()
     
-    def _load_calculations(self):
-        """Load the calculations module
+    def _load_calculations(self, parent):
+        """Load the calculations module into a cached parent frame.
         
         Note: Calculations uses get_default_excel_repo() which handles its own
-        Excel loading (legacy_excel_path: Meter Readings Excel). No pre-loading needed.
-        Missing files degrade gracefully (return 0.0 values). Status shown in Settings.
+        Excel loading (Meter Readings Excel). Missing files degrade gracefully
+        (0.0 values) and status is shown in Settings.
         """
         from ui.calculations import CalculationsModule
         
-        module = CalculationsModule(self.content_area)
+        module = CalculationsModule(parent)
         module.load()
 
-    def _load_flow_diagram(self):
-        """Load the flow diagram module showing water balance flow"""
+    def _load_flow_diagram(self, parent):
+        """Load the flow diagram module into a cached parent frame."""
         from ui.flow_diagram_dashboard import FlowDiagramDashboard
 
-        module = FlowDiagramDashboard(self.content_area)
+        module = FlowDiagramDashboard(parent)
         module.load()
     
-    def _load_placeholder(self, title, description):
-        """Load a placeholder for modules under development"""
-        bg_main = config.get_color('bg_main')
+    def _load_placeholder(self, title, description, parent=None):
+        """Load a placeholder for modules under development.
         
-        container = tk.Frame(self.content_area, bg=bg_main)
+        Args:
+            title: Placeholder title
+            description: Placeholder description text
+            parent: Optional parent frame (falls back to content_area)
+        """
+        bg_main = config.get_color('bg_main')
+        target_parent = parent or self.content_area
+        
+        container = tk.Frame(target_parent, bg=bg_main)
         container.pack(fill='both', expand=True, padx=20, pady=20)
         
         # Title
@@ -833,15 +877,20 @@ class MainWindow:
         )
         message.pack(expand=True)
     
-    def _load_about(self):
-        """Load the About page with enhanced styling and information"""
+    def _load_about(self, parent=None):
+        """Load the About page with enhanced styling and information.
+        
+        Args:
+            parent: Optional parent frame for caching
+        """
         bg_main = config.get_color('bg_main')
         bg_secondary = config.get_color('bg_secondary')
         text_primary = config.get_color('text_primary')
         text_secondary = config.get_color('text_secondary')
         accent = config.get_color('accent')
+        target_parent = parent or self.content_area
         
-        container = tk.Frame(self.content_area, bg=bg_main)
+        container = tk.Frame(target_parent, bg=bg_main)
         container.pack(fill='both', expand=True, padx=0, pady=0)
         
         # Create scrollable canvas
@@ -1399,14 +1448,15 @@ class MainWindow:
         t = threading.Thread(target=_task, daemon=True)
         t.start()
 
-    def _load_settings(self, tab=None):
-        """Load settings module
+    def _load_settings(self, parent=None, tab=None):
+        """Load settings module into a cached parent frame.
         
         Args:
+            parent: Optional parent frame (for cached navigation)
             tab: Optional tab to open ('alerts', 'constants', etc.)
         """
         from ui.settings import SettingsModule
-        module = SettingsModule(self.content_area, initial_tab=tab)
+        module = SettingsModule(parent or self.content_area, initial_tab=tab)
         module.load()
 
     def _load_extended_summary(self):

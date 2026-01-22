@@ -49,8 +49,8 @@ class LicenseManager:
         self.support_phone = _SMTP_CONFIG['support_phone']
         self.check_interval_hours = int(config.get("licensing.check_interval_hours", 24))
         self.check_intervals = config.get("licensing.check_intervals", {"trial": 1, "standard": 24, "premium": 168})
-        self.max_transfers = int(config.get("licensing.max_transfers", 3))
-        self.hardware_threshold = int(config.get("licensing.hardware_match_threshold", 2))
+        self.hardware_similarity_threshold = float(config.get("licensing.hardware_similarity_threshold", 0.60))
+        self.tier_features = config.get("licensing.tier_features", {})
 
     # Database helpers
     def _fetch_license_row(self) -> Optional[Dict]:
@@ -99,9 +99,8 @@ class LicenseManager:
                     # If revoked and hardware matches, block immediately with message
                     remote_hw_json = license_info.get('hardware_components_json', '{}')
                     remote_hw = deserialize_components(remote_hw_json)
-                    is_match, matches = fuzzy_match(
-                        remote_hw, current_hw, threshold=self.hardware_threshold
-                    )
+                    # Use new weighted similarity matching
+                    is_match, similarity = self._is_hardware_match(current_hw, remote_hw)
                     if status == "revoked" and is_match:
                         logger.error(
                             f"      🚫 License {license_key} is REVOKED on server for this hardware"
@@ -133,9 +132,9 @@ class LicenseManager:
                 
                 logger.info(f"      📊 Matched {match_count}/{len(all_keys)} fields")
                 
-                # Check if hardware matches
-                is_match, matches = fuzzy_match(remote_hw, current_hw, threshold=self.hardware_threshold)
-                logger.info(f"      🔗 Fuzzy match result: {is_match} (fuzzy_matches={matches}, threshold={self.hardware_threshold})")
+                # Check if hardware matches (using new weighted similarity)
+                is_match, matches = self._is_hardware_match(remote_hw, current_hw)
+                logger.info(f"      🔗 Hardware similarity: {matches:.1%} (threshold={self.hardware_similarity_threshold:.1%}), match={is_match}")
                 
                 if is_match:
                     # Found a match! Restore this license locally
@@ -151,13 +150,15 @@ class LicenseManager:
                         "licensee_name": license_info.get('licensee_name'),
                         "licensee_email": license_info.get('licensee_email'),
                         "hardware_components_json": remote_hw_json,
-                        "hardware_match_threshold": self.hardware_threshold,
+                        "hardware_match_threshold": self.hardware_similarity_threshold,
                         "activated_at": license_info.get('activated_at') or now.isoformat(),
                         "last_online_check": now.isoformat(),
                         "offline_grace_until": grace_until.isoformat() if grace_until else None,
                         "expiry_date": license_info.get('expiry_date'),
                         "max_users": license_info.get('max_users', 1),
                         "transfer_count": license_info.get('transfer_count', 0),
+                        "max_calculations": license_info.get('max_calculations', 10),
+                        "calculation_count": license_info.get('calculation_count', 0),
                     }
                     
                     self._save_license_row(record)
@@ -211,7 +212,7 @@ class LicenseManager:
                     data.get("licensee_name"),
                     data.get("licensee_email"),
                     data.get("hardware_components_json"),
-                    data.get("hardware_match_threshold", self.hardware_threshold),
+                    str(self.hardware_similarity_threshold),
                     data.get("activated_at"),
                     data.get("last_online_check"),
                     data.get("offline_grace_until"),
@@ -243,7 +244,7 @@ class LicenseManager:
                 data.get("licensee_name"),
                 data.get("licensee_email"),
                 data.get("hardware_components_json"),
-                data.get("hardware_match_threshold", self.hardware_threshold),
+                str(self.hardware_similarity_threshold),
                 data.get("activated_at"),
                 data.get("last_online_check"),
                 data.get("offline_grace_until"),
@@ -315,17 +316,16 @@ class LicenseManager:
             record.update(
                 {
                     "hardware_components_json": serialize_components(current_hardware),
-                    "hardware_match_threshold": self.hardware_threshold,
+                    "hardware_match_threshold": str(self.hardware_similarity_threshold),
                 }
             )
             self._save_license_row(record)
             stored_hardware = current_hardware
 
-        is_match, matches = fuzzy_match(
-            stored_hardware, current_hardware, threshold=record.get("hardware_match_threshold", self.hardware_threshold)
-        )
+        # Use new weighted hardware matching with similarity threshold
+        is_match, similarity = self._is_hardware_match(current_hardware, stored_hardware)
         if not is_match:
-            reason = describe_mismatch(stored_hardware, current_hardware)
+            reason = f"Hardware similarity {similarity:.1%} below threshold {self.hardware_similarity_threshold:.1%}"
             self._log_validation(license_id, "hardware_mismatch", reason)
             return False, f"Hardware mismatch: {reason}"
 
@@ -361,6 +361,15 @@ class LicenseManager:
                     self._save_license_row(record)
                     self._log_validation(license_id, "revoked", online_msg)
                     logger.error(f"🚫 License REVOKED - blocking access immediately")
+                    return False, online_msg, None
+                
+                # CRITICAL: Check if license is EXPIRED (no grace period allowed)
+                if online_status == "expired" or "expired" in message_lower:
+                    # Store expired status locally
+                    record["license_status"] = "expired"
+                    self._save_license_row(record)
+                    self._log_validation(license_id, "expired", online_msg)
+                    logger.error(f"⏰ License EXPIRED - blocking access immediately")
                     return False, online_msg, None
                 
                 # Only allow grace period for network-style failures
@@ -549,7 +558,7 @@ class LicenseManager:
             "licensee_name": licensee_name,
             "licensee_email": licensee_email,
             "hardware_components_json": serialize_components(hardware_snapshot),
-            "hardware_match_threshold": self.hardware_threshold,
+            "hardware_match_threshold": str(self.hardware_similarity_threshold),
             "activated_at": now.isoformat(),
             "last_online_check": now.isoformat(),
             "offline_grace_until": (now + dt.timedelta(days=self.offline_grace_days)).isoformat()
@@ -680,20 +689,23 @@ Water Balance Support Team
         record = self._fetch_license_row()
         if not record:
             return "Not activated"
-        expiry_remote = self._ensure_expiry_from_remote(record)
-        expiry_local = record.get("expiry_date") if record else None
-        expiry = expiry_remote or expiry_local
-        logger.debug(f"status_summary expiry_local={expiry_local} expiry_remote={expiry_remote} resolved={expiry}")
-        expiry_text = f" • Expires {expiry}" if expiry else " • Expires not available"
 
-        # Simple: check if last validation succeeded or failed
+        # NOTE: Avoid remote lookups here; this method is called often by UI refresh
+        # paths. Startup validation already refreshes expiry and status, so we rely
+        # on the persisted value to keep the toolbar/footer responsive.
+        expiry_local = record.get("expiry_date") if record else None
+        expiry = expiry_local
+        logger.debug(f"status_summary expiry_local={expiry}")
+        expiry_text = f" • Expires {expiry}" if expiry else ""
+
+        # Connection status
         validation_succeeded = record.get("validation_succeeded", False)
         offline_active, days_left = self.is_offline_grace_active()
         
         if validation_succeeded:
             connection_text = " • Online"
         elif offline_active and days_left is not None:
-            connection_text = f" • Offline mode ({days_left}d left)"
+            connection_text = f" • Offline ({days_left}d left)"
         elif offline_active:
             connection_text = " • Offline mode"
         else:
@@ -797,11 +809,10 @@ Water Balance Support Team
                     pass
             return True, "License active (hardware binding pending)", expiry_date
         
-        is_match, _ = fuzzy_match(
-            stored_hardware, current_hardware, threshold=record.get("hardware_match_threshold", self.hardware_threshold)
-        )
+        # Use new weighted hardware matching
+        is_match, similarity = self._is_hardware_match(current_hardware, stored_hardware)
         if not is_match:
-            reason = describe_mismatch(stored_hardware, current_hardware)
+            reason = f"Hardware similarity {similarity:.1%} below threshold {self.hardware_similarity_threshold:.1%}"
             self._log_validation(license_id, "hardware_mismatch_bg", reason)
             return False, f"Hardware mismatch: {reason}"
 
@@ -1021,4 +1032,141 @@ Water Balance Support Team
             "time_until_reset": time_str,
             "message": f"Verifications: {count}/3 (resets in {time_str})" if not can_verify else f"{count}/3 used"
         }
-
+    
+    def _calculate_hardware_similarity(self, hw1: Dict[str, str], hw2: Dict[str, str]) -> float:
+        """Calculate similarity score between two hardware fingerprints (ENHANCED MATCHING).
+        
+        Weighted by component importance:
+        - Motherboard UUID: 40% (most stable, critical for machine identity)
+        - CPU serial: 30% (semi-stable, major component)
+        - MAC address: 30% (can change with network card replacement)
+        
+        Args:
+            hw1: First hardware snapshot (dict with keys: mac, cpu, board)
+            hw2: Second hardware snapshot
+            
+        Returns:
+            Similarity score from 0.0 (completely different) to 1.0 (identical)
+        """
+        weights = {
+            'board': 0.40,  # Motherboard - most critical
+            'cpu': 0.30,    # CPU - semi-stable
+            'mac': 0.30,    # MAC - can change
+        }
+        
+        score = 0.0
+        for component, weight in weights.items():
+            val1 = hw1.get(component, "")
+            val2 = hw2.get(component, "")
+            
+            # Both must be present and non-empty to contribute to score
+            if val1 and val2 and val1 == val2:
+                score += weight
+        
+        return score
+    
+    def _is_hardware_match(self, current_hw: Dict[str, str], stored_hw: Dict[str, str]) -> Tuple[bool, float]:
+        """Determine if hardware matches using weighted similarity (SMART MATCHING).
+        
+        Returns True if similarity >= threshold (default 60%).
+        This allows minor component changes (e.g., RAM upgrade, network card replacement)
+        while still blocking complete machine changes.
+        
+        Args:
+            current_hw: Current hardware snapshot
+            stored_hw: Stored hardware snapshot from license
+            
+        Returns:
+            Tuple of (matches: bool, similarity_score: float)
+        """
+        similarity = self._calculate_hardware_similarity(current_hw, stored_hw)
+        matches = similarity >= self.hardware_similarity_threshold
+        
+        logger.debug(f"Hardware similarity: {similarity * 100:.1f}% (threshold: {self.hardware_similarity_threshold * 100:.0f}%)")
+        
+        return matches, similarity
+    
+    def has_feature(self, feature_name: str) -> bool:
+        """Check if current license tier includes feature (TIER-BASED FEATURES).
+        
+        Args:
+            feature_name: Feature to check (e.g., 'export_enabled', 'api_access')
+            
+        Returns:
+            True if license tier has this feature, False otherwise
+        """
+        record = self._fetch_license_row()
+        if not record:
+            return False
+        
+        tier = record.get('license_tier', 'standard')
+        tier_config = self.tier_features.get(tier, {})
+        
+        return tier_config.get(feature_name, False)
+    
+    def get_feature_limit(self, feature_name: str) -> int:
+        """Get numeric limit for feature (e.g., max calculations per month).
+        
+        Args:
+            feature_name: Feature to check (e.g., 'max_calculations_per_month')
+            
+        Returns:
+            Limit value, or 0 if not found
+        """
+        record = self._fetch_license_row()
+        if not record:
+            return 0
+        
+        tier = record.get('license_tier', 'standard')
+        tier_config = self.tier_features.get(tier, {})
+        
+        return tier_config.get(feature_name, 0)
+    
+    def check_instant_revocation(self) -> bool:
+        """Quick revocation check before critical operations (SECURITY).
+        
+        Lightweight API call that only checks if license is revoked.
+        Used before: save calculation, export data, API calls.
+        
+        Returns:
+            True if license is still active, False if revoked
+        """
+        record = self._fetch_license_row()
+        if not record:
+            return False
+        
+        license_key = record.get("license_key")
+        if not license_key:
+            return False
+        
+        return self.client.check_instant_revocation(license_key)
+    
+    def report_monthly_usage(self) -> bool:
+        """Report monthly usage statistics to license server (ANALYTICS).
+        
+        Called automatically at end of month or on demand.
+        Tracks calculations and exports for compliance/billing.
+        
+        Returns:
+            True if successfully reported, False otherwise
+        """
+        record = self._fetch_license_row()
+        if not record:
+            return False
+        
+        license_key = record.get("license_key")
+        if not license_key:
+            return False
+        
+        # Get current month usage from database
+        current_month = dt.datetime.now().strftime('%Y-%m')
+        
+        # Count calculations this month
+        calculations = db.execute_query(
+            "SELECT COUNT(*) as count FROM calculations WHERE strftime('%Y-%m', calc_date) = ?",
+            (current_month,)
+        )
+        calc_count = calculations[0]['count'] if calculations else 0
+        
+        # Report to server
+        return self.client.report_usage_stats(license_key, current_month, calc_count, 0)

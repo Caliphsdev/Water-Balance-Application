@@ -1,7 +1,14 @@
 # Water Balance Application - AI Agent Instructions
 
 ## 🎯 What This Is
-Python/Tkinter desktop app for mine water balance across 8 areas. Core flow: read templates → calculate balances → load Excel overlays → persist to SQLite → render dashboards. Scientific basis: **Fresh Inflows = Outflows + ΔStorage + Error** (seepage captured in storage change).
+Python/Tkinter desktop app for mine water balance management across 8 mining areas. Professional data management system that:
+- **Reads immutable templates** (txt files with inflow/outflow/recirculation codes)
+- **Calculates water balances** using TRP formulas (fresh inflows = outflows + storage change + error)
+- **Loads Excel operational data** (meter readings, flow measurements)
+- **Persists to SQLite** database with 20+ tables
+- **Renders dashboards** with interactive flow diagrams, KPI analytics, charts
+
+**Key Distinction:** Single Excel file now (`Water_Balance_TimeSeries_Template.xlsx`) contains only Flow Diagram sheets (`Flows_*` per area). Historical meter readings come from `New Water Balance...xlsx` (configured as `legacy_excel_path`).
 
 ## ⚡ CRITICAL: Code Comments on Every Edit (ENFORCED)
 
@@ -36,89 +43,158 @@ See **📝 Code Comments Mandate** section below for full details and examples.
 
 ## 🐍 Python Environment (MANDATORY)
 
-**ALWAYS use the virtual environment for all Python operations:**
-- **Run application:** `.venv\Scripts\python src/main.py`
+Always use the single `.venv` environment in the project root:
+- **Run app:** `.venv\Scripts\python src/main.py`
 - **Install packages:** `.venv\Scripts\python -m pip install <package>`
-- **Run scripts:** `.venv\Scripts\python <script_path>`
-- **Database operations:** `.venv\Scripts\python -c "<command>"`
+- **Run tests:** `.venv\Scripts\python -m pytest tests/ -v`
+- **Check coverage:** `.venv\Scripts\python -m pytest tests/ --cov=src`
 
-**Never use system Python or create new virtual environments.** The project uses a single `.venv` environment configured in the root. If running tests or utilities, always activate: `.venv\Scripts\Activate.ps1` (PowerShell).
+The app automatically sets `WATERBALANCE_USER_DIR` environment variable on startup (before any imports) to ensure config/database/licenses use correct paths.
 
 ## 🧪 Testing Requirements (MANDATORY)
 
-**Every feature must have corresponding tests.**
+Every new function/class must have corresponding tests before or immediately after implementation.
 
-**Test Creation Rules:**
-- Create tests for **every new function, class, and feature** before or immediately after implementation
-- Test files go in `tests/` directory, mirroring `src/` structure (e.g., `src/utils/foo.py` → `tests/utils/test_foo.py`)
-- Use `pytest` as the testing framework
-- Run tests before committing: `.venv\Scripts\python -m pytest tests/ -v`
-- Aim for **>80% code coverage** on core logic (utils, database, calculations)
-- Use fixtures and mocks to isolate units
-- Document non-obvious test cases with comments
+**Quick Setup:**
+- Test files: `tests/` (mirror `src/` structure)
+- Framework: `pytest` (see `.venv\Scripts\python -m pytest --help`)
+- Run: `.venv\Scripts\python -m pytest tests/ -v`
+- Coverage target: **>80%** on core logic (utils, database, calculations)
 
 **Test Categories:**
-- **Unit Tests:** Individual functions/methods (fast, isolated)
+- **Unit Tests:** Individual functions (fast, isolated) → `tests/utils/test_calculator.py`
 - **Integration Tests:** Multi-component workflows (DB, Excel, calculations)
-- **UI Tests:** Dialog flows, state changes (use mocking where possible)
-
-**Examples:**
-- New calculator function → write unit test in `tests/utils/test_calculator.py`
-- New Excel loader → write integration test in `tests/utils/test_excel_loader.py`
-- New UI dialog → write UI test in `tests/ui/test_dialog.py`
+- **UI Tests:** Dialog flows, state changes (use mocking to avoid graphics)
 
 **Workflow:**
-1. Write test (TDD preferred, but post-implementation OK)
+1. Write test (TDD preferred)
 2. Implement feature
-3. Run: `.venv\Scripts\python -m pytest tests/ -v`
-4. Achieve green tests
-5. Commit with test code included
+3. Verify: `.venv\Scripts\python -m pytest tests/ -v` (green tests required)
+4. Commit with test code included
 
 **Pro Tips:**
-- Use `pytest-cov` to check coverage: `.venv\Scripts\python -m pytest tests/ --cov=src`
-- Use `pytest-mock` for mocking external dependencies
-- Use fixtures in `tests/conftest.py` for shared test data
+- Use `pytest fixtures` in `tests/conftest.py` for shared test data
+- Use `pytest-mock` for mocking DB/Excel dependencies
+- Use `pytest-cov` to identify untested code paths
 
-## 🏗️ Architecture Map
+## 🏗️ Architecture Map (Data Flow)
 
-**Data Flow Layers:**
-- **Input Templates** → [src/utils/template_data_parser.py](src/utils/template_data_parser.py) parses 3 immutable `.txt` files (inflow/outflow/recirculation codes)
-- **Calculations** → [src/utils/water_balance_calculator.py](src/utils/water_balance_calculator.py) (heavy engine, multi-level caches) + [src/utils/balance_check_engine.py](src/utils/balance_check_engine.py) (validation metrics)
-- **Excel Overlays** → [src/utils/flow_volume_loader.py](src/utils/flow_volume_loader.py) loads volumes on-demand (path priority: `timeseries_excel_path` > `template_excel_path` > fallback)
-- **Persistence** → [src/database/db_manager.py](src/database/db_manager.py) + [src/database/schema.py](src/database/schema.py) (SQLite, 11 tables, auto-init)
-- **UI Rendering** → [src/ui/calculations.py](src/ui/calculations.py) (balance tabs) + [src/ui/flow_diagram_dashboard.py](src/ui/flow_diagram_dashboard.py) (JSON diagrams at `data/diagrams/<area>_flow_diagram.json`)
+**Input → Calculation → Storage → UI**
 
-**Key Components:**
-- **Bootstrap** [src/main.py](src/main.py) sets `WATERBALANCE_USER_DIR` env var (app-data path) before all imports; async DB load via [src/utils/async_loader.py](src/utils/async_loader.py)
-- **Navigation** [src/ui/main_window.py](src/ui/main_window.py)
-- **Config** [config/app_config.yaml](config/app_config.yaml) (centralized; YAML backed)
+1. **Bootstrap** [src/main.py](src/main.py)
+   - Sets `WATERBALANCE_USER_DIR` env var BEFORE imports (enables correct DB/config paths)
+   - Starts UI in background while async DB loads (fast startup feature)
+   - Validates license before showing UI
+
+2. **Templates** (immutable, read-only)
+   - [src/utils/template_data_parser.py](src/utils/template_data_parser.py) reads 3 `.txt` files:
+     - `INFLOW_CODES_TEMPLATE.txt`, `OUTFLOW_CODES_TEMPLATE_CORRECTED.txt`, `DAM_RECIRCULATION_TEMPLATE.txt`
+   - Parsed on startup, cached, never written back (data integrity)
+
+3. **Calculations** (heavy logic, multi-tier caching)
+   - [src/utils/water_balance_calculator.py](src/utils/water_balance_calculator.py) (PRIMARY ENGINE)
+     - Reads meter data from **METER READINGS Excel** (`legacy_excel_path`)
+     - Applies facility constants, computes balances
+     - Caches results by date/facility (session-lifetime)
+     - Calls `clear_cache()` when Excel updated
+   - [src/utils/balance_check_engine.py](src/utils/balance_check_engine.py) (VALIDATOR)
+     - Validates closure error < 5% (data quality indicator)
+     - Per-area breakdown, templated metrics
+   - [src/utils/pump_transfer_engine.py](src/utils/pump_transfer_engine.py) (AUTO-REDISTRIBUTION)
+     - Facility-to-facility transfers when storage level ≥ 70%
+
+4. **Excel Overlays** (flow volumes by area)
+   - [src/utils/flow_volume_loader.py](src/utils/flow_volume_loader.py) loads from **FLOW DIAGRAM Excel** (`timeseries_excel_path`)
+   - Lazy loads on-demand, cached per session
+   - Used by flow diagram dashboard to populate edge volumes
+
+5. **Persistence** (SQLite, 20+ tables)
+   - [src/database/schema.py](src/database/schema.py) defines tables: mine_areas, water_sources, storage_facilities, measurements, etc.
+   - [src/database/db_manager.py](src/database/db_manager.py) CRUD operations, connection pooling
+
+6. **UI Rendering**
+   - [src/ui/main_window.py](src/ui/main_window.py) (APPLICATION CONTAINER) - sidebar + content area
+   - [src/ui/calculations.py](src/ui/calculations.py) - balance tabs (Summary, Area Breakdown, Legacy)
+   - [src/ui/flow_diagram_dashboard.py](src/ui/flow_diagram_dashboard.py) - interactive flow diagrams with JSON at `data/diagrams/<area>_flow_diagram.json`
+   - [src/ui/analytics_dashboard.py](src/ui/analytics_dashboard.py), [charts_dashboard.py](src/ui/charts_dashboard.py), etc.
+
+**Key Pattern:** Every major component is a singleton accessed via `get_*()` getter. Never instantiate directly.
 
 ## 🔧 Core Patterns
 
-**Singleton Mandate:** Never `MyClass()` directly. Always use module-level getters:
-- `get_template_parser()`, `get_flow_volume_loader()`, `get_balance_check_engine()`, `get_balance_engine()`
-- `db` (DatabaseManager), `config` (ConfigManager), `logger` (AppLogger), `error_handler` (ErrorHandler)
-- After config/path changes, call `reset_*()` (e.g., `reset_flow_volume_loader()`) then re-fetch to pick up new state.
-
-**Caching Strategy:** Multi-tier with explicit invalidation:
-- `WaterBalanceCalculator._balance_cache`, `._kpi_cache`, `._misc_cache` (dict-keyed by date/area)
-- DB Manager has `use_cache=False` option; `invalidate_all_caches()` on schema edits
-- Call `.clear_cache()` on loaders before Excel reload
-- **Rationale:** Avoid re-parsing Excel/templates; speed up repeated calculations in same session
-
-**Config Pattern:** `config.set(key, value)` auto-persists to YAML. Feature flags: `config.get('features.fast_startup')`.
-
-**Import Shim:** Every module in `src/` starts:
+### Singleton Pattern (MANDATORY)
+Every major component is accessed via getter functions, never direct instantiation:
 ```python
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# ✅ CORRECT
+from utils.config_manager import config
+from utils.app_logger import logger
+from utils.error_handler import error_handler
+from database.db_manager import db
+
+# ❌ WRONG - Never do this:
+# calculator = WaterBalanceCalculator()
+# loader = FlowVolumeLoader()
 ```
-Then imports from `utils`, `database`, `ui`, `models`. **Keep this in new files.**
 
-**Fast Startup:** UI thread shows loading screen while [src/utils/async_loader.py](src/utils/async_loader.py) loads DB in background. UI checks `app.db_loaded` before DB-dependent actions.
+**Key Getters:**
+- `get_template_parser()`, `get_flow_volume_loader()`, `get_balance_check_engine()`, `get_balance_engine()`
+- After config/path changes, call `reset_*()` (e.g., `reset_flow_volume_loader()`) then re-fetch
 
-**Error Handling:** `error_handler.handle(exception)` returns `(tech_msg, user_msg, severity)`. Log with `logger.performance(label)` for timings.
+### Caching Strategy
+Multi-tier with explicit invalidation:
+- **WaterBalanceCalculator:** `_balance_cache`, `_kpi_cache`, `_misc_cache` (dict keyed by date/area)
+- **DB Manager:** `use_cache=False` option; `invalidate_all_caches()` on schema edits
+- **Excel Loaders:** Call `.clear_cache()` before Excel reload
+- **Why:** Avoid re-parsing Excel/templates; speeds up repeated calculations 10x
 
-## 📂 Data Inputs & Flows
+### Configuration Pattern
+```python
+config.set(key, value)  # Auto-persists to YAML
+config.get('features.fast_startup')  # Feature flags
+```
+
+### Import Shim (Required in Every File in `src/`)
+```python
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+# Then: from utils import ..., from database import ...
+```
+
+### Fast Startup
+UI shows loading screen while [src/utils/async_loader.py](src/utils/async_loader.py) loads DB in background. UI checks `app.db_loaded` before DB-dependent actions.
+
+## � Startup Lifecycle (Key to Understanding App State)
+
+The app startup is **asynchronous and lifecycle-aware**. Understanding this prevents bugs:
+
+1. **main() called** → Sets `WATERBALANCE_USER_DIR` env var (BEFORE any imports!)
+2. **Tkinter window created** → Hidden, invisible, off-screen
+3. **Loading screen shown** → User sees "Initializing..." message
+4. **Database loads** (two modes):
+   - **Fast startup enabled:** Async load in background thread (~3-5s) → `_on_database_loaded()` callback
+   - **Fast startup disabled:** Blocking load on main thread (legacy)
+5. **UI components initialized** → main_window, sidebar, content area
+6. **Dashboard loaded** → After window is revealed (improves perceived startup speed)
+7. **Window revealed** → Smooth fade transition from loading screen
+8. **Mainloop starts** → Event loop running, UI responsive
+
+**Key Gotcha:** Code can run before `db_loaded = True`. Always check:
+```python
+if hasattr(app, 'db_loaded') and app.db_loaded:
+    # Safe to use database
+    balance = calculator.calculate_balance(...)
+```
+
+**Async Callback Pattern:**
+```python
+# This gets called from worker thread when DB finishes
+def _on_database_loaded(self, db_manager, error):
+    # ALWAYS use root.after() to update UI on main thread!
+    self.root.after(0, self._update_ui_after_db_load, db_manager, error)
+```
+
+## �📂 Data Inputs & Flows
 
 **Immutable Templates** (read-only, never modify programmatically):
 - `INFLOW_CODES_TEMPLATE.txt` (loaded/created by [src/utils/template_data_parser.py](src/utils/template_data_parser.py))
@@ -251,6 +327,70 @@ licensing:
 - **Debugging validation:** Check `license_validation_log` and `license_audit_log` tables
 - **Testing offline:** Rename/delete `license_info` table, run app within 7-day grace window
 
+## 🔗 External Dependencies & Integrations
+
+**Critical External Services:**
+- **Google Sheets API** ([src/licensing/license_manager.py](src/licensing/license_manager.py))
+  - License validation pulls from Google Sheets (`licensing.sheet_url` in config)
+  - Webhook at `licensing.webhook_url` triggers on license changes
+  - Offline grace period: 7 days if network unavailable (configured in `app_config.yaml`)
+  
+- **Excel Files** (two separate files with different purposes)
+  - **Meter Readings Excel** (`legacy_excel_path`): Historical meter data, tonnes milled, RWD volumes
+    - Used by `WaterBalanceCalculator` to read operational metrics
+    - File: `data/New Water Balance 20250930 Oct.xlsx` (or similar)
+  - **Flow Diagram Excel** (`timeseries_excel_path`): Flow diagram data with `Flows_*` sheets
+    - Used by `FlowVolume
+
+Loader` to populate flow diagram edges
+    - File: `data/Water_Balance_TimeSeries_Template.xlsx`
+  - **Key Distinction:** Never mix these files - code explicitly checks which path to use
+
+**Monitoring & Logging:**
+- **File Watcher** ([src/utils/excel_monitor.py](src/utils/excel_monitor.py)): Detects Excel file changes in background
+- **Structured Logging** ([src/utils/app_logger.py](src/utils/app_logger.py)): All output goes to `logs/` directory + console
+- **Alert System** ([src/utils/alert_manager.py](src/utils/alert_manager.py)): Defines alert rules, trigger conditions
+
+**Database Connection:**
+- **SQLite** (no external service, local file at `data/water_balance.db`)
+- **Connection pooling** in [src/database/db_manager.py](src/database/db_manager.py)
+- **Auto-backup** before major operations
+
+## 🚀 Key Developer Workflows
+
+### Running & Building
+```bash
+# Development
+.venv\Scripts\python src/main.py
+
+# Test Suite
+.venv\Scripts\python -m pytest tests/ -v
+
+# Code Coverage
+.venv\Scripts\python -m pytest tests/ --cov=src --cov-report=html
+
+# Database Reset
+.venv\Scripts\python -c "from src.database.schema import DatabaseSchema; DatabaseSchema().create_database()"
+
+# Build EXE (Windows)
+build.ps1  # Runs PyInstaller with water_balance.spec
+
+# Create Installer
+Build → run installer.iss (Inno Setup)
+```
+
+### Debugging
+- **Logs:** Check `logs/` directory (structured JSON + console)
+- **Database inspection:** Use `scripts/debug/` tools (organized by purpose)
+- **License issues:** Check `license_validation_log` and `license_audit_log` tables
+- **Excel issues:** Enable file monitor logging in `config/app_config.yaml`
+
+### Configuration
+- **Main config:** `config/app_config.yaml` (YAML-based, auto-reloaded)
+- **Feature flags:** `features.*` in config (e.g., `features.fast_startup`)
+- **Data paths:** `data_sources.*` in config (Excel paths, templates, DB path)
+- **Licensing:** `licensing.*` in config (check intervals, grace periods, sheet URL)
+
 ## ⚠️ Common Pitfalls
 
 1. **Stale singletons:** After config/path change, forgot to `reset_*()` → reads old Excel path
@@ -260,6 +400,9 @@ licensing:
 5. **DB_loaded race:** UI tries balance calc before `app.db_loaded = True` → crashes
 6. **Circular imports:** Importing from `ui` in `utils` → typically OK but watch for lazy imports in `__init__.py`
 7. **Excel path priority:** Forgot that code checks `timeseries_excel_path` first → old data if not in that path
+8. **Cache not cleared:** After Excel update, calculations use stale cached data → wrong results
+9. **Missing UI thread dispatch:** Update Tkinter from non-main thread → crashes; use `root.after()`
+10. **License check failures:** Network error during startup → app blocks; handled gracefully but watch logs
 
 ## � Code Comments Mandate (ENFORCED)
 

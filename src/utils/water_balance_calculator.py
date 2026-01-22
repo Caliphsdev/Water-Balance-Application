@@ -35,6 +35,9 @@ class WaterBalanceCalculator:
         self.historical_avg = HistoricalAveraging(self.db)
         # Excel repositories - initialized lazily on first use
         self._excel_repo = None
+        self._excel_repo_path = None  # Track Meter Readings path for config change detection
+        self._flow_repo = None  # Flow diagram Excel repo (initialized lazily)
+        self._flow_repo_path = None  # Track Flow Diagram path for config change detection
         # Pump transfer engine
         self.pump_transfer_engine = PumpTransferEngine(self.db, self)
         # Performance optimization: cache for balance calculations
@@ -42,20 +45,58 @@ class WaterBalanceCalculator:
         self._kpi_cache = {}
         # Miscellaneous per-date caches (dust suppression, facility measurements, etc.)
         self._misc_cache: Dict[str, Dict] = {}
-        # Capacity warnings tracker
+        # Capacity warnings tracker - cleared at start of each calculation
         self._capacity_warnings = []
+        # Cache invalidation listeners (for observer pattern)
+        self._cache_listeners = []
     
     def _get_excel_repo(self):
-        r"""Lazy-load Excel repository on first access.
+        r"""Lazy-load Excel repository on first access, detecting config changes.
         
         Loads METER READINGS Excel (legacy_excel_path: data\New Water Balance...xlsx)
         which contains "Meter Readings" sheet with tonnes milled, RWD, dewatering, etc.
         
         NOT the Flow Diagram Excel (timeseries_excel_path) which has Flows_* sheets.
+        
+        Detects Excel path changes: if user changes legacy_excel_path in Settings,
+        automatically reloads from the new path on next access.
         """
-        if self._excel_repo is None:
+        from utils.config_manager import config
+        
+        current_path = config.get('data_sources.legacy_excel_path')
+        
+        # Path changed or first access: reload Excel repo
+        if self._excel_repo is None or self._excel_repo_path != current_path:
             self._excel_repo = get_default_excel_repo()
+            self._excel_repo_path = current_path
+            if self._excel_repo_path != current_path:
+                logger.debug(f"Excel (Meter Readings) path changed from {self._excel_repo_path} to {current_path}, reloading")
+        
         return self._excel_repo
+    
+    def register_cache_listener(self, callback) -> None:
+        """Register a callback to be notified when caches are invalidated.
+        
+        Usage:
+            def on_cache_clear():
+                # Respond to cache invalidation (e.g., refresh UI)
+                pass
+            calculator.register_cache_listener(on_cache_clear)
+        
+        Args:
+            callback: Callable that takes no arguments
+        """
+        if callback and callable(callback):
+            self._cache_listeners.append(callback)
+            logger.debug(f"Cache listener registered: {callback}")
+    
+    def _notify_cache_listeners(self) -> None:
+        """Notify all registered listeners that cache has been cleared."""
+        for listener in self._cache_listeners:
+            try:
+                listener()
+            except Exception as e:
+                logger.error(f"Cache listener error: {e}")
     
     def clear_cache(self) -> None:
         """Clear all calculation and Excel data caches (Critical for data consistency).
@@ -74,6 +115,9 @@ class WaterBalanceCalculator:
         
         Without clearing, stale Excel data will be reused, producing incorrect results
         and cascading errors through downstream dashboards.
+        
+        After clearing, notifies all registered cache listeners so dependent systems
+        (UI dashboards, etc.) can refresh their displays.
         """
         self._balance_cache.clear()
         self._kpi_cache.clear()
@@ -81,7 +125,13 @@ class WaterBalanceCalculator:
         # Propagate cache clear to Excel repository if it's been initialized
         if self._excel_repo is not None:
             self._excel_repo.clear_cache()
-            logger.debug("Excel repository cache cleared")
+            logger.debug("Excel (Meter Readings) repository cache cleared")
+        if self._flow_repo is not None:
+            self._flow_repo.clear_cache()
+            logger.debug("Excel (Flow Diagram) repository cache cleared")
+        
+        # Notify all observers that cache has been invalidated
+        self._notify_cache_listeners()
     
     def _validate_facility_flows(self, facility_code: str, capacity: float,
                                 inflow_total: float, outflow_total: float,
@@ -1035,6 +1085,11 @@ class WaterBalanceCalculator:
         Calculate complete water balance for a date (FULL EXCEL PARITY)
         Returns all components, closure error, and net balance
         """
+        # CRITICAL: Clear capacity warnings at start of calculation
+        # Prevents warnings from previous calculations accumulating in the list
+        # Each calculation starts fresh with its own validation warnings
+        self.clear_capacity_warnings()
+        
         start_time = time.perf_counter()
         
         # Check cache first (performance optimization)
@@ -1162,6 +1217,12 @@ class WaterBalanceCalculator:
         # Calculate fresh inflows (excluding recycled TSF return)
         fresh_inflows = inflows['total'] - inflows.get('tsf_return', 0.0)
         
+        # DATA QUALITY: Flag when fresh inflows are very low
+        # When fresh_inflows < 100 m³, the closure error % becomes unreliable
+        # (e.g., 10 m³ error out of 50 m³ inflows = 20% error, but in absolute terms is minor)
+        # This flag helps UI/alerts distinguish measurement noise from real issues
+        has_low_fresh_inflows = fresh_inflows < 100.0
+        
         # Calculate closure error using FRESH inflows only (scientifically correct)
         # TSF return is recycled water, not new water entering the system
         # Water Balance: Fresh IN = Outflows + Storage Change + Closure Error
@@ -1187,6 +1248,7 @@ class WaterBalanceCalculator:
             'storage_change': storage_change_data,
             'closure_error_m3': closure_error_abs,
             'closure_error_percent': closure_error_pct,
+            'has_low_fresh_inflows': has_low_fresh_inflows,  # Data quality indicator: True if fresh_inflows < 100 m³
             'storage': storage_stats,
             'ore_processed': ore_val,
             'balance_status': 'CLOSED' if closure_error_pct < 5.0 else 'OPEN',
@@ -1274,6 +1336,9 @@ class WaterBalanceCalculator:
         
         # Regional rainfall and evaporation (apply to all facilities in the area)
         # Guard against None to avoid float * NoneType errors when applying rainfall/evap
+        # IMPORTANT: If surface_area is 0.0 (from DB or None), rainfall/evaporation calculations
+        # will result in 0 volume, which is expected—some facilities don't have measured surface area.
+        # This is NOT an error and should NOT block calculation; it just means no rainfall/evap applied.
         surface_area = facility.get('surface_area')
         if surface_area is None:
             surface_area = 0.0
@@ -1597,6 +1662,11 @@ class WaterBalanceCalculator:
         else:
             days_to_minimum = 999
         
+        # IMPORTANT: days_to_minimum can be negative if current_storage < min_operating_volume
+        # Negative value indicates facility is ALREADY BELOW MINIMUM OPERATING LEVEL
+        # The clamping to max(0, ...) in return dict hides the actual deficit
+        # For alerts: check if calculated value was negative before clamping
+        
         # Security status
         if days_cover >= 30:
             security_status = 'excellent'
@@ -1612,6 +1682,7 @@ class WaterBalanceCalculator:
         return {
             'days_cover': days_cover,
             'days_to_minimum': max(0, days_to_minimum),
+            'is_below_minimum': days_to_minimum < 0,  # CRITICAL: Flag when already below minimum operating level
             'current_storage_m3': current_storage,
             'daily_consumption_m3': daily_consumption,
             'monthly_consumption_m3': total_outflows,
@@ -1931,9 +2002,14 @@ class WaterBalanceCalculator:
                 f['facility_code']: f.get('current_volume', 0.0) or 0.0
                 for f in facilities_current
             }
-            restored = self._restore_opening_from_snapshot(existing_id)
-            if not restored:
-                logger.info("No opening snapshot found; using current volumes as openings")
+            try:
+                restored = self._restore_opening_from_snapshot(existing_id)
+                if not restored:
+                    logger.info("No opening snapshot found; using current volumes as openings")
+            except Exception as e:
+                logger.error(f"Error restoring opening snapshot for existing calculation: {e}")
+                # Continue anyway - we'll use current volumes as fallback
+                raise
 
         # Ensure we have an opening snapshot for this calculation date to keep
         # repeated calculations idempotent.
@@ -1955,26 +2031,41 @@ class WaterBalanceCalculator:
                 balance, calculation_date, existing_id, previous_closing_volumes
             )
             
-            if volumes_changed:
-                # Inputs changed (e.g., surface water, manual inputs) - update volumes
-                logger.info(f"Duplicate calculation found for {calculation_date} (calc_id={existing_id}) - volumes changed, updating")
-                # Delete old calculation
-                self.db.execute_update("DELETE FROM calculations WHERE calc_id = ?", (existing_id,))
-                # persist_storage stays True - we need to update volumes
-            else:
-                # True duplicate (same inputs, same results) - don't update volumes
-                logger.info(f"Duplicate calculation found for {calculation_date} (calc_id={existing_id}) - identical results, keeping current volumes")
-                self.db.execute_update("DELETE FROM calculations WHERE calc_id = ?", (existing_id,))
-                # Don't persist storage volumes - they're already correct
-                persist_storage = False
-                # Restore closing volumes if we temporarily reverted to openings
+            try:
+                if volumes_changed:
+                    # Inputs changed (e.g., surface water, manual inputs) - update volumes
+                    logger.info(f"Duplicate calculation found for {calculation_date} (calc_id={existing_id}) - volumes changed, updating")
+                    # Delete old calculation
+                    self.db.execute_update("DELETE FROM calculations WHERE calc_id = ?", (existing_id,))
+                    # persist_storage stays True - we need to update volumes
+                else:
+                    # True duplicate (same inputs, same results) - don't update volumes
+                    logger.info(f"Duplicate calculation found for {calculation_date} (calc_id={existing_id}) - identical results, keeping current volumes")
+                    self.db.execute_update("DELETE FROM calculations WHERE calc_id = ?", (existing_id,))
+                    # Don't persist storage volumes - they're already correct
+                    persist_storage = False
+                    # Restore closing volumes if we temporarily reverted to openings
+                    if previous_closing_volumes:
+                        for code, vol in previous_closing_volumes.items():
+                            self.db.execute_update(
+                                "UPDATE storage_facilities SET current_volume = ? WHERE facility_code = ?",
+                                (vol, code),
+                            )
+                        self.db.invalidate_all_caches()
+            except Exception as e:
+                logger.error(f"Error handling duplicate calculation for {calculation_date}: {e}")
+                # Explicit cleanup: restore closing volumes if duplicate handling failed
                 if previous_closing_volumes:
-                    for code, vol in previous_closing_volumes.items():
-                        self.db.execute_update(
-                            "UPDATE storage_facilities SET current_volume = ? WHERE facility_code = ?",
-                            (vol, code),
-                        )
-                    self.db.invalidate_all_caches()
+                    try:
+                        for code, vol in previous_closing_volumes.items():
+                            self.db.execute_update(
+                                "UPDATE storage_facilities SET current_volume = ? WHERE facility_code = ?",
+                                (vol, code),
+                            )
+                        self.db.invalidate_all_caches()
+                    except Exception as cleanup_error:
+                        logger.error(f"Cleanup failed while restoring volumes: {cleanup_error}")
+                raise
         
         # Persist storage volumes for NEW calculations or changed duplicates
         if persist_storage:
