@@ -24,6 +24,7 @@ from utils.excel_timeseries import get_default_excel_repo
 from utils.app_logger import logger
 from utils.alert_manager import alert_manager
 from utils.pump_transfer_engine import PumpTransferEngine
+from utils.config_manager import config
 
 
 class WaterBalanceCalculator:
@@ -1182,6 +1183,23 @@ class WaterBalanceCalculator:
         
         # Calculate automatic pump transfers between facilities
         pump_transfers = self.pump_transfer_engine.calculate_pump_transfers(calculation_date)
+        # Auto-apply to database if feature flag enabled (transactional, idempotent)
+        # WHY here? Applying before outflows/storage ensures evaporation caps
+        # and facility-level balances use the updated opening volumes.
+        try:
+            if config.get('features.auto_apply_pump_transfers', False):
+                applied = self.db.apply_pump_transfers(
+                    calculation_date,
+                    pump_transfers,
+                    user=config.get_current_user()
+                )
+                if applied > 0:
+                    # Refresh preloaded facilities so subsequent calculations use updated volumes
+                    preloaded_facilities = self.db.get_storage_facilities(use_cache=False)
+                    logger.info(f"Auto-applied {applied} pump transfer(s) for {calculation_date}")
+        except Exception as e:
+            # Safety: do not fail balance if transfer application encounters an issue
+            logger.error(f"Auto-apply pump transfers failed: {e}")
         
         outflows = self.calculate_total_outflows(
             calculation_date,

@@ -6,9 +6,11 @@ block_cipher = None
 added_files = [
     ('config/*.yaml', 'config'),
     ('data/*.json', 'data'),
-    ('data/templates/*.txt', 'data/templates'),
-    ('assets/icons/*', 'assets/icons'),
-    ('docs/*.md', 'docs'),
+    ('data/diagrams/*.json', 'data/diagrams'),
+    ('logo/*.ico', 'logo'),
+    ('logo/*.png', 'logo'),
+    ('docs/FUTURE_FEATURES_ROADMAP_2026.md', 'docs'),
+    ('docs/FUTURE_FEATURES_ONE_PAGE_SUMMARY.md', 'docs'),
     ('README.md', '.'),
     ('LICENSE.txt', '.'),
 ]
@@ -48,7 +50,6 @@ a = Analysis(
     runtime_hooks=[],
     excludes=[
         'pytest',
-        'unittest',
         'test',
         '_pytest',
         'setuptools',
@@ -79,8 +80,8 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon='assets/icons/app_icon.ico',  # Application icon
-    version_file='version_info.txt',  # Version information
+    icon='logo/Water Balance.ico',  # Application icon
+    version_file=None,  # Optional: add version_info.txt if needed
 )
 
 coll = COLLECT(

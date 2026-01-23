@@ -20,14 +20,30 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 @dataclass
 class DataQualityFlags:
-    """Tracks data quality for a calculation run."""
+    """Tracks data quality for a calculation run.
+
+    Adds helper methods so UI/tests can register ad-hoc flags (e.g., missing
+    rainfall) without needing to know the internal storage structure.
+    """
+
     missing_tsf_return: bool = False
     simulated_storage: bool = False
     estimated_inflows: bool = False
     estimated_outflows: bool = False
     notes: Dict[str, str] = field(default_factory=dict)
+
+    def add_flag(self, key: str, message: str) -> None:
+        """Record a human-readable data quality flag for later display.
+
+        Args:
+            key: Unique flag identifier (e.g., 'missing_rainfall').
+            message: Description shown in UI/tests explaining the data issue.
+        """
+        # NOTE: UI rendering expects flags in `notes`; keep a single source.
+        self.notes[key] = message
+
     def as_dict(self) -> Dict[str, str]:
-        """Flatten flags to a display-friendly dict."""
+        """Flatten flags to a display-friendly dict for UI tooltips/cards."""
         info = {}
         if self.missing_tsf_return:
             info["missing_tsf_return"] = "TSF return missing; set to 0"
@@ -62,15 +78,41 @@ class Outflows:
     components: Dict[str, float] = field(default_factory=dict)
 
 
-@dataclass
+@dataclass(init=False)
 class StorageSnapshot:
-    """Opening/closing storage volumes and their source."""
+    """Opening/closing storage volumes and their source.
+
+    Tests sometimes supply an explicit `delta` argument; support that via
+    `_delta_override` so UI rendering can use provided value without breaking
+    the default calculation (closing - opening).
+    """
+
     opening: float = 0.0
     closing: float = 0.0
     source: str = "unknown"  # measured | simulated
+    _delta_override: Optional[float] = field(default=None, repr=False)
+
+    def __init__(self, opening: float = 0.0, closing: float = 0.0, source: str = "unknown", delta: Optional[float] = None):
+        """Initialize snapshot with optional explicit delta override.
+
+        Args:
+            opening: Opening volume for period (m³).
+            closing: Closing volume for period (m³).
+            source: Data origin (e.g., 'Database', 'Simulated').
+            delta: Optional pre-computed delta used when provided; otherwise
+                computed as closing - opening.
+        """
+        # Store raw volumes and any caller-provided delta for UI/testing.
+        self.opening = opening
+        self.closing = closing
+        self.source = source
+        self._delta_override = delta
 
     @property
     def delta(self) -> float:
+        # Prefer explicit override (used in tests) to avoid recomputing.
+        if self._delta_override is not None:
+            return float(self._delta_override)
         return self.closing - self.opening
 
 

@@ -93,7 +93,15 @@ class LicenseClient:
                 "https://www.googleapis.com/auth/drive.file"
             ]
             creds = Credentials.from_service_account_file(self.service_account_json, scopes=scopes)
+            # Create client with timeout configuration to avoid hanging on API errors
             self._client = gspread.authorize(creds)
+            
+            # Set timeout on the HTTP client to prevent hanging (default is no timeout!)
+            # This ensures API errors (like 500) fail quickly instead of hanging for 30+ seconds
+            # gspread uses requests.Session internally with AuthorizedSession
+            self._client.http_client.set_timeout(self.timeout)
+            logger.debug(f"Configured gspread HTTP timeout: {self.timeout}s")
+            
             logger.info("Google Sheets API client authenticated")
             return self._client
         except Exception as exc:

@@ -23,7 +23,7 @@ colors:
 data_sources:
   dam_recirculation_path: data\templates\DAM_RECIRCULATION_TEMPLATE.txt
   inflow_codes_path: data\templates\INFLOW_CODES_TEMPLATE.txt
-  legacy_excel_path: data\New Water Balance  20250930 Oct.xlsx
+  legacy_excel_path: data\New Water Balance 20250930 Oct.xlsx
   outflow_codes_path: data\templates\OUTFLOW_CODES_TEMPLATE_CORRECTED.txt
   template_excel_path: data\Water_Balance_TimeSeries_Template.xlsx
   timeseries_excel_path: data\Water_Balance_TimeSeries_Template.xlsx
@@ -32,6 +32,10 @@ database:
 environmental:
   evaporation_zone: 4A
 features:
+  auto_apply_pump_transfers: true
+  auto_apply_pump_transfers_pilot_areas:
+  - UG2N
+  auto_apply_pump_transfers_scope: pilot-area
   fast_startup: true
   new_calculations: false
   new_dashboard: true

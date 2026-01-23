@@ -50,6 +50,7 @@ class DatabaseSchema:
             self._create_monthly_manual_inputs_table(cursor)
             # NOTE: seepage_gain_monthly table removed - seepage now automatic based on facility properties
             self._create_measurements_table(cursor)
+            self._create_pump_transfer_events_table(cursor)
             self._create_tsf_return_table(cursor)
             self._create_calculations_table(cursor)
             self._create_operating_rules_table(cursor)
@@ -132,6 +133,7 @@ class DatabaseSchema:
                 migrate_wb()
             except Exception as wb_err:
                 print(f"[WARNING] wb_* topology migration skipped: {wb_err}")
+            self._create_pump_transfer_events_table(cursor)
             
             conn.commit()
             print(f"Database migrated successfully: {self.db_path}")
@@ -648,6 +650,36 @@ class DatabaseSchema:
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_measurements_type_date ON measurements(measurement_type, measurement_date)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_measurements_source_date ON measurements(source_id, measurement_date)")
         cursor.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_measurements_unique ON measurements(measurement_date, measurement_type, source_id, facility_id)")
+    
+    def _create_pump_transfer_events_table(self, cursor):
+        """Audit table tracking automatic pump transfer applications.
+
+        Records source → destination transfer operations applied to storage facilities
+        during balance calculations. Enforces idempotency via a unique constraint
+        on (calc_date, source_code, dest_code) to prevent duplicate application
+        for the same date/path.
+        """
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS pump_transfer_events (
+                event_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                calc_date DATE NOT NULL,
+                source_code TEXT NOT NULL,
+                dest_code TEXT NOT NULL,
+                volume_m3 REAL NOT NULL,
+                destination_level_before REAL,
+                destination_level_after REAL,
+                reason TEXT,
+                applied_by TEXT DEFAULT 'system',
+                applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                status TEXT DEFAULT 'applied', -- 'applied','skipped','rolled_back'
+                notes TEXT,
+                UNIQUE(calc_date, source_code, dest_code)
+            )
+            """
+        )
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_pump_transfer_date ON pump_transfer_events(calc_date)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_pump_transfer_source ON pump_transfer_events(source_code)")
     
     def _create_calculations_table(self, cursor):
         """Water balance calculations results"""

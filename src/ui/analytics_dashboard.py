@@ -38,6 +38,11 @@ class AnalyticsDashboard:
         self.available_sources = []  # List of detected column names
         self.min_date = None  # For date range validation
         self.max_date = None
+        self.file_section_expanded = tk.BooleanVar(master=parent, value=True)  # Collapsible state
+        self.file_section_content = None  # Reference to collapsible content
+        self.chart_options_expanded = tk.BooleanVar(master=parent, value=True)  # Chart options collapsible state
+        self.chart_options_content = None  # Reference to chart options content
+        self.chart_expand_indicator = None  # Reference to expand/collapse indicator
         
     def load(self):
         """Load the analytics dashboard"""
@@ -88,7 +93,7 @@ class AnalyticsDashboard:
         info.pack(anchor='w', pady=(3, 0))
     
     def _create_file_selector(self):
-        """Create modern file selection card"""
+        """Create modern collapsible file selection card"""
         # Add padding to main frame and separator after header
         separator = tk.Frame(self.main_frame, bg='#f5f6f7', height=0)
         separator.pack(fill=tk.X, padx=0)
@@ -100,14 +105,61 @@ class AnalyticsDashboard:
         file_frame = tk.Frame(content_frame, bg='white', relief=tk.FLAT, bd=1, highlightbackground='#d0d5dd', highlightthickness=1)
         file_frame.pack(fill=tk.X, pady=(0, 20), padx=0)
         
-        inner = tk.Frame(file_frame, bg='white')
-        inner.pack(fill=tk.X, padx=20, pady=16)
+        # Collapsible header with click handler
+        header_frame = tk.Frame(file_frame, bg='white', cursor='hand2')
+        header_frame.pack(fill=tk.X, padx=20, pady=16)
+        header_frame.bind('<Button-1>', lambda e: self._toggle_file_section())
         
-        tk.Label(inner, text="📁 Data Source File", font=('Segoe UI', 12, 'bold'), bg='white', fg='#2c3e50').pack(anchor='w', pady=(0, 10))
+        # Icon and title row
+        icon_title_row = tk.Frame(header_frame, bg='white')
+        icon_title_row.pack(fill=tk.X)
         
-        tk.Label(inner, text="Excel file with Meter Readings:", font=('Segoe UI', 10), bg='white', fg='#34495e').pack(anchor='w', pady=(0, 5))
+        # Expand/collapse indicator
+        self.expand_indicator = tk.Label(
+            icon_title_row, 
+            text="▼", 
+            font=('Segoe UI', 10), 
+            bg='white', 
+            fg='#3498db',
+            cursor='hand2'
+        )
+        self.expand_indicator.pack(side=tk.LEFT, padx=(0, 8))
+        self.expand_indicator.bind('<Button-1>', lambda e: self._toggle_file_section())
         
-        path_row = tk.Frame(inner, bg='white')
+        title_label = tk.Label(
+            icon_title_row, 
+            text="📁 Data Source File", 
+            font=('Segoe UI', 12, 'bold'), 
+            bg='white', 
+            fg='#2c3e50',
+            cursor='hand2'
+        )
+        title_label.pack(side=tk.LEFT)
+        title_label.bind('<Button-1>', lambda e: self._toggle_file_section())
+        
+        # Status indicator (shows file loaded state)
+        self.file_status_label = tk.Label(
+            icon_title_row,
+            text="",
+            font=('Segoe UI', 9),
+            bg='white',
+            fg='#27ae60'
+        )
+        self.file_status_label.pack(side=tk.LEFT, padx=(10, 0))
+        
+        # Collapsible content section
+        self.file_section_content = tk.Frame(file_frame, bg='white')
+        self.file_section_content.pack(fill=tk.X, padx=20, pady=(0, 16))
+        
+        tk.Label(
+            self.file_section_content, 
+            text="Excel file with Meter Readings:", 
+            font=('Segoe UI', 10), 
+            bg='white', 
+            fg='#34495e'
+        ).pack(anchor='w', pady=(0, 5))
+        
+        path_row = tk.Frame(self.file_section_content, bg='white')
         path_row.pack(fill=tk.X)
         
         entry = tk.Entry(path_row, textvariable=self.excel_file_path, state='readonly', 
@@ -123,11 +175,44 @@ class AnalyticsDashboard:
                   cursor='hand2')
         select_btn.pack(side=tk.LEFT)
         
-        tk.Label(inner, text="Auto-loads: columns from row 3, data from row 5 onwards", 
-                 fg='#95a5a6', bg='white', font=('Segoe UI', 9, 'italic')).pack(anchor='w', pady=(5, 0))
+        tk.Label(
+            self.file_section_content, 
+            text="Auto-loads: columns from row 3, data from row 5 onwards", 
+            fg='#95a5a6', bg='white', font=('Segoe UI', 9, 'italic')
+        ).pack(anchor='w', pady=(5, 0))
+    
+    def _toggle_file_section(self):
+        """Toggle visibility of file selector content"""
+        is_expanded = self.file_section_expanded.get()
+        
+        if is_expanded:
+            # Collapse
+            self.file_section_content.pack_forget()
+            self.expand_indicator.config(text="►")
+            self.file_section_expanded.set(False)
+        else:
+            # Expand
+            self.file_section_content.pack(fill=tk.X, padx=20, pady=(0, 16), after=self.expand_indicator.master.master)
+            self.expand_indicator.config(text="▼")
+            self.file_section_expanded.set(True)
+    
+    def _toggle_chart_options(self):
+        """Toggle visibility of chart options content"""
+        is_expanded = self.chart_options_expanded.get()
+        
+        if is_expanded:
+            # Collapse
+            self.chart_options_content.pack_forget()
+            self.chart_expand_indicator.config(text="►")
+            self.chart_options_expanded.set(False)
+        else:
+            # Expand
+            self.chart_options_content.pack(fill=tk.X, padx=20, pady=(0, 16), after=self.chart_expand_indicator.master.master)
+            self.chart_expand_indicator.config(text="▼")
+            self.chart_options_expanded.set(True)
     
     def _create_controls(self):
-        """Create modern chart control panel"""
+        """Create modern collapsible chart control panel"""
         # Clear existing controls
         for widget in self.control_container.winfo_children():
             widget.destroy()
@@ -135,10 +220,56 @@ class AnalyticsDashboard:
         control_frame = tk.Frame(self.control_container, bg='white', relief=tk.FLAT, bd=1, highlightbackground='#d0d5dd', highlightthickness=1)
         control_frame.pack(fill=tk.BOTH, expand=True, padx=0)
         
-        inner = tk.Frame(control_frame, bg='white')
-        inner.pack(fill=tk.BOTH, expand=True, padx=20, pady=16)
+        # Collapsible header
+        header_frame = tk.Frame(control_frame, bg='white', cursor='hand2')
+        header_frame.pack(fill=tk.X, padx=20, pady=16)
+        header_frame.bind('<Button-1>', lambda e: self._toggle_chart_options())
         
-        tk.Label(inner, text="📈 Chart Options", font=('Segoe UI', 12, 'bold'), bg='white', fg='#2c3e50').pack(anchor='w', pady=(0, 10))
+        # Icon and title row
+        icon_title_row = tk.Frame(header_frame, bg='white')
+        icon_title_row.pack(fill=tk.X)
+        
+        # Expand/collapse indicator
+        self.chart_expand_indicator = tk.Label(
+            icon_title_row, 
+            text="▼", 
+            font=('Segoe UI', 10), 
+            bg='white', 
+            fg='#27ae60',
+            cursor='hand2'
+        )
+        self.chart_expand_indicator.pack(side=tk.LEFT, padx=(0, 8))
+        self.chart_expand_indicator.bind('<Button-1>', lambda e: self._toggle_chart_options())
+        
+        title_label = tk.Label(
+            icon_title_row, 
+            text="📈 Chart Options", 
+            font=('Segoe UI', 12, 'bold'), 
+            bg='white', 
+            fg='#2c3e50',
+            cursor='hand2'
+        )
+        title_label.pack(side=tk.LEFT)
+        title_label.bind('<Button-1>', lambda e: self._toggle_chart_options())
+        
+        # Hint label
+        hint_label = tk.Label(
+            icon_title_row,
+            text="(click to collapse and save space)",
+            font=('Segoe UI', 8),
+            bg='white',
+            fg='#95a5a6',
+            cursor='hand2'
+        )
+        hint_label.pack(side=tk.LEFT, padx=(8, 0))
+        hint_label.bind('<Button-1>', lambda e: self._toggle_chart_options())
+        
+        # Collapsible content
+        self.chart_options_content = tk.Frame(control_frame, bg='white')
+        self.chart_options_content.pack(fill=tk.X, padx=20, pady=(0, 16))
+        
+        # Use chart_options_content as the inner frame for controls
+        inner = self.chart_options_content
         
         # Use inner frame as control_frame for remaining code
         control_frame = inner
@@ -272,7 +403,9 @@ class AnalyticsDashboard:
             skipped_sources = []
             
             for col in df.columns[1:]:
-                if col == date_col or col == 'Date' or col.startswith('Unnamed') or col in seen_sources:
+                # Skip renamed duplicates (pandas renames to FlowA.1, FlowA.2, etc.) and other unwanted columns
+                if (col == date_col or col == 'Date' or col.startswith('Unnamed') or 
+                    col in seen_sources or '.' in col):
                     continue
                 try:
                     numeric_series = pd.to_numeric(df[col], errors='coerce')
@@ -313,6 +446,17 @@ class AnalyticsDashboard:
             # Create controls now that data is loaded
             self.control_container.after(10, self._create_controls)
             
+            # Update status indicator and auto-collapse file section
+            source_count = len(source_columns)
+            record_count = len(df)
+            self.file_status_label.config(
+                text=f"✓ {record_count} records, {source_count} sources loaded"
+            )
+            
+            # Auto-collapse to save space after successful load
+            if self.file_section_expanded.get():
+                self.file_section_content.after(500, self._toggle_file_section)
+            
             # Show success message
             messagebox.showinfo("Data Loaded", 
                               f"✓ Loaded {len(df)} records\n✓ Found {len(source_columns)} water sources\n\n" +
@@ -328,8 +472,8 @@ class AnalyticsDashboard:
         chart_frame = tk.Frame(self.main_frame, bg='white', relief=tk.FLAT, bd=1, highlightbackground='#d0d5dd', highlightthickness=1)
         chart_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=(0, 20))
         
-        # Create matplotlib figure with professional settings
-        self.figure = Figure(figsize=(14, 7), dpi=120, facecolor='white')
+        # Create matplotlib figure with professional settings - wider to accommodate external legend
+        self.figure = Figure(figsize=(12, 6), dpi=100, facecolor='white')
         self.canvas = FigureCanvasTkAgg(self.figure, master=chart_frame)
         self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
     
@@ -478,12 +622,25 @@ class AnalyticsDashboard:
             ax.set_xlabel('Date', fontsize=12, fontweight='bold')
             ax.set_ylabel(y_label, fontsize=12, fontweight='bold')
             ax.grid(True, alpha=0.3, linestyle='--', linewidth=0.8)
-            ax.legend(loc='best', framealpha=0.95, fontsize=9, shadow=True, ncol=2 if len(sources_to_plot) > 5 else 1)
+            
+            # Position legend outside plot area to avoid overlapping data
+            # Place to the right of the plot with smaller font
+            ax.legend(
+                loc='center left', 
+                bbox_to_anchor=(1.02, 0.5),  # Position outside plot area
+                framealpha=0.95, 
+                fontsize=9, 
+                shadow=True,
+                ncol=1,  # Single column for cleaner look
+                borderpad=1,
+                labelspacing=0.8
+            )
+            
             ax.spines['top'].set_visible(False)
             ax.spines['right'].set_visible(False)
             
-            self.figure.autofmt_xdate()
-            self.figure.tight_layout()
+            # Adjust layout to prevent legend cutoff
+            self.figure.tight_layout(rect=[0, 0, 0.85, 1])  # Leave 15% on right for legend
             self.canvas.draw()
             
             logger.info(f"Chart generated: {chart_type} for {selected}")
@@ -493,7 +650,7 @@ class AnalyticsDashboard:
             messagebox.showerror("Chart Error", f"Failed to generate chart:\n{str(e)}")
     
     def _save_chart(self):
-        """Save current chart to file"""
+        """Save current chart to file with proper aspect ratio"""
         if self.source_data is None:
             messagebox.showwarning("No Chart", "Generate a chart first")
             return
@@ -515,8 +672,16 @@ class AnalyticsDashboard:
             )
             
             if file_path:
-                self.figure.savefig(file_path, dpi=300, bbox_inches='tight', 
-                                   facecolor='white', edgecolor='none')
+                # Save with high DPI and proper bounding to prevent stretching
+                # Use bbox_inches='tight' to include legend without distortion
+                self.figure.savefig(
+                    file_path, 
+                    dpi=300,  # High quality for reports
+                    bbox_inches='tight',  # Auto-crop to content
+                    facecolor='white', 
+                    edgecolor='none',
+                    pad_inches=0.3  # Small padding around edges
+                )
                 messagebox.showinfo("Success", f"Chart saved to:\n{file_path}")
                 logger.info(f"Chart saved: {file_path}")
                 

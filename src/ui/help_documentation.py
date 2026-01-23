@@ -433,7 +433,7 @@ class HelpDocumentation:
             level=2, tab_name='Dashboards')
         
         self._add_section(content, "🌊 Flow Diagram Dashboard", 
-            "Visual mapping of water flows between operational components.\n\n"
+            "Visual mapping of water flows between operational components across 8 mining areas.\n\n"
             "Features:\n"
             "• Interactive flow diagram with components from all 8 operational areas\n"
             "• Visual component positioning:\n"
@@ -442,21 +442,22 @@ class HelpDocumentation:
             "  - Grid alignment helpers\n"
             "• Flow line management:\n"
             "  - Draw orthogonal (right-angle) flow lines\n"
-            "  - Edit existing lines\n"
+            "  - Edit existing lines with middle-click\n"
             "  - Delete unwanted connections\n"
             "• Color-coded flow types:\n"
-            "  - Blue: Clean water sources/flows\n"
-            "  - Red: Dirty water/effluent\n"
-            "  - Black: Losses/evaporation\n"
+            "  - Green (#228B22): Clean water sources/flows\n"
+            "  - Red (#FF6347): Dirty water/effluent\n"
+            "  - Gray (#696969): Underground/hidden flows\n"
             "• Excel volume overlays:\n"
-            "  - Load monthly volume data\n"
-            "  - Display volumes on edges\n"
-            "  - Map Excel columns to diagram flows\n"
-            "  - Auto-map using column name aliases\n"
+            "  - Load monthly flow volume data from Excel\n"
+            "  - Display volumes on edges (m³)\n"
+            "  - Map Excel columns to diagram flows via registry\n"
+            "  - Auto-update on Excel reload\n"
             "• Diagram management:\n"
-            "  - Save to JSON format\n"
+            "  - Save to JSON format (data/diagrams/<area>_flow_diagram.json)\n"
             "  - Load previously saved diagrams\n"
-            "  - Clear and start fresh\n\n"
+            "  - Clear and start fresh\n"
+            "  - Per-area diagrams (UG2N, UG2S, etc.)\n\n"
             "Use for:\n"
             "• Understanding water connectivity between components\n"
             "• Validating flow balance logic\n"
@@ -568,11 +569,16 @@ class HelpDocumentation:
             "Water exiting through evaporation and discharge:", level=1, tab_name='Calculations')
         
         self._add_section(content, "1. Evaporation Loss", 
-            "Water lost to atmosphere from storage facility surfaces.\n"
+            "Water lost to atmosphere from storage facility surfaces (source pan evaporation standard).\n"
             "Calculation (per facility):\n"
             "  Evaporation (m³) = Evaporation Rate (mm/month) × Facility Surface Area (m²) / 1000\n"
-            "  Total = Sum across all facilities with evap_active = 1\n"
-            "Source: database regional_evaporation_monthly table (by month)", level=2, tab_name='Calculations')
+            "  Applied only if: evap_active = 1 AND surface_area > 0\n"
+            "  Capped: Cannot exceed current facility volume\n"
+            "  Total = Sum across all facilities with evap_active = 1\n\n"
+            "EVAPORATION SOURCE (Source Pan Category A - standard method):\n"
+            "  Regional values by month: Settings → Environmental Parameters\n"
+            "  Zone: 4A (default, configurable in Settings)\n"
+            "  Per-facility override available (if implemented)", level=2, tab_name='Calculations')
         
         self._add_section(content, "2. Discharge (Controlled Environmental Release)", 
             "Water deliberately released to environment (compliance, management).\n"
@@ -1023,14 +1029,58 @@ class HelpDocumentation:
             "  Negative Change = Water depleting (outflows > inflows)",
             "Trend analysis helps predict future storage levels", tab_name='Storage')
         
+        self._add_section(content, "Rainfall & Evaporation in Storage", 
+            "Regional climate factors that impact storage volumes.", level=2, tab_name='Storage')
+        
+        self._add_formula(content,
+            "RAINFALL:\n"
+            "  Rainfall Volume (m³) = (Regional Rainfall mm / 1000) × Facility Surface Area m²\n"
+            "  Applied to: All facilities with 'evap_active' checkbox enabled\n"
+            "  Source: Settings → Environmental Parameters → Regional Rainfall (mm/month)\n\n"
+            "EVAPORATION LOSS:\n"
+            "  Evaporation Loss (m³) = (Regional Evaporation mm / 1000) × Facility Surface Area m²\n"
+            "  Applied to: All facilities with 'evap_active' checkbox enabled\n"
+            "  Source: Settings → Environmental Parameters → Regional Evaporation (mm/month)\n"
+            "  Capped: Cannot exceed current facility volume\n\n"
+            "EVAPORATION ZONE: Category 4A (regional classification)\n"
+            "  Configurable: Settings → Environmental Parameters → Evaporation Zone",
+            "Rainfall and evaporation are SOURCE PAN based (standard measurement method)", tab_name='Storage')
+        
+        self._add_section(content, "Facility-Level Configuration", 
+            "Individual facility settings for rainfall/evaporation participation.", level=2, tab_name='Storage')
+        
+        self._add_section(content, "How to Configure Per-Facility Evaporation", 
+            "Access: Storage Facilities → Edit Facility → Checkbox 'Include in evaporation & rainfall calculations'\n\n"
+            "• CHECKED: Facility participates in regional rainfall/evaporation calculations\n"
+            "• UNCHECKED: Facility excluded from rainfall/evaporation (treated as independent)\n\n"
+            "Additionally, per-facility monthly inflows, outflows, and abstraction can be configured via:\n"
+            "Storage Facilities → Select Facility → 'Edit Monthly Parameters' button\n"
+            "  → Configure inflow (m³), outflow (m³), and abstraction (m³) for each month", level=2, tab_name='Storage')
+        
+        self._add_section(content, "Seepage Losses", 
+            "Water seeping through dam walls or gaining from aquifer inflow.", level=2, tab_name='Storage')
+        
+        self._add_formula(content,
+            "SEEPAGE LOSS (outflow):\n"
+            "  Seepage Loss (m³) = Current Volume × Seepage Rate (% per month)\n\n"
+            "RATES by facility type:\n"
+            "  • Lined Dams: 0.1% per month (minimal loss)\n"
+            "  • Unlined Dams: 0.5% per month (natural seepage)\n\n"
+            "AQUIFER SEEPAGE GAIN (inflow):\n"
+            "  Seepage Gain (m³) = Current Volume × Aquifer Gain Rate (% per month)\n"
+            "  Configurable: Settings → Constants (per facility basis)",
+            "Both rates can be adjusted in Settings for custom facility types", tab_name='Storage')
+        
         self._add_section(content, "Operational Guidelines", 
             "Recommended storage management practices:\n\n"
             "• Maintain 40-70% utilization for operational flexibility\n"
             "• Keep minimum 90 days supply based on average consumption\n"
             "• Monitor freeboard especially during rainy season\n"
             "• Balance water levels across facilities for efficiency\n"
-            "• Track evaporation losses and adjust for seasonal variation\n"
-            "• Plan drawdown before wet season to maximize rainfall capture", level=2, tab_name='Storage')
+            "• Track evaporation losses (10,000-20,000 m³/month typical)\n"
+            "• Account for seepage in long-term capacity planning\n"
+            "• Plan drawdown before wet season to maximize rainfall capture\n"
+            "• Enable 'evap_active' for main storage dams only", level=2, tab_name='Storage')
     
     def _create_features_tab(self):
         """Application features and capabilities"""
@@ -1043,26 +1093,40 @@ class HelpDocumentation:
             "Comprehensive list of all application functions and tools.", level=1, tab_name='Features')
         
         self._add_section(content, "💾 Data Management", 
-            "Import, store, and organize water balance data.\n\n"
+            "Import, store, and organize water balance data with comprehensive tracking.\n\n"
+            "Data Sources Supported:\n"
+            "• Meter Readings Excel (legacy_excel_path): Historical flow, level, production data\n"
+            "• Flow Diagram Excel (timeseries_excel_path): Monthly flow volumes per area\n"
+            "• Manual entry via UI dashboards\n"
+            "• Database direct input (advanced users)\n\n"
             "Capabilities:\n"
-            "• Excel template import (9 template types)\n"
-            "• SQLite database persistence\n"
-            "• Automatic data validation\n"
-            "• Historical data management\n"
-            "• Data quality scoring\n"
-            "• Missing data detection and flagging\n"
-            "• Backup and recovery\n"
-            "• Audit trail for all changes\n"
-            "• Batch data import\n"
-            "• Database reset/rebuild functionality", 
+            "• Excel template import (multiple sheet types per area)\n"
+            "• SQLite database persistence (20+ tables)\n"
+            "• Automatic data validation and quality checks\n"
+            "• Historical data management (year-specific and baseline values)\n"
+            "• Data quality scoring and flagging\n"
+            "• Missing data detection (MISSING flag vs ESTIMATED vs MEASURED)\n"
+            "• Backup and recovery (auto-backup before DB operations)\n"
+            "• Audit trail for all changes (license_audit_log table)\n"
+            "• Batch data import from Excel sheets\n"
+            "• Database reset/rebuild functionality\n"
+            "• Multi-year support for evaporation/rainfall/constants", 
             level=2, tab_name='Features')
         
         self._add_section(content, "⚙️ Configuration & Settings", 
-            "Customize application behavior and calculations.\n\n"
-            "Adjustable Parameters:\n"
-            "• Seepage loss rate (0.5% per month)\n"
+            "Customize application behavior, environmental parameters, and constants.\n\n"
+            "Environmental Parameters (Settings → Environmental):\n"
+            "• Regional evaporation zone (4A default)\n"
+            "• Monthly rainfall (mm/month) for all 12 months\n"
+            "• Monthly regional evaporation (mm/month) for all 12 months\n"
+            "• Year-specific or baseline values\n\n"
+            "System Constants (Settings → Constants):\n"
+            "• Seepage loss rate: Lined dams (0.1%/month), Unlined (0.5%/month)\n"
             "• Closure error threshold (5%)\n"
-            "• Default ore processing (default: 350,000 tonnes/month)\n\n"
+            "• Default ore processing (350,000 tonnes/month)\n"
+            "• Ore moisture content (3.4%), Ore density (2.7 t/m³)\n"
+            "• Tailings moisture percentage (by month)\n"
+            "• Dust suppression rates\n\n"
             "Access: Click 'Settings' in navigation menu", 
             level=2, tab_name='Features')
         
@@ -1081,7 +1145,22 @@ class HelpDocumentation:
             level=2, tab_name='Features')
         
         self._add_section(content, "📈 Analytics & Trends", 
-            "12-month moving averages, seasonal analysis, forecasting.", 
+            "Historical analysis, pattern recognition, and seasonal trend visualization.", 
+            level=2, tab_name='Features')
+        
+        self._add_section(content, "🔄 Pump Transfer System", 
+            "Automatic facility-to-facility water redistribution when storage reaches capacity thresholds.\n\n"
+            "How It Works:\n"
+            "• Triggers when facility level ≥ pump_start_level (default 70%)\n"
+            "• Transfers 5% incremental volume per cycle to 'feeds_to' destination\n"
+            "• Stops when destination reaches its pump_start_level\n"
+            "• Respects facility priority order in 'feeds_to' configuration\n\n"
+            "Configuration Per Facility:\n"
+            "• pump_start_level: Percentage to trigger transfers (default 70%)\n"
+            "• pump_stop_level: Percentage to stop transfers (default 20%)\n"
+            "• feeds_to: Comma-separated destination facility codes\n"
+            "• active: Enable/disable pump system for facility\n\n"
+            "Access: Storage Facilities → Edit Facility → Pump Settings", 
             level=2, tab_name='Features')
         
         self._add_section(content, "📄 Report Generation", 
@@ -1093,11 +1172,48 @@ class HelpDocumentation:
             level=2, tab_name='Features')
         
         self._add_section(content, "⚡ Performance Optimization", 
-            "Memoization cache provides 40,000x speed improvement.", 
+            "Multi-tier caching and async loading for fast calculations and responsive UI.\n\n"
+            "Optimizations:\n"
+            "• Memoization cache: 40,000x speed improvement on repeated calculations\n"
+            "• Session-lifetime caching: Balance results, KPI values, per-date metrics\n"
+            "• Excel lazy-loading: Parse only when needed, cache by path\n"
+            "• Fast startup: UI loads immediately while DB syncs in background\n"
+            "• Async database operations: Non-blocking initial load\n\n"
+            "Cache Invalidation (automatic):\n"
+            "• Cleared on Excel file change detection\n"
+            "• Cleared on configuration/constant updates\n"
+            "• Cleared on storage facility edits\n\n"
+            "Clear Cache Manually: Settings → Cache Management (if needed)", 
             level=2, tab_name='Features')
         
         self._add_section(content, "🛡️ Error Handling & Logging", 
-            "Enterprise-grade reliability with detailed diagnostics.", 
+            "Enterprise-grade reliability with comprehensive diagnostics and troubleshooting.\n\n"
+            "Features:\n"
+            "• Structured logging to files and console (JSON format)\n"
+            "• Log rotation (automatic archiving by size)\n"
+            "• Performance tracking ('performance' log level)\n"
+            "• Alert system with configurable rules\n"
+            "• Data validation before calculations\n"
+            "• Graceful error recovery (fallbacks, defaults)\n"
+            "• User-friendly error messages\n\n"
+            "Log Files: logs/ directory\n"
+            "  • water_balance.log (current)\n"
+            "  • water_balance.log.1, .2, .3, ... (archived)\n\n"
+            "Common Issues & Solutions: See Troubleshooting tab", 
+            level=2, tab_name='Features')
+        
+        self._add_section(content, "🔐 Licensing & Access Control", 
+            "License validation and tier-based feature access.\n\n"
+            "License Tiers:\n"
+            "• Trial: 1-hour check interval, limited calculations\n"
+            "• Standard: 24-hour check interval, normal feature set\n"
+            "• Premium: 168-hour check interval, all features unlocked\n\n"
+            "Validation:\n"
+            "• Online validation against Google Sheets (immediate revocation detection)\n"
+            "• Offline grace period: 7 days (if network unavailable)\n"
+            "• Hardware-based tracking (prevents unauthorized transfers)\n"
+            "• Auto-recovery on reinstall (same hardware)\n\n"
+            "Status: Check via Help → About or Settings → License Info", 
             level=2, tab_name='Features')
     
     def _create_troubleshooting_tab(self):
@@ -1120,13 +1236,54 @@ class HelpDocumentation:
             level=2, tab_name='Troubleshooting')
         
         self._add_section(content, "❓ Closure error >5% (Balance Open)", 
-            "Indicates measurement inconsistencies\n\n"
+            "Indicates measurement inconsistencies or missing data.\n\n"
+            "Root Causes:\n"
+            "• Missing Excel data (Tonnes Milled, discharge, production, etc.)\n"
+            "• Facility water level not updated\n"
+            "• Evaporation/rainfall configuration missing\n"
+            "• Surface area not set for facilities\n"
+            "• Measurement date outside data range\n\n"
             "Investigation Steps:\n"
-            "1. Check Extended Summary for detailed breakdown\n"
-            "2. Verify facility water levels are current\n"
-            "3. Look for '-' values (missing data)\n"
-            "4. Compare with previous months\n"
-            "5. Manually verify largest inflow/outflow values", 
+            "1. Check Extended Summary tab for detailed component breakdown\n"
+            "2. Look for MISSING flags (marked as '-' in UI)\n"
+            "3. Verify facility water levels are current (last measurement date)\n"
+            "4. Confirm evap_active checkbox enabled for main facilities\n"
+            "5. Check surface areas set in Storage Facilities config\n"
+            "6. Compare with previous months (trend analysis)\n"
+            "7. Manually verify largest inflow/outflow values vs Excel\n\n"
+            "Data Quality Tips:\n"
+            "• Download latest Excel with meter readings\n"
+            "• Verify facility water levels measured in same period\n"
+            "• Check production/discharge values populated in Excel\n"
+            "• Confirm rainfall/evaporation settings in Environmental Parameters", 
+            level=2, tab_name='Troubleshooting')
+        
+        self._add_section(content, "❓ Evaporation values too high/low", 
+            "Regional evaporation may need adjustment for seasonal patterns.\n\n"
+            "Check:\n"
+            "1. Settings → Environmental Parameters → Regional Evaporation\n"
+            "2. Compare monthly values with your regional climate data\n"
+            "3. Verify units are mm/month (NOT mm/day)\n"
+            "4. Typical range: 50-300 mm/month depending on season/region\n\n"
+            "Adjustment:\n"
+            "• To update: Settings → Environmental Parameters → Edit monthly values\n"
+            "• Click 'Save Regional Parameters'\n"
+            "• Values auto-apply to next calculation\n\n"
+            "Evaporation Type: Source Pan Evaporation (standard Category A measurement)", 
+            level=2, tab_name='Troubleshooting')
+        
+        self._add_section(content, "❓ Facility water levels not updating", 
+            "Check measurement input and configuration.\n\n"
+            "Verify:\n"
+            "1. Facility enabled in Storage Facilities (active checkbox)\n"
+            "2. Current volume set or water level recorded in measurements\n"
+            "3. Measurement date matches calculation date\n"
+            "4. Database connected (check logs for errors)\n\n"
+            "To Update Manually:\n"
+            "1. Storage Facilities → Select facility\n"
+            "2. Edit facility → Update 'Current Volume' field\n"
+            "3. Click Save\n"
+            "4. Re-run calculation", 
             level=2, tab_name='Troubleshooting')
         
         self._add_section(content, "❓ Import fails: 'File format error'", 

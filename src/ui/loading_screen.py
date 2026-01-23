@@ -44,14 +44,16 @@ class LoadingScreen:
         self.text_primary = '#2c3e50'
         self.text_secondary = '#7f8c8d'
         self.border_color = '#e0e0e0'
+        # Transparent color used to knock out square corners on Windows
+        self.transparent_color = '#010101'
         
         # Set window properties
-        self.root.configure(bg=self.bg_secondary)
+        self.root.configure(bg=self.transparent_color)
         self.root.resizable(False, False)
         self.root.overrideredirect(True)  # No title bar for clean look
-        
-        # Centered dialog: 700x560 centered on screen (40% bigger for better visibility)
-        dialog_width, dialog_height = 700, 560
+
+        # Centered dialog: smaller footprint with rounded-corner illusion
+        dialog_width, dialog_height = 560, 430
         screen_width = self.root.winfo_screenwidth()
         screen_height = self.root.winfo_screenheight()
         x = (screen_width - dialog_width) // 2
@@ -59,14 +61,42 @@ class LoadingScreen:
         
         self.root.geometry(f'{dialog_width}x{dialog_height}+{x}+{y}')
         self.root.attributes('-topmost', True)
+        try:
+            # Make the transparent color fully see-through so the rounded path reads
+            self.root.attributes('-transparentcolor', self.transparent_color)
+        except tk.TclError:
+            # Some platforms do not support transparent toplevels; fall back gracefully
+            pass
         
-        # Outer frame with subtle border (no padding, cleaner look)
-        border_frame = tk.Frame(self.root, bg=self.border_color, bd=0)
-        border_frame.pack(fill='both', expand=True)
+        # Canvas container lets us draw a rounded backdrop while leaving corners transparent
+        container_canvas = tk.Canvas(
+            self.root,
+            bg=self.transparent_color,
+            highlightthickness=0,
+            bd=0
+        )
+        container_canvas.pack(fill='both', expand=True)
+        container_canvas.bind(
+            '<Configure>',
+            lambda event: self._redraw_rounded_background(
+                container_canvas,
+                event.width,
+                event.height
+            )
+        )
+        self.rounded_bg_id = None
+        self.dialog_padding = 12
+        self.dialog_width = dialog_width
+        self.dialog_height = dialog_height
         
-        # Inner content frame with white background
-        main_frame = tk.Frame(border_frame, bg=self.bg_light)
-        main_frame.pack(fill='both', expand=True, padx=1, pady=1)
+        # Inner content frame with white background anchored inside rounded canvas
+        main_frame = tk.Frame(container_canvas, bg=self.bg_light)
+        main_frame.place(
+            x=self.dialog_padding,
+            y=self.dialog_padding,
+            width=dialog_width - (self.dialog_padding * 2),
+            height=dialog_height - (self.dialog_padding * 2)
+        )
         
         # Logo/Title section - compact for centered dialog
         title_frame = tk.Frame(main_frame, bg=self.bg_light)
@@ -188,6 +218,37 @@ class LoadingScreen:
         self.current_progress = 0
         self.progress_animation_id = None
         self.is_ready = False
+
+    def _redraw_rounded_background(
+        self,
+        canvas: tk.Canvas,
+        width: int,
+        height: int
+    ) -> None:
+        """Redraw rounded rectangle backdrop to keep curved edges on resize.
+
+        Args:
+            canvas: Canvas hosting the rounded background polygon
+            width: Current canvas width
+            height: Current canvas height
+        """
+        # Delete old polygon so we can redraw the rounded path with new bounds
+        if self.rounded_bg_id:
+            canvas.delete(self.rounded_bg_id)
+
+        # Small inset keeps the stroke fully visible when transparent corners are used
+        inset = 2
+        radius = 18
+        self.rounded_bg_id = self._create_rounded_rectangle(
+            canvas,
+            inset,
+            inset,
+            max(inset + radius, width - inset),
+            max(inset + radius, height - inset),
+            radius=radius,
+            fill=self.bg_light,
+            outline=self.border_color
+        )
     
     def set_geometry(self, geometry: str):
         """Set loading screen geometry (ignored for centered dialog)."""
@@ -321,6 +382,60 @@ class LoadingScreen:
             self.root.after(int(total_delay), _fade_and_close)
         else:
             _fade_and_close()
+
+    @staticmethod
+    def _create_rounded_rectangle(
+        canvas: tk.Canvas,
+        x1: int,
+        y1: int,
+        x2: int,
+        y2: int,
+        radius: int = 16,
+        **kwargs
+    ) -> int:
+        """Draw a rounded rectangle on the given canvas.
+
+        Args:
+            canvas: Target canvas
+            x1: Left coordinate
+            y1: Top coordinate
+            x2: Right coordinate
+            y2: Bottom coordinate
+            radius: Corner radius in pixels
+            **kwargs: Forwarded canvas styling options
+
+        Returns:
+            Canvas polygon ID for later updates
+        """
+        points = [
+            x1 + radius,
+            y1,
+            x2 - radius,
+            y1,
+            x2,
+            y1,
+            x2,
+            y1 + radius,
+            x2,
+            y2 - radius,
+            x2,
+            y2,
+            x2 - radius,
+            y2,
+            x1 + radius,
+            y2,
+            x1,
+            y2,
+            x1,
+            y2 - radius,
+            x1,
+            y1 + radius,
+            x1,
+            y1,
+            x1 + radius,
+            y1
+        ]
+        return canvas.create_polygon(points, smooth=True, splinesteps=36, **kwargs)
 
 
 

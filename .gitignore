@@ -198,3 +198,8 @@ logs/*.log
 *.backup
 *.cache
 excel_cache.sqlite
+
+# Scripts directory (keep in version control but ignore outputs)
+!scripts/
+scripts/*.pyc
+scripts/__pycache__/

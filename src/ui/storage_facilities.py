@@ -376,7 +376,7 @@ class StorageFacilitiesModule:
         # Brief helper text for utilization and monthly roll-forward behavior
         helper_label = tk.Label(
             grid_header,
-            text="Utilization = current volume ÷ capacity. End-of-month volume rolls into the next month per facility; it only moves when an explicit inter-facility transfer is defined.",
+            text="Utilization = current volume ÷ capacity. End-of-month volume rolls into the next month per facility. Volume moves via automatic pump transfers (when level ≥ pump start level) or manual inter-facility transfers.",
             font=('Segoe UI', 9),
             fg='white',
             bg='#2c3e50',
@@ -685,7 +685,7 @@ class StorageFacilitiesModule:
             tags = []
             if fac['active']:
                 tags.append('active')
-                if util_pct > 80:
+                if util_pct >= 80:
                     tags.append('high_util')
                 elif util_pct < 20 and util_pct > 0:
                     tags.append('low_util')

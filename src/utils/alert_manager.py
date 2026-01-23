@@ -140,6 +140,41 @@ class AlertManager:
         
         logger.info(f"Loaded {len(rules)} alert rules (include_disabled={include_disabled})")
         return rules
+
+    def add_alert(self, title: str, message: str, severity: AlertSeverity = AlertSeverity.INFO, metadata: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """Record an ad-hoc alert (used by UI/tests when validating data quality).
+
+        The application historically pushed alerts via `notifier` without
+        storing them. Tests expect this helper to exist, so we log and return a
+        normalized alert dict while keeping minimal state in `_alert_cache`.
+
+        Args:
+            title: Short alert title for UI/logging.
+            message: Human-readable description of the issue.
+            severity: Alert level (INFO/WARNING/CRITICAL).
+            metadata: Optional structured details (e.g., facility codes).
+
+        Returns:
+            Dict representing the alert payload (mirrors notifier contract).
+        """
+        alert_payload = {
+            "title": title,
+            "message": message,
+            "severity": severity.value if isinstance(severity, AlertSeverity) else str(severity),
+            "metadata": metadata or {},
+            "created_at": datetime.now().isoformat(),
+        }
+
+        # Cache recent alerts in memory for quick inspection (session scoped).
+        self._alert_cache.setdefault("recent", []).append(alert_payload)
+
+        try:
+            notifier.notify(title, message, level=alert_payload["severity"], extra=alert_payload["metadata"])
+        except Exception as exc:  # Notification failures should not block tests
+            logger.warning(f"Alert notify failed: {exc}")
+
+        logger.info(f"Alert recorded: {title} ({alert_payload['severity']})")
+        return alert_payload
     
     def check_storage_security(self, calculation_date: date, security_metrics: Dict) -> List[Dict]:
         """

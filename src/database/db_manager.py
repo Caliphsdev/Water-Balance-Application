@@ -15,6 +15,7 @@ import shutil
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from utils.config_manager import config
+from utils.app_logger import logger
 
 
 class DatabaseManager:
@@ -100,6 +101,17 @@ class DatabaseManager:
                 # No bundled database, create fresh schema
                 schema = DatabaseSchema(str(self.db_path))
                 schema.create_database()
+        else:
+            # Perform non-destructive schema migration on existing databases.
+            # WHY: New tables like pump_transfer_events may be added over time;
+            # running migrate here ensures idempotent creation without data loss.
+            try:
+                from database.schema import DatabaseSchema
+                schema = DatabaseSchema(str(self.db_path))
+                schema.migrate_database()
+            except Exception:
+                # If migration fails, continue; callers will surface specific errors as needed.
+                pass
         
         # Log resolved DB path (DEBUG level - not shown on console)
         try:
@@ -283,6 +295,166 @@ class DatabaseManager:
         except sqlite3.Error as e:
             conn.rollback()
             raise e
+        finally:
+            conn.close()
+
+    def apply_pump_transfers(self, calculation_date: date, transfers_report: Dict[str, Dict], user: str = 'system') -> int:
+        """Apply pump transfers transactionally and log audit events (IDEMPOTENT).
+
+        This method updates `storage_facilities.current_volume` for both source and
+        destination facilities according to the computed `transfers_report`, then
+        records each application in `pump_transfer_events`. It enforces idempotency
+        by checking for existing events for the given date and source/destination
+        pair and will skip re-applying to avoid double-counting.
+
+        Args:
+            calculation_date: The date of the balance calculation (month-level is acceptable).
+            transfers_report: The structure returned by `PumpTransferEngine.calculate_pump_transfers()`.
+            user: Username performing the operation (for audit trail).
+
+        Returns:
+            Number of transfer rows applied (inserted into `pump_transfer_events`).
+
+        Raises:
+            sqlite3.Error: On database failures; transaction is rolled back.
+
+        Example:
+            applied = db.apply_pump_transfers(date(2025, 10, 1), pump_transfers, user='admin')
+        """
+        if not transfers_report:
+            return 0
+
+        conn = self.get_connection()
+        applied_count = 0
+        try:
+            cur = conn.cursor()
+            # Begin atomic operation
+            cur.execute("BEGIN")
+
+            # Helper: lookup facility by code → row
+            def _lookup_facility(code: str) -> Optional[sqlite3.Row]:
+                cur.execute("SELECT * FROM storage_facilities WHERE UPPER(facility_code) = UPPER(?) LIMIT 1", (code,))
+                row = cur.fetchone()
+                return row
+
+            # Pilot gating configuration (rollout control):
+            # - scope 'global' applies to all facilities
+            # - scope 'pilot-area' applies only when the source facility's area_code is in the configured list
+            # WHY: Enable safe staged rollout by constraining auto-apply to selected mining areas first.
+            scope = (config.get('features.auto_apply_pump_transfers_scope', 'global') or 'global').lower()
+            pilot_areas = set([a.upper() for a in (config.get('features.auto_apply_pump_transfers_pilot_areas', []) or [])])
+
+            def _get_area_code(area_id: Optional[int]) -> Optional[str]:
+                """Resolve area_code from area_id (local helper for pilot gating).
+                Returns None when area_id is null or lookup fails.
+                """
+                if not area_id:
+                    return None
+                try:
+                    cur.execute("SELECT area_code FROM mine_areas WHERE area_id = ? LIMIT 1", (area_id,))
+                    row = cur.fetchone()
+                    return row[0] if row else None
+                except Exception:
+                    return None
+
+            for source_code, payload in transfers_report.items():
+                transfers = payload.get('transfers') or []
+                if not transfers:
+                    # No eligible destination; still track that evaluation happened via audit_log
+                    continue
+
+                source_row = _lookup_facility(source_code)
+                if not source_row:
+                    continue
+
+                # Pilot-area gating: skip application if source facility's area is not in pilot list
+                # (Only enforced when scope == 'pilot-area').
+                if scope == 'pilot-area':
+                    src_area_code = _get_area_code(source_row['area_id'])
+                    if pilot_areas and (src_area_code is None or src_area_code.upper() not in pilot_areas):
+                        # Skip applying transfers for non-pilot areas
+                        continue
+
+                source_current = float(source_row['current_volume'] or 0.0)
+                for t in transfers:
+                    dest_code = t.get('destination')
+                    vol = float(t.get('volume_m3') or 0.0)
+                    if vol <= 0:
+                        continue
+
+                    # Idempotency check: existing event for (date, source, dest)
+                    cur.execute(
+                        "SELECT 1 FROM pump_transfer_events WHERE calc_date = ? AND source_code = ? AND dest_code = ? LIMIT 1",
+                        (calculation_date, source_code, dest_code)
+                    )
+                    if cur.fetchone():
+                        # Already applied; skip to prevent double application
+                        continue
+
+                    dest_row = _lookup_facility(dest_code)
+                    if not dest_row:
+                        continue
+
+                    dest_current = float(dest_row['current_volume'] or 0.0)
+                    # Compute new volumes (clamp at 0 for source; destination safe due to engine checks)
+                    new_source = max(0.0, source_current - vol)
+                    new_dest = dest_current + vol
+
+                    # Update source and destination current volumes + level percent
+                    # Inline to keep single transaction and minimal round-trips
+                    def _level_percent(volume: float, capacity: float) -> float:
+                        return (volume / capacity * 100.0) if capacity and capacity > 0 else 0.0
+
+                    source_capacity = float(source_row['total_capacity'] or 0.0)
+                    dest_capacity = float(dest_row['total_capacity'] or 0.0)
+
+                    cur.execute(
+                        """
+                        UPDATE storage_facilities
+                        SET current_volume = ?, current_level_percent = ?, last_updated = CURRENT_TIMESTAMP
+                        WHERE facility_id = ?
+                        """,
+                        (new_source, _level_percent(new_source, source_capacity), source_row['facility_id'])
+                    )
+
+                    cur.execute(
+                        """
+                        UPDATE storage_facilities
+                        SET current_volume = ?, current_level_percent = ?, last_updated = CURRENT_TIMESTAMP
+                        WHERE facility_id = ?
+                        """,
+                        (new_dest, _level_percent(new_dest, dest_capacity), dest_row['facility_id'])
+                    )
+
+                    # Insert audit event (destination level before/after included)
+                    cur.execute(
+                        """
+                        INSERT INTO pump_transfer_events (
+                            calc_date, source_code, dest_code, volume_m3,
+                            destination_level_before, destination_level_after, reason,
+                            applied_by, status
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'applied')
+                        """,
+                        (
+                            calculation_date, source_code, dest_code, vol,
+                            float(t.get('destination_level_before') or 0.0),
+                            float(t.get('destination_level_after') or 0.0),
+                            t.get('reason') or 'Automatic pump transfer',
+                            user,
+                        )
+                    )
+
+                    # Update source_current for chained transfers from same source (if any)
+                    source_current = new_source
+                    applied_count += 1
+
+            # Commit atomic changes and notify caches
+            conn.commit()
+            self.invalidate_all_caches()
+            return applied_count
+        except sqlite3.Error:
+            conn.rollback()
+            raise
         finally:
             conn.close()
     

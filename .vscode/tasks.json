@@ -1,0 +1,68 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "pytest full suite",
+			"type": "shell",
+			"command": ".venv\\Scripts\\python -m pytest tests -v",
+			"isBackground": false,
+			"group": "test"
+		},
+		{
+			"label": "print-lines",
+			"type": "shell",
+			"command": ".venv\\Scripts\\python -c \"from pathlib import Path; lines=Path('src/ui/calculations.py').read_text(encoding='utf-8').splitlines(); [print(i+1, repr(line)) for i,line in enumerate(lines) if 1615 <= i+1 <= 1635]\"",
+			"isBackground": false,
+			"group": "test"
+		},
+		{
+			"label": "print-lines",
+			"type": "shell",
+			"command": ".venv\\Scripts\\python -c 'from pathlib import Path; lines=Path(\"src/ui/calculations.py\").read_text(encoding=\"utf-8\").splitlines(); [print(i+1, repr(line)) for i,line in enumerate(lines) if 1615 <= i+1 <= 1635]'",
+			"isBackground": false,
+			"group": "test"
+		},
+		{
+			"label": "print-lines-cmd",
+			"type": "shell",
+			"command": "cmd /d /c \".venv\\Scripts\\python -c \\\"from pathlib import Path; lines=Path('src/ui/calculations.py').read_text(encoding='utf-8').splitlines(); [print(i+1, repr(line)) for i,line in enumerate(lines) if 1615 <= i+1 <= 1635]\\\"\"",
+			"isBackground": false,
+			"group": "test"
+		},
+		{
+			"label": "print-lines-cmd",
+			"type": "shell",
+			"command": "cmd /d /c \".venv\\Scripts\\python -c \\\"from pathlib import Path; lines=Path('src/ui/calculations.py').read_text(encoding='utf-8').splitlines(); [print(i+1, repr(line)) for i,line in enumerate(lines) if 1625 <= i+1 <= 1635]\\\"\"",
+			"isBackground": false,
+			"group": "test"
+		},
+		{
+			"label": "print-lines-cmd",
+			"type": "shell",
+			"command": "cmd /d /c \".venv\\Scripts\\python -c \\\"from pathlib import Path; lines=Path('src/ui/calculations.py').read_text(encoding='utf-8').splitlines(); [print(i+1, repr(line)) for i,line in enumerate(lines) if 1632 <= i+1 <= 1640]\\\"\"",
+			"isBackground": false,
+			"group": "test"
+		},
+		{
+			"label": "print-lines-cmd2",
+			"type": "shell",
+			"command": "cmd /d /c \".venv\\Scripts\\python -c \\\"from pathlib import Path; lines=Path('src/ui/calculations.py').read_text(encoding='utf-8').splitlines(); [print(i+1, repr(line)) for i,line in enumerate(lines) if 1630 <= i+1 <= 1642]\\\"\"",
+			"isBackground": false,
+			"group": "test"
+		},
+		{
+			"label": "print-lines-cmd3",
+			"type": "shell",
+			"command": "cmd /d /c \".venv\\Scripts\\python -c \\\"from pathlib import Path; lines=Path('src/ui/calculations.py').read_text(encoding='utf-8').splitlines(); [print(i+1, repr(line)) for i,line in enumerate(lines) if 1634 <= i+1 <= 1642]\\\"\"",
+			"isBackground": false,
+			"group": "test"
+		},
+		{
+			"label": "pytest full suite",
+			"type": "shell",
+			"command": ".venv\\Scripts\\python -m pytest tests -v",
+			"isBackground": false,
+			"group": "test"
+		}
+	]
+}

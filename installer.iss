@@ -1,5 +1,5 @@
-# Inno Setup Script
-# Water Balance Application Installer
+; Inno Setup Script
+; Water Balance Application Installer
 
 [Setup]
 AppName=Water Balance Application
@@ -34,8 +34,6 @@ Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescrip
 Source: "dist\WaterBalance\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "README.md"; DestDir: "{app}"; Flags: ignoreversion
 Source: "LICENSE.txt"; DestDir: "{app}"; Flags: ignoreversion
-Source: "CHANGELOG.md"; DestDir: "{app}"; Flags: ignoreversion
-Source: "INSTALLATION.md"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\Water Balance"; Filename: "{app}\WaterBalance.exe"
@@ -66,12 +64,6 @@ end;
 function InitializeSetup(): Boolean;
 begin
   Result := True;
-  // Check Windows version
-  if not IsWindows10OrLater() then
-  begin
-    MsgBox('This application requires Windows 10 or later.', mbError, MB_OK);
-    Result := False;
-  end;
 end;
 
 [UninstallDelete]

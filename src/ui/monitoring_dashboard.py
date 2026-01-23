@@ -50,8 +50,15 @@ class MonitoringDashboard:
         self.selected_parameter = "Level"
         # Widget references
         self.date_range_cb = None
+        self.date_from_entry = None
+        self.date_to_entry = None
+        self.date_picker_frame = None
         self.site_listbox = None
         self.param_cb = None  # deprecated (parameter dropdown removed per new requirements)
+        # Collapsible sections
+        self.filter_collapsed = True  # Start collapsed to maximize chart space
+        self.chart_options_collapsed = False
+        self.chart_options_frame = None
         # Simple caches
         self._sites_cache = {}
         self._tab_frames = {}
@@ -79,7 +86,7 @@ class MonitoringDashboard:
 
     def _build_category_bar(self):
         self.category_bar = tk.Frame(self.root_container, bg=config.get_color('bg_main'))
-        self.category_bar.pack(fill='x', padx=16, pady=(16, 4))
+        self.category_bar.pack(fill='x', padx=16, pady=(8, 2))  # Reduced padding for compact tabs
         self.category_buttons.clear()
         for label, key in self.CATEGORIES:
             active = (key == self.active_category)
@@ -90,7 +97,7 @@ class MonitoringDashboard:
                 fg=config.get_color('text_primary') if active else config.get_color('text_secondary'),
                 bg=config.get_color('bg_main'),
                 relief='flat',
-                padx=14, pady=6,
+                padx=10, pady=4,  # Smaller tab buttons
                 cursor='hand2',
                 command=lambda k=key: self._switch_category(k)
             )
@@ -110,7 +117,7 @@ class MonitoringDashboard:
 
     def _build_body_layout(self):
         body = tk.Frame(self.root_container, bg=config.get_color('bg_main'))
-        body.pack(fill='both', expand=True, padx=16, pady=(0, 16))
+        body.pack(fill='both', expand=True, padx=16, pady=(0, 8))  # Reduced bottom padding
         # Left filter panel
         self.filter_panel = tk.Frame(body, bg=config.get_color('bg_sidebar'), width=240)
         self.filter_panel.pack(side='left', fill='y')
@@ -121,24 +128,77 @@ class MonitoringDashboard:
         self.content_panel.pack(side='left', fill='both', expand=True, padx=(16, 0))
 
     def _build_filter_panel(self):
+        """Build collapsible filter panel with date picker and site selector.
+        
+        Includes:
+        - Preset date ranges (Last 7d, Last 30d, YTD, Custom)
+        - Custom date range picker (from/to date entry fields)
+        - Site multi-select list
+        - Apply/Reset buttons
+        """
+        # Collapsible header with expand/collapse toggle
+        header_frame = tk.Frame(self.filter_panel, bg=config.get_color('bg_sidebar'))
+        header_frame.pack(fill='x', padx=16, pady=(8, 2))  # Reduced header padding
+        
+        collapse_btn = tk.Button(
+            header_frame, text="▶" if self.filter_collapsed else "▼", 
+            font=("Arial", 10, "bold"),
+            bg=config.get_color('bg_sidebar'), fg=config.get_color('text_light'),
+            relief='flat', padx=4, pady=2, width=2,
+            command=self._toggle_filter_panel
+        )
+        collapse_btn.pack(side='left')
+        self.filter_collapse_btn = collapse_btn
+        
         header = tk.Label(
-            self.filter_panel,
+            header_frame,
             text="Filters",
             font=config.get_font('heading_small'),
             fg=config.get_color('text_light'),
             bg=config.get_color('bg_sidebar'),
-            anchor='w', padx=16, pady=12
+            anchor='w'
         )
-        header.pack(fill='x')
-        # Date range
-        tk.Label(self.filter_panel, text="Date Range", font=config.get_font('caption'), fg=config.get_color('text_light'), bg=config.get_color('bg_sidebar')).pack(anchor='w', padx=16, pady=(4,0))
-        self.date_range_cb = ttk.Combobox(self.filter_panel, values=["Last 7d", "Last 30d", "YTD", "Custom"], state='readonly')
+        header.pack(side='left', padx=8, fill='x', expand=True)
+        
+        # Collapsible content container
+        self.filter_content_frame = tk.Frame(self.filter_panel, bg=config.get_color('bg_sidebar'))
+        self.filter_content_frame.pack(fill='both', expand=True, padx=16, pady=(0, 12))
+        
+        # Hide filter content if starting collapsed
+        if self.filter_collapsed:
+            self.filter_content_frame.pack_forget()
+        
+        # Date range preset
+        tk.Label(self.filter_content_frame, text="Date Range", font=config.get_font('caption'), 
+                 fg=config.get_color('text_light'), bg=config.get_color('bg_sidebar')).pack(anchor='w', pady=(4, 0))
+        self.date_range_cb = ttk.Combobox(self.filter_content_frame, values=["Last 7d", "Last 30d", "YTD", "Custom"], state='readonly')
         self.date_range_cb.current(1)
-        self.date_range_cb.pack(fill='x', padx=16, pady=(0,8))
-        # Site selector placeholder
-        tk.Label(self.filter_panel, text="Sites", font=config.get_font('caption'), fg=config.get_color('text_light'), bg=config.get_color('bg_sidebar')).pack(anchor='w', padx=16)
-        site_frame = tk.Frame(self.filter_panel, bg=config.get_color('bg_sidebar'))
-        site_frame.pack(fill='x', padx=16, pady=(0,8))
+        self.date_range_cb.bind('<<ComboboxSelected>>', self._on_date_range_changed)
+        self.date_range_cb.pack(fill='x', pady=(0, 8))
+        
+        # Custom date picker (hidden by default)
+        self.date_picker_frame = tk.Frame(self.filter_content_frame, bg=config.get_color('bg_sidebar'))
+        self.date_picker_frame.pack(fill='x', pady=(0, 8))
+        
+        tk.Label(self.date_picker_frame, text="From:", font=config.get_font('caption'), 
+                 fg=config.get_color('text_light'), bg=config.get_color('bg_sidebar')).pack(side='left', padx=(0, 4))
+        self.date_from_entry = tk.Entry(self.date_picker_frame, width=12, font=config.get_font('caption'))
+        self.date_from_entry.pack(side='left', padx=(0, 12))
+        self.date_from_entry.insert(0, "YYYY-MM-DD")
+        
+        tk.Label(self.date_picker_frame, text="To:", font=config.get_font('caption'), 
+                 fg=config.get_color('text_light'), bg=config.get_color('bg_sidebar')).pack(side='left', padx=(0, 4))
+        self.date_to_entry = tk.Entry(self.date_picker_frame, width=12, font=config.get_font('caption'))
+        self.date_to_entry.pack(side='left')
+        self.date_to_entry.insert(0, "YYYY-MM-DD")
+        
+        self.date_picker_frame.pack_forget()  # Hidden initially
+        
+        # Site selector
+        tk.Label(self.filter_content_frame, text="Sites", font=config.get_font('caption'), 
+                 fg=config.get_color('text_light'), bg=config.get_color('bg_sidebar')).pack(anchor='w')
+        site_frame = tk.Frame(self.filter_content_frame, bg=config.get_color('bg_sidebar'))
+        site_frame.pack(fill='x', pady=(0, 8))
         self.site_listbox = tk.Listbox(site_frame, height=8, exportselection=False, selectmode='extended')
         self.site_listbox.pack(side='left', fill='both', expand=True)
         sb = tk.Scrollbar(site_frame, orient='vertical', command=self.site_listbox.yview)
@@ -147,21 +207,22 @@ class MonitoringDashboard:
         enable_listbox_mousewheel(self.site_listbox)
         # Populate category sites
         self._load_category_sites()
-        # Parameter selector removed: parameters now displayed directly as table columns.
+        
         # Apply button
         apply_btn = tk.Button(
-            self.filter_panel, text="Apply", font=config.get_font('body_bold'), fg='white',
+            self.filter_content_frame, text="Apply", font=config.get_font('body_bold'), fg='white',
             bg=config.get_color('primary'), relief='flat', padx=12, pady=6,
             command=self._apply_filters
         )
-        apply_btn.pack(padx=16, pady=(12,8), anchor='w')
+        apply_btn.pack(pady=(12, 8), anchor='w')
+        
         if self.active_category == 'borehole_levels':
             reset_btn = tk.Button(
-                self.filter_panel, text="Reset Static Data", font=config.get_font('caption'), fg='white',
+                self.filter_content_frame, text="Reset Static Data", font=config.get_font('caption'), fg='white',
                 bg='#9C27B0', relief='flat', padx=10, pady=4,
                 command=self._reset_borehole_static_data
             )
-            reset_btn.pack(padx=16, pady=(0,12), anchor='w')
+            reset_btn.pack(pady=(0, 12), anchor='w')
 
     def _load_category_sites(self):
         """Populate site list based on active category mapping."""
@@ -300,6 +361,31 @@ class MonitoringDashboard:
     def _build_subtab_bar(self):
         self.subtab_bar = tk.Frame(self.content_panel, bg=config.get_color('bg_main'))
         self.subtab_bar.pack(fill='x')
+        
+        # Quick date range selector on the right side (always visible)
+        date_control_frame = tk.Frame(self.subtab_bar, bg=config.get_color('bg_main'))
+        date_control_frame.pack(side='right', padx=(0, 8))
+        
+        tk.Label(
+            date_control_frame, 
+            text="Date Range:", 
+            font=config.get_font('caption'),
+            fg=config.get_color('text_secondary'),
+            bg=config.get_color('bg_main')
+        ).pack(side='left', padx=(0, 4))
+        
+        self.quick_date_range_cb = ttk.Combobox(
+            date_control_frame, 
+            values=["Last 7d", "Last 30d", "Last 90d", "YTD", "Custom"],
+            state='readonly',
+            width=12,
+            font=config.get_font('caption')
+        )
+        self.quick_date_range_cb.current(1)  # Default to Last 30d
+        self.quick_date_range_cb.bind('<<ComboboxSelected>>', lambda e: self._apply_quick_date_range())
+        self.quick_date_range_cb.pack(side='left')
+        
+        # Sub-tab buttons on the left
         for label, key in self.SUB_TABS:
             active = (key == self.active_subtab)
             btn = tk.Button(
@@ -379,10 +465,48 @@ class MonitoringDashboard:
         return frame
 
     def _render_data(self):
+        """Render Data tab with collapsible chart options and data table.
+        
+        Features:
+        - Collapsible "Chart Options" header to save space
+        - Dynamic data table with site/date/parameter columns
+        - Horizontal + vertical scrollbars for wide datasets
+        """
         frame = tk.Frame(self._content_area, bg=config.get_color('bg_main'))
-        # Table
+        
+        # Collapsible chart options section
+        options_header = tk.Frame(frame, bg='#e8eef5', relief='solid', borderwidth=1)
+        options_header.pack(fill='x', padx=(0, 0), pady=(0, 0))
+        
+        collapse_btn = tk.Button(
+            options_header, text="▼ Chart Options", font=config.get_font('caption'),
+            bg='#e8eef5', fg='#333', relief='flat', padx=8, pady=4, anchor='w',
+            command=self._toggle_chart_options
+        )
+        collapse_btn.pack(fill='x')
+        self.chart_options_collapse_btn = collapse_btn
+        
+        # Chart options content (hidden by default)
+        self.chart_options_frame = tk.Frame(frame, bg='#f5f5f5', relief='solid', borderwidth=1)
+        self.chart_options_frame.pack(fill='x', padx=(0, 0), pady=(0, 8))
+        
+        opts_inner = tk.Frame(self.chart_options_frame, bg='#f5f5f5')
+        opts_inner.pack(fill='x', padx=12, pady=8)
+        
+        tk.Label(opts_inner, text="Export as:", font=config.get_font('caption'), 
+                 bg='#f5f5f5', fg='#666').pack(side='left', padx=(0, 8))
+        csv_btn = tk.Button(opts_inner, text="CSV", font=config.get_font('caption'), 
+                           bg='#2196F3', fg='white', relief='flat', padx=10, pady=2)
+        csv_btn.pack(side='left', padx=(0, 4))
+        pdf_btn = tk.Button(opts_inner, text="PDF", font=config.get_font('caption'),
+                           bg='#F44336', fg='white', relief='flat', padx=10, pady=2)
+        pdf_btn.pack(side='left')
+        
+        self.chart_options_collapsed = False
+        
+        # Data Table
         table_frame = tk.Frame(frame, bg='#e8eef5', relief='solid', borderwidth=1)
-        table_frame.pack(fill='both', expand=True)
+        table_frame.pack(fill='both', expand=True, padx=(0, 0), pady=(0, 0))
         columns, rows = self._get_placeholder_data_table()
         # Add horizontal + vertical scrollbars for wide parameter sets
         x_scroll = tk.Scrollbar(table_frame, orient='horizontal')
@@ -486,11 +610,22 @@ class MonitoringDashboard:
         self._render_active_view()
 
     def _rebuild_subtab_bar(self):
+        """Rebuild subtab bar (when switching categories) without destroying content area.
+        
+        Fixes potential bug where destroying first 2 children could inadvertently
+        destroy _content_area if widget packing order changes.
+        """
         if self.subtab_bar:
-            # Destroy existing subtab bar and following separator (second child)
+            # Safely destroy only subtab bar and separator, preserving content area
             children = self.content_panel.winfo_children()
-            for w in children[:2]:  # bar + separator
-                w.destroy()
+            for w in children:
+                # Skip _content_area if it exists to preserve tab frame state
+                if hasattr(self, '_content_area') and w is self._content_area:
+                    continue
+                try:
+                    w.destroy()
+                except Exception:
+                    pass
         self._build_subtab_bar()
 
     def _switch_subtab(self, key):
@@ -503,16 +638,96 @@ class MonitoringDashboard:
         try:
             if self.date_range_cb:
                 self.date_range = self.date_range_cb.get() or self.date_range
+            # Custom date range if selected
+            if self.date_range == "Custom":
+                from_text = self.date_from_entry.get().strip() if self.date_from_entry else ""
+                to_text = self.date_to_entry.get().strip() if self.date_to_entry else ""
+                if from_text and from_text != "YYYY-MM-DD":
+                    self.date_from = from_text
+                if to_text and to_text != "YYYY-MM-DD":
+                    self.date_to = to_text
+            else:
+                # Use preset date bounds
+                self.date_from, self.date_to = self._derive_date_bounds(self.date_range)
             # Selected sites
             if self.site_listbox:
                 selections = self.site_listbox.curselection()
                 self.selected_sites = [self.site_listbox.get(i) for i in selections]
-            # Derive date_from based on date_range selection
-            self.date_from, self.date_to = self._derive_date_bounds(self.date_range)
         except Exception:
             pass
         self._tab_frames.clear()
         self._render_active_view()
+
+    def _apply_quick_date_range(self):
+        """Apply date range from the quick selector in subtab bar."""
+        if not hasattr(self, 'quick_date_range_cb') or not self.quick_date_range_cb:
+            return
+        
+        selected = self.quick_date_range_cb.get()
+        
+        if selected == "Custom":
+            # Expand filter panel to show custom date picker
+            if self.filter_collapsed:
+                self._toggle_filter_panel()
+            # Sync the filter panel dropdown
+            if self.date_range_cb:
+                self.date_range_cb.set("Custom")
+                self._on_date_range_changed()
+        else:
+            # Apply preset date range directly
+            self.date_range = selected
+            self.date_from, self.date_to = self._derive_date_bounds(selected)
+            
+            # Sync the filter panel dropdown if it exists
+            if self.date_range_cb:
+                self.date_range_cb.set(selected)
+            
+            # Refresh the view with new date range
+            self._tab_frames.clear()
+            self._render_active_view()
+
+    def _on_date_range_changed(self, event=None):
+        """Show/hide custom date picker based on preset selection."""
+        if self.date_range_cb.get() == "Custom":
+            if self.date_picker_frame:
+                self.date_picker_frame.pack(fill='x', pady=(0, 8))
+        else:
+            if self.date_picker_frame:
+                self.date_picker_frame.pack_forget()
+
+    def _toggle_filter_panel(self):
+        """Toggle visibility of filter content (collapse/expand)."""
+        if self.filter_collapsed:
+            # Expand
+            if self.filter_content_frame:
+                self.filter_content_frame.pack(fill='both', expand=True, padx=16, pady=(0, 12))
+            if self.filter_collapse_btn:
+                self.filter_collapse_btn.configure(text="▼")
+            self.filter_collapsed = False
+        else:
+            # Collapse
+            if self.filter_content_frame:
+                self.filter_content_frame.pack_forget()
+            if self.filter_collapse_btn:
+                self.filter_collapse_btn.configure(text="▶")
+            self.filter_collapsed = True
+
+    def _toggle_chart_options(self):
+        """Toggle visibility of chart options (collapse/expand)."""
+        if self.chart_options_collapsed:
+            # Expand
+            if self.chart_options_frame:
+                self.chart_options_frame.pack(fill='x', padx=(0, 0), pady=(0, 8))
+            if self.chart_options_collapse_btn:
+                self.chart_options_collapse_btn.configure(text="▼ Chart Options")
+            self.chart_options_collapsed = False
+        else:
+            # Collapse
+            if self.chart_options_frame:
+                self.chart_options_frame.pack_forget()
+            if self.chart_options_collapse_btn:
+                self.chart_options_collapse_btn.configure(text="▶ Chart Options")
+            self.chart_options_collapsed = True
 
     def _on_db_event(self, event_type, payload):
         """Database event hook to invalidate caches lazily."""
@@ -580,8 +795,8 @@ class MonitoringDashboard:
                         pass
                 if wl is not None and prev is not None:
                     try:
-                        drop = prev - wl
-                        if drop < -0.5:
+                        drop = prev - wl  # Positive = water level dropped
+                        if drop > 0.5:  # Flag if dropped more than 0.5m (FIXED: was < -0.5)
                             declining += 1
                     except Exception:
                         pass
@@ -633,8 +848,9 @@ class MonitoringDashboard:
                 if len(two_rows) == 2:
                     try:
                         if two_rows[0]['water_level_m'] is not None and two_rows[1]['water_level_m'] is not None:
-                            drop = two_rows[1]['water_level_m'] - two_rows[0]['water_level_m']
-                            if drop < -0.5:
+                            # two_rows[0] is latest, two_rows[1] is previous
+                            drop = two_rows[1]['water_level_m'] - two_rows[0]['water_level_m']  # Positive = dropped
+                            if drop > 0.5:  # Flag if dropped more than 0.5m (FIXED: was < -0.5)
                                 declining_count += 1
                     except Exception:
                         pass

@@ -2,6 +2,8 @@
 
 Calculating water balance of a mine across 8 areas with interactive flow diagrams, balance checking, and Excel integration.
 
+> **📦 Ready for Distribution:** Project organized and configured for PyInstaller and Inno Setup builds. See [BUILD_GUIDE.md](BUILD_GUIDE.md) for instructions.
+
 ## 📁 Directory Structure
 
 ### Core Directories

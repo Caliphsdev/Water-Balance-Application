@@ -18,6 +18,7 @@ from ui.mouse_wheel_support import (
     enable_listbox_mousewheel,
     enable_treeview_mousewheel,
 )
+from ui.roadmap_preview import RoadmapPreviewTab
 
 
 class SettingsModule:
@@ -111,12 +112,14 @@ class SettingsModule:
         self.environmental_frame = ttk.Frame(self.notebook)
         self.data_sources_frame = ttk.Frame(self.notebook)
         self.backup_frame = ttk.Frame(self.notebook)
+        self.roadmap_frame = ttk.Frame(self.notebook)
         
         # Add tabs with icons
         self.notebook.add(self.constants_frame, text='  📊 Constants  ')
         self.notebook.add(self.environmental_frame, text='  🌦️ Environmental  ')
         self.notebook.add(self.data_sources_frame, text='  📂 Data Sources  ')
         self.notebook.add(self.backup_frame, text='  💾 Backup  ')
+        self.notebook.add(self.roadmap_frame, text='  🚀 Future Features  ')
         
         # Build each tab with error handling
         try:
@@ -138,6 +141,11 @@ class SettingsModule:
             self._build_backup_tab()
         except Exception as e:
             self._show_tab_error(self.backup_frame, 'Backup', e)
+        
+        try:
+            self._build_roadmap_tab()
+        except Exception as e:
+            self._show_tab_error(self.roadmap_frame, 'Future Features', e)
         
 
 
@@ -1585,5 +1593,19 @@ class SettingsModule:
                                'Please restart the application for changes to take effect.')
         except Exception as ex:
             messagebox.showerror('Restore Error', f'Failed to restore backup:\n{str(ex)}')
+
+    def _build_roadmap_tab(self):
+        """
+        Build the roadmap preview tab showing future features.
+        
+        This tab showcases upcoming features as a selling point without
+        implementing any actual functionality. It's a pure preview/marketing
+        tool that helps demonstrate the product's future direction.
+        """
+        # Create and load the roadmap preview component
+        roadmap = RoadmapPreviewTab(self.roadmap_frame)
+        roadmap.load()
+        
+        logger.info("✓ Roadmap preview tab loaded successfully")
 
 

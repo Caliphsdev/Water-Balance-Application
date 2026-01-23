@@ -358,6 +358,7 @@ class FlowDiagramBalanceCheckDialog:
         """Refresh table content after filter or category change."""
         # Refresh area options dynamically
         if hasattr(self, 'area_combo') and self.area_combo.winfo_exists():
+            # Keep dropdown options synchronized with latest edge metadata so new sheets/areas show up immediately
             options = ['all'] + self._collect_edge_areas()
             current = self.area_filter_var.get() if hasattr(self, 'area_filter_var') else 'all'
             self.area_combo['values'] = options
@@ -415,11 +416,6 @@ class FlowDiagramBalanceCheckDialog:
             category_combo.grid(row=0, column=1, padx=5, pady=5, sticky='w')
             category_combo.bind('<<ComboboxSelected>>', 
                                 lambda e, eid=edge_id: self._update_category(eid))
-
-    def _refresh_flowlines_table(self):
-        """Refresh table content after filter or category change."""
-        if hasattr(self, 'table_content_frame') and self.table_content_frame.winfo_exists():
-            self._build_flowlines_rows(self.table_content_frame)
 
     # Tooltip removed per user request
     
