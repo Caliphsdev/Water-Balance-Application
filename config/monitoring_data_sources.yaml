@@ -1,0 +1,420 @@
+# Monitoring Data Sources Configuration
+# Defines all monitoring data types: structure, Excel file patterns, column mappings
+# Version: 1.0
+# Last Updated: 2026-01-30
+
+# ============================================================================
+# MONITORING DATA SOURCES
+# ============================================================================
+# Each source definition tells the parser HOW to load and parse Excel files
+# Structure types: "stacked_blocks", "timeseries", "paired_columns"
+# Parser auto-detects structure and applies appropriate parser
+# ============================================================================
+
+monitoring_data_sources:
+  # ============================================================================
+  # BOREHOLE STATIC LEVELS (Water levels at specific points in time)
+  # ============================================================================
+  - id: "borehole_static_v1"
+    name: "Borehole Static Levels"
+    description: "Static water levels measured at boreholes (one measurement per date)"
+    enabled: true
+    
+    # Data source location
+    data_source:
+      type: "excel_directory"  # Load from directory of Excel files
+      directory_pattern: "data/monitoring/borehole_static"  # Relative to WATERBALANCE_USER_DIR
+      file_pattern: "*.xlsx"  # Match all .xlsx files in directory
+      
+    # How Excel files are structured
+    structure:
+      type: "stacked_blocks"  # Multiple boreholes stacked vertically
+      header_keywords:
+        - "Borehole ID"
+        - "Borehole Name"
+        - "Static Level"
+        - "Water Level"
+        - "SWL"
+      
+      # Block detection: what marks start of new borehole block
+      block_markers:
+        - "Borehole ID"
+        - "Site ID"
+    
+    # Column mappings: how to find and interpret columns
+    columns:
+      - id: "borehole_id"
+        type: "string"
+        required: true
+        description: "Unique borehole identifier"
+        expected_names:
+          - "Borehole ID"
+          - "Borehole Name"
+          - "Well ID"
+          - "Site ID"
+          - "ID"
+      
+      - id: "borehole_name"
+        type: "string"
+        required: true
+        description: "Borehole name or location"
+        expected_names:
+          - "Borehole Name"
+          - "Location"
+          - "Name"
+      
+      - id: "measurement_date"
+        type: "date"
+        required: true
+        description: "Date of measurement (YYYY-MM-DD)"
+        expected_names:
+          - "Date"
+          - "Measurement Date"
+          - "Date Measured"
+          - "Measured Date"
+      
+      - id: "static_level_m"
+        type: "float"
+        required: true
+        description: "Static water level in meters"
+        expected_names:
+          - "Static Level (m)"
+          - "Static Level"
+          - "SWL (m)"
+          - "SWL"
+          - "Water Level (m)"
+          - "Water Level"
+      
+      - id: "depth_m"
+        type: "float"
+        required: false
+        description: "Depth below surface (optional)"
+        expected_names:
+          - "Depth (m)"
+          - "Depth"
+          - "Well Depth"
+    
+    # Validation rules
+    validation:
+      static_level_m:
+        min: -100  # meters below sea level (mining)
+        max: 1000  # meters above sea level
+        allow_negative: true
+      
+      measurement_date:
+        min_year: 2000
+        max_year: 2099
+    
+    # Cache settings
+    cache:
+      enabled: true
+      ttl_seconds: 3600  # 1 hour
+      incremental: true  # Use mtime tracking for incremental updates
+    
+    # Display settings
+    display:
+      default_chart_type: "line"
+      time_unit: "month"  # x-axis: days, weeks, months
+      show_trend: true
+
+
+  # ============================================================================
+  # BOREHOLE MONITORING (Aquifer monitoring - multiple parameters over time)
+  # ============================================================================
+  - id: "borehole_monitoring_v1"
+    name: "Borehole Monitoring (Aquifer)"
+    description: "Time series aquifer monitoring with multiple parameters per measurement"
+    enabled: true
+    
+    data_source:
+      type: "excel_directory"
+      directory_pattern: "data/monitoring/borehole_monitoring"
+      file_pattern: "*.xlsx"
+    
+    structure:
+      type: "timeseries"  # Time series: multiple measurements per borehole
+      header_keywords:
+        - "Aquifer Depth"
+        - "Aquifer Water Level"
+        - "Aquifer Temperature"
+        - "Electrical Conductivity"
+        - "pH"
+    
+    columns:
+      - id: "borehole_id"
+        type: "string"
+        required: true
+        expected_names:
+          - "Borehole ID"
+          - "Borehole"
+          - "Site ID"
+          - "Well ID"
+      
+      - id: "measurement_date"
+        type: "date"
+        required: true
+        expected_names:
+          - "Date"
+          - "Measurement Date"
+          - "Date Measured"
+      
+      - id: "aquifer_depth_m"
+        type: "float"
+        required: true
+        description: "Aquifer water level depth"
+        expected_names:
+          - "Aquifer Depth (m)"
+          - "Aquifer Depth"
+          - "Depth (m)"
+      
+      - id: "temperature_c"
+        type: "float"
+        required: false
+        description: "Water temperature in Celsius"
+        expected_names:
+          - "Temperature (°C)"
+          - "Temperature"
+          - "Temp (C)"
+      
+      - id: "conductivity_us_cm"
+        type: "float"
+        required: false
+        description: "Electrical conductivity"
+        expected_names:
+          - "Electrical Conductivity (µS/cm)"
+          - "Conductivity"
+          - "EC (µS/cm)"
+          - "EC"
+      
+      - id: "ph"
+        type: "float"
+        required: false
+        description: "pH value"
+        expected_names:
+          - "pH"
+          - "pH Value"
+    
+    validation:
+      aquifer_depth_m:
+        min: -100
+        max: 1000
+        allow_negative: true
+      
+      temperature_c:
+        min: 0
+        max: 50
+      
+      conductivity_us_cm:
+        min: 0
+        max: 100000
+      
+      ph:
+        min: 0
+        max: 14
+    
+    cache:
+      enabled: true
+      ttl_seconds: 3600
+      incremental: true
+    
+    display:
+      default_chart_type: "line"
+      time_unit: "month"
+      show_trend: true
+      multi_parameter: true  # Show multiple parameters on same chart
+
+
+  # ============================================================================
+  # PCD MONITORING (Pollution Control Dam - timeseries data)
+  # ============================================================================
+  - id: "pcd_monitoring_v1"
+    name: "PCD Monitoring (Pollution Control Dam)"
+    description: "Time series monitoring of pollution control dam water levels and quality"
+    enabled: true
+    
+    data_source:
+      type: "excel_directory"
+      directory_pattern: "data/monitoring/pcd"
+      file_pattern: "*.xlsx"
+    
+    structure:
+      type: "timeseries"  # Daily/weekly measurements
+      header_keywords:
+        - "PCD Level"
+        - "Water Level"
+        - "pH"
+        - "Conductivity"
+        - "TSS"
+    
+    columns:
+      - id: "pcd_id"
+        type: "string"
+        required: true
+        description: "PCD identifier"
+        expected_names:
+          - "PCD ID"
+          - "PCD"
+          - "Dam ID"
+          - "Site"
+      
+      - id: "measurement_date"
+        type: "date"
+        required: true
+        expected_names:
+          - "Date"
+          - "Measurement Date"
+          - "Date Measured"
+      
+      - id: "water_level_m"
+        type: "float"
+        required: true
+        description: "Water level in meters"
+        expected_names:
+          - "Water Level (m)"
+          - "Water Level"
+          - "Level (m)"
+          - "PCD Level (m)"
+      
+      - id: "ph"
+        type: "float"
+        required: false
+        expected_names:
+          - "pH"
+          - "pH Value"
+      
+      - id: "conductivity_us_cm"
+        type: "float"
+        required: false
+        expected_names:
+          - "Conductivity (µS/cm)"
+          - "EC (µS/cm)"
+          - "Conductivity"
+      
+      - id: "tss_mg_l"
+        type: "float"
+        required: false
+        description: "Total Suspended Solids"
+        expected_names:
+          - "TSS (mg/L)"
+          - "TSS"
+          - "Suspended Solids"
+    
+    validation:
+      water_level_m:
+        min: 0
+        max: 100
+      
+      ph:
+        min: 0
+        max: 14
+      
+      conductivity_us_cm:
+        min: 0
+        max: 100000
+      
+      tss_mg_l:
+        min: 0
+        max: 100000
+    
+    cache:
+      enabled: true
+      ttl_seconds: 3600
+      incremental: true
+    
+    display:
+      default_chart_type: "line"
+      time_unit: "week"
+      show_trend: true
+      multi_parameter: true
+
+
+  # ============================================================================
+  # RESERVE WATER DAM (RWD) MONITORING - Future (Phase 2)
+  # ============================================================================
+  - id: "rwd_monitoring_v1"
+    name: "RWD Monitoring (Reserve Water Dam)"
+    description: "Reserve water dam water level and quality monitoring"
+    enabled: false  # Phase 2
+    
+    data_source:
+      type: "excel_directory"
+      directory_pattern: "data/monitoring/rwd"
+      file_pattern: "*.xlsx"
+    
+    structure:
+      type: "timeseries"
+      header_keywords:
+        - "RWD Level"
+        - "Water Level"
+
+
+  # ============================================================================
+  # SEWAGE TREATMENT MONITORING - Future (Phase 2)
+  # ============================================================================
+  - id: "sewage_monitoring_v1"
+    name: "Sewage Treatment Monitoring"
+    description: "Sewage plant performance monitoring"
+    enabled: false  # Phase 2
+    
+    data_source:
+      type: "excel_directory"
+      directory_pattern: "data/monitoring/sewage"
+      file_pattern: "*.xlsx"
+
+
+  # ============================================================================
+  # RIVER MONITORING - Future (Phase 2)
+  # ============================================================================
+  - id: "river_monitoring_v1"
+    name: "River Monitoring"
+    description: "Downstream river water quality and flow monitoring"
+    enabled: false  # Phase 2
+    
+    data_source:
+      type: "excel_directory"
+      directory_pattern: "data/monitoring/river"
+      file_pattern: "*.xlsx"
+
+
+# ============================================================================
+# GLOBAL SETTINGS
+# ============================================================================
+monitoring_settings:
+  # Cache directory (relative to WATERBALANCE_USER_DIR)
+  cache_directory: "data/monitoring/cache"
+  
+  # Maximum files to load per source
+  max_files_per_source: 100
+  
+  # Maximum rows per file before warning
+  max_rows_per_file: 50000
+  
+  # Date formats to try (in order)
+  date_formats:
+    - "%Y-%m-%d"
+    - "%d/%m/%Y"
+    - "%m/%d/%Y"
+    - "%Y/%m/%d"
+    - "%d-%m-%Y"
+  
+  # Fuzzy matching threshold (0.0 - 1.0)
+  # How close column names must match expected names
+  column_match_threshold: 0.85
+  
+  # Threading
+  enable_background_parsing: true
+  max_parser_threads: 3
+  
+  # Performance
+  enable_incremental_loading: true  # Use mtime tracking
+  enable_result_caching: true
+  cache_ttl_seconds: 3600
+  
+  # Error handling
+  skip_invalid_rows: true  # Skip rows that fail validation
+  collect_error_statistics: true
+  
+  # Logging
+  log_parsing_details: false  # Set true for debugging
+  log_cache_hits: false
+

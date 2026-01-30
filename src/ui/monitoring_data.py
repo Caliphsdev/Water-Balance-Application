@@ -1227,7 +1227,7 @@ class MonitoringDataModule:
         max_cols = df_raw.shape[1]
 
         # Collect all borehole headers (row-based, stacked vertically)
-        headers = []
+        headers = ["Calcium", "Chloride", "Magnesium", "Nitrate(NO3)", "Potassium", "Sulphate", "Total Dissolved Solids(TDS)", "Static Level", "Sodium"]
         for r in range(max_header_rows):
             for c in range(max_cols):
                 val = df_raw.iat[r, c]

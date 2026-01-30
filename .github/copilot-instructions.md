@@ -10,6 +10,43 @@ Python/Tkinter desktop app for mine water balance management across 8 mining are
 
 **Key Distinction:** Single Excel file now (`Water_Balance_TimeSeries_Template.xlsx`) contains only Flow Diagram sheets (`Flows_*` per area). Historical meter readings come from `New Water Balance...xlsx` (configured as `legacy_excel_path`).
 
+---
+
+## 📚 Documentation Reference Structure
+
+**docs/ is organized into subfolders by topic** - Use these for context:
+
+```
+docs/
+├── 01-SETUP/        ← Installation and release workflows
+├── 02-ARCHITECTURE/ ← System design patterns
+├── 03-DATABASE/     ← Database documentation
+├── 04-OPERATIONS/   ← Admin operations and troubleshooting
+└── 05-REFERENCE/    ← Quick reference guides
+```
+
+**When you need context:** Check the appropriate folder in `docs/` first before asking for clarification.
+
+---
+
+## ❌ CRITICAL: No Summary .md Files (Unless Explicitly Requested)
+
+**DEFAULT BEHAVIOR:**
+- ❌ **DO NOT** create `.md` files after completing work
+- ❌ **DO NOT** create progress/summary documentation
+- ❌ **DO NOT** create "X is complete" docs automatically
+- ✅ **ONLY** create `.md` files when user explicitly says "create a doc" or "document this"
+
+**When User DOES Request Documentation:**
+1. Check if content belongs in existing `docs/` subfolder
+2. Update existing file instead of creating new one
+3. Place in correct folder appropriately
+4. Never create `.md` files in project root (only `README.md` allowed)
+
+**Enforcement:** Root folder stays clean - no temporary `.md` files, no summary docs, no progress tracking.
+
+---
+
 ## ⚡ CRITICAL: Code Comments on Every Edit (ENFORCED)
 
 **ALWAYS write comprehensive comments when editing ANY Python code.**
@@ -514,10 +551,51 @@ Updated comments for clarity on data sources (Meter Readings Excel vs Flow Diagr
 
 **See:** [.github/instructions/COMMENT_ENFORCEMENT_RULES.md](instructions/COMMENT_ENFORCEMENT_RULES.md) for complete checklist and rejection criteria.
 
-## 🗂️ Repository Hygiene
+## 🗂️ Repository Hygiene (STRICT)
 
-- **Docs:** Prefer updating existing `.md` guides instead of creating new files. Consolidate into [docs/features/INDEX.md](../../docs/features/INDEX.md).
+### 📝 Markdown File Policy - ABSOLUTELY MINIMAL
+
+**CRITICAL RULE - DO NOT CREATE SUMMARY .MD FILES** unless explicitly requested by user.
+
+**Default Behavior:**
+- ❌ **DO NOT** create summary files after completing work
+- ❌ **DO NOT** create progress documentation automatically
+- ❌ **DO NOT** create explanation files without user request
+- ✅ **ONLY** create `.md` files when user explicitly says "create a doc" or "document this"
+
+**When User DOES Ask for Documentation:**
+
+Before creating ANY new `.md` file:
+1. ✅ Search existing `docs/` subfolders for related topics
+2. ✅ Check if content can be added to existing files instead
+3. ✅ Review [docs/INDEX.md](../../docs/INDEX.md) and category README files
+4. ✅ Ask yourself: "Does this NEED a new file, or should it update an existing one?"
+
+**Placement Rules (When Creating):**
+- **Operations/Admin** → `docs/04-OPERATIONS/`
+- **Setup/Installation** → `docs/01-SETUP/`
+- **Architecture/Design** → `docs/02-ARCHITECTURE/`
+- **Database** → `docs/03-DATABASE/`
+- **References** → `docs/05-REFERENCE/`
+- **Never** → Project root (only README.md allowed)
+
+**What NOT to Do (ENFORCED):**
+- ❌ Create summary docs after every task
+- ❌ Create progress tracking `.md` files
+- ❌ Create "X is complete" documentation
+- ❌ Create analysis files without explicit user request
+- ❌ Create duplicate documentation (update existing instead)
+- ❌ Create `.md` files in project root (except README.md)
+
+**Root Folder Policy**:
+- Keep root **PRISTINE** - only essential files
+- Only allowed: `.github/`, `src/`, `tests/`, `config/`, `data/`, `docs/`, `logs/`, `.venv/`, config files (`requirements.txt`, `README.md`, workspace file)
+- **Zero tolerance** for temporary or clutter `.md` files
+
+### Other Repository Rules
+
 - **Assets:** New assets go to `logo/`, `data/`, or `docs/` folders; keep root clean.
 - **Outputs:** Write one-off analysis to temp locations; remove after use to avoid clutter.
 - **virtualenv:** Use [.venv](.venv); run via `.venv\Scripts\python` and install via `.venv\Scripts\python -m pip install ...`. Do not create new environments.
 - **Branding:** Centralized logos live in [logo/](../../logo/) (Logo Two rivers.png, Company Logo.png, Water Balance.ico).
+- **Root Folder:** Keep clean. Only essential: `.github/`, `src/`, `tests/`, `config/`, `data/`, `docs/`, `.venv/`, `.gitignore`, `README.md`, `requirements.txt`
