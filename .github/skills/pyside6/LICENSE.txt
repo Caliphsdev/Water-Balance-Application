@@ -1,0 +1,19 @@
+PySide6 Development Skill - License Notice
+
+This skill provides structured references to:
+"Create GUI Applications with Python & Qt6" by Martin Fitzpatrick
+Version 6.1, 2025-09-10
+
+The PDF documentation referenced by this skill is copyrighted material.
+Code examples from the book are free to use in your own projects.
+
+For official documentation and updates, visit:
+- https://www.pythonguis.com/
+- https://doc.qt.io/qtforpython-6/
+
+This skill file (.github/skills/pyside6/SKILL.md) provides:
+- Table of contents for the 730-page PDF
+- Page number references for quick lookup
+- Usage guidelines for PySide6 development
+
+The skill itself is provided for internal development reference only.

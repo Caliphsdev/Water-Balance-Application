@@ -1,0 +1,12 @@
+2026-01-31 00:52:08 | ERROR    | _on_static_complete:863 | Error processing static borehole data: 'NoneType' object is not subscriptable
+Traceback (most recent call last):
+  File "D:\Projects\dashboard_waterbalance\src\ui\dashboards\monitoring_dashboard.py", line 846, in _on_static_complete
+    boreholes = sorted(self._static_data['Borehole'].unique().tolist())
+                       ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+2026-01-31 10:42:32 | ERROR    | _on_static_complete:1200 | Error processing static borehole data: 'NoneType' object is not subscriptable
+Traceback (most recent call last):
+  File "D:\Projects\dashboard_waterbalance\src\ui\dashboards\monitoring_dashboard.py", line 1183, in _on_static_complete
+    boreholes = sorted(self._static_data['Borehole'].unique().tolist())
+                       ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable

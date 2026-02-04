@@ -1,0 +1,16 @@
+# Design-time sources (not required at runtime)
+src/ui/designer/**/*.ui
+src/ui/resources/resources.qrc
+
+# Generated cache and Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+
+# OS files
+.DS_Store
+Thumbs.db

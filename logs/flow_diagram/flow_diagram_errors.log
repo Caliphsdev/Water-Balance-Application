@@ -1,0 +1,48 @@
+2026-02-02 11:58:34 | ERROR    | _render_diagram:410 | Error rendering diagram: 'PySide6.QtGui.QTextDocument' object has no attribute 'setAlignment'
+Traceback (most recent call last):
+  File "D:\Projects\dashboard_waterbalance\src\ui\dashboards\flow_diagram_page.py", line 324, in _render_diagram
+    node_item = FlowNodeItem(node_id, node_data)
+  File "D:\Projects\dashboard_waterbalance\src\ui\components\flow_graphics_items.py", line 149, in __init__
+    self._setup_label()
+    ~~~~~~~~~~~~~~~~~^^
+  File "D:\Projects\dashboard_waterbalance\src\ui\components\flow_graphics_items.py", line 193, in _setup_label
+    text_doc.setAlignment(Qt.AlignmentFlag.AlignCenter)
+    ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'PySide6.QtGui.QTextDocument' object has no attribute 'setAlignment'
+2026-02-02 12:51:24 | ERROR    | _open_recirculation_manager_for_node:654 | Error opening recirculation manager: 'RecirculationManagerDialog' object has no attribute 'excel_path'
+2026-02-02 12:51:31 | ERROR    | _open_recirculation_manager_for_node:654 | Error opening recirculation manager: 'RecirculationManagerDialog' object has no attribute 'excel_path'
+2026-02-02 14:06:39 | ERROR    | _on_save_diagram_clicked:2287 | Error saving diagram: 'FlowNodeItem' object has no attribute 'get_badge_position'
+Traceback (most recent call last):
+  File "D:\Projects\dashboard_waterbalance\src\ui\dashboards\flow_diagram_page.py", line 2240, in _on_save_diagram_clicked
+    badge_angle = node_item.get_badge_position()
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'FlowNodeItem' object has no attribute 'get_badge_position'
+2026-02-03 12:40:52 | ERROR    | _on_balance_check_clicked:2526 | Error opening Balance Check: 'NoneType' object has no attribute 'setBackground'
+Traceback (most recent call last):
+  File "D:\Projects\dashboard_waterbalance\src\ui\dashboards\flow_diagram_page.py", line 2517, in _on_balance_check_clicked
+    dialog = BalanceCheckDialog(self, area_code=self.area_code)
+  File "D:\Projects\dashboard_waterbalance\src\ui\dialogs\balance_check_dialog.py", line 59, in __init__
+    self._populate_flows_table()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\Projects\dashboard_waterbalance\src\ui\dialogs\balance_check_dialog.py", line 122, in _populate_flows_table
+    self.ui.table_flows.item(table_row, col).setBackground(brush)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'setBackground'
+2026-02-03 16:09:43 | ERROR    | _update_balance_check_labels:2539 | Error updating balance check labels: 'FlowDiagramPage' object has no attribute 'balance_data_updated'
+Traceback (most recent call last):
+  File "D:\Projects\dashboard_waterbalance\src\ui\dashboards\flow_diagram_page.py", line 2531, in _update_balance_check_labels
+    self.balance_data_updated.emit({
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'FlowDiagramPage' object has no attribute 'balance_data_updated'
+2026-02-03 16:21:08 | ERROR    | _update_balance_check_labels:2542 | Error updating balance check labels: 'FlowDiagramPage' object has no attribute 'selected_month'
+Traceback (most recent call last):
+  File "D:\Projects\dashboard_waterbalance\src\ui\dashboards\flow_diagram_page.py", line 2537, in _update_balance_check_labels
+    'month': self.selected_month,
+             ^^^^^^^^^^^^^^^^^^^
+AttributeError: 'FlowDiagramPage' object has no attribute 'selected_month'
+2026-02-03 16:21:08 | ERROR    | get_balance_summary:2620 | Error getting balance summary: 'FlowDiagramPage' object has no attribute 'selected_month'
+Traceback (most recent call last):
+  File "D:\Projects\dashboard_waterbalance\src\ui\dashboards\flow_diagram_page.py", line 2616, in get_balance_summary
+    'month': self.selected_month,
+             ^^^^^^^^^^^^^^^^^^^
+AttributeError: 'FlowDiagramPage' object has no attribute 'selected_month'
