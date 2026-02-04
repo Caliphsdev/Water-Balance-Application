@@ -3817,3 +3817,14 @@
 2026-02-04 18:43:47 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
 2026-02-04 18:43:47 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
 2026-02-04 18:43:47 | INFO     | run:277 | Directory loading complete
+2026-02-04 19:04:32 | INFO     | get_dashboard_logger:572 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-04 19:04:32 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-04 19:04:32 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-04 19:04:32 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-04 19:04:32 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-04 19:04:32 | DEBUG    | run:194 | Cache HIT: Copy of Pollution control dams Q3 2021.xls
+2026-02-04 19:04:32 | DEBUG    | run:194 | Cache HIT: Copy Pollution control dams Q4 2022.xls
+2026-02-04 19:04:32 | DEBUG    | run:194 | Cache HIT: Pollution control dams Q4 2021.xls
+2026-02-04 19:04:32 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-04 19:04:32 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-04 19:04:32 | INFO     | run:277 | Directory loading complete

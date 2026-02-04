@@ -17731,3 +17731,276 @@ AttributeError: 'FlowDiagramPage' object has no attribute 'selected_month'
 2026-02-04 18:43:48 | INFO     | _load_and_display_recirculation:633 | Loaded 11 recirculation volumes for UG2N (2025/12)
 2026-02-04 18:43:48 | DEBUG    | _update_balance_check_labels:2553 | Balance check labels updated: Inflows=5783439, Recirculation=9254, Outflows=5007265, Error=13.3%
 2026-02-04 18:43:48 | INFO     | __init__:152 | Flow Diagram Page initialized
+2026-02-04 19:04:30 | INFO     | get_dashboard_logger:572 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-04 19:04:33 | DEBUG    | _restore_selected_date:274 | Restored year: 2025
+2026-02-04 19:04:33 | DEBUG    | _restore_selected_date:279 | Restored month: 12
+2026-02-04 19:04:33 | DEBUG    | _populate_filter_dropdowns:244 | Filter dropdowns populated
+2026-02-04 19:04:33 | DEBUG    | _connect_toolbar_buttons:215 | Toolbar buttons connected
+2026-02-04 19:04:33 | INFO     | load_diagram:337 | Loaded diagram for UG2N
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:407 | Created zone background: UG2 North Decline Area
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:407 | Created zone background: Stockpile Area
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:407 | Created zone background: UG2 Main Decline Area
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:407 | Created zone background: Merensky South Area
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:407 | Created zone background: UG2 Plant Area
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:407 | Created zone background: Merensky Plant Area
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:407 | Created zone background: Old TSF
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:407 | Created zone background: New TSF
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: bh_ndgwa
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: rainfall_inflow
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: softening
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: reservoir
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: trp_clinic
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: offices
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: sewage
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: ndcd
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: north_decline
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: north_shaft
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: septic
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: consumption
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: losses
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: consumption2
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: losses2
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: spill
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: evaporation
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: dust_suppression
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: stockpile_area
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: spcd1
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: stockpile_offices
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: stockpile_septic
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: stockpile_consumption
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: stockpile_spill
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: stockpile_evaporation
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: stockpile_dust_suppression
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: stockpile_evaporation2
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: stockpile_bh_gwa
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: stockpile_rainfall
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: stockpile_rainfall_spcd1
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: ug2s_borehole
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: ug2s_rainfall
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: ug2s_mdcdg
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: ug2s_soft
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: ug2s_res
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: ug2s_offices
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: ug2s_sd
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: ug2s_sdsa
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: ug2s_stp
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: ug2s_consumption
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: ug2s_mdcd_spill
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: ug2s_mdcd_evap
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: ug2s_mdcd_dust
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: ug2s_soft_losses
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: ug2s_stp_losses
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: mers_borehole
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: mers_rainfall
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: mers_mdcdg
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: mers_soft
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: mers_offices
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: mers_sd
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: mers_sdsa
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: mers_consumption
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: mers_mdcd_spill
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: mers_mdcd_evap
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: mers_mdcd_dust
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: mers_soft_losses
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: oldtsf_gwa_boreholes
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: oldtsf_old_tsf_rainrun
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: oldtsf_trtd_rain
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: oldtsf_new_tsf_rainrun
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: oldtsf_nt_rwd_rain
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: oldtsf_offices
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: oldtsf_old_tsf
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: oldtsf_trtd
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: oldtsf_new_tsf
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: oldtsf_nt_rwd
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: oldtsf_off_septic
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: oldtsf_off_consumption
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: oldtsf_old_tsf_evap
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: oldtsf_old_tsf_interstitial
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: oldtsf_old_tsf_seepage
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: oldtsf_trtd_evap
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: oldtsf_trtd_spill
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: oldtsf_new_tsf_evap
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: oldtsf_new_tsf_interstitial
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: oldtsf_new_tsf_seepage
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: oldtsf_nt_rwd_evap
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: oldtsf_nt_rwd_spill
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: ug2plant_cpgwa_boreholes
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: ug2plant_ug2pcd1_rain
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: ug2plant_ug2p_ore_water
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: ug2plant_ug2p_rivers
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: ug2plant_ug2p_off
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: ug2plant_ug2p_plant
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: ug2plant_cprwsd1
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: ug2plant_ug2pcd1
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: ug2plant_ug2p_res
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: ug2plant_cppwt
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: ug2plant_ug2p_soft
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: ug2plant_ug2p_stp
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: ug2plant_ug2pcd1_dust
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: ug2plant_ug2pcd1_evap
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: ug2plant_ug2pcd1_spill
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: ug2plant_ug2p_off_consumption
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: ug2plant_ug2p_plant_losses
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: ug2plant_ug2p_plant_product
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: ug2plant_ug2p_soft_losses
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: ug2plant_ug2p_stp_losses
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: merplant_mprwsd1_rivers
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: merplant_merp_ore_water
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: merplant_mpswd12_rain
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: merplant_mpgwa_boreholes
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: merplant_mprwsd1
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: merplant_merp_plant
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: merplant_mpswd12
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: merplant_merp_soft
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: merplant_merp_res
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: merplant_merp_off
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: merplant_merp_stp
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: merplant_merp_plant_product
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: merplant_merp_plant_losses
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: merplant_mpswd12_dust
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: merplant_mpswd12_evap
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: merplant_mpswd12_spill
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: merplant_merp_off_consumption
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: merplant_merp_off_losses
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: merplant_merp_stp_losses
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: klein_dwars_river
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: dwarsrivierriver
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: septick
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: septic_tank
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: scavenger_boreholes1_6
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: septic_tank_1
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: scavenger_borehole1_6
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:468 | Created FlowNodeItem: septic_tank_2
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: softening -> reservoir
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: reservoir -> offices
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: offices -> sewage
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: rainfall_inflow -> ndcd
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: bh_ndgwa -> softening
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: softening -> trp_clinic
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: trp_clinic -> septic
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: north_decline -> ndcd
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: north_shaft -> ndcd
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: trp_clinic -> consumption
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: softening -> losses
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: offices -> consumption2
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: sewage -> losses2
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: ndcd -> spill
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: ndcd -> evaporation
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: ndcd -> dust_suppression
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: sewage -> junction:1165:337
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: ndcd -> north_decline
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: stockpile_bh_gwa -> stockpile_offices
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: stockpile_offices -> stockpile_consumption
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: stockpile_offices -> stockpile_septic
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: stockpile_rainfall_spcd1 -> spcd1
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: stockpile_rainfall -> stockpile_area
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: stockpile_area -> stockpile_evaporation
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: spcd1 -> stockpile_dust_suppression
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: spcd1 -> stockpile_spill
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: stockpile_area -> spcd1
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: spcd1 -> stockpile_evaporation2
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: stockpile_area -> spcd1
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: ug2s_borehole -> ug2s_soft
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: ug2s_soft -> ug2s_stp_losses
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: ug2s_soft -> ug2s_res
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: ug2s_offices -> ug2s_consumption
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: ug2s_stp -> ug2s_soft_losses
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: ug2s_rainfall -> ug2s_mdcdg
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: ug2s_sd -> ug2s_mdcdg
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: ug2s_mdcdg -> ug2s_sd
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: ug2s_mdcdg -> ug2s_mdcd_evap
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: ug2s_mdcdg -> ug2s_mdcd_spill
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: ug2s_mdcdg -> ug2s_mdcd_dust
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: ug2s_sdsa -> ug2s_mdcdg
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: ug2s_stp -> junction:1039:1127
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: ug2s_offices -> ug2s_stp
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: ug2s_res -> ug2s_offices
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: mers_borehole -> mers_soft
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: mers_soft -> mers_offices
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: mers_offices -> mers_consumption
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: mers_soft -> mers_soft_losses
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: mers_offices -> ug2s_stp
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: mers_mdcdg -> mers_mdcd_dust
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: mers_mdcdg -> mers_mdcd_evap
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: mers_mdcdg -> mers_mdcd_spill
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: mers_sd -> mers_mdcdg
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: mers_mdcdg -> mers_sd
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: mers_rainfall -> mers_mdcdg
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: mers_mdcdg -> ug2s_mdcdg
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: mers_sdsa -> ug2s_mdcdg
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: oldtsf_offices -> oldtsf_off_septic
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: oldtsf_offices -> oldtsf_off_consumption
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: oldtsf_old_tsf -> oldtsf_old_tsf_evap
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: oldtsf_old_tsf -> oldtsf_old_tsf_interstitial
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: oldtsf_old_tsf -> oldtsf_old_tsf_seepage
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: oldtsf_trtd -> oldtsf_trtd_evap
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: oldtsf_trtd -> oldtsf_trtd_spill
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: oldtsf_trtd_rain -> oldtsf_trtd
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: oldtsf_old_tsf_rainrun -> oldtsf_old_tsf
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: oldtsf_old_tsf -> oldtsf_trtd
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: oldtsf_trtd -> oldtsf_old_tsf
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: oldtsf_old_tsf -> oldtsf_trtd
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: oldtsf_new_tsf_rainrun -> oldtsf_new_tsf
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: oldtsf_new_tsf -> oldtsf_new_tsf_evap
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: oldtsf_new_tsf -> oldtsf_new_tsf_interstitial
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: oldtsf_new_tsf -> oldtsf_new_tsf_seepage
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: oldtsf_nt_rwd -> oldtsf_nt_rwd_evap
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: oldtsf_nt_rwd -> oldtsf_nt_rwd_spill
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: oldtsf_nt_rwd_rain -> oldtsf_nt_rwd
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: oldtsf_new_tsf -> oldtsf_nt_rwd
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: oldtsf_new_tsf -> oldtsf_nt_rwd
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: oldtsf_nt_rwd -> oldtsf_new_tsf
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: ug2plant_ug2p_rivers -> ug2plant_cprwsd1
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: klein_dwars_river -> ug2plant_cprwsd1
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: ug2plant_cprwsd1 -> ug2plant_ug2p_plant
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: ug2plant_ug2p_ore_water -> ug2plant_ug2p_plant
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: ug2plant_ug2p_plant -> ug2plant_ug2p_plant_losses
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: ug2plant_ug2p_plant -> ug2plant_ug2p_plant_product
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: ug2plant_ug2pcd1 -> ug2plant_ug2pcd1_spill
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: ug2plant_ug2pcd1 -> ug2plant_ug2pcd1_evap
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: ug2plant_ug2pcd1 -> ug2plant_ug2pcd1_dust
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: ug2plant_ug2pcd1 -> ug2plant_ug2p_plant
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: ug2plant_ug2pcd1_rain -> ug2plant_ug2pcd1
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: ug2plant_ug2p_plant -> ug2plant_ug2pcd1
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: ug2plant_ug2p_soft -> ug2plant_ug2p_stp_losses
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: ug2plant_ug2p_off -> ug2plant_ug2p_off_consumption
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: ug2plant_ug2p_stp -> ug2plant_ug2p_soft_losses
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: ug2plant_ug2p_off -> ug2plant_ug2p_stp
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: ug2plant_ug2p_res -> ug2plant_ug2p_off
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: ug2plant_cpgwa_boreholes -> ug2plant_ug2p_soft
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: merplant_mprwsd1_rivers -> merplant_mprwsd1
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: dwarsrivierriver -> merplant_mprwsd1
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: merplant_merp_ore_water -> merplant_merp_plant
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: merplant_merp_plant -> merplant_merp_plant_product
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: merplant_merp_plant -> merplant_merp_plant_losses
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: merplant_merp_stp -> merplant_merp_stp_losses
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: merplant_mpswd12 -> merplant_mpswd12_dust
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: merplant_mpswd12 -> merplant_mpswd12_evap
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: merplant_mpswd12 -> merplant_mpswd12_spill
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: merplant_merp_soft -> merplant_merp_off_losses
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: merplant_merp_off -> merplant_merp_off_consumption
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: merplant_merp_soft -> merplant_merp_res
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: merplant_merp_off -> merplant_merp_stp
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: merplant_merp_res -> merplant_merp_off
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: merplant_mpgwa_boreholes -> merplant_merp_soft
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: merplant_mpswd12_rain -> merplant_mpswd12
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: merplant_merp_stp -> merplant_mpswd12
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: merplant_mpswd12 -> merplant_merp_plant
+2026-02-04 19:04:33 | DEBUG    | _render_diagram:516 | Created FlowEdgeItem: merplant_merp_plant -> merplant_mpswd12
+2026-02-04 19:04:33 | INFO     | _render_diagram:529 | Rendered diagram: 126 nodes, 116 edges
+2026-02-04 19:04:33 | INFO     | _load_and_display_recirculation:598 | Found 11 recirculation configs to load
+2026-02-04 19:04:33 | DEBUG    | _load_and_display_recirculation:604 | Loading recirculation for 2025/12
+2026-02-04 19:04:33 | DEBUG    | _load_and_display_recirculation:631 | Updated ndcd recirculation badge: -26.0 m³
+2026-02-04 19:04:33 | DEBUG    | _load_and_display_recirculation:631 | Updated stockpile_area recirculation badge: 484.0 m³
+2026-02-04 19:04:33 | DEBUG    | _load_and_display_recirculation:631 | Updated spcd1 recirculation badge: 3014.0 m³
+2026-02-04 19:04:33 | DEBUG    | _load_and_display_recirculation:631 | Updated ug2s_mdcdg recirculation badge: 190.0 m³
+2026-02-04 19:04:33 | DEBUG    | _load_and_display_recirculation:631 | Updated mers_mdcdg recirculation badge: 77.0 m³
+2026-02-04 19:04:33 | DEBUG    | _load_and_display_recirculation:631 | Updated oldtsf_old_tsf recirculation badge: -347.0 m³
+2026-02-04 19:04:33 | DEBUG    | _load_and_display_recirculation:631 | Updated oldtsf_trtd recirculation badge: -114.0 m³
+2026-02-04 19:04:33 | DEBUG    | _load_and_display_recirculation:631 | Updated oldtsf_new_tsf recirculation badge: 68.0 m³
+2026-02-04 19:04:33 | DEBUG    | _load_and_display_recirculation:631 | Updated oldtsf_nt_rwd recirculation badge: 5836.0 m³
+2026-02-04 19:04:33 | DEBUG    | _load_and_display_recirculation:631 | Updated ug2plant_ug2pcd1 recirculation badge: 36.0 m³
+2026-02-04 19:04:33 | DEBUG    | _load_and_display_recirculation:631 | Updated merplant_mpswd12 recirculation badge: 36.0 m³
+2026-02-04 19:04:33 | INFO     | _load_and_display_recirculation:633 | Loaded 11 recirculation volumes for UG2N (2025/12)
+2026-02-04 19:04:33 | DEBUG    | _update_balance_check_labels:2553 | Balance check labels updated: Inflows=5783439, Recirculation=9254, Outflows=5007265, Error=13.3%
+2026-02-04 19:04:33 | INFO     | __init__:152 | Flow Diagram Page initialized

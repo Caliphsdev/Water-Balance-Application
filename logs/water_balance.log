@@ -7653,3 +7653,253 @@
 2026-02-04 18:43:48 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
 2026-02-04 18:43:48 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
 2026-02-04 18:43:58 | INFO     | water_balance | shutdown:475 | Shutting down background logger...
+2026-02-04 19:04:30 | DEBUG    | water_balance | __init__:408 | ============================================================
+2026-02-04 19:04:30 | DEBUG    | water_balance | __init__:409 | Water Balance Application Started
+2026-02-04 19:04:30 | DEBUG    | water_balance | __init__:410 | ============================================================
+2026-02-04 19:04:30 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {}
+2026-02-04 19:04:30 | DEBUG    | water_balance | debug:414 | Loading Meter Readings Excel: D:\Downloads\New Water Balance  20250930 Oct.xlsx
+2026-02-04 19:04:30 | DEBUG    | water_balance | debug:414 | Sheet: Meter Readings, Header row: 3, Data starts: 5
+2026-02-04 19:04:30 | INFO     | water_balance | info:418 | Loaded Meter Readings: 237 rows, 90 columns
+2026-02-04 19:04:30 | DEBUG    | water_balance | debug:414 | Columns loaded: Unnamed: 0, Tonnes Milled, PGM Concentrate Wet tons dispatched, PGM Concentrate Moisture, Chromite Concentrate Wet tons dispatched, Chromite Concentrate Moisture, Plant Borehole Water Use, CPGWA 1, CPGWA 2, CPGWA 3...
+2026-02-04 19:04:30 | DEBUG    | water_balance | debug:414 | Date range: 2006-02-01 00:00:00 to 2025-10-25 00:00:00
+2026-02-04 19:04:30 | DEBUG    | water_balance | debug:414 | Units mapping: 65 columns have units defined
+2026-02-04 19:04:30 | DEBUG    | water_balance | debug:414 | Loading Meter Readings Excel: D:\Downloads\New Water Balance  20250930 Oct.xlsx
+2026-02-04 19:04:30 | DEBUG    | water_balance | debug:414 | Sheet: Meter Readings, Header row: 3, Data starts: 5
+2026-02-04 19:04:30 | DEBUG    | water_balance | debug:414 | EXCEL OPERATIONS - Using cached Meter Readings (237 rows)
+2026-02-04 19:04:30 | DEBUG    | water_balance | debug:414 | Loading Meter Readings Excel: D:\Downloads\New Water Balance  20250930 Oct.xlsx
+2026-02-04 19:04:30 | DEBUG    | water_balance | debug:414 | Sheet: Meter Readings, Header row: 3, Data starts: 5
+2026-02-04 19:04:30 | DEBUG    | water_balance | debug:414 | EXCEL OPERATIONS - Using cached Meter Readings (237 rows)
+2026-02-04 19:04:32 | DEBUG    | water_balance | debug:414 | Disk cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-04 19:04:32 | DEBUG    | water_balance | debug:414 | Disk cache HIT: Boreholes Q3 2021.xls
+2026-02-04 19:04:32 | DEBUG    | water_balance | debug:414 | Disk cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-04 19:04:32 | DEBUG    | water_balance | debug:414 | Disk cache HIT: Copy of Boreholes Q4 2021.xls
+2026-02-04 19:04:32 | DEBUG    | water_balance | debug:414 | Disk cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-04 19:04:32 | DEBUG    | water_balance | debug:414 | Disk cache HIT: Copy of Boreholes Q4 2022.xls
+2026-02-04 19:04:32 | DEBUG    | water_balance | debug:414 | Disk cache HIT: Copy of Pollution control dams Q3 2021.xls
+2026-02-04 19:04:32 | DEBUG    | water_balance | debug:414 | Disk cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-04 19:04:32 | DEBUG    | water_balance | debug:414 | Disk cache HIT: Copy Pollution control dams Q4 2022.xls
+2026-02-04 19:04:32 | INFO     | water_balance | info:418 | Cache performance: 3/3 files from cache (100.0% hit rate), 0 files parsed
+2026-02-04 19:04:32 | INFO     | water_balance | info:418 | Cache performance: 4/4 files from cache (100.0% hit rate), 0 files parsed
+2026-02-04 19:04:32 | DEBUG    | water_balance | debug:414 | Disk cache HIT: Pollution control dams Q4 2021.xls
+2026-02-04 19:04:32 | INFO     | water_balance | info:418 | Cache performance: 3/3 files from cache (100.0% hit rate), 0 files parsed
+2026-02-04 19:04:32 | DEBUG    | water_balance | debug:414 | Memory cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-04 19:04:32 | DEBUG    | water_balance | debug:414 | Memory cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-04 19:04:32 | DEBUG    | water_balance | debug:414 | Memory cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-04 19:04:32 | DEBUG    | water_balance | debug:414 | Memory cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-04 19:04:32 | INFO     | water_balance | info:418 | Cache performance: 4/4 files from cache (100.0% hit rate), 0 files parsed
+2026-02-04 19:04:33 | DEBUG    | water_balance | debug:414 | Loading Flow Diagram sheet: Flows_UG2 North from Water_Balance_TimeSeries_Template.xlsx
+2026-02-04 19:04:33 | INFO     | water_balance | info:418 | Loaded Flow Diagram sheet 'Flows_UG2 North': 1 rows, 22 columns
+2026-02-04 19:04:33 | DEBUG    | water_balance | debug:414 | Loading Flow Diagram sheet: Flows_UG2 North from Water_Balance_TimeSeries_Template.xlsx
+2026-02-04 19:04:33 | DEBUG    | water_balance | debug:414 | EXCEL OPERATIONS - Using cached Flow Diagram sheet 'Flows_UG2 North' (1 rows)
+2026-02-04 19:04:33 | DEBUG    | water_balance | debug:414 | Loading Flow Diagram sheet: Flows_Stockpile1 from Water_Balance_TimeSeries_Template.xlsx
+2026-02-04 19:04:33 | INFO     | water_balance | info:418 | Loaded Flow Diagram sheet 'Flows_Stockpile1': 1 rows, 17 columns
+2026-02-04 19:04:33 | DEBUG    | water_balance | debug:414 | Loading Flow Diagram sheet: Flows_Stockpile1 from Water_Balance_TimeSeries_Template.xlsx
+2026-02-04 19:04:33 | DEBUG    | water_balance | debug:414 | EXCEL OPERATIONS - Using cached Flow Diagram sheet 'Flows_Stockpile1' (1 rows)
+2026-02-04 19:04:33 | DEBUG    | water_balance | debug:414 | Loading Flow Diagram sheet: Flows_Stockpile1 from Water_Balance_TimeSeries_Template.xlsx
+2026-02-04 19:04:33 | DEBUG    | water_balance | debug:414 | EXCEL OPERATIONS - Using cached Flow Diagram sheet 'Flows_Stockpile1' (1 rows)
+2026-02-04 19:04:33 | DEBUG    | water_balance | debug:414 | Loading Flow Diagram sheet: Flows_Stockpile1 from Water_Balance_TimeSeries_Template.xlsx
+2026-02-04 19:04:33 | DEBUG    | water_balance | debug:414 | EXCEL OPERATIONS - Using cached Flow Diagram sheet 'Flows_Stockpile1' (1 rows)
+2026-02-04 19:04:33 | DEBUG    | water_balance | debug:414 | Loading Flow Diagram sheet: Flows_UG2 Main from Water_Balance_TimeSeries_Template.xlsx
+2026-02-04 19:04:33 | INFO     | water_balance | info:418 | Loaded Flow Diagram sheet 'Flows_UG2 Main': 1 rows, 20 columns
+2026-02-04 19:04:33 | DEBUG    | water_balance | debug:414 | Loading Flow Diagram sheet: Flows_UG2 Main from Water_Balance_TimeSeries_Template.xlsx
+2026-02-04 19:04:33 | DEBUG    | water_balance | debug:414 | EXCEL OPERATIONS - Using cached Flow Diagram sheet 'Flows_UG2 Main' (1 rows)
+2026-02-04 19:04:33 | DEBUG    | water_balance | debug:414 | Loading Flow Diagram sheet: Flows_Merensky South from Water_Balance_TimeSeries_Template.xlsx
+2026-02-04 19:04:33 | INFO     | water_balance | info:418 | Loaded Flow Diagram sheet 'Flows_Merensky South': 1 rows, 18 columns
+2026-02-04 19:04:33 | DEBUG    | water_balance | debug:414 | Loading Flow Diagram sheet: Flows_Merensky South from Water_Balance_TimeSeries_Template.xlsx
+2026-02-04 19:04:33 | DEBUG    | water_balance | debug:414 | EXCEL OPERATIONS - Using cached Flow Diagram sheet 'Flows_Merensky South' (1 rows)
+2026-02-04 19:04:33 | DEBUG    | water_balance | debug:414 | Loading Flow Diagram sheet: Flows_Old TSF from Water_Balance_TimeSeries_Template.xlsx
+2026-02-04 19:04:33 | INFO     | water_balance | info:418 | Loaded Flow Diagram sheet 'Flows_Old TSF': 1 rows, 18 columns
+2026-02-04 19:04:33 | DEBUG    | water_balance | debug:414 | Loading Flow Diagram sheet: Flows_Old TSF from Water_Balance_TimeSeries_Template.xlsx
+2026-02-04 19:04:33 | DEBUG    | water_balance | debug:414 | EXCEL OPERATIONS - Using cached Flow Diagram sheet 'Flows_Old TSF' (1 rows)
+2026-02-04 19:04:33 | DEBUG    | water_balance | debug:414 | Loading Flow Diagram sheet: Flows_Old TSF from Water_Balance_TimeSeries_Template.xlsx
+2026-02-04 19:04:33 | DEBUG    | water_balance | debug:414 | EXCEL OPERATIONS - Using cached Flow Diagram sheet 'Flows_Old TSF' (1 rows)
+2026-02-04 19:04:33 | DEBUG    | water_balance | debug:414 | Loading Flow Diagram sheet: Flows_Old TSF from Water_Balance_TimeSeries_Template.xlsx
+2026-02-04 19:04:33 | DEBUG    | water_balance | debug:414 | EXCEL OPERATIONS - Using cached Flow Diagram sheet 'Flows_Old TSF' (1 rows)
+2026-02-04 19:04:33 | DEBUG    | water_balance | debug:414 | Loading Flow Diagram sheet: Flows_New TSF from Water_Balance_TimeSeries_Template.xlsx
+2026-02-04 19:04:33 | INFO     | water_balance | info:418 | Loaded Flow Diagram sheet 'Flows_New TSF': 1 rows, 17 columns
+2026-02-04 19:04:33 | DEBUG    | water_balance | debug:414 | Loading Flow Diagram sheet: Flows_New TSF from Water_Balance_TimeSeries_Template.xlsx
+2026-02-04 19:04:33 | DEBUG    | water_balance | debug:414 | EXCEL OPERATIONS - Using cached Flow Diagram sheet 'Flows_New TSF' (1 rows)
+2026-02-04 19:04:33 | DEBUG    | water_balance | debug:414 | Loading Flow Diagram sheet: Flows_New TSF from Water_Balance_TimeSeries_Template.xlsx
+2026-02-04 19:04:33 | DEBUG    | water_balance | debug:414 | EXCEL OPERATIONS - Using cached Flow Diagram sheet 'Flows_New TSF' (1 rows)
+2026-02-04 19:04:33 | DEBUG    | water_balance | debug:414 | Loading Flow Diagram sheet: Flows_New TSF from Water_Balance_TimeSeries_Template.xlsx
+2026-02-04 19:04:33 | DEBUG    | water_balance | debug:414 | EXCEL OPERATIONS - Using cached Flow Diagram sheet 'Flows_New TSF' (1 rows)
+2026-02-04 19:04:33 | DEBUG    | water_balance | debug:414 | Loading Flow Diagram sheet: Flows_UG2 Plant from Water_Balance_TimeSeries_Template.xlsx
+2026-02-04 19:04:33 | INFO     | water_balance | info:418 | Loaded Flow Diagram sheet 'Flows_UG2 Plant': 1 rows, 27 columns
+2026-02-04 19:04:33 | DEBUG    | water_balance | debug:414 | Loading Flow Diagram sheet: Flows_UG2 Plant from Water_Balance_TimeSeries_Template.xlsx
+2026-02-04 19:04:33 | DEBUG    | water_balance | debug:414 | EXCEL OPERATIONS - Using cached Flow Diagram sheet 'Flows_UG2 Plant' (1 rows)
+2026-02-04 19:04:33 | DEBUG    | water_balance | debug:414 | Loading Flow Diagram sheet: Flows_Merensky Plant from Water_Balance_TimeSeries_Template.xlsx
+2026-02-04 19:04:33 | INFO     | water_balance | info:418 | Loaded Flow Diagram sheet 'Flows_Merensky Plant': 1 rows, 27 columns
+2026-02-04 19:04:33 | DEBUG    | water_balance | debug:414 | Loading Flow Diagram sheet: Flows_Merensky Plant from Water_Balance_TimeSeries_Template.xlsx
+2026-02-04 19:04:33 | DEBUG    | water_balance | debug:414 | EXCEL OPERATIONS - Using cached Flow Diagram sheet 'Flows_Merensky Plant' (1 rows)
+2026-02-04 19:04:33 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:33 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:33 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:38 | INFO     | water_balance | info:418 | Refreshing current page: DashboardPage
+2026-02-04 19:04:38 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:38 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:38 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:38 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:38 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:38 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:38 | DEBUG    | water_balance | debug:414 | Global refresh completed
+2026-02-04 19:04:39 | INFO     | water_balance | info:418 | Refreshing current page: DashboardPage
+2026-02-04 19:04:39 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:39 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:39 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:39 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:39 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:39 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:39 | DEBUG    | water_balance | debug:414 | Global refresh completed
+2026-02-04 19:04:39 | INFO     | water_balance | info:418 | Refreshing current page: DashboardPage
+2026-02-04 19:04:39 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:39 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:39 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:39 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:39 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:39 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:39 | DEBUG    | water_balance | debug:414 | Global refresh completed
+2026-02-04 19:04:40 | INFO     | water_balance | info:418 | Refreshing current page: DashboardPage
+2026-02-04 19:04:40 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:40 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:40 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:40 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:40 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:40 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:40 | DEBUG    | water_balance | debug:414 | Global refresh completed
+2026-02-04 19:04:40 | INFO     | water_balance | info:418 | Refreshing current page: DashboardPage
+2026-02-04 19:04:40 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:40 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:40 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:40 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:40 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:40 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:40 | DEBUG    | water_balance | debug:414 | Global refresh completed
+2026-02-04 19:04:40 | INFO     | water_balance | info:418 | Refreshing current page: DashboardPage
+2026-02-04 19:04:40 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:40 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:40 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:40 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:40 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:40 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:40 | DEBUG    | water_balance | debug:414 | Global refresh completed
+2026-02-04 19:04:40 | INFO     | water_balance | info:418 | Refreshing current page: DashboardPage
+2026-02-04 19:04:40 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:40 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:40 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:40 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:40 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:40 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:40 | DEBUG    | water_balance | debug:414 | Global refresh completed
+2026-02-04 19:04:41 | INFO     | water_balance | info:418 | Refreshing current page: DashboardPage
+2026-02-04 19:04:41 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:41 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:41 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:41 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:41 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:41 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:41 | DEBUG    | water_balance | debug:414 | Global refresh completed
+2026-02-04 19:04:42 | INFO     | water_balance | info:418 | Refreshing current page: DashboardPage
+2026-02-04 19:04:42 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:42 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:42 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:42 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:42 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:42 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:42 | DEBUG    | water_balance | debug:414 | Global refresh completed
+2026-02-04 19:04:42 | INFO     | water_balance | info:418 | Refreshing current page: DashboardPage
+2026-02-04 19:04:42 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:42 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:42 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:42 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:42 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:42 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:42 | DEBUG    | water_balance | debug:414 | Global refresh completed
+2026-02-04 19:04:42 | INFO     | water_balance | info:418 | Refreshing current page: DashboardPage
+2026-02-04 19:04:42 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:42 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:42 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:42 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:42 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:42 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:42 | DEBUG    | water_balance | debug:414 | Global refresh completed
+2026-02-04 19:04:43 | INFO     | water_balance | info:418 | Refreshing current page: DashboardPage
+2026-02-04 19:04:43 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:43 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:43 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:43 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:43 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:43 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:43 | DEBUG    | water_balance | debug:414 | Global refresh completed
+2026-02-04 19:04:44 | INFO     | water_balance | info:418 | Refreshing current page: DashboardPage
+2026-02-04 19:04:44 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:44 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:44 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:44 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:44 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:44 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:44 | DEBUG    | water_balance | debug:414 | Global refresh completed
+2026-02-04 19:04:44 | INFO     | water_balance | info:418 | Refreshing current page: DashboardPage
+2026-02-04 19:04:44 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:44 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:44 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:44 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:44 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:44 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:44 | DEBUG    | water_balance | debug:414 | Global refresh completed
+2026-02-04 19:04:44 | INFO     | water_balance | info:418 | Refreshing current page: DashboardPage
+2026-02-04 19:04:44 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:44 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:44 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:44 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:44 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:44 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:44 | DEBUG    | water_balance | debug:414 | Global refresh completed
+2026-02-04 19:04:44 | INFO     | water_balance | info:418 | Refreshing current page: DashboardPage
+2026-02-04 19:04:44 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:44 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:44 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:44 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:44 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:44 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:44 | DEBUG    | water_balance | debug:414 | Global refresh completed
+2026-02-04 19:04:44 | INFO     | water_balance | info:418 | Refreshing current page: DashboardPage
+2026-02-04 19:04:44 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:44 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:44 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:44 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:44 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:44 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:44 | DEBUG    | water_balance | debug:414 | Global refresh completed
+2026-02-04 19:04:45 | INFO     | water_balance | info:418 | Refreshing current page: DashboardPage
+2026-02-04 19:04:45 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:45 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:45 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:45 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:45 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:45 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:45 | DEBUG    | water_balance | debug:414 | Global refresh completed
+2026-02-04 19:04:45 | INFO     | water_balance | info:418 | Refreshing current page: DashboardPage
+2026-02-04 19:04:45 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:45 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:45 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:45 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:45 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:45 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:45 | DEBUG    | water_balance | debug:414 | Global refresh completed
+2026-02-04 19:04:46 | INFO     | water_balance | info:418 | Refreshing current page: DashboardPage
+2026-02-04 19:04:46 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:46 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:46 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:46 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:46 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:46 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:46 | DEBUG    | water_balance | debug:414 | Global refresh completed
+2026-02-04 19:04:46 | INFO     | water_balance | info:418 | Refreshing current page: DashboardPage
+2026-02-04 19:04:46 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:46 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:46 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:46 | DEBUG    | water_balance | debug:414 | Rainfall loaded: 100.0mm
+2026-02-04 19:04:46 | DEBUG    | water_balance | debug:414 | Evaporation loaded: 185.0mm
+2026-02-04 19:04:46 | DEBUG    | water_balance | debug:414 | Dashboard initialized with data: {'total_inflows': 5783439.0, 'total_outflows': 5007265.0, 'recirculation': 9254.0, 'balance_error': 13.260622269898583, 'month': 12, 'year': 2025, 'rainfall': 100.0, 'evaporation': 185.0}
+2026-02-04 19:04:46 | DEBUG    | water_balance | debug:414 | Global refresh completed
+2026-02-04 19:04:48 | INFO     | water_balance | shutdown:475 | Shutting down background logger...

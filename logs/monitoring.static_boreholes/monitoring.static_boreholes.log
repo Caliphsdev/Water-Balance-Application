@@ -8378,3 +8378,26 @@ RuntimeError: Signal source has been deleted
 2026-02-04 18:43:47 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
 2026-02-04 18:43:47 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
 2026-02-04 18:43:47 | INFO     | run:277 | Directory loading complete
+2026-02-04 19:04:32 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-04 19:04:32 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-04 19:04:32 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-04 19:04:32 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-04 19:04:32 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-04 19:04:32 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-04 19:04:32 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-04 19:04:32 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-04 19:04:32 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-04 19:04:32 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-04 19:04:32 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-04 19:04:32 | INFO     | run:277 | Directory loading complete
+2026-02-04 19:04:32 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-04 19:04:32 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-04 19:04:32 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-04 19:04:32 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-04 19:04:32 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-04 19:04:32 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-04 19:04:32 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-04 19:04:32 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-04 19:04:32 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-04 19:04:32 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-04 19:04:32 | INFO     | run:277 | Directory loading complete

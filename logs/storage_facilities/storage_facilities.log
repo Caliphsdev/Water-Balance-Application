@@ -2089,3 +2089,4 @@
 2026-02-04 18:43:52 | INFO     | run:104 | Loaded storage facilities
 2026-02-04 18:43:52 | DEBUG    | _populate_table:414 | Table populated with 2 facilities (lazy loading)
 2026-02-04 18:43:52 | INFO     | _on_facilities_loaded:348 | Storage facilities ready: 2 items
+2026-02-04 19:04:30 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
