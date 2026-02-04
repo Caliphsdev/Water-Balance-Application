@@ -4,40 +4,17 @@
 
 ---
 
-## 📖 Files in This Section
-
-### [TROUBLESHOOTING.md](./TROUBLESHOOTING.md)
-Common issues and solutions.
-
-**Topics covered:**
-- Common problems
-- Error messages and solutions
-- Debugging techniques
-- Performance issues
-- Environment problems
-- Database issues
-- UI rendering problems
-
-**Use when:**
-- Something isn't working
-- Need to fix an error
-- Diagnosing issues
-- Performance problems
-
-**Time:** Reference as needed
-
----
-
 ## 🛠️ Common Tasks
 
 ### Setting Up Development Environment
 
-1. Clone repository
-2. Create virtual environment: `.venv\Scripts\python -m pip install -r requirements.txt`
-3. Run app: `.venv\Scripts\python src/main.py`
-4. Run tests: `.venv\Scripts\python -m pytest tests/ -v`
+1. Clone repository: `git clone https://github.com/Caliphsdev/Water-Balance-Application.git`
+2. Create virtual environment: `python -m venv .venv`
+3. Activate: `.venv\Scripts\Activate.ps1`
+4. Install dependencies: `pip install -r requirements.txt`
+5. Run app: `.venv\Scripts\python src/main.py`
 
-See [../00-GETTING_STARTED/QUICK_START.md](../00-GETTING_STARTED/QUICK_START.md) for detailed setup.
+See [../00-GETTING_STARTED/QUICKSTART.md](../00-GETTING_STARTED/QUICKSTART.md) for detailed setup.
 
 ---
 
@@ -48,39 +25,10 @@ See [../00-GETTING_STARTED/QUICK_START.md](../00-GETTING_STARTED/QUICK_START.md)
 ```
 
 **Features:**
-- Fast startup (async DB loading)
+- Fast startup with async database loading
 - Loading screen during initialization
 - License validation
 - Auto-recovery on errors
-
----
-
-### Building an Executable
-
-```bash
-# Compile UI files first
-./compile_ui.ps1
-
-# Build with PyInstaller
-pyinstaller water_balance.spec
-```
-
-Result: `dist/water_balance.exe`
-
----
-
-### Database Operations
-
-**Reset database:**
-```bash
-.venv\Scripts\python -c "from src.database.schema import DatabaseSchema; DatabaseSchema().create_database()"
-```
-
-**Backup database:**
-Database auto-backs up before major operations. Manual backup:
-```bash
-cp data/water_balance.db data/water_balance.db.bak-$(date +%Y%m%d_%H%M%S)
-```
 
 ---
 
@@ -99,6 +47,31 @@ cp data/water_balance.db data/water_balance.db.bak-$(date +%Y%m%d_%H%M%S)
 
 ---
 
+### Building an Executable
+
+```powershell
+# Build with PyInstaller
+pyinstaller water_balance.spec
+```
+
+Result: `dist/water_balance.exe`
+
+---
+
+### Database Operations
+
+**Reset database:**
+```bash
+.venv\Scripts\python -c "from src.database.schema import DatabaseSchema; DatabaseSchema().create_database()"
+```
+
+**Backup database:**
+```powershell
+Copy-Item data\water_balance.db "data\water_balance.backup-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+```
+
+---
+
 ## 🔧 Configuration
 
 Main config file: `config/app_config.yaml`
@@ -112,30 +85,25 @@ features:
 data_sources:
   database_path: data/water_balance.db
   meter_readings_excel: data/meter_readings.xlsx
-  
-licensing:
-  offline_grace_days: 7       # Grace period when no network
 ```
 
 ---
 
-## 📊 Monitoring & Logs
+## 📊 Logs
 
 ### Log Files
 Location: `logs/` directory
 
 - `app.log` - Application events
-- `database.log` - Database operations
-- `excel.log` - Excel file monitoring
-- `calculations.log` - Balance calculations
+- `app_debug.log` - Debug information
 
 ### Viewing Logs
-```bash
+```powershell
 # Real-time logs
-tail -f logs/app.log
+Get-Content logs\app.log -Wait
 
 # Search for errors
-grep "ERROR" logs/app.log
+Select-String "ERROR" logs\app.log
 ```
 
 ---
@@ -157,18 +125,17 @@ grep "ERROR" logs/app.log
 → Check file is not open elsewhere  
 → Ensure Excel file format is `.xlsx` (not `.xls`)
 
-### UI Not Rendering
-→ Check GPU drivers are up to date  
-→ Try disabling hardware acceleration in config  
-→ Clear cache and restart
+### ImportError: No module named 'PySide6'
+```bash
+pip install PySide6 PySide6-Addons
+```
 
----
-
-## 📚 Related Documentation
-
-- **Getting Started:** See [00-GETTING_STARTED/QUICK_START.md](../00-GETTING_STARTED/QUICK_START.md)
-- **Architecture:** See [01-ARCHITECTURE/](../01-ARCHITECTURE/)
-- **Reference:** See [DOCUMENTATION/SETUP_GUIDE.md](../DOCUMENTATION/SETUP_GUIDE.md) for detailed setup
+### ModuleNotFoundError: No module named 'src'
+Run from project root:
+```bash
+cd d:\Projects\dashboard_waterbalance
+.venv\Scripts\python src/main.py
+```
 
 ---
 
@@ -179,7 +146,6 @@ grep "ERROR" logs/app.log
 - [ ] Database is backed up
 - [ ] Config file is correct
 - [ ] Excel files are in right location
-- [ ] License validation passing
 - [ ] UI renders correctly
 - [ ] Performance is acceptable
 
@@ -196,4 +162,9 @@ grep "ERROR" logs/app.log
 
 ---
 
-**For more details:** See [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) for specific issues.
+## 📚 Related Documentation
+
+- **Getting Started:** [../00-GETTING_STARTED/QUICKSTART.md](../00-GETTING_STARTED/QUICKSTART.md)
+- **Architecture:** [../01-ARCHITECTURE/](../01-ARCHITECTURE/)
+- **Backend:** [../02-BACKEND/](../02-BACKEND/)
+- **Frontend:** [../03-FRONTEND/](../03-FRONTEND/)

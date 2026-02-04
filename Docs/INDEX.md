@@ -2,7 +2,7 @@
 
 **Last Updated:** February 4, 2026  
 **Purpose:** Master navigation guide for all project documentation  
-**Status:** Clean structure - archived 50+ redundant files
+**Status:** Clean structure - documentation verified
 
 ---
 
@@ -20,8 +20,7 @@ Docs/
 ├── 05-SETUP_AND_OPERATIONS/    ← Installation & admin
 ├── 06-REFERENCE/               ← Guides & standards
 ├── 07-ANALYSIS_AND_PLANNING/   ← Roadmaps & status
-├── pyside6/                    ← PySide6 reference book (PDF)
-└── _ARCHIVE/                   ← Old session docs (historical)
+└── pyside6/                    ← PySide6 reference book (PDF)
 ```
 
 ---
@@ -80,7 +79,7 @@ Docs/
 |----------|---------|
 | [06-REFERENCE/PYSIDE6_MODULES_GUIDE.md](06-REFERENCE/PYSIDE6_MODULES_GUIDE.md) | QtCharts, QtSvg, etc. |
 | [06-REFERENCE/PROJECT_TIMELINE_AND_ROADMAP.md](06-REFERENCE/PROJECT_TIMELINE_AND_ROADMAP.md) | Project phases |
-| [06-REFERENCE/TKINTER_CODE_REFERENCE_MAP.md](06-REFERENCE/TKINTER_CODE_REFERENCE_MAP.md) | Legacy code mapping |
+| [06-REFERENCE/DIRECTORY_STRUCTURE_GUIDE.md](06-REFERENCE/DIRECTORY_STRUCTURE_GUIDE.md) | Project folder layout |
 
 ---
 

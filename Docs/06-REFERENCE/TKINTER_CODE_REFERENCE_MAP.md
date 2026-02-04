@@ -1,9 +1,13 @@
 # 📍 Tkinter Code Reference Map
 
-**Purpose:** Shows exactly where each piece of Tkinter code is located and where it should go in PySide6
+> **⚠️ HISTORICAL DOCUMENT**  
+> The tkinter-legacy project (`c:\PROJECTS\Water-Balance-Application`) has been removed from the workspace.  
+> This document is kept for historical reference only. Migration to PySide6 is complete.  
+> **Last Updated:** February 4, 2026
 
-**Source:** c:\PROJECTS\Water-Balance-Application  
-**Target:** d:\Projects\dashboard_waterbalance
+**Original Purpose:** Shows where Tkinter code was located and how it mapped to PySide6
+
+**Status:** OBSOLETE - Migration complete
 
 ---
 

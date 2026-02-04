@@ -6,67 +6,64 @@
 
 ## 📖 Files in This Section
 
-### 1. [START_HERE.md](./START_HERE.md) - **BEGIN HERE**
-Start with this file for an overview of the project and what to read next.
-
-**Topics covered:**
-- Project overview
-- What is being built
-- Who should use this
-- Next steps
-
-**Time:** 5-10 minutes
-
----
-
-### 2. [QUICK_START.md](./QUICK_START.md)
-Fast setup and running instructions.
+### [QUICKSTART.md](./QUICKSTART.md) - **START HERE**
+Setup and running instructions for the PySide6 Water Balance Dashboard.
 
 **Topics covered:**
 - Environment setup (.venv)
+- Installing dependencies
 - Running the application
-- Building/testing
-- Troubleshooting quick issues
+- Project structure overview
+- Key components
 
-**Time:** 10-15 minutes
-
----
-
-### 3. [QUICK_ACTION_PLAN.md](./QUICK_ACTION_PLAN.md)
-Immediate action items and tasks.
-
-**Topics covered:**
-- What to do first
-- Current priorities
-- Task checklist
-- Quick wins
-
-**Time:** 5-10 minutes
+**Time:** 15-20 minutes
 
 ---
 
-## 🎯 Choose Your Path
+## 🎯 Quick Start Path
 
-**If you're new:**
-→ Start with [START_HERE.md](./START_HERE.md)
+**For new developers:**
+1. ✅ Read [QUICKSTART.md](./QUICKSTART.md) for setup
+2. ✅ Run app: `.venv\Scripts\python src/main.py`
+3. ✅ Explore the UI and dashboard pages
+4. ✅ Move to [01-ARCHITECTURE](../01-ARCHITECTURE/) for design patterns
 
-**If you want to run the app:**
-→ Go to [QUICK_START.md](./QUICK_START.md)
+**For understanding the codebase:**
+→ See [01-ARCHITECTURE/](../01-ARCHITECTURE/) for patterns and structure
 
-**If you want tasks to work on:**
-→ See [QUICK_ACTION_PLAN.md](./QUICK_ACTION_PLAN.md)
+**For backend development:**
+→ See [02-BACKEND/](../02-BACKEND/) for services and database
 
----
-
-## 📚 Next Steps
-
-After reading this section:
-1. ✅ Review [START_HERE.md](./START_HERE.md)
-2. ✅ Run app using [QUICK_START.md](./QUICK_START.md)
-3. ✅ Check tasks in [QUICK_ACTION_PLAN.md](./QUICK_ACTION_PLAN.md)
-4. ✅ Move to appropriate section (Architecture, Backend, Frontend, etc.)
+**For UI development:**
+→ See [03-FRONTEND/](../03-FRONTEND/) for PySide6 components
 
 ---
 
-**Time to complete this section:** 20-35 minutes  
-**Next:** Head to appropriate section based on your role (Architecture, Frontend, Backend, etc.)
+## 📚 Project Overview
+
+This is a **PySide6 Water Balance Dashboard** application that provides:
+- Storage facility management
+- Water balance calculations
+- Flow diagram visualization
+- Analytics and reporting
+
+### Key Technologies
+- **UI Framework:** PySide6 (Qt6)
+- **Database:** SQLite
+- **Data Processing:** Pandas, NumPy
+- **Visualization:** PyQtGraph, Matplotlib
+
+### Project Structure
+```
+src/
+├── ui/           # PySide6 UI (dashboards, dialogs, components)
+├── services/     # Business logic layer
+├── database/     # Database access layer
+├── models/       # Pydantic data models
+└── core/         # App infrastructure (logging, config)
+```
+
+---
+
+**Time to complete this section:** 15-20 minutes  
+**Next:** Head to [01-ARCHITECTURE](../01-ARCHITECTURE/) for design patterns
