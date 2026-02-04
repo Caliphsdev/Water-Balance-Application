@@ -314,18 +314,18 @@ anchors = node.get_anchor_positions()  # 17 snapping points
 
 ```
 Docs/
-├── 00-GETTING_STARTED/          ← Quick starts, phase briefs
+├── 00-GETTING_STARTED/          ← Quick start guide
 ├── 01-ARCHITECTURE/             ← System design, patterns
 ├── 02-BACKEND/                  ← Services, repositories
 ├── 03-FRONTEND/                 ← UI components, widgets
 ├── 04-FEATURES/                 ← Feature implementations
 │   ├── Excel_Integration/
 │   └── Flow_Diagram/
-├── 05-SETUP_AND_OPERATIONS/     ← Installation, admin
+├── 05-SETUP_AND_OPERATIONS/     ← Installation, troubleshooting
 ├── 06-REFERENCE/                ← Style guides, conventions
 │   └── PYSIDE6_MODULES_GUIDE.md ← QtCharts, QtSvg, etc.
-└── 07-ANALYSIS_AND_PLANNING/    ← Roadmaps, analysis
-    └── Phase_Completions/
+├── 07-ANALYSIS_AND_PLANNING/    ← Roadmaps, status
+└── pyside6/                     ← PySide6 reference PDF
 ```
 
 **When you need context:** Check the appropriate folder first before asking.
@@ -341,7 +341,7 @@ Docs/
 **Before Creating Any New `.md` File:**
 1. ✅ Search existing `Docs/` folder for related topics
 2. ✅ Check if content can be added to existing files
-3. ✅ Review [Docs/INDEX.md](Docs/INDEX.md) or [Docs/DOCUMENTATION_INDEX.md](Docs/DOCUMENTATION_INDEX.md) for consolidated docs
+3. ✅ Review [Docs/INDEX.md](Docs/INDEX.md) for documentation navigation
 4. ✅ Ask: "Does this NEED a new file, or should it update an existing one?"
 
 **What NOT to Do:**
@@ -349,7 +349,7 @@ Docs/
 - ❌ Create analysis/summary `.md` files during development (write to `Docs/` only if persistent value)
 - ❌ Create `.md` files for temporary outputs or verification (use temp locations, delete after)
 - ❌ Create duplicate documentation (update existing instead)
-- ❌ Create `.md` files in project root (only: README.md, PHASE_*.md, START_*.md for critical milestones)
+- ❌ Create `.md` files in project root (only README.md allowed)
 
 **What TO Do:**
 - ✅ Update existing documentation files
@@ -428,7 +428,7 @@ with pdfplumber.open('Docs/pyside6/create-gui-applications-pyside6.pdf') as pdf:
 - **PySide6 Official Docs**: https://doc.qt.io/qtforpython-6/
 - **Qt Designer Guide**: https://doc.qt.io/qt-6/qtdesigner-manual.html
 - **Pydantic Docs**: https://docs.pydantic.dev/latest/
-- **Tkinter Source**: `../tkinter-legacy/` (for business logic reference)
+- **GitHub Repo**: https://github.com/Caliphsdev/Water-Balance-Application
 
 ### **Project-Specific Guides**
 - **PySide6 Modules Guide**: [Docs/06-REFERENCE/PYSIDE6_MODULES_GUIDE.md](../Docs/06-REFERENCE/PYSIDE6_MODULES_GUIDE.md) - Comprehensive reference for QtCharts, QtSvg, QtPrintSupport, QtSql integration (Phase 5+)
@@ -442,5 +442,5 @@ with pdfplumber.open('Docs/pyside6/create-gui-applications-pyside6.pdf') as pdf:
 
 ---
 
-**Last updated**: February 2, 2026  
-**Status**: Phase 4 complete, Phase 5 ready (Analytics Dashboard + QtCharts integration)
+**Last updated**: February 4, 2026  
+**Status**: Phase 4 complete, Dashboard KPIs connected to real database
