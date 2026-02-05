@@ -2090,3 +2090,116 @@
 2026-02-04 18:43:52 | DEBUG    | _populate_table:414 | Table populated with 2 facilities (lazy loading)
 2026-02-04 18:43:52 | INFO     | _on_facilities_loaded:348 | Storage facilities ready: 2 items
 2026-02-04 19:04:30 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-04 22:09:39 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-04 23:55:54 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-04 23:58:50 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 00:00:46 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 00:03:56 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 00:06:39 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 00:09:51 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 00:11:42 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 00:14:04 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 00:16:56 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 00:21:08 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 00:23:23 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 00:26:01 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 00:32:42 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 00:33:11 | INFO     | __init__:146 | Storage Facilities dashboard initializing...
+2026-02-05 00:33:11 | INFO     | _setup_table_model:249 | Table initialized with lazy-loading model (QAbstractTableModel)
+2026-02-05 00:33:11 | INFO     | _load_facilities_async:270 | Starting async facility load
+2026-02-05 00:33:11 | INFO     | run:104 | Loaded storage facilities
+2026-02-05 00:33:11 | DEBUG    | _populate_table:414 | Table populated with 2 facilities (lazy loading)
+2026-02-05 00:33:11 | INFO     | _on_facilities_loaded:348 | Storage facilities ready: 2 items
+2026-02-05 00:34:21 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 00:34:33 | INFO     | __init__:146 | Storage Facilities dashboard initializing...
+2026-02-05 00:34:33 | INFO     | _setup_table_model:249 | Table initialized with lazy-loading model (QAbstractTableModel)
+2026-02-05 00:34:33 | INFO     | _load_facilities_async:270 | Starting async facility load
+2026-02-05 00:34:33 | INFO     | run:104 | Loaded storage facilities
+2026-02-05 00:34:33 | DEBUG    | _populate_table:414 | Table populated with 2 facilities (lazy loading)
+2026-02-05 00:34:33 | INFO     | _on_facilities_loaded:348 | Storage facilities ready: 2 items
+2026-02-05 00:35:21 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 00:42:58 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 00:43:17 | INFO     | __init__:146 | Storage Facilities dashboard initializing...
+2026-02-05 00:43:17 | INFO     | _setup_table_model:249 | Table initialized with lazy-loading model (QAbstractTableModel)
+2026-02-05 00:43:17 | INFO     | _load_facilities_async:270 | Starting async facility load
+2026-02-05 00:43:17 | INFO     | run:104 | Loaded storage facilities
+2026-02-05 00:43:17 | DEBUG    | _populate_table:414 | Table populated with 2 facilities (lazy loading)
+2026-02-05 00:43:17 | INFO     | _on_facilities_loaded:348 | Storage facilities ready: 2 items
+2026-02-05 00:44:55 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 00:45:09 | INFO     | __init__:146 | Storage Facilities dashboard initializing...
+2026-02-05 00:45:09 | INFO     | _setup_table_model:249 | Table initialized with lazy-loading model (QAbstractTableModel)
+2026-02-05 00:45:09 | INFO     | _load_facilities_async:270 | Starting async facility load
+2026-02-05 00:45:09 | INFO     | run:104 | Loaded storage facilities
+2026-02-05 00:45:09 | DEBUG    | _populate_table:414 | Table populated with 2 facilities (lazy loading)
+2026-02-05 00:45:09 | INFO     | _on_facilities_loaded:348 | Storage facilities ready: 2 items
+2026-02-05 01:16:36 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 01:38:27 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 01:39:19 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 01:40:19 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 01:41:30 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 01:43:22 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 01:45:32 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 01:46:24 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 01:47:27 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 01:48:30 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 01:50:56 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 01:52:31 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 01:53:36 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 01:54:11 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 01:55:01 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 01:56:59 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 01:57:57 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 01:58:18 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 01:58:49 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 02:00:36 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 02:01:27 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 02:02:09 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 02:05:01 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 02:07:07 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 02:07:38 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 02:11:04 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 02:11:41 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 02:12:01 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 02:13:21 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 02:29:18 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 02:31:31 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 02:31:42 | INFO     | __init__:146 | Storage Facilities dashboard initializing...
+2026-02-05 02:31:42 | INFO     | _setup_table_model:249 | Table initialized with lazy-loading model (QAbstractTableModel)
+2026-02-05 02:31:43 | INFO     | _load_facilities_async:270 | Starting async facility load
+2026-02-05 02:31:43 | INFO     | run:104 | Loaded storage facilities
+2026-02-05 02:31:43 | DEBUG    | _populate_table:414 | Table populated with 2 facilities (lazy loading)
+2026-02-05 02:31:43 | INFO     | _on_facilities_loaded:348 | Storage facilities ready: 2 items
+2026-02-05 02:33:17 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 02:45:22 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 02:47:33 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 02:50:13 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 02:51:15 | INFO     | __init__:146 | Storage Facilities dashboard initializing...
+2026-02-05 02:51:15 | INFO     | _setup_table_model:249 | Table initialized with lazy-loading model (QAbstractTableModel)
+2026-02-05 02:51:15 | INFO     | _load_facilities_async:270 | Starting async facility load
+2026-02-05 02:51:15 | INFO     | run:104 | Loaded storage facilities
+2026-02-05 02:51:15 | DEBUG    | _populate_table:414 | Table populated with 2 facilities (lazy loading)
+2026-02-05 02:51:15 | INFO     | _on_facilities_loaded:348 | Storage facilities ready: 2 items
+2026-02-05 02:53:16 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 02:54:48 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 02:56:29 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 02:57:46 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 02:59:37 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 02:59:58 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 03:00:33 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 03:01:43 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 03:04:45 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 03:07:55 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 03:08:13 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 03:09:02 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 03:10:56 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 03:15:26 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 03:16:17 | INFO     | __init__:146 | Storage Facilities dashboard initializing...
+2026-02-05 03:16:17 | INFO     | _setup_table_model:249 | Table initialized with lazy-loading model (QAbstractTableModel)
+2026-02-05 03:16:17 | INFO     | _load_facilities_async:270 | Starting async facility load
+2026-02-05 03:16:17 | INFO     | run:104 | Loaded storage facilities
+2026-02-05 03:16:17 | DEBUG    | _populate_table:414 | Table populated with 2 facilities (lazy loading)
+2026-02-05 03:16:17 | INFO     | _on_facilities_loaded:348 | Storage facilities ready: 2 items
+2026-02-05 03:16:32 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 03:20:11 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 03:21:02 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-05 03:22:56 | INFO     | get_dashboard_logger:572 | === STORAGE_FACILITIES Dashboard Logger Initialized ===

@@ -14,8 +14,9 @@ Notes:
 """
 from __future__ import annotations
 
-from PySide6.QtWidgets import QMainWindow, QVBoxLayout, QLabel
-from PySide6.QtCore import Slot, QSize, QPropertyAnimation, QEasingCurve
+from PySide6.QtWidgets import QMainWindow, QVBoxLayout, QLabel, QPushButton, QHBoxLayout, QWidget
+from PySide6.QtCore import Slot, QSize, QPropertyAnimation, QEasingCurve, QTimer
+from PySide6.QtGui import QIcon, QPixmap
 
 # Register compiled Qt resources (icons, images, fonts)
 import ui.resources.resources_rc  # noqa: F401
@@ -28,6 +29,7 @@ from ui.dashboards.storage_facilities_dashboard import StorageFacilitiesPage
 from ui.dashboards.calculation_dashboard import CalculationPage
 from ui.dashboards.flow_diagram_page import FlowDiagramPage
 from ui.dashboards.settings_dashboard import SettingsPage
+from ui.dashboards.messages_dashboard import MessagesPage
 from core.app_logger import logger as app_logger
 from services.environmental_data_service import get_environmental_data_service
 
@@ -57,12 +59,15 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self._storage_facilities_page = None
+        self._messages_page = None
         self._setup_animations()
         self._set_initial_state()
         
         # Load all pages upfront (splash screen shows during this)
         self._mount_pages()
         self._connect_navigation()
+        self._setup_notification_drawer()
+        self._setup_status_bar()  # Setup status bar with license/network info
         self._set_default_page()  # Set Dashboard as the startup page
 
     def _connect_navigation(self) -> None:
@@ -96,6 +101,16 @@ class MainWindow(QMainWindow):
 
         for button, page in nav_pairs:
             button.clicked.connect(lambda _checked=False, p=page: self._show_page(p))
+
+        # Messages page navigation (icon-only and text+icon buttons)
+        if hasattr(self.ui, 'pushButton_messageicon') and self._messages_page:
+            self.ui.pushButton_messageicon.clicked.connect(
+                lambda: self._show_page(self._messages_page)
+            )
+        if hasattr(self.ui, 'message_iconandwords') and self._messages_page:
+            self.ui.message_iconandwords.clicked.connect(
+                lambda: self._show_page(self._messages_page)
+            )
 
         # Menu (burger) toggles wide vs compact sidebar
         self.ui.pushButton_19.toggled.connect(self._toggle_sidebar)
@@ -132,6 +147,305 @@ class MainWindow(QMainWindow):
         self.ui.icon_only.setVisible(True)
         self.ui.icon_name.setVisible(False)
         self.ui.pushButton_19.setChecked(False)
+
+    def _setup_notification_drawer(self) -> None:
+        """Set up notification drawer and bell button in header.
+        
+        Adds a notification bell button to the header toolbar that toggles
+        a sliding notification drawer panel.
+        """
+        # TEMPORARILY DISABLED - investigating freeze issue
+        logger.info("Notification drawer setup skipped (debugging)")
+        self.notification_drawer = None
+        return
+        
+        logger.info("Setting up notification drawer...")
+        try:
+            from ui.components.notification_drawer import NotificationDrawer, NotificationBadge
+            logger.debug("Imported notification drawer components")
+            
+            # Create notification drawer (sliding panel)
+            self.notification_drawer = NotificationDrawer(self)
+            logger.debug("Created notification drawer")
+            
+            # Add drawer to the main layout (right side of central widget)
+            # Find the main horizontal layout and add drawer
+            central_layout = self.ui.centralwidget.layout()
+            if central_layout:
+                central_layout.addWidget(self.notification_drawer)
+            
+            # Create bell button for header
+            self.notification_btn = QPushButton("🔔")
+            self.notification_btn.setObjectName("notificationButton")
+            self.notification_btn.setToolTip("Notifications")
+            self.notification_btn.setFixedSize(36, 36)
+            self.notification_btn.setStyleSheet("""
+                QPushButton#notificationButton {
+                    background-color: transparent;
+                    border: none;
+                    font-size: 18px;
+                    border-radius: 4px;
+                }
+                QPushButton#notificationButton:hover {
+                    background-color: rgba(255, 255, 255, 0.1);
+                }
+            """)
+            self.notification_btn.clicked.connect(self.notification_drawer.toggle)
+            
+            # Create badge overlay
+            self.notification_badge = NotificationBadge(self.notification_btn)
+            self.notification_badge.move(20, 0)
+            
+            # Add button to header (after refresh button)
+            if hasattr(self.ui, 'horizontalLayout'):
+                self.ui.horizontalLayout.addWidget(self.notification_btn)
+            
+            # Add feedback button to header
+            self.feedback_btn = QPushButton("💬")
+            self.feedback_btn.setObjectName("feedbackButton")
+            self.feedback_btn.setToolTip("Send Feedback")
+            self.feedback_btn.setFixedSize(36, 36)
+            self.feedback_btn.setStyleSheet("""
+                QPushButton#feedbackButton {
+                    background-color: transparent;
+                    border: none;
+                    font-size: 18px;
+                    border-radius: 4px;
+                }
+                QPushButton#feedbackButton:hover {
+                    background-color: rgba(255, 255, 255, 0.1);
+                }
+            """)
+            self.feedback_btn.clicked.connect(self._show_feedback_dialog)
+            
+            if hasattr(self.ui, 'horizontalLayout'):
+                self.ui.horizontalLayout.addWidget(self.feedback_btn)
+            
+            logger.info("Notification drawer initialized")
+            
+        except ImportError as e:
+            logger.warning(f"Notification drawer not available: {e}")
+            self.notification_drawer = None
+        except Exception as e:
+            logger.error(f"Failed to setup notification drawer: {e}")
+            self.notification_drawer = None
+
+    def _setup_status_bar(self) -> None:
+        """Set up status bar with license info and network status (STATUS BAR SETUP).
+        
+        Adds the following widgets to the status bar:
+        - License key icon + license type label (left side)
+        - Network status icon (right side, permanent)
+        
+        The status bar cannot have widgets added via Qt Designer, so we add them programmatically.
+        """
+        logger.info("Setting up status bar widgets...")
+        
+        try:
+            statusbar = self.ui.statusbar
+            
+            # === LEFT SIDE: License Info ===
+            license_widget = QWidget()
+            license_layout = QHBoxLayout(license_widget)
+            license_layout.setContentsMargins(8, 2, 8, 2)
+            license_layout.setSpacing(6)
+            
+            # License key icon
+            self.license_icon = QLabel()
+            license_pixmap = QIcon(":/icons/license-svgrepo-com.svg").pixmap(16, 16)
+            self.license_icon.setPixmap(license_pixmap)
+            self.license_icon.setToolTip("License Status")
+            license_layout.addWidget(self.license_icon)
+            
+            # License type label
+            self.license_label = QLabel("Loading...")
+            self.license_label.setStyleSheet("""
+                QLabel {
+                    color: #424242;
+                    font-size: 12px;
+                    padding: 2px 4px;
+                }
+            """)
+            license_layout.addWidget(self.license_label)
+            
+            statusbar.addWidget(license_widget)
+            
+            # === RIGHT SIDE (Permanent): Network Status ===
+            network_widget = QWidget()
+            network_layout = QHBoxLayout(network_widget)
+            network_layout.setContentsMargins(8, 2, 8, 2)
+            network_layout.setSpacing(4)
+            
+            # Network status icon
+            self.network_icon = QLabel()
+            # Set default icon (will be updated by network check)
+            default_pixmap = QIcon(":/icons/network-wireless-svgrepo-com.svg").pixmap(16, 16)
+            if not default_pixmap.isNull():
+                self.network_icon.setPixmap(default_pixmap)
+            else:
+                print("[DEBUG] Network icon resource not found!", flush=True)
+            self.network_icon.setToolTip("Network Status")
+            network_layout.addWidget(self.network_icon)
+            
+            # Network status label
+            self.network_label = QLabel("Checking...")
+            self.network_label.setStyleSheet("""
+                QLabel {
+                    color: #757575;
+                    font-size: 11px;
+                }
+            """)
+            network_layout.addWidget(self.network_label)
+            
+            statusbar.addPermanentWidget(network_widget)
+            
+            # Defer status updates to avoid blocking startup
+            QTimer.singleShot(500, self._update_license_status)
+            QTimer.singleShot(1000, self._update_network_status)
+            
+            # Set up periodic network check (every 30 seconds)
+            self._network_check_timer = QTimer(self)
+            self._network_check_timer.timeout.connect(self._update_network_status)
+            self._network_check_timer.start(30000)  # 30 seconds
+            
+            logger.info("Status bar widgets initialized")
+            
+        except Exception as e:
+            logger.error(f"Failed to setup status bar: {e}")
+    
+    def _update_license_status(self) -> None:
+        """Update license status display in status bar (LICENSE STATUS)."""
+        try:
+            from services.license_service import get_license_service
+            license_service = get_license_service()
+            
+            license_info = license_service.get_license_info()
+            
+            if license_info and license_info.get('is_valid'):
+                tier = license_info.get('tier', 'unknown').upper()
+                status = license_info.get('status', 'active')
+                
+                # Color-code by tier
+                tier_colors = {
+                    'PROFESSIONAL': '#4CAF50',  # Green
+                    'ENTERPRISE': '#2196F3',     # Blue  
+                    'TRIAL': '#ff9800',          # Orange
+                    'BASIC': '#9e9e9e',          # Gray
+                }
+                color = tier_colors.get(tier, '#757575')
+                
+                self.license_label.setText(f"{tier} License")
+                self.license_label.setStyleSheet(f"""
+                    QLabel {{
+                        color: {color};
+                        font-size: 12px;
+                        font-weight: bold;
+                        padding: 2px 6px;
+                        background-color: {color}22;
+                        border-radius: 4px;
+                    }}
+                """)
+                self.license_label.setToolTip(f"License: {tier}\nStatus: {status}")
+            else:
+                self.license_label.setText("No License")
+                self.license_label.setStyleSheet("""
+                    QLabel {
+                        color: #f44336;
+                        font-size: 12px;
+                        padding: 2px 4px;
+                    }
+                """)
+                self.license_label.setToolTip("No valid license found")
+                
+        except Exception as e:
+            logger.warning(f"Failed to update license status: {e}")
+            self.license_label.setText("License: Unknown")
+    
+    def _update_network_status(self) -> None:
+        """Update network status display in status bar (NETWORK STATUS).
+        
+        Uses QRunnable to avoid blocking the UI thread during network check.
+        """
+        print("[DEBUG] _update_network_status called", flush=True)
+        try:
+            from PySide6.QtCore import QRunnable, QThreadPool, Signal, QObject
+            
+            class WorkerSignals(QObject):
+                """Signals for worker thread."""
+                result = Signal(bool)
+            
+            class NetworkCheckWorker(QRunnable):
+                def __init__(self):
+                    super().__init__()
+                    self.signals = WorkerSignals()
+                    
+                def run(self):
+                    import socket
+                    try:
+                        print("[DEBUG] Network check: trying to connect to 8.8.8.8:53...", flush=True)
+                        socket.create_connection(("8.8.8.8", 53), timeout=2)
+                        is_online = True
+                        print("[DEBUG] Network check: ONLINE", flush=True)
+                    except (socket.timeout, socket.error, OSError) as e:
+                        is_online = False
+                        print(f"[DEBUG] Network check: OFFLINE - {e}", flush=True)
+                    print(f"[DEBUG] Network check: emitting result signal is_online={is_online}", flush=True)
+                    self.signals.result.emit(is_online)
+            
+            def update_ui(is_online):
+                print(f"[DEBUG] update_ui called with is_online={is_online}", flush=True)
+                try:
+                    if is_online:
+                        icon = QIcon(":/icons/network-wireless-svgrepo-com.svg")
+                        print(f"[DEBUG] Icon isNull={icon.isNull()}, availableSizes={icon.availableSizes()}", flush=True)
+                        network_pixmap = icon.pixmap(16, 16)
+                        print(f"[DEBUG] Pixmap isNull={network_pixmap.isNull()}, width={network_pixmap.width()}, height={network_pixmap.height()}", flush=True)
+                        
+                        if not network_pixmap.isNull():
+                            self.network_icon.setPixmap(network_pixmap)
+                            print(f"[DEBUG] Pixmap set successfully", flush=True)
+                        else:
+                            # Fallback: Use text if icon fails
+                            self.network_icon.setText("🟢")
+                            print(f"[DEBUG] Using emoji fallback", flush=True)
+                        
+                        self.network_label.setText("Online")
+                        self.network_label.setStyleSheet("""
+                            QLabel {
+                                color: #4CAF50;
+                                font-size: 11px;
+                            }
+                        """)
+                        self.network_icon.setToolTip("Connected to network")
+                        print(f"[DEBUG] Network status updated to Online", flush=True)
+                    else:
+                        icon = QIcon(":/icons/network-wireless-disabled-svgrepo-com.svg")
+                        network_pixmap = icon.pixmap(16, 16)
+                        
+                        if not network_pixmap.isNull():
+                            self.network_icon.setPixmap(network_pixmap)
+                        else:
+                            self.network_icon.setText("🔴")
+                        
+                        self.network_label.setText("Offline")
+                        self.network_label.setStyleSheet("""
+                            QLabel {
+                                color: #f44336;
+                                font-size: 11px;
+                            }
+                        """)
+                        self.network_icon.setToolTip("No network connection")
+                except Exception as ui_error:
+                    logger.warning(f"Error updating network UI: {ui_error}")
+            
+            # Keep reference to worker to prevent garbage collection
+            self._network_worker = NetworkCheckWorker()
+            self._network_worker.signals.result.connect(update_ui)
+            QThreadPool.globalInstance().start(self._network_worker)
+                
+        except Exception as e:
+            logger.warning(f"Failed to check network status: {e}")
+            self.network_label.setText("Unknown")
 
     def _set_default_page(self) -> None:
         """Set Dashboard page as the default startup page.
@@ -255,6 +569,14 @@ class MainWindow(QMainWindow):
             self.ui.stackedWidget.insertWidget(about_placeholder_index, about_page)
             self.ui.about = about_page
 
+        # Messages page (Inbox, Notifications, Feedback)
+        # No placeholder in Designer - add dynamically to stacked widget
+        self._update_splash("Loading Messages...", 98)
+        self._messages_page = MessagesPage()
+        self.ui.stackedWidget.addWidget(self._messages_page)
+        self._update_splash("Pages loaded!", 99)
+        logger.info("Messages page added to navigation")
+
     @Slot()
     def _toggle_sidebar(self, expanded: bool) -> None:
         """Animate sidebar transitions smoothly.
@@ -287,6 +609,23 @@ class MainWindow(QMainWindow):
         index = self.ui.stackedWidget.indexOf(page_widget)
         if index >= 0:
             self.ui.stackedWidget.setCurrentIndex(index)
+    
+    @Slot()
+    def _show_feedback_dialog(self):
+        """Show the feedback dialog for bug reports and feature requests."""
+        try:
+            from ui.dialogs.feedback_dialog import FeedbackDialog
+            from core.config_manager import ConfigManager
+            
+            config = ConfigManager()
+            app_version = config.get('app.version', '1.0.0')
+            
+            dialog = FeedbackDialog(self, app_version=app_version)
+            dialog.exec()
+        except ImportError as e:
+            logger.warning(f"Feedback dialog not available: {e}")
+        except Exception as e:
+            logger.error(f"Failed to show feedback dialog: {e}")
     
     @Slot()
     def _on_refresh_clicked(self):
@@ -435,20 +774,20 @@ class MainWindow(QMainWindow):
             return self.ui.storge_facilitites
 
     def closeEvent(self, event) -> None:
-        """Handle application shutdown to stop background workers safely (SHUTDOWN ORCHESTRATION).
+        """Handle window close - always shut down the application.
 
-        This ensures QThread workers in dashboards are stopped before
-        widgets are destroyed, preventing late signal emissions.
+        The close button (X) always closes the app completely.
         
-        Process:
+        Close sequence:
         1. Call stop_background_tasks() on each dashboard (requests cancellation)
         2. Process events to allow threads to finish gracefully
-        3. Accept the close event
-        
-        This prevents "QThread: Destroyed while thread running" warnings during shutdown.
+        3. Accept the close event and exit
         """
         from PySide6.QtWidgets import QApplication
         
+        logger.info("Application close requested - shutting down...")
+        
+        # Full shutdown - stop background workers
         pages = [
             getattr(self.ui, "monitoring_data", None),
             getattr(self.ui, "analytics_trends", None),
@@ -458,11 +797,25 @@ class MainWindow(QMainWindow):
         # Request all threads to stop
         for page in pages:
             if page and hasattr(page, "stop_background_tasks"):
-                page.stop_background_tasks()
+                try:
+                    page.stop_background_tasks()
+                except Exception as e:
+                    logger.warning(f"Error stopping tasks on page: {e}")
 
         # Give threads time to finish gracefully
         app = QApplication.instance()
         if app:
             app.processEvents()
 
-        super().closeEvent(event)
+        # Accept the close event to allow the application to shut down
+        event.accept()
+    
+    def changeEvent(self, event) -> None:
+        """Handle window state changes (WINDOW STATE HANDLING).
+        
+        Currently just passes through - close button always closes the app.
+        """
+        from PySide6.QtCore import Qt
+        
+        # Don't minimize to tray - let the close button work normally
+        super().changeEvent(event)

@@ -1,0 +1,545 @@
+"""
+Messages Dashboard Controller (INBOX & NOTIFICATIONS).
+
+Purpose:
+- Central hub for user messaging, notifications, and feedback
+- Display system notifications and updates
+- Allow users to submit bug reports and feature requests
+- Show license information and update notifications
+
+(MODULE OVERVIEW)
+"""
+from __future__ import annotations
+
+from PySide6.QtWidgets import (
+    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
+    QFrame, QScrollArea, QStackedWidget, QSizePolicy, QTextEdit,
+    QLineEdit, QComboBox, QSpacerItem, QMessageBox
+)
+from PySide6.QtCore import Qt, Signal, Slot, QTimer
+from PySide6.QtGui import QIcon, QFont, QPixmap
+
+from core.app_logger import logger
+
+
+class MessageCard(QFrame):
+    """Individual message/notification card widget."""
+    
+    clicked = Signal(dict)  # Emits message data when clicked
+    
+    def __init__(self, message_data: dict, parent=None):
+        super().__init__(parent)
+        self.message_data = message_data
+        self._setup_ui()
+        
+    def _setup_ui(self):
+        """Set up card UI."""
+        self.setObjectName("messageCard")
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.setFrameShape(QFrame.Shape.StyledPanel)
+        
+        # Determine card styling based on message type
+        msg_type = self.message_data.get('type', 'info')
+        is_read = self.message_data.get('is_read', True)
+        
+        bg_color = "#ffffff" if is_read else "#e3f2fd"
+        border_color = {
+            'update': '#4CAF50',
+            'warning': '#ff9800',
+            'error': '#f44336',
+            'info': '#2196F3',
+            'feedback': '#9C27B0'
+        }.get(msg_type, '#2196F3')
+        
+        self.setStyleSheet(f"""
+            QFrame#messageCard {{
+                background-color: {bg_color};
+                border: 1px solid #e0e0e0;
+                border-left: 4px solid {border_color};
+                border-radius: 8px;
+                padding: 12px;
+                margin: 4px;
+            }}
+            QFrame#messageCard:hover {{
+                background-color: #f5f5f5;
+                border-color: {border_color};
+            }}
+        """)
+        
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(12, 10, 12, 10)
+        layout.setSpacing(6)
+        
+        # Header row (title + date)
+        header = QHBoxLayout()
+        
+        title_label = QLabel(self.message_data.get('title', 'Message'))
+        title_label.setStyleSheet("font-weight: bold; font-size: 14px; color: #1a1a1a;")
+        header.addWidget(title_label)
+        
+        header.addStretch()
+        
+        date_label = QLabel(self.message_data.get('date', ''))
+        date_label.setStyleSheet("color: #757575; font-size: 11px;")
+        header.addWidget(date_label)
+        
+        layout.addLayout(header)
+        
+        # Body
+        body_label = QLabel(self.message_data.get('body', ''))
+        body_label.setWordWrap(True)
+        body_label.setStyleSheet("color: #424242; font-size: 13px;")
+        layout.addWidget(body_label)
+        
+    def mousePressEvent(self, event):
+        """Handle card click."""
+        self.clicked.emit(self.message_data)
+        super().mousePressEvent(event)
+
+
+class MessagesPage(QWidget):
+    """Messages/Inbox Page (NOTIFICATIONS & FEEDBACK HUB).
+    
+    Provides a central interface for:
+    - System notifications and alerts
+    - Application update information
+    - Bug report submission
+    - Feature request submission
+    - License information display
+    
+    (CLASS OVERVIEW)
+    """
+    
+    feedback_submitted = Signal(str, str, str)  # type, title, body
+    
+    def __init__(self, parent=None):
+        """Initialize Messages page.
+        
+        Args:
+            parent: Parent widget (usually MainWindow)
+        """
+        super().__init__(parent)
+        self._notifications = []
+        self._setup_ui()
+        # Defer notification loading to avoid blocking startup
+        QTimer.singleShot(100, self._load_notifications)
+        
+    def _setup_ui(self):
+        """Build the messages page UI (UI CONSTRUCTION)."""
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(20, 20, 20, 20)
+        main_layout.setSpacing(16)
+        
+        # === HEADER ===
+        header = self._create_header()
+        main_layout.addWidget(header)
+        
+        # === TAB BAR ===
+        tab_bar = self._create_tab_bar()
+        main_layout.addWidget(tab_bar)
+        
+        # === CONTENT STACK ===
+        self.content_stack = QStackedWidget()
+        self.content_stack.setStyleSheet("background-color: transparent;")
+        
+        # Tab 0: Notifications
+        self.notifications_tab = self._create_notifications_tab()
+        self.content_stack.addWidget(self.notifications_tab)
+        
+        # Tab 1: Updates
+        self.updates_tab = self._create_updates_tab()
+        self.content_stack.addWidget(self.updates_tab)
+        
+        # Tab 2: Feedback
+        self.feedback_tab = self._create_feedback_tab()
+        self.content_stack.addWidget(self.feedback_tab)
+        
+        main_layout.addWidget(self.content_stack, 1)
+        
+    def _create_header(self) -> QWidget:
+        """Create page header (HEADER SECTION)."""
+        header = QWidget()
+        header.setStyleSheet("background-color: transparent;")
+        layout = QHBoxLayout(header)
+        layout.setContentsMargins(0, 0, 0, 0)
+        
+        # Icon + Title
+        icon_label = QLabel()
+        icon_label.setPixmap(QIcon(":/icons/message.svg").pixmap(32, 32))
+        layout.addWidget(icon_label)
+        
+        title = QLabel("Messages & Notifications")
+        title.setStyleSheet("font-size: 24px; font-weight: bold; color: #1a1a1a;")
+        layout.addWidget(title)
+        
+        layout.addStretch()
+        
+        # Refresh button
+        refresh_btn = QPushButton("↻ Refresh")
+        refresh_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #2196F3;
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 6px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #1976D2;
+            }
+        """)
+        refresh_btn.clicked.connect(self._load_notifications)
+        layout.addWidget(refresh_btn)
+        
+        return header
+        
+    def _create_tab_bar(self) -> QWidget:
+        """Create tab navigation bar (TAB BAR)."""
+        tab_bar = QWidget()
+        tab_bar.setStyleSheet("background-color: transparent;")
+        layout = QHBoxLayout(tab_bar)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(8)
+        
+        self.tab_buttons = []
+        tabs = [
+            ("🔔 Notifications", 0),
+            ("📦 Updates", 1),
+            ("💬 Feedback", 2),
+        ]
+        
+        for text, index in tabs:
+            btn = QPushButton(text)
+            btn.setCheckable(True)
+            btn.setAutoExclusive(True)
+            btn.setStyleSheet("""
+                QPushButton {
+                    background-color: #f5f5f5;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 8px;
+                    font-size: 14px;
+                    color: #424242;
+                }
+                QPushButton:checked {
+                    background-color: #2196F3;
+                    color: white;
+                    font-weight: bold;
+                }
+                QPushButton:hover:!checked {
+                    background-color: #e0e0e0;
+                }
+            """)
+            btn.clicked.connect(lambda checked, idx=index: self.content_stack.setCurrentIndex(idx))
+            layout.addWidget(btn)
+            self.tab_buttons.append(btn)
+        
+        # Select first tab
+        self.tab_buttons[0].setChecked(True)
+        
+        layout.addStretch()
+        
+        return tab_bar
+        
+    def _create_notifications_tab(self) -> QWidget:
+        """Create notifications list tab (NOTIFICATIONS TAB)."""
+        tab = QWidget()
+        tab.setStyleSheet("background-color: transparent;")
+        layout = QVBoxLayout(tab)
+        layout.setContentsMargins(0, 10, 0, 0)
+        
+        # Scroll area for notifications
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setStyleSheet("""
+            QScrollArea {
+                border: none;
+                background-color: transparent;
+            }
+            QScrollArea > QWidget > QWidget {
+                background-color: transparent;
+            }
+        """)
+        
+        self.notifications_container = QWidget()
+        self.notifications_layout = QVBoxLayout(self.notifications_container)
+        self.notifications_layout.setContentsMargins(0, 0, 0, 0)
+        self.notifications_layout.setSpacing(8)
+        self.notifications_layout.addStretch()
+        
+        scroll.setWidget(self.notifications_container)
+        layout.addWidget(scroll)
+        
+        return tab
+        
+    def _create_updates_tab(self) -> QWidget:
+        """Create updates info tab (UPDATES TAB)."""
+        tab = QWidget()
+        tab.setStyleSheet("background-color: transparent;")
+        layout = QVBoxLayout(tab)
+        layout.setContentsMargins(0, 10, 0, 0)
+        layout.setSpacing(16)
+        
+        # Current version card
+        version_card = QFrame()
+        version_card.setStyleSheet("""
+            QFrame {
+                background-color: #e8f5e9;
+                border: 1px solid #c8e6c9;
+                border-radius: 12px;
+                padding: 20px;
+            }
+        """)
+        version_layout = QVBoxLayout(version_card)
+        
+        version_title = QLabel("✅ Current Version")
+        version_title.setStyleSheet("font-size: 16px; font-weight: bold; color: #2e7d32;")
+        version_layout.addWidget(version_title)
+        
+        from core.config_manager import ConfigManager
+        config = ConfigManager()
+        current_version = config.get('app.version', '1.0.0')
+        
+        version_label = QLabel(f"Water Balance Dashboard v{current_version}")
+        version_label.setStyleSheet("font-size: 18px; color: #1b5e20;")
+        version_layout.addWidget(version_label)
+        
+        layout.addWidget(version_card)
+        
+        # Updates list (from Supabase)
+        self.updates_scroll = QScrollArea()
+        self.updates_scroll.setWidgetResizable(True)
+        self.updates_scroll.setStyleSheet("""
+            QScrollArea { border: none; background-color: transparent; }
+        """)
+        
+        self.updates_container = QWidget()
+        self.updates_layout = QVBoxLayout(self.updates_container)
+        self.updates_layout.setContentsMargins(0, 0, 0, 0)
+        self.updates_layout.setSpacing(8)
+        
+        # Placeholder
+        placeholder = QLabel("No update information available.\nCheck back later for new features and improvements.")
+        placeholder.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        placeholder.setStyleSheet("color: #757575; font-size: 14px; padding: 40px;")
+        self.updates_layout.addWidget(placeholder)
+        self.updates_layout.addStretch()
+        
+        self.updates_scroll.setWidget(self.updates_container)
+        layout.addWidget(self.updates_scroll, 1)
+        
+        return tab
+        
+    def _create_feedback_tab(self) -> QWidget:
+        """Create feedback submission tab (FEEDBACK TAB)."""
+        tab = QWidget()
+        tab.setStyleSheet("background-color: transparent;")
+        layout = QVBoxLayout(tab)
+        layout.setContentsMargins(0, 10, 0, 0)
+        layout.setSpacing(16)
+        
+        # Feedback type selection
+        type_row = QHBoxLayout()
+        type_label = QLabel("Feedback Type:")
+        type_label.setStyleSheet("font-weight: bold; font-size: 14px;")
+        type_row.addWidget(type_label)
+        
+        self.feedback_type = QComboBox()
+        self.feedback_type.addItems(["🐛 Bug Report", "💡 Feature Request", "📝 General Feedback"])
+        self.feedback_type.setStyleSheet("""
+            QComboBox {
+                padding: 8px 12px;
+                border: 1px solid #e0e0e0;
+                border-radius: 6px;
+                background-color: white;
+                min-width: 200px;
+            }
+        """)
+        type_row.addWidget(self.feedback_type)
+        type_row.addStretch()
+        layout.addLayout(type_row)
+        
+        # Title input
+        title_label = QLabel("Title:")
+        title_label.setStyleSheet("font-weight: bold; font-size: 14px;")
+        layout.addWidget(title_label)
+        
+        self.feedback_title = QLineEdit()
+        self.feedback_title.setPlaceholderText("Brief summary of your feedback...")
+        self.feedback_title.setStyleSheet("""
+            QLineEdit {
+                padding: 10px 12px;
+                border: 1px solid #e0e0e0;
+                border-radius: 6px;
+                background-color: white;
+                font-size: 14px;
+            }
+            QLineEdit:focus {
+                border-color: #2196F3;
+            }
+        """)
+        layout.addWidget(self.feedback_title)
+        
+        # Description input
+        desc_label = QLabel("Description:")
+        desc_label.setStyleSheet("font-weight: bold; font-size: 14px;")
+        layout.addWidget(desc_label)
+        
+        self.feedback_body = QTextEdit()
+        self.feedback_body.setPlaceholderText("Please provide details about your feedback...\n\n• For bugs: Steps to reproduce, expected vs actual behavior\n• For features: Describe the feature and why it would be useful")
+        self.feedback_body.setStyleSheet("""
+            QTextEdit {
+                padding: 10px;
+                border: 1px solid #e0e0e0;
+                border-radius: 6px;
+                background-color: white;
+                font-size: 14px;
+            }
+            QTextEdit:focus {
+                border-color: #2196F3;
+            }
+        """)
+        self.feedback_body.setMinimumHeight(150)
+        layout.addWidget(self.feedback_body, 1)
+        
+        # Submit button
+        submit_row = QHBoxLayout()
+        submit_row.addStretch()
+        
+        self.submit_btn = QPushButton("📤 Submit Feedback")
+        self.submit_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                padding: 12px 24px;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #43A047;
+            }
+            QPushButton:disabled {
+                background-color: #bdbdbd;
+            }
+        """)
+        self.submit_btn.clicked.connect(self._submit_feedback)
+        submit_row.addWidget(self.submit_btn)
+        
+        layout.addLayout(submit_row)
+        
+        return tab
+        
+    def _load_notifications(self):
+        """Load notifications from service (DATA LOADING)."""
+        logger.info("Loading notifications...")
+        
+        # Clear existing notifications
+        while self.notifications_layout.count() > 1:  # Keep stretch
+            item = self.notifications_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+        
+        try:
+            from services.notification_service import get_notification_service
+            service = get_notification_service()
+            
+            # Get notifications from cache
+            notifications = service.get_cached_notifications()
+            
+            if not notifications:
+                # Show placeholder
+                placeholder = QLabel("No notifications yet.\nYou'll see important updates and messages here.")
+                placeholder.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                placeholder.setStyleSheet("color: #757575; font-size: 14px; padding: 40px;")
+                self.notifications_layout.insertWidget(0, placeholder)
+                return
+            
+            # Add notification cards
+            for notif in notifications:
+                card = MessageCard({
+                    'title': notif.get('title', 'Notification'),
+                    'body': notif.get('message', ''),
+                    'date': notif.get('created_at', '')[:10] if notif.get('created_at') else '',
+                    'type': notif.get('type', 'info'),
+                    'is_read': notif.get('is_read', True)
+                })
+                self.notifications_layout.insertWidget(self.notifications_layout.count() - 1, card)
+                
+            logger.info(f"Loaded {len(notifications)} notifications")
+            
+        except Exception as e:
+            logger.error(f"Failed to load notifications: {e}")
+            placeholder = QLabel(f"Failed to load notifications.\n{str(e)}")
+            placeholder.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            placeholder.setStyleSheet("color: #f44336; font-size: 14px; padding: 40px;")
+            self.notifications_layout.insertWidget(0, placeholder)
+            
+    @Slot()
+    def _submit_feedback(self):
+        """Submit feedback to Supabase (FEEDBACK SUBMISSION)."""
+        feedback_type = self.feedback_type.currentText()
+        title = self.feedback_title.text().strip()
+        body = self.feedback_body.toPlainText().strip()
+        
+        if not title:
+            QMessageBox.warning(self, "Missing Title", "Please enter a title for your feedback.")
+            return
+            
+        if not body:
+            QMessageBox.warning(self, "Missing Description", "Please describe your feedback.")
+            return
+        
+        # Map display text to type code
+        type_map = {
+            "🐛 Bug Report": "bug",
+            "💡 Feature Request": "feature",
+            "📝 General Feedback": "feedback"
+        }
+        feedback_code = type_map.get(feedback_type, "feedback")
+        
+        self.submit_btn.setEnabled(False)
+        self.submit_btn.setText("Submitting...")
+        
+        try:
+            from services.feedback_service import get_feedback_service
+            service = get_feedback_service()
+            
+            success = service.submit_feedback(
+                feedback_type=feedback_code,
+                title=title,
+                description=body
+            )
+            
+            if success:
+                QMessageBox.information(
+                    self, 
+                    "Feedback Submitted",
+                    "Thank you for your feedback! We appreciate you taking the time to help improve the application."
+                )
+                self.feedback_title.clear()
+                self.feedback_body.clear()
+                self.feedback_type.setCurrentIndex(0)
+            else:
+                QMessageBox.warning(
+                    self,
+                    "Submission Failed",
+                    "Failed to submit feedback. Please check your internet connection and try again."
+                )
+                
+        except Exception as e:
+            logger.error(f"Failed to submit feedback: {e}")
+            QMessageBox.critical(
+                self,
+                "Error",
+                f"An error occurred while submitting feedback:\n{str(e)}"
+            )
+        finally:
+            self.submit_btn.setEnabled(True)
+            self.submit_btn.setText("📤 Submit Feedback")
+            
+    def refresh(self):
+        """Refresh the messages page (PUBLIC REFRESH METHOD)."""
+        self._load_notifications()

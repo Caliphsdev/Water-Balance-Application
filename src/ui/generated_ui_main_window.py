@@ -142,11 +142,21 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_6.addItem(self.verticalSpacer_2)
 
+        self.message_iconandwords = QPushButton(self.icon_name)
+        self.message_iconandwords.setObjectName(u"message_iconandwords")
+        icon7 = QIcon()
+        icon7.addFile(u":/icons/message.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.message_iconandwords.setIcon(icon7)
+        self.message_iconandwords.setCheckable(True)
+        self.message_iconandwords.setAutoExclusive(True)
+
+        self.verticalLayout_6.addWidget(self.message_iconandwords)
+
         self.help_2 = QPushButton(self.icon_name)
         self.help_2.setObjectName(u"help_2")
-        icon7 = QIcon()
-        icon7.addFile(u":/icons/Help.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.help_2.setIcon(icon7)
+        icon8 = QIcon()
+        icon8.addFile(u":/icons/Help.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.help_2.setIcon(icon8)
         self.help_2.setCheckable(True)
         self.help_2.setAutoExclusive(True)
 
@@ -154,9 +164,9 @@ class Ui_MainWindow(object):
 
         self.about_2 = QPushButton(self.icon_name)
         self.about_2.setObjectName(u"about_2")
-        icon8 = QIcon()
-        icon8.addFile(u":/icons/About.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.about_2.setIcon(icon8)
+        icon9 = QIcon()
+        icon9.addFile(u":/icons/About.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.about_2.setIcon(icon9)
         self.about_2.setCheckable(True)
         self.about_2.setAutoExclusive(True)
 
@@ -164,9 +174,9 @@ class Ui_MainWindow(object):
 
         self.exit_2 = QPushButton(self.icon_name)
         self.exit_2.setObjectName(u"exit_2")
-        icon9 = QIcon()
-        icon9.addFile(u":/icons/Exit.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.exit_2.setIcon(icon9)
+        icon10 = QIcon()
+        icon10.addFile(u":/icons/Exit.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.exit_2.setIcon(icon10)
         self.exit_2.setCheckable(True)
         self.exit_2.setAutoExclusive(True)
 
@@ -208,9 +218,9 @@ class Ui_MainWindow(object):
         self.referesh_button.setStyleSheet(u"background-color:rgb(85, 170, 255);\n"
 "color:white;\n"
 "")
-        icon10 = QIcon()
-        icon10.addFile(u":/icons/refresh_icon.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.referesh_button.setIcon(icon10)
+        icon11 = QIcon()
+        icon11.addFile(u":/icons/refresh_icon.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.referesh_button.setIcon(icon11)
 
         self.horizontalLayout.addWidget(self.referesh_button)
 
@@ -302,9 +312,9 @@ class Ui_MainWindow(object):
         self.pushButton_19 = QPushButton(self.Header_Main)
         self.pushButton_19.setObjectName(u"pushButton_19")
         self.pushButton_19.setStyleSheet(u"border:none;")
-        icon11 = QIcon()
-        icon11.addFile(u":/icons/Burger_icon.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.pushButton_19.setIcon(icon11)
+        icon12 = QIcon()
+        icon12.addFile(u":/icons/Burger_icon.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.pushButton_19.setIcon(icon12)
         self.pushButton_19.setIconSize(QSize(35, 35))
         self.pushButton_19.setCheckable(True)
 
@@ -447,9 +457,17 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_3.addItem(self.verticalSpacer)
 
+        self.pushButton_messageicon = QPushButton(self.icon_only)
+        self.pushButton_messageicon.setObjectName(u"pushButton_messageicon")
+        self.pushButton_messageicon.setIcon(icon7)
+        self.pushButton_messageicon.setCheckable(True)
+        self.pushButton_messageicon.setAutoExclusive(True)
+
+        self.verticalLayout_3.addWidget(self.pushButton_messageicon)
+
         self.help_1 = QPushButton(self.icon_only)
         self.help_1.setObjectName(u"help_1")
-        self.help_1.setIcon(icon7)
+        self.help_1.setIcon(icon8)
         self.help_1.setCheckable(True)
         self.help_1.setAutoExclusive(True)
 
@@ -457,7 +475,7 @@ class Ui_MainWindow(object):
 
         self.about_1 = QPushButton(self.icon_only)
         self.about_1.setObjectName(u"about_1")
-        self.about_1.setIcon(icon8)
+        self.about_1.setIcon(icon9)
         self.about_1.setCheckable(True)
         self.about_1.setAutoExclusive(True)
 
@@ -469,7 +487,7 @@ class Ui_MainWindow(object):
 "	background-color: #2980b9;\n"
 "	font-weight: bold;\n"
 "}")
-        self.exit_1.setIcon(icon9)
+        self.exit_1.setIcon(icon10)
         self.exit_1.setCheckable(True)
         self.exit_1.setAutoExclusive(True)
 
@@ -508,6 +526,8 @@ class Ui_MainWindow(object):
         self.calculations_2.toggled.connect(self.calculations_1.setChecked)
         self.exit_1.toggled.connect(MainWindow.close)
         self.exit_2.toggled.connect(MainWindow.close)
+        self.pushButton_messageicon.toggled.connect(self.message_iconandwords.setChecked)
+        self.message_iconandwords.toggled.connect(self.pushButton_messageicon.setChecked)
 
         QMetaObject.connectSlotsByName(MainWindow)
     # setupUi
@@ -521,6 +541,7 @@ class Ui_MainWindow(object):
         self.calculations_2.setText(QCoreApplication.translate("MainWindow", u"Calculations", None))
         self.flow_diagram_2.setText(QCoreApplication.translate("MainWindow", u"Flow Diagram   ", None))
         self.settings_2.setText(QCoreApplication.translate("MainWindow", u"Settings", None))
+        self.message_iconandwords.setText(QCoreApplication.translate("MainWindow", u"messages", None))
         self.help_2.setText(QCoreApplication.translate("MainWindow", u"Help", None))
         self.about_2.setText(QCoreApplication.translate("MainWindow", u"About", None))
         self.exit_2.setText(QCoreApplication.translate("MainWindow", u"Exit", None))
@@ -544,6 +565,7 @@ class Ui_MainWindow(object):
         self.calculations_1.setText("")
         self.flow_diagram_1.setText("")
         self.settings_1.setText("")
+        self.pushButton_messageicon.setText("")
         self.help_1.setText("")
         self.about_1.setText("")
         self.exit_1.setText("")

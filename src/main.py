@@ -20,6 +20,56 @@ from ui.components.splash_screen import SplashScreen
 from ui.main_window import MainWindow
 from core.app_logger import logger
 
+
+def check_license(app: QApplication, splash: SplashScreen) -> bool:
+    """
+    Check license validity on startup.
+    
+    Returns True if license is valid, False if app should exit.
+    Shows activation dialog if not activated.
+    Shows blocked dialog if license is expired/revoked.
+    """
+    try:
+        from ui.dialogs.license_dialog import check_license_or_activate
+        
+        splash.update_status("Checking license...", 10)
+        app.processEvents()
+        
+        # Hide splash during license dialogs
+        splash.hide()
+        
+        # Check license and show dialogs if needed
+        result = check_license_or_activate(None)
+        
+        if result:
+            splash.show()
+            logger.info("License check passed")
+            return True
+        else:
+            return False
+            
+    except ImportError:
+        # License modules not available - skip check (dev mode)
+        logger.warning("License modules not available, skipping license check")
+        return True
+    except Exception as e:
+        logger.error(f"License check error: {e}")
+        # On error, allow app to run (graceful degradation)
+        return True
+def start_background_services() -> None:
+    """Start background services after main window is shown."""
+    try:
+        # Start notification sync (uses QTimer internally)
+        from services.notification_service import get_notification_service
+        service = get_notification_service()
+        service.start_background_sync()
+        logger.info("Notification background sync scheduled")
+    except ImportError:
+        pass
+    except Exception as e:
+        logger.error(f"Failed to start background services: {e}")
+
+
 def main():
     """Bootstrap PySide6 Water Balance Application.
     
@@ -27,14 +77,28 @@ def main():
     Creates QApplication instance and shows main window when ready.
     Exits with application return code.
     """
+    # Install global exception hook
+    import sys
+    def excepthook(exc_type, exc_value, exc_tb):
+        import traceback
+        print("[EXCEPTION] Uncaught exception:", flush=True)
+        traceback.print_exception(exc_type, exc_value, exc_tb)
+    sys.excepthook = excepthook
+    
     app = QApplication(sys.argv)
     app.setApplicationName("Water Balance Dashboard")
     app.setOrganizationName("Two Rivers Platinum")
+    
     
     # Show splash screen immediately
     splash = SplashScreen()
     splash.show()
     app.processEvents()  # Force splash to render
+    
+    # Check license before loading main app
+    if not check_license(app, splash):
+        logger.info("License check failed, exiting")
+        sys.exit(1)
     
     # Create main window in background (loads pages, db, etc.)
     splash.update_status("Loading database...", 20)
@@ -44,10 +108,23 @@ def main():
     
     # Close splash and show main window after short delay
     def finish_loading():
+        """Close splash screen and display main window."""
         splash.update_status("Ready!", 100)
-        QTimer.singleShot(300, lambda: (splash.finish(), window.show()))
+        def show_window():
+            splash.finish()
+            window.show()
+            window.raise_()
+            window.activateWindow()
+        QTimer.singleShot(300, show_window)
+        # Start background services after window is shown
+        QTimer.singleShot(1000, start_background_services)
     
-    QTimer.singleShot(100, finish_loading)
+    # IMPORTANT: Store reference to timer to prevent garbage collection
+    # Give timer a parent (app) for proper Qt object lifecycle
+    finish_timer = QTimer(app)
+    finish_timer.setSingleShot(True)
+    finish_timer.timeout.connect(finish_loading)
+    finish_timer.start(100)
     
     # Run application and capture exit code
     exit_code = app.exec()

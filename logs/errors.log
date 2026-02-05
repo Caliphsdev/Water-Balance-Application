@@ -22,3 +22,7 @@
 2026-02-03 12:03:53 | ERROR    | water_balance.errors | error:427 | Column 'NonExistent' not found in sheet 'Flows_Test'
 2026-02-03 12:03:53 | ERROR    | water_balance.errors | error:427 | Column 'NonExistent' not found in sheet 'Flows_Test'
 2026-02-03 12:03:53 | ERROR    | water_balance.errors | error:427 | Column 'Sump_to_Plant' already exists in sheet 'Flows_Test'
+2026-02-05 00:21:40 | ERROR    | water_balance.errors | error:427 | Failed to setup system tray: 'PySide6.QtWidgets.QSystemTrayIcon' object has no attribute 'style'
+2026-02-05 01:16:39 | ERROR    | water_balance.errors | error:427 | Failed to load notifications: 'NotificationService' object has no attribute 'get_cached_notifications'
+2026-02-05 01:38:30 | ERROR    | water_balance.errors | error:427 | Failed to load notifications: 'NotificationService' object has no attribute 'get_cached_notifications'
+2026-02-05 03:20:20 | ERROR    | water_balance.errors | error:427 | Failed to handle notification click: Internal C++ object (PySide6.QtWidgets.QLabel) already deleted.

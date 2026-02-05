@@ -38,7 +38,7 @@ class DatabaseSchema:
     DB_PATH = Path(__file__).parent.parent.parent / "data" / "water_balance.db"
     
     # Schema version (bump on any table/column changes)
-    SCHEMA_VERSION = 6  # Added storage_history table
+    SCHEMA_VERSION = 7  # Added license_cache and notifications_cache tables
     
     def __init__(self, db_path: Optional[Path] = None):
         """Initialize schema manager (CONSTRUCTOR).
@@ -84,6 +84,8 @@ class DatabaseSchema:
             self._create_environmental_audit_table(conn)
             self._create_storage_history_table(conn)
             self._create_facility_transfers_table(conn)
+            self._create_license_cache_table(conn)
+            self._create_notifications_cache_table(conn)
             # Future: _create_measurements_table, etc.
             conn.commit()
         except sqlite3.Error as e:
@@ -440,6 +442,98 @@ class DatabaseSchema:
         conn.execute("CREATE INDEX IF NOT EXISTS idx_transfers_dest ON facility_transfers(dest_facility_code)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_transfers_year_month ON facility_transfers(year, month)")
 
+    def _create_license_cache_table(self, conn: sqlite3.Connection) -> None:
+        """Create license_cache table (LOCAL LICENSE STATE STORAGE).
+        
+        Table purpose:
+        - Caches license validation state locally
+        - Stores offline token for validation when server unavailable
+        - Tracks last online refresh time
+        - Enables strict blocking when license expired offline
+        
+        Table structure:
+        - id: PRIMARY KEY (always 1, singleton record)
+        - license_key: TEXT (the activated license key)
+        - hwid: TEXT (hardware ID bound to license)
+        - tier: TEXT (developer, premium, standard, free_trial)
+        - offline_token: TEXT (signed JWT for offline validation)
+        - token_expires_at: TEXT (ISO timestamp when token expires)
+        - last_refresh: TEXT (ISO timestamp of last online refresh)
+        - status: TEXT (active, expired, revoked)
+        - activated_at: TEXT (ISO timestamp of activation)
+        - created_at: Timestamp
+        - updated_at: Timestamp
+        
+        Single record: Only one license per installation
+        """
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS license_cache (
+                id INTEGER PRIMARY KEY CHECK(id = 1),
+                license_key TEXT NOT NULL,
+                hwid TEXT NOT NULL,
+                tier TEXT NOT NULL CHECK(tier IN ('developer', 'premium', 'standard', 'free_trial')),
+                offline_token TEXT NOT NULL,
+                token_expires_at TEXT NOT NULL,
+                last_refresh TEXT NOT NULL,
+                status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active', 'expired', 'revoked')),
+                activated_at TEXT NOT NULL,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        
+        # Index for quick status checks
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_license_status ON license_cache(status)")
+
+    def _create_notifications_cache_table(self, conn: sqlite3.Connection) -> None:
+        """Create notifications_cache table (LOCAL NOTIFICATION STORAGE).
+        
+        Table purpose:
+        - Caches notifications for offline viewing
+        - Tracks read status per notification
+        - Enables instant UI display without network call
+        - Syncs with Supabase when online
+        
+        Table structure:
+        - id: TEXT PRIMARY KEY (UUID from Supabase)
+        - type: TEXT (update, announcement, alert, maintenance)
+        - title: TEXT NOT NULL
+        - body: TEXT NOT NULL
+        - target_tiers: TEXT (JSON array of tier names)
+        - action_url: TEXT (optional URL for click action)
+        - published_at: TEXT (ISO timestamp)
+        - expires_at: TEXT (ISO timestamp, optional)
+        - is_read: INTEGER (0 or 1)
+        - read_at: TEXT (ISO timestamp when marked read)
+        - synced_at: TEXT (last sync from server)
+        - created_at: Timestamp
+        
+        Indexes:
+        - Primary lookup by type and read status
+        - Time-based queries for display order
+        """
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS notifications_cache (
+                id TEXT PRIMARY KEY,
+                type TEXT NOT NULL CHECK(type IN ('update', 'announcement', 'alert', 'maintenance')),
+                title TEXT NOT NULL,
+                body TEXT NOT NULL,
+                target_tiers TEXT,
+                action_url TEXT,
+                published_at TEXT NOT NULL,
+                expires_at TEXT,
+                is_read INTEGER NOT NULL DEFAULT 0 CHECK(is_read IN (0, 1)),
+                read_at TEXT,
+                synced_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        
+        # Indexes for fast lookups
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_notif_type ON notifications_cache(type)")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_notif_read ON notifications_cache(is_read)")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_notif_published ON notifications_cache(published_at)")
+
     def ensure_monthly_parameters_table(self) -> None:
         """Ensure monthly parameters table exists (SAFE SCHEMA UPDATE).
         
@@ -522,6 +616,59 @@ class DatabaseSchema:
         finally:
             conn.close()
     
+    def ensure_license_cache_table(self) -> None:
+        """Ensure license_cache table exists (SAFE SCHEMA UPDATE).
+        
+        Safe to call on existing databases:
+        - Creates license_cache table if missing
+        - Used for offline license validation
+        
+        Why needed:
+        - Existing DBs created before licensing feature don't have this table
+        - Stores offline token for strict blocking when server unavailable
+        
+        Used by: LicenseService on startup and after activation
+        """
+        conn = sqlite3.connect(str(self.db_path))
+        try:
+            self._set_pragmas(conn)
+            self._create_license_cache_table(conn)
+            conn.commit()
+            logger.info("Ensured license_cache table exists")
+        except sqlite3.Error as e:
+            logger.error(f"Failed to create license_cache table: {e}")
+            conn.rollback()
+            raise
+        finally:
+            conn.close()
+    
+    def ensure_notifications_cache_table(self) -> None:
+        """Ensure notifications_cache table exists (SAFE SCHEMA UPDATE).
+        
+        Safe to call on existing databases:
+        - Creates notifications_cache table if missing
+        - Used for offline notification viewing
+        
+        Why needed:
+        - Existing DBs created before notifications feature don't have this table
+        - Enables instant UI display without network call
+        - Syncs with Supabase when online
+        
+        Used by: NotificationService on startup and during sync
+        """
+        conn = sqlite3.connect(str(self.db_path))
+        try:
+            self._set_pragmas(conn)
+            self._create_notifications_cache_table(conn)
+            conn.commit()
+            logger.info("Ensured notifications_cache table exists")
+        except sqlite3.Error as e:
+            logger.error(f"Failed to create notifications_cache table: {e}")
+            conn.rollback()
+            raise
+        finally:
+            conn.close()
+
     def ensure_is_lined_column(self) -> None:
         """Ensure is_lined column exists in storage_facilities table (SAFE SCHEMA UPGRADE).
         

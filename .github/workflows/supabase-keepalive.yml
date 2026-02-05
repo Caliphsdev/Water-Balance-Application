@@ -1,0 +1,38 @@
+# Supabase Keep-Alive Workflow
+# Prevents Supabase free tier from pausing after 7 days of inactivity
+# Runs daily at midnight UTC to ping the database
+
+name: Supabase Keep-Alive
+
+on:
+  schedule:
+    # Run daily at midnight UTC
+    - cron: '0 0 * * *'
+  # Allow manual trigger for testing
+  workflow_dispatch:
+
+jobs:
+  ping:
+    name: Ping Supabase Database
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Heartbeat Query
+        run: |
+          echo "Pinging Supabase to prevent free tier pause..."
+          
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/licenses?select=count" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}")
+          
+          if [ "$RESPONSE" = "200" ]; then
+            echo "✅ Supabase ping successful (HTTP $RESPONSE)"
+          else
+            echo "⚠️ Supabase ping returned HTTP $RESPONSE"
+            exit 1
+          fi
+      
+      - name: Log Timestamp
+        run: |
+          echo "Keep-alive completed at $(date -u '+%Y-%m-%d %H:%M:%S UTC')"

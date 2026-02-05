@@ -475,7 +475,9 @@ class ExcelManager:
                 f"{len(df)} rows, {len(df.columns)} columns"
             )
             # EXCEL OPERATIONS LOGGING: Track detailed sheet info
-            logger.debug(f"Flow columns: {', '.join([c for c in df.columns if c not in ['Date', 'Year', 'Month']][:10])}...")
+            # Sanitize column names for Windows cp1252 console (replace → with ->)
+            safe_cols = [c.replace('→', '->') for c in df.columns if c not in ['Date', 'Year', 'Month']][:10]
+            logger.debug(f"Flow columns: {', '.join(safe_cols)}...")
             return df
         except Exception as exc:
             logger.error(f"Failed to load flow sheet '{sheet_name}': {exc}")
