@@ -9,6 +9,7 @@ Features: Professional cards, delete functionality, notification badge, styled t
 from __future__ import annotations
 
 import sys
+import threading
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
@@ -17,8 +18,8 @@ from PySide6.QtWidgets import (
     QScrollArea, QFrame, QStackedWidget, QComboBox, QLineEdit,
     QTextEdit, QMessageBox, QGraphicsDropShadowEffect, QSizePolicy
 )
-from PySide6.QtCore import Qt, QTimer, Signal, QPropertyAnimation, QEasingCurve
-from PySide6.QtGui import QIcon, QFont, QColor
+from PySide6.QtCore import Qt, QTimer, Signal, QPropertyAnimation, QEasingCurve, QUrl
+from PySide6.QtGui import QIcon, QFont, QColor, QDesktopServices
 
 from core.app_logger import logger
 
@@ -698,6 +699,20 @@ class MessagesPage(QWidget):
         layout.setContentsMargins(0, 12, 0, 0)
         layout.setSpacing(10)
         
+        self.update_toast_label = QLabel("Update found")
+        self.update_toast_label.setVisible(False)
+        self.update_toast_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.update_toast_label.setFont(QFont('Segoe UI', 11, QFont.Weight.DemiBold))
+        self.update_toast_label.setStyleSheet("""
+            QLabel {
+                background-color: #1f2937;
+                color: #f9fafb;
+                padding: 8px 12px;
+                border-radius: 6px;
+            }
+        """)
+        layout.addWidget(self.update_toast_label)
+
         # Current version card
         version_card = QFrame()
         version_card.setObjectName("versionCard")
@@ -726,12 +741,32 @@ class MessagesPage(QWidget):
         version_layout.addWidget(version_label)
         
         layout.addWidget(version_card)
+
+        controls_layout = QHBoxLayout()
+        controls_layout.setContentsMargins(0, 6, 0, 0)
+        controls_layout.setSpacing(10)
+
+        self.update_check_button = QPushButton("Check for updates")
+        self.update_check_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.update_check_button.setFixedHeight(34)
+        self.update_check_button.clicked.connect(self._on_check_updates_clicked)
+        controls_layout.addWidget(self.update_check_button)
+
+        self.update_download_button = QPushButton("Download update")
+        self.update_download_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.update_download_button.setFixedHeight(34)
+        self.update_download_button.setVisible(False)
+        self.update_download_button.clicked.connect(self._open_update_download)
+        controls_layout.addWidget(self.update_download_button)
+
+        controls_layout.addStretch()
+        layout.addLayout(controls_layout)
         
         # Updates placeholder
-        placeholder = QLabel("🔍 No updates available")
-        placeholder.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        placeholder.setFont(QFont('Segoe UI', 13))
-        placeholder.setStyleSheet("""
+        self.update_status_label = QLabel("🔍 No updates available")
+        self.update_status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.update_status_label.setFont(QFont('Segoe UI', 13))
+        self.update_status_label.setStyleSheet("""
             QLabel {
                 color: #6e7781;
                 padding: 60px 20px;
@@ -739,9 +774,89 @@ class MessagesPage(QWidget):
                 border-radius: 8px;
             }
         """)
-        layout.addWidget(placeholder, 1)
+        layout.addWidget(self.update_status_label, 1)
+
+        self._pending_update_url = None
+        self._update_toast_timer = QTimer(self)
+        self._update_toast_timer.setSingleShot(True)
+        self._update_toast_timer.timeout.connect(self.update_toast_label.hide)
         
         return tab
+
+    def _on_check_updates_clicked(self) -> None:
+        """Run an on-demand update check and report results in the Updates tab."""
+        if hasattr(self, "update_check_button"):
+            self.update_check_button.setEnabled(False)
+        if hasattr(self, "update_status_label"):
+            self.update_status_label.setText("Checking for updates...")
+        if hasattr(self, "update_download_button"):
+            self.update_download_button.setVisible(False)
+        self._pending_update_url = None
+
+        def _worker():
+            try:
+                from services.update_service import get_update_service
+                update = get_update_service().check_for_updates(force=True)
+                QTimer.singleShot(0, lambda: self._on_update_check_finished(update))
+            except Exception as exc:
+                QTimer.singleShot(0, lambda: self._on_update_check_error(str(exc)))
+
+        threading.Thread(target=_worker, daemon=True).start()
+
+    def _on_update_check_finished(self, update_info) -> None:
+        """Handle update check completion and refresh UI state."""
+        if update_info:
+            size_text = ""
+            if update_info.file_size_mb:
+                size_text = f" ({update_info.file_size_mb} MB)"
+            self.update_status_label.setText(
+                f"Update available: v{update_info.version}{size_text}"
+            )
+            self._pending_update_url = update_info.download_url
+            self.update_download_button.setVisible(True)
+            self._show_update_toast(f"Update available: v{update_info.version}")
+        else:
+            self.update_status_label.setText("🔍 No updates available")
+
+        self.update_check_button.setEnabled(True)
+
+    def _on_update_check_error(self, error_message: str) -> None:
+        """Handle update check errors and restore UI state."""
+        logger.warning("Update check failed: %s", error_message)
+        self.update_status_label.setText("Update check failed. Try again.")
+        self._show_update_toast("Update check failed", is_error=True)
+        self.update_check_button.setEnabled(True)
+
+    def _open_update_download(self) -> None:
+        """Open the download link for the available update."""
+        if not self._pending_update_url:
+            return
+        QDesktopServices.openUrl(QUrl(self._pending_update_url))
+
+    def _show_update_toast(self, message: str, is_error: bool = False) -> None:
+        """Show a transient toast-like notice in the Updates tab."""
+        if is_error:
+            self.update_toast_label.setStyleSheet("""
+                QLabel {
+                    background-color: #b91c1c;
+                    color: #fff7ed;
+                    padding: 8px 12px;
+                    border-radius: 6px;
+                }
+            """)
+        else:
+            self.update_toast_label.setStyleSheet("""
+                QLabel {
+                    background-color: #1f2937;
+                    color: #f9fafb;
+                    padding: 8px 12px;
+                    border-radius: 6px;
+                }
+            """)
+
+        self.update_toast_label.setText(message)
+        self.update_toast_label.setVisible(True)
+        self._update_toast_timer.start(4000)
         
     def _create_feedback_tab(self) -> QWidget:
         """Create feedback submission tab with professional form (FEEDBACK TAB)."""

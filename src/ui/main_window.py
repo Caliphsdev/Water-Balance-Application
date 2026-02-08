@@ -14,9 +14,11 @@ Notes:
 """
 from __future__ import annotations
 
-from PySide6.QtWidgets import QMainWindow, QVBoxLayout, QLabel, QPushButton, QHBoxLayout, QWidget
-from PySide6.QtCore import Slot, QSize, QPropertyAnimation, QEasingCurve, QTimer
-from PySide6.QtGui import QIcon, QPixmap, QGuiApplication
+import threading
+
+from PySide6.QtWidgets import QMainWindow, QVBoxLayout, QLabel, QPushButton, QHBoxLayout, QWidget, QMessageBox
+from PySide6.QtCore import Slot, QSize, QPropertyAnimation, QEasingCurve, QTimer, QUrl
+from PySide6.QtGui import QIcon, QPixmap, QGuiApplication, QDesktopServices
 
 # Register compiled Qt resources (icons, images, fonts)
 import ui.resources.resources_rc  # noqa: F401
@@ -71,9 +73,53 @@ class MainWindow(QMainWindow):
         self._setup_notification_drawer()
         self._setup_status_bar()  # Setup status bar with license/network info
         self._set_default_page()  # Set Dashboard as the startup page
+        QTimer.singleShot(1500, self._check_for_updates)
         
         # Enable resize event handling for responsive layout updates
         self.setWindowFlags(self.windowFlags())  # Ensure resize events are enabled
+
+    def _check_for_updates(self) -> None:
+        """Check for app updates in the background and prompt if available."""
+        def _worker():
+            try:
+                from services.update_service import get_update_service
+                from services.license_service import get_license_service
+
+                service = get_update_service()
+                update = service.check_for_updates(force=True)
+                if not update:
+                    status = get_license_service().get_status()
+                    if not status.is_valid or not status.tier:
+                        QTimer.singleShot(5000, self._check_for_updates)
+                    return
+
+                QTimer.singleShot(0, lambda: self._show_update_dialog(update))
+            except Exception as exc:
+                logger.warning("Update check failed: %s", exc)
+
+        threading.Thread(target=_worker, daemon=True).start()
+
+    def _show_update_dialog(self, update_info) -> None:
+        """Prompt the user to download the available update."""
+        title = "Update Available"
+        details = [f"Version: {update_info.version}"]
+        if update_info.file_size_mb:
+            details.append(f"Size: {update_info.file_size_mb} MB")
+        if update_info.release_notes:
+            details.append(f"Notes: {update_info.release_notes}")
+
+        message = "\n".join(details)
+        box = QMessageBox(self)
+        box.setIcon(QMessageBox.Icon.Information)
+        box.setWindowTitle(title)
+        box.setText("A new update is available.")
+        box.setInformativeText(message)
+        download_button = box.addButton("Download", QMessageBox.ButtonRole.AcceptRole)
+        box.addButton("Later", QMessageBox.ButtonRole.RejectRole)
+        box.exec()
+
+        if box.clickedButton() == download_button:
+            QDesktopServices.openUrl(QUrl(update_info.download_url))
 
     def _connect_navigation(self) -> None:
         """Wire sidebar buttons to stacked widget pages.
