@@ -19,4 +19,10 @@ Thumbs.db
 build/
 dist/
 scripts/packaging/dist/
+scripts/packaging/build/
+scripts/packaging/*.msi
+scripts/packaging/*.zip
+scripts/packaging/*.7z
+scripts/packaging/*.pkg
+scripts/packaging/*.log
 *.exe
