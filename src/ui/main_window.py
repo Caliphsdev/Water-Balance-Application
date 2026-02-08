@@ -429,13 +429,13 @@ class MainWindow(QMainWindow):
                 try:
                     if is_online:
                         icon = QIcon(":/icons/network-wireless-svgrepo-com.svg")
-                        logger.debug(f"Network icon isNull={icon.isNull()}, sizes={icon.availableSizes()}")
+                        logger.debug(
+                            f"Network icon isNull={icon.isNull()}, sizes={icon.availableSizes()}"
+                        )
                         network_pixmap = icon.pixmap(16, 16)
                         logger.debug(
-                            "Network pixmap isNull=%s width=%s height=%s",
-                            network_pixmap.isNull(),
-                            network_pixmap.width(),
-                            network_pixmap.height(),
+                            f"Network pixmap isNull={network_pixmap.isNull()} "
+                            f"width={network_pixmap.width()} height={network_pixmap.height()}"
                         )
                         
                         if not network_pixmap.isNull():

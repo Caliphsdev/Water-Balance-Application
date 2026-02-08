@@ -13,7 +13,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
+    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QToolButton,
     QScrollArea, QFrame, QStackedWidget, QComboBox, QLineEdit,
     QTextEdit, QMessageBox, QGraphicsDropShadowEffect, QSizePolicy
 )
@@ -447,6 +447,13 @@ class MessagesPage(QWidget):
             QWidget#messagesPage {
                 background-color: #f6f8fa;
             }
+            QToolTip {
+                background-color: #111827;
+                color: #f8fafc;
+                border: 1px solid #334155;
+                padding: 8px 10px;
+                border-radius: 6px;
+            }
         """)
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(24, 24, 24, 24)
@@ -688,8 +695,8 @@ class MessagesPage(QWidget):
         """Create updates info tab with professional styling (UPDATES TAB)."""
         tab = QWidget()
         layout = QVBoxLayout(tab)
-        layout.setContentsMargins(0, 16, 0, 0)
-        layout.setSpacing(16)
+        layout.setContentsMargins(0, 12, 0, 0)
+        layout.setSpacing(10)
         
         # Current version card
         version_card = QFrame()
@@ -750,32 +757,50 @@ class MessagesPage(QWidget):
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
                                             stop:0 #0f172a, stop:1 #1e293b);
                 border-radius: 10px;
-                padding: 18px 22px;
+                padding: 10px 14px;
             }
         """)
         header_layout = QHBoxLayout(header_card)
-        header_layout.setContentsMargins(20, 16, 20, 16)
+        header_layout.setContentsMargins(14, 10, 14, 10)
 
         header_stack = QVBoxLayout()
         header_stack.setSpacing(4)
-        header_title = QLabel("Feedback & Requests")
-        header_title.setFont(QFont('Segoe UI Variable', 18, QFont.Weight.DemiBold))
+        header_title = QLabel("Feedback")
+        header_title.setFont(QFont('Segoe UI Variable', 14, QFont.Weight.DemiBold))
         header_title.setStyleSheet("color: #f8fafc;")
         header_stack.addWidget(header_title)
 
-        header_subtitle = QLabel("Help us improve Water Balance with clear, actionable feedback.")
-        header_subtitle.setFont(QFont('Segoe UI', 11))
+        header_subtitle = QLabel("Quick summary and details.")
+        header_subtitle.setFont(QFont('Segoe UI', 9))
         header_subtitle.setStyleSheet("color: #cbd5f5;")
         header_stack.addWidget(header_subtitle)
         header_layout.addLayout(header_stack)
         header_layout.addStretch()
 
-        header_note = QLabel("Typical response: 1-2 business days")
-        header_note.setFont(QFont('Segoe UI', 10, QFont.Weight.DemiBold))
+        header_note = QLabel("Response: 1-2 days")
+        header_note.setFont(QFont('Segoe UI', 8, QFont.Weight.DemiBold))
         header_note.setStyleSheet(
-            "color: #e2e8f0; border: 1px solid #475569; padding: 6px 10px; border-radius: 6px;"
+            "color: #e2e8f0; border: 1px solid #475569; padding: 4px 8px; border-radius: 6px;"
         )
         header_layout.addWidget(header_note)
+
+        help_button = QToolButton()
+        help_button.setText("?")
+        help_button.setToolTipDuration(8000)
+        help_button.setToolTip(
+            "<b>Feedback tips</b><br>"
+            "• What you expected<br>"
+            "• What actually happened<br>"
+            "• Steps to reproduce"
+        )
+        help_button.setStyleSheet(
+            "QToolButton {"
+            "color: #cbd5f5; background-color: transparent;"
+            "border: 1px solid #475569; border-radius: 10px; min-width: 20px;"
+            "}"
+            "QToolButton:hover { border-color: #93c5fd; color: #e2e8f0; }"
+        )
+        header_layout.addWidget(help_button)
 
         layout.addWidget(header_card)
 
@@ -790,21 +815,21 @@ class MessagesPage(QWidget):
                 background-color: white;
                 border: 1px solid #d0d7de;
                 border-radius: 8px;
-                padding: 24px;
+                padding: 14px;
             }
         """)
         form_layout = QVBoxLayout(form_card)
-        form_layout.setSpacing(16)
+        form_layout.setSpacing(10)
         
         # Feedback type
-        type_label = QLabel("Feedback Type")
-        type_label.setFont(QFont('Segoe UI', 11, QFont.Weight.DemiBold))
+        type_label = QLabel("Type")
+        type_label.setFont(QFont('Segoe UI', 9, QFont.Weight.DemiBold))
         form_layout.addWidget(type_label)
         
         self.feedback_type = QComboBox()
         self.feedback_type.addItems(["🐛 Bug Report", "💡 Feature Request", "📝 General Feedback"])
-        self.feedback_type.setFont(QFont('Segoe UI', 11))
-        self.feedback_type.setFixedHeight(36)
+        self.feedback_type.setFont(QFont('Segoe UI', 10))
+        self.feedback_type.setFixedHeight(30)
         self.feedback_type.setStyleSheet("""
             QComboBox {
                 padding: 8px 12px;
@@ -821,28 +846,24 @@ class MessagesPage(QWidget):
         """)
         form_layout.addWidget(self.feedback_type)
 
-        type_hint = QLabel("Choose the category that best matches your request.")
-        type_hint.setFont(QFont('Segoe UI', 9))
-        type_hint.setStyleSheet("color: #6e7781;")
-        form_layout.addWidget(type_hint)
-
         # Contact row
         contact_title = QLabel("Contact (optional)")
-        contact_title.setFont(QFont('Segoe UI', 11, QFont.Weight.DemiBold))
+        contact_title.setFont(QFont('Segoe UI', 9, QFont.Weight.DemiBold))
         form_layout.addWidget(contact_title)
 
         contact_row = QHBoxLayout()
         contact_row.setSpacing(12)
 
         name_col = QVBoxLayout()
-        name_label = QLabel("Customer Name")
-        name_label.setFont(QFont('Segoe UI', 10, QFont.Weight.DemiBold))
+        name_label = QLabel("Name")
+        name_label.setFont(QFont('Segoe UI', 8, QFont.Weight.DemiBold))
+        name_label.setStyleSheet("color: #475569;")
         name_col.addWidget(name_label)
 
         self.feedback_name = QLineEdit()
         self.feedback_name.setPlaceholderText("Your name or company")
-        self.feedback_name.setFont(QFont('Segoe UI', 11))
-        self.feedback_name.setFixedHeight(36)
+        self.feedback_name.setFont(QFont('Segoe UI', 9))
+        self.feedback_name.setFixedHeight(28)
         self.feedback_name.setStyleSheet("""
             QLineEdit {
                 padding: 8px 12px;
@@ -858,14 +879,15 @@ class MessagesPage(QWidget):
         name_col.addWidget(self.feedback_name)
 
         email_col = QVBoxLayout()
-        email_label = QLabel("Email (optional)")
-        email_label.setFont(QFont('Segoe UI', 10, QFont.Weight.DemiBold))
+        email_label = QLabel("Email")
+        email_label.setFont(QFont('Segoe UI', 8, QFont.Weight.DemiBold))
+        email_label.setStyleSheet("color: #475569;")
         email_col.addWidget(email_label)
 
         self.feedback_email = QLineEdit()
         self.feedback_email.setPlaceholderText("you@example.com")
-        self.feedback_email.setFont(QFont('Segoe UI', 11))
-        self.feedback_email.setFixedHeight(36)
+        self.feedback_email.setFont(QFont('Segoe UI', 9))
+        self.feedback_email.setFixedHeight(28)
         self.feedback_email.setStyleSheet("""
             QLineEdit {
                 padding: 8px 12px;
@@ -884,20 +906,15 @@ class MessagesPage(QWidget):
         contact_row.addLayout(email_col, 1)
         form_layout.addLayout(contact_row)
 
-        contact_hint = QLabel("Include an email if you want updates or follow-ups.")
-        contact_hint.setFont(QFont('Segoe UI', 9))
-        contact_hint.setStyleSheet("color: #6e7781;")
-        form_layout.addWidget(contact_hint)
-        
         # Title
         title_label = QLabel("Title")
-        title_label.setFont(QFont('Segoe UI', 11, QFont.Weight.DemiBold))
+        title_label.setFont(QFont('Segoe UI', 9, QFont.Weight.DemiBold))
         form_layout.addWidget(title_label)
         
         self.feedback_title = QLineEdit()
         self.feedback_title.setPlaceholderText("Brief summary of your feedback...")
-        self.feedback_title.setFont(QFont('Segoe UI', 11))
-        self.feedback_title.setFixedHeight(36)
+        self.feedback_title.setFont(QFont('Segoe UI', 9))
+        self.feedback_title.setFixedHeight(28)
         self.feedback_title.setStyleSheet("""
             QLineEdit {
                 padding: 8px 12px;
@@ -912,14 +929,9 @@ class MessagesPage(QWidget):
         """)
         form_layout.addWidget(self.feedback_title)
 
-        title_hint = QLabel("Keep it short. Example: \"Flow chart export freezes\"")
-        title_hint.setFont(QFont('Segoe UI', 9))
-        title_hint.setStyleSheet("color: #6e7781;")
-        form_layout.addWidget(title_hint)
-        
         # Description
         desc_label = QLabel("Description")
-        desc_label.setFont(QFont('Segoe UI', 11, QFont.Weight.DemiBold))
+        desc_label.setFont(QFont('Segoe UI', 9, QFont.Weight.DemiBold))
         form_layout.addWidget(desc_label)
         
         self.feedback_body = QTextEdit()
@@ -928,8 +940,8 @@ class MessagesPage(QWidget):
             "• For bugs: Steps to reproduce, expected vs actual behavior\n"
             "• For features: Describe the feature and why it would be useful"
         )
-        self.feedback_body.setFont(QFont('Segoe UI', 11))
-        self.feedback_body.setMinimumHeight(150)
+        self.feedback_body.setFont(QFont('Segoe UI', 9))
+        self.feedback_body.setMinimumHeight(96)
         self.feedback_body.setStyleSheet("""
             QTextEdit {
                 padding: 12px;
@@ -943,19 +955,14 @@ class MessagesPage(QWidget):
         """)
         form_layout.addWidget(self.feedback_body, 1)
 
-        body_hint = QLabel("Attach key steps, expected result, and actual result where possible.")
-        body_hint.setFont(QFont('Segoe UI', 9))
-        body_hint.setStyleSheet("color: #6e7781;")
-        form_layout.addWidget(body_hint)
-        
         # Submit button
         submit_row = QHBoxLayout()
         submit_row.addStretch()
         
         self.submit_btn = QPushButton("📤 Submit Feedback")
-        self.submit_btn.setFont(QFont('Segoe UI', 11, QFont.Weight.DemiBold))
+        self.submit_btn.setFont(QFont('Segoe UI', 9, QFont.Weight.DemiBold))
         self.submit_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.submit_btn.setFixedHeight(40)
+        self.submit_btn.setFixedHeight(30)
         self.submit_btn.setStyleSheet("""
             QPushButton {
                 background-color: #1a7f37;
@@ -979,69 +986,7 @@ class MessagesPage(QWidget):
         
         form_layout.addLayout(submit_row)
 
-        # Drawer panel
-        drawer = QFrame()
-        drawer.setObjectName("feedbackDrawer")
-        drawer.setFixedWidth(260)
-        drawer.setStyleSheet("""
-            QFrame#feedbackDrawer {
-                background-color: #0f172a;
-                border-radius: 10px;
-                padding: 18px;
-            }
-        """)
-        drawer_layout = QVBoxLayout(drawer)
-        drawer_layout.setSpacing(14)
-
-        drawer_header = QHBoxLayout()
-        drawer_header.setContentsMargins(0, 0, 0, 0)
-
-        drawer_title = QLabel("Feedback Guide")
-        drawer_title.setFont(QFont('Segoe UI', 12, QFont.Weight.DemiBold))
-        drawer_title.setStyleSheet("color: #e2e8f0;")
-        drawer_header.addWidget(drawer_title)
-        drawer_header.addStretch()
-
-        self.drawer_toggle = QPushButton("Hide")
-        self.drawer_toggle.setFixedHeight(26)
-        self.drawer_toggle.setStyleSheet("""
-            QPushButton {
-                color: #cbd5f5;
-                background-color: transparent;
-                border: 1px solid #475569;
-                border-radius: 6px;
-                padding: 2px 10px;
-            }
-            QPushButton:hover {
-                border-color: #93c5fd;
-                color: #e2e8f0;
-            }
-        """)
-        drawer_header.addWidget(self.drawer_toggle)
-        drawer_layout.addLayout(drawer_header)
-
-        drawer_body = QLabel(
-            "• Describe the issue clearly\n"
-            "• Include steps to reproduce\n"
-            "• Add expected vs actual results\n"
-            "• Mention data or screen name"
-        )
-        drawer_body.setStyleSheet("color: #cbd5f5; line-height: 1.4;")
-        drawer_body.setWordWrap(True)
-        drawer_layout.addWidget(drawer_body)
-
-        drawer_note = QLabel("Support replies go to the email you provide.")
-        drawer_note.setStyleSheet("color: #94a3b8; font-size: 10px;")
-        drawer_note.setWordWrap(True)
-        drawer_layout.addWidget(drawer_note)
-
-        drawer_layout.addStretch()
-
-        content_row.addWidget(form_card, 3)
-        content_row.addWidget(drawer, 1)
-
-        self._feedback_drawer = drawer
-        self.drawer_toggle.clicked.connect(self._toggle_feedback_drawer)
+        content_row.addWidget(form_card, 1)
 
         layout.addLayout(content_row)
         layout.addStretch()
@@ -1218,13 +1163,6 @@ class MessagesPage(QWidget):
     def refresh(self):
         """Refresh the messages page (PUBLIC REFRESH METHOD)."""
         self._load_notifications()
-
-    def _toggle_feedback_drawer(self) -> None:
-        if not hasattr(self, "_feedback_drawer"):
-            return
-        is_visible = self._feedback_drawer.isVisible()
-        self._feedback_drawer.setVisible(not is_visible)
-        self.drawer_toggle.setText("Show" if is_visible else "Hide")
 
     def _is_valid_email(self, email: str) -> bool:
         import re

@@ -45,6 +45,7 @@ google-auth>=2.23.0            # Google authentication
 # UTILITIES
 # =============================================================================
 validators>=0.22.0             # Input validation
+PyNaCl>=1.5.0                  # Ed25519 signing/verification
 
 # =============================================================================
 # DEVELOPMENT & TESTING

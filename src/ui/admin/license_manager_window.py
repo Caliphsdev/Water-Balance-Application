@@ -20,6 +20,7 @@ from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
     QDateTimeEdit,
+    QDialog,
     QFrame,
     QHBoxLayout,
     QLabel,
@@ -34,7 +35,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from core.crypto import generate_license_key, VALID_TIERS
+from core.crypto import generate_license_key, generate_ed25519_keypair_base64, VALID_TIERS
 from services.license_admin_service import get_license_admin_service
 
 
@@ -320,6 +321,13 @@ class LicenseManagerWindow(QMainWindow):
         button_row.addWidget(self.clear_button)
         form_layout.addLayout(button_row)
 
+        key_row = QHBoxLayout()
+        self.generate_keys_button = QPushButton("Generate Signing Keys")
+        self.generate_keys_button.setObjectName("secondaryButton")
+        key_row.addWidget(self.generate_keys_button)
+        key_row.addStretch(1)
+        form_layout.addLayout(key_row)
+
         form_layout.addStretch(1)
 
         splitter.addWidget(form_frame)
@@ -379,6 +387,7 @@ class LicenseManagerWindow(QMainWindow):
 
     def _connect_signals(self) -> None:
         self.generate_button.clicked.connect(self._on_generate)
+        self.generate_keys_button.clicked.connect(self._on_generate_keys)
         self.create_button.clicked.connect(self._on_create)
         self.update_button.clicked.connect(self._on_update)
         self.clear_button.clicked.connect(self._clear_form)
@@ -452,6 +461,71 @@ class LicenseManagerWindow(QMainWindow):
 
     def _on_generate(self) -> None:
         self.license_key_input.setText(generate_license_key())
+
+    def _on_generate_keys(self) -> None:
+        try:
+            public_key, private_key = generate_ed25519_keypair_base64()
+        except Exception as exc:
+            message = str(exc)
+            if "PyNaCl" in message:
+                message = (
+                    "Key generation failed: PyNaCl is required.\n\n"
+                    "Install it with: pip install PyNaCl\n"
+                    "Then restart the License Manager."
+                )
+            self._show_error(message)
+            return
+
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Signing Keys")
+        dialog.setModal(True)
+        layout = QVBoxLayout(dialog)
+        layout.setContentsMargins(16, 16, 16, 16)
+        layout.setSpacing(12)
+
+        warning = QLabel(
+            "Keep the private key secret. "
+            "Store it only in the admin/server environment."
+        )
+        warning.setWordWrap(True)
+        warning.setStyleSheet("color: #b45309; font-size: 11px;")
+        layout.addWidget(warning)
+
+        public_label = QLabel("Public key (use in app)")
+        layout.addWidget(public_label)
+
+        public_row = QHBoxLayout()
+        public_input = QLineEdit(public_key)
+        public_input.setReadOnly(True)
+        public_row.addWidget(public_input)
+        public_copy = QPushButton("Copy")
+        public_copy.setObjectName("secondaryButton")
+        public_copy.clicked.connect(lambda: QApplication.clipboard().setText(public_key))
+        public_row.addWidget(public_copy)
+        layout.addLayout(public_row)
+
+        private_label = QLabel("Private key (server only)")
+        layout.addWidget(private_label)
+
+        private_row = QHBoxLayout()
+        private_input = QLineEdit(private_key)
+        private_input.setReadOnly(True)
+        private_row.addWidget(private_input)
+        private_copy = QPushButton("Copy")
+        private_copy.setObjectName("secondaryButton")
+        private_copy.clicked.connect(lambda: QApplication.clipboard().setText(private_key))
+        private_row.addWidget(private_copy)
+        layout.addLayout(private_row)
+
+        close_row = QHBoxLayout()
+        close_row.addStretch(1)
+        close_btn = QPushButton("Close")
+        close_btn.setObjectName("primaryButton")
+        close_btn.clicked.connect(dialog.accept)
+        close_row.addWidget(close_btn)
+        layout.addLayout(close_row)
+
+        dialog.exec()
 
     def _on_search_text_changed(self) -> None:
         self._search_timer.start()

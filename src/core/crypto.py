@@ -25,31 +25,62 @@ logger = logging.getLogger(__name__)
 
 # (CONSTANTS)
 
-def _load_signing_secret():
-    """Load signing secret from config."""
+def _load_public_key_config() -> str:
+    """Load public key from config."""
     try:
         from core.config_manager import ConfigManager
         config = ConfigManager()
-        return config.get('license.signing_secret', '')
+        return config.get('license.public_key', '')
     except Exception:
         return ''
 
+
+def _load_private_key_config() -> str:
+    """Load private key from config (admin tooling only)."""
+    try:
+        from core.config_manager import ConfigManager
+        config = ConfigManager()
+        return config.get('license.private_key', '')
+    except Exception:
+        return ''
+
+
+try:
+    from nacl.signing import SigningKey, VerifyKey
+    _HAS_NACL = True
+except Exception:
+    SigningKey = None
+    VerifyKey = None
+    _HAS_NACL = False
+
 # Public key for license verification (embedded in app)
 # This is safe to distribute - it can only VERIFY signatures, not create them
-# The actual key will be generated and set during deployment
-_config_secret = ''
-try:
-    _config_secret = _load_signing_secret()
-except Exception:
-    pass
-
-PUBLIC_KEY_BASE64 = os.environ.get('WATERBALANCE_PUBLIC_KEY', '') or _config_secret
+PUBLIC_KEY_BASE64 = os.environ.get('WATERBALANCE_PUBLIC_KEY', '') or _load_public_key_config()
+PRIVATE_KEY_BASE64 = os.environ.get('WATERBALANCE_PRIVATE_KEY', '') or _load_private_key_config()
 
 # Token version for future compatibility
 TOKEN_VERSION = 1
 
 # License tiers
 VALID_TIERS = ('developer', 'premium', 'standard', 'free_trial')
+
+
+def generate_ed25519_keypair_base64() -> Tuple[str, str]:
+    """
+    Generate an Ed25519 key pair and return URL-safe base64 strings.
+
+    Returns:
+        Tuple of (public_key_b64, private_key_b64).
+    """
+    if not _HAS_NACL:
+        raise ValueError("PyNaCl is required to generate Ed25519 keys.")
+
+    signing_key = SigningKey.generate()
+    verify_key = signing_key.verify_key
+
+    private_b64 = base64.urlsafe_b64encode(signing_key.encode()).decode('utf-8').rstrip('=')
+    public_b64 = base64.urlsafe_b64encode(verify_key.encode()).decode('utf-8').rstrip('=')
+    return public_b64, private_b64
 
 
 # (TOKEN STRUCTURE)
@@ -128,49 +159,44 @@ class LicenseToken:
         return delta.days
 
 
-# (HMAC-SHA256 SIGNING - Fallback when PyNaCl not available)
+# (ED25519 SIGNING)
+
+def _b64decode_key(value: str) -> bytes:
+    """Decode URL-safe base64 key data, handling missing padding."""
+    raw = (value or '').strip().encode('utf-8')
+    if not raw:
+        return b''
+    padding = b'=' * (-len(raw) % 4)
+    return base64.urlsafe_b64decode(raw + padding)
 
 def _get_signing_key() -> bytes:
-    """
-    Get the signing key from environment.
-    
-    For HMAC-SHA256, we use a shared secret.
-    The private key should be set via WATERBALANCE_PRIVATE_KEY env var.
-    
-    Returns:
-        Signing key bytes.
-        
-    Raises:
-        ValueError: If no signing key is configured.
-    """
-    key = os.environ.get('WATERBALANCE_PRIVATE_KEY', '') or _config_secret
-    if not key:
+    """Get the Ed25519 private key from environment/config."""
+    if not PRIVATE_KEY_BASE64:
         raise ValueError(
             "No signing key configured. "
-            "Set WATERBALANCE_PRIVATE_KEY environment variable or license.signing_secret in config."
+            "Set WATERBALANCE_PRIVATE_KEY or license.private_key in config."
         )
-    return key.encode('utf-8')
+    if not _HAS_NACL:
+        raise ValueError("PyNaCl is required for Ed25519 signing.")
+    key_bytes = _b64decode_key(PRIVATE_KEY_BASE64)
+    if not key_bytes:
+        raise ValueError("Invalid private key encoding.")
+    return key_bytes
 
 
 def _get_verification_key() -> bytes:
-    """
-    Get the verification key.
-    
-    For HMAC-SHA256, verification uses the same key as signing.
-    In production, you might want to use asymmetric keys (Ed25519).
-    
-    Returns:
-        Verification key bytes.
-    """
-    # For HMAC, we need the same key for verification
-    # First try the public key (for client-only verification)
-    key = PUBLIC_KEY_BASE64 or os.environ.get('WATERBALANCE_PRIVATE_KEY', '')
-    if not key:
+    """Get the Ed25519 public key from environment/config."""
+    if not PUBLIC_KEY_BASE64:
         raise ValueError(
             "No verification key configured. "
-            "Ensure PUBLIC_KEY_BASE64 is set or WATERBALANCE_PRIVATE_KEY is available."
+            "Set WATERBALANCE_PUBLIC_KEY or license.public_key in config."
         )
-    return key.encode('utf-8')
+    if not _HAS_NACL:
+        raise ValueError("PyNaCl is required for Ed25519 verification.")
+    key_bytes = _b64decode_key(PUBLIC_KEY_BASE64)
+    if not key_bytes:
+        raise ValueError("Invalid public key encoding.")
+    return key_bytes
 
 
 def sign_token(token: LicenseToken) -> str:
@@ -193,9 +219,11 @@ def sign_token(token: LicenseToken) -> str:
         payload_json = json.dumps(token.to_dict(), separators=(',', ':'))
         payload_b64 = base64.urlsafe_b64encode(payload_json.encode('utf-8')).decode('utf-8')
         
-        # Sign with HMAC-SHA256
+        # Sign with Ed25519
         key = _get_signing_key()
-        signature = hmac.new(key, payload_b64.encode('utf-8'), hashlib.sha256).hexdigest()
+        signing_key = SigningKey(key)
+        signed = signing_key.sign(payload_b64.encode('utf-8'))
+        signature = base64.urlsafe_b64encode(signed.signature).decode('utf-8')
         
         # Combine payload and signature
         signed_token = f"{payload_b64}.{signature}"
@@ -228,13 +256,15 @@ def verify_token(signed_token: str) -> Tuple[bool, Optional[LicenseToken], str]:
         
         # Verify signature
         key = _get_verification_key()
-        expected_signature = hmac.new(key, payload_b64.encode('utf-8'), hashlib.sha256).hexdigest()
-        
-        if not hmac.compare_digest(signature, expected_signature):
+        verify_key = VerifyKey(key)
+        signature_bytes = _b64decode_key(signature)
+        try:
+            verify_key.verify(payload_b64.encode('utf-8'), signature_bytes)
+        except Exception:
             return False, None, "Invalid signature"
         
         # Decode payload
-        payload_json = base64.urlsafe_b64decode(payload_b64.encode('utf-8')).decode('utf-8')
+        payload_json = _b64decode_key(payload_b64).decode('utf-8')
         payload = json.loads(payload_json)
         
         # Check version

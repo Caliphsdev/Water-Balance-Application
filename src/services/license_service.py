@@ -11,8 +11,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import json
-import logging
 import os
+import logging
+import urllib.request
+import urllib.error
 import threading
 from datetime import datetime, timezone, timedelta
 from typing import Optional, Tuple, Dict, Any
@@ -21,7 +23,6 @@ from core.hwid import get_hwid, get_hwid_display
 from core.crypto import (
     LicenseToken, 
     sign_token, 
-    verify_token, 
     verify_token_hwid,
     VALID_TIERS
 )
@@ -405,7 +406,7 @@ class LicenseService:
         server_expiry: Optional[datetime] = None
     ) -> Optional[str]:
         """
-        Create a signed offline token.
+        Create a signed offline token locally.
         
         Args:
             license_key: The license key.
@@ -437,6 +438,65 @@ class LicenseService:
         except Exception as e:
             logger.error(f"Failed to create offline token: {e}")
             return None
+
+    def _allow_local_signing(self) -> bool:
+        """Return True when local signing is explicitly enabled (dev/admin only)."""
+        return os.environ.get("WATERBALANCE_ALLOW_LOCAL_SIGNING", "").strip().lower() in {
+            "1",
+            "true",
+            "yes",
+        }
+
+    def _issue_offline_token_online(
+        self,
+        license_key: str,
+        tier: str,
+        server_expiry: Optional[datetime] = None
+    ) -> Tuple[Optional[str], str]:
+        """
+        Request a signed token from the license server (best practice).
+
+        Returns:
+            Tuple of (signed_token_or_none, error_message).
+        """
+        try:
+            if not self._supabase.is_configured:
+                return None, "Supabase not configured"
+
+            payload = {
+                "license_key": license_key,
+                "hwid": self.hwid,
+                "tier": tier,
+                "expires_at": server_expiry.isoformat() if server_expiry else None,
+            }
+            body = json.dumps(payload).encode("utf-8")
+
+            url = f"{self._supabase.url}/functions/v1/issue_license_token"
+            headers = {
+                "Authorization": f"Bearer {self._supabase.anon_key}",
+                "apikey": self._supabase.anon_key,
+                "Content-Type": "application/json",
+            }
+            request = urllib.request.Request(url, data=body, headers=headers, method="POST")
+
+            with urllib.request.urlopen(request, timeout=30) as response:
+                response_data = response.read().decode("utf-8")
+                result = json.loads(response_data) if response_data else {}
+
+            signed_token = result.get("signed_token") if isinstance(result, dict) else None
+            if not signed_token:
+                return None, "License server did not return a signed token"
+            return signed_token, ""
+        except urllib.error.HTTPError as e:
+            error_body = e.read().decode("utf-8") if e.fp else ""
+            logger.error(f"Token issuance HTTP error: {e.code} - {error_body}")
+            return None, f"License server error: {error_body or e.reason}"
+        except urllib.error.URLError as e:
+            logger.error(f"Token issuance connection error: {e.reason}")
+            return None, f"Cannot connect to license server: {e.reason}"
+        except Exception as e:
+            logger.error(f"Failed to issue token online: {e}")
+            return None, f"Token issuance failed: {e}"
     
     # (PUBLIC API)
     
@@ -523,12 +583,19 @@ class LicenseService:
                 license_data["expires_at"].replace('Z', '+00:00')
             )
         
-        signed_token = self._create_offline_token(license_key, tier, server_expiry)
+        signed_token, issue_error = self._issue_offline_token_online(
+            license_key,
+            tier,
+            server_expiry
+        )
+        if not signed_token and self._allow_local_signing():
+            signed_token = self._create_offline_token(license_key, tier, server_expiry)
+            issue_error = ""
         
         if not signed_token:
             return LicenseStatus(
                 LicenseStatus.INVALID,
-                message="Failed to create license token"
+                message=issue_error or "Failed to create license token"
             )
         
         if not self._save_license_file(signed_token):
@@ -688,7 +755,14 @@ class LicenseService:
                 license_data["expires_at"].replace('Z', '+00:00')
             )
         
-        signed_token = self._create_offline_token(license_key, tier, server_expiry)
+        signed_token, issue_error = self._issue_offline_token_online(
+            license_key,
+            tier,
+            server_expiry
+        )
+        if not signed_token and self._allow_local_signing():
+            signed_token = self._create_offline_token(license_key, tier, server_expiry)
+            issue_error = ""
         
         if signed_token and self._save_license_file(signed_token):
             is_valid, token, _ = verify_token_hwid(signed_token, self.hwid)
@@ -705,7 +779,7 @@ class LicenseService:
         
         return LicenseStatus(
             LicenseStatus.INVALID,
-            message="Failed to refresh license"
+            message=issue_error or "Failed to refresh license"
         )
     
     def deactivate(self) -> bool:

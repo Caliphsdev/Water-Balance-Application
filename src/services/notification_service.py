@@ -61,6 +61,14 @@ class NotificationSyncWorker(QRunnable):
         super().__init__()
         self.service = service
         self.signals = NotificationSyncSignals()
+
+    def _safe_emit(self, signal, *args) -> bool:
+        """Emit a signal if the receiver still exists."""
+        try:
+            signal.emit(*args)
+            return True
+        except RuntimeError:
+            return False
     
     @Slot()
     def run(self):
@@ -80,11 +88,12 @@ class NotificationSyncWorker(QRunnable):
             
             if not tier:
                 logger.debug("No license tier - using cached notifications")
-                self.signals.result.emit(
-                    self.service._notifications, 
-                    self.service.unread_count
-                )
-                self.signals.finished.emit()
+                if self._safe_emit(
+                    self.signals.result,
+                    self.service._notifications,
+                    self.service.unread_count,
+                ):
+                    self._safe_emit(self.signals.finished)
                 return
             
             logger.debug(f"Background sync: fetching notifications for tier '{tier}'")
@@ -128,17 +137,17 @@ class NotificationSyncWorker(QRunnable):
             logger.info(f"Background sync complete: {len(new_notifications)} notifications, {unread} unread")
             
             # Emit result signal - Qt will deliver this to main thread
-            self.signals.result.emit(new_notifications, unread)
-            self.signals.finished.emit()
+            if self._safe_emit(self.signals.result, new_notifications, unread):
+                self._safe_emit(self.signals.finished)
             
         except SupabaseConnectionError as e:
             logger.warning(f"Notification sync failed (offline): {e}")
-            self.signals.error.emit("Offline - using cached notifications")
-            self.signals.finished.emit()
+            if self._safe_emit(self.signals.error, "Offline - using cached notifications"):
+                self._safe_emit(self.signals.finished)
         except Exception as e:
             logger.error(f"Notification sync error: {e}")
-            self.signals.error.emit(str(e))
-            self.signals.finished.emit()
+            if self._safe_emit(self.signals.error, str(e)):
+                self._safe_emit(self.signals.finished)
 
 
 # (CONSTANTS)

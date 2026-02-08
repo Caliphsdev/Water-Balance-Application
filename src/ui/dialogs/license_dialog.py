@@ -18,7 +18,7 @@ from PySide6.QtWidgets import (
     QLineEdit, QPushButton, QFrame, QMessageBox,
     QApplication, QSizePolicy
 )
-from PySide6.QtCore import Qt, Signal, QThread, QObject
+from PySide6.QtCore import Qt, Signal, QThread, QObject, QTimer
 from PySide6.QtGui import QFont, QIcon, QPixmap
 
 from services.license_service import get_license_service, LicenseStatus
@@ -771,7 +771,13 @@ class LicenseBlockedDialog(QDialog):
     
     def _on_exit(self):
         """Handle exit button."""
-        QApplication.quit()
+        self.reject()
+        parent = self.parent()
+        if parent:
+            parent.close()
+        app = QApplication.instance()
+        if app:
+            QTimer.singleShot(0, app.quit)
     
     def _on_activate(self):
         """Handle activate button - show license dialog."""
