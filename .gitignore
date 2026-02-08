@@ -26,3 +26,6 @@ scripts/packaging/*.7z
 scripts/packaging/*.pkg
 scripts/packaging/*.log
 *.exe
+
+# Supabase CLI temp artifacts
+supabase/.temp/
