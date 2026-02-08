@@ -9,6 +9,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import os
 import shutil
+import yaml
 
 from PySide6.QtWidgets import QApplication
 
@@ -31,17 +32,31 @@ def _find_packaged_base() -> Path:
     return Path(__file__).parent.parent
 
 
+def _read_config_version(config_path: Path) -> str | None:
+    try:
+        data = yaml.safe_load(config_path.read_text(encoding="utf-8")) or {}
+        return data.get("app", {}).get("version")
+    except Exception:
+        return None
+
+
 def _ensure_user_data(user_base: Path, packaged_base: Path) -> None:
     (user_base / "config").mkdir(parents=True, exist_ok=True)
     (user_base / "data").mkdir(parents=True, exist_ok=True)
     (user_base / "logs").mkdir(parents=True, exist_ok=True)
 
     user_cfg = user_base / "config" / "app_config.yaml"
-    if not user_cfg.exists():
-        for cfg_src in [packaged_base / "config" / "app_config.yaml"]:
-            if cfg_src.exists():
+    cfg_src = packaged_base / "config" / "app_config.yaml"
+    if cfg_src.exists():
+        if not user_cfg.exists():
+            shutil.copy2(cfg_src, user_cfg)
+        else:
+            packaged_version = _read_config_version(cfg_src)
+            user_version = _read_config_version(user_cfg)
+            if packaged_version and user_version and packaged_version != user_version:
+                backup = user_cfg.with_suffix(".yaml.bak")
+                shutil.copy2(user_cfg, backup)
                 shutil.copy2(cfg_src, user_cfg)
-                break
 
 
 def main() -> None:
