@@ -151,12 +151,13 @@ storage:
 # Settings → API → Project URL and anon/public key
 supabase:
   url: "https://okcbvcogkypaezczywzo.supabase.co"
-  anon_key: ""  # PASTE YOUR PUBLISHABLE KEY HERE
+  anon_key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9rY2J2Y29na3lwYWV6Y3p5d3pvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyMDIxMzgsImV4cCI6MjA4NTc3ODEzOH0.Mcb4JfhprEhj662xnYby4LbmihbfQX2WM3DlN5MZ6mU"  # PASTE YOUR PUBLISHABLE KEY HERE
   # service_key is only needed for admin tool, not client app
   service_key: ""  # PASTE YOUR SERVICE ROLE KEY HERE
 
 # License configuration
 license:
+  public_key: "QGBSe4_kmF_rLAfkL9_KxebAsf3bGZlKmwsh3W2WDZM"
   # HMAC signing secret for offline tokens (generate with: python -c "import secrets; print(secrets.token_hex(32))")
   signing_secret: ""
   # Offline token validity in days
