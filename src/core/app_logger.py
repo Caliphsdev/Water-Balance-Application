@@ -15,6 +15,8 @@ from queue import Queue, Empty
 from contextlib import contextmanager
 from PySide6.QtCore import QThread, Signal, QObject
 
+from core.config_manager import ConfigManager
+
 # Create logs directory
 def _resolve_logs_dir() -> Path:
     """Resolve logs directory with safe, per-user defaults.
@@ -70,12 +72,14 @@ def _cleanup_old_logs(max_age_days: int = 90):
                         deleted_count += 1
                     except Exception as e:
                         # Log to stderr if cleanup fails (don't break app)
-                        print(f"Failed to delete old log {log_file}: {e}", file=sys.stderr)
+                        sys.stderr.write(f"Failed to delete old log {log_file}: {e}\n")
         
         if deleted_count > 0:
-            print(f"Cleaned up {deleted_count} log files older than {max_age_days} days", file=sys.stderr)
+            sys.stderr.write(
+                f"Cleaned up {deleted_count} log files older than {max_age_days} days\n"
+            )
     except Exception as e:
-        print(f"Log cleanup error: {e}", file=sys.stderr)
+        sys.stderr.write(f"Log cleanup error: {e}\n")
 
 
 class SafeConsoleHandler(logging.StreamHandler):
@@ -223,7 +227,7 @@ class BackgroundLoggerWorker(QThread):
             self._log_queue.put((record, handler), block=False)
         except Exception as e:
             # Queue full - emit to stderr immediately (fallback)
-            print(f"LOG QUEUE FULL: {record.getMessage()}", file=sys.stderr)
+            sys.stderr.write(f"LOG QUEUE FULL: {record.getMessage()}\n")
     
     def run(self):
         """Background processing loop (RUNS IN WORKER THREAD)."""
@@ -286,10 +290,12 @@ class BackgroundLoggerWorker(QThread):
                     handler.emit(safe_record)
                 except Exception as e:
                     # If still fails, print to stderr instead
-                    print(f"LOG FAILED (Unicode): {record.getMessage()[:100]}", file=sys.stderr)
+                    sys.stderr.write(
+                        f"LOG FAILED (Unicode): {record.getMessage()[:100]}\n"
+                    )
             except Exception as e:
                 # Fallback to stderr if handler fails
-                print(f"Handler emit failed: {e}", file=sys.stderr)
+                sys.stderr.write(f"Handler emit failed: {e}\n")
     
     def stop(self):
         """Signal worker to stop (CALL BEFORE APP EXIT)."""
@@ -350,8 +356,11 @@ class AppLogger:
         self.app_logger = logging.getLogger('water_balance')
         self.error_logger = logging.getLogger('water_balance.errors')
         
+        config = ConfigManager()
+        configured_level = self._resolve_log_level(config.get('logging.level', 'INFO'))
+
         # Set levels
-        self.app_logger.setLevel(logging.DEBUG)
+        self.app_logger.setLevel(configured_level)
         self.error_logger.setLevel(logging.ERROR)
         
         # Prevent propagation to avoid duplicate logs
@@ -375,7 +384,7 @@ class AppLogger:
             backupCount=12,         # Keep 12 files (~1 year of monthly)
             when='midnight'         # Also rotate at midnight if size not hit
         )
-        app_file_handler.setLevel(logging.DEBUG)
+        app_file_handler.setLevel(configured_level)
         app_file_handler.setFormatter(detailed_formatter)
         
         # Error file handler (HYBRID: 10MB max + monthly rotation)
@@ -390,7 +399,7 @@ class AppLogger:
         
         # Console handler (WARNING and above only - cleaner system output)
         console_handler = SafeConsoleHandler(sys.stdout)
-        console_handler.setLevel(logging.WARNING)  # System-level only (not dashboard noise)
+        console_handler.setLevel(max(configured_level, logging.WARNING))
         console_handler.setFormatter(simple_formatter)
         
         # Wrap file handlers with async queue handlers (non-blocking I/O)
@@ -405,9 +414,9 @@ class AppLogger:
         self.error_logger.addHandler(console_handler)
         
         # Initial log entry (to file only, not console - keeps startup clean)
-        self.app_logger.debug("=" * 60)
-        self.app_logger.debug("Water Balance Application Started")
-        self.app_logger.debug("=" * 60)
+        self.app_logger.log(configured_level, "=" * 60)
+        self.app_logger.log(configured_level, "Water Balance Application Started")
+        self.app_logger.log(configured_level, "=" * 60)
     
     def debug(self, message: str, **kwargs):
         """Log debug message"""
@@ -464,7 +473,7 @@ class AppLogger:
     def _on_worker_error(self, error_msg: str):
         """Handle background worker errors (SIGNAL SLOT)."""
         # Fallback to stderr since worker failed
-        print(f"LOGGER WORKER ERROR: {error_msg}", file=sys.stderr)
+        sys.stderr.write(f"LOGGER WORKER ERROR: {error_msg}\n")
     
     def shutdown(self):
         """Shutdown background logger worker (CALL ON APP EXIT).
@@ -516,7 +525,9 @@ class AppLogger:
         if len(dash_logger.handlers) > 0:
             return dash_logger
         
-        dash_logger.setLevel(logging.DEBUG)
+        config = ConfigManager()
+        configured_level = self._resolve_log_level(config.get('logging.level', 'INFO'))
+        dash_logger.setLevel(configured_level)
         dash_logger.propagate = False  # Don't send to parent loggers
         
         # Create dashboard-specific log folder
@@ -540,7 +551,7 @@ class AppLogger:
             backupCount=8,         # Keep 8 files (~2 months of weekly)
             when='W0'              # Rotate every Monday + size limit
         )
-        dash_file_handler.setLevel(logging.DEBUG)
+        dash_file_handler.setLevel(configured_level)
         dash_file_handler.setFormatter(detailed_formatter)
         
         # Dashboard error handler (HYBRID: 5MB max + weekly rotation)
@@ -565,12 +576,27 @@ class AppLogger:
         # Unicode encoding protection via SafeConsoleHandler. This prevents UnicodeEncodeError when
         # special characters (arrows, etc.) in log messages are written to Windows console with cp1252 encoding.
         console_handler = SafeConsoleHandler(sys.stdout)
-        console_handler.setLevel(logging.DEBUG)  # Allow DEBUG and above to show on console
+        console_handler.setLevel(configured_level)
         console_handler.setFormatter(logging.Formatter('%(levelname)s | %(message)s'))
         dash_logger.addHandler(console_handler)
         
-        dash_logger.info(f"=== {dashboard_name.upper()} Dashboard Logger Initialized ===")
+        dash_logger.log(configured_level, f"=== {dashboard_name.upper()} Dashboard Logger Initialized ===")
         return dash_logger
+
+    @staticmethod
+    def _resolve_log_level(level_value: str) -> int:
+        """Resolve log level from config string with safe fallback."""
+        if not isinstance(level_value, str):
+            return logging.INFO
+        normalized = level_value.strip().upper()
+        return {
+            'CRITICAL': logging.CRITICAL,
+            'ERROR': logging.ERROR,
+            'WARNING': logging.WARNING,
+            'WARN': logging.WARNING,
+            'INFO': logging.INFO,
+            'DEBUG': logging.DEBUG,
+        }.get(normalized, logging.INFO)
 
 
 # Global logger instance

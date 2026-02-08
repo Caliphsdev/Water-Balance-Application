@@ -742,6 +742,45 @@ class MessagesPage(QWidget):
         layout = QVBoxLayout(tab)
         layout.setContentsMargins(0, 16, 0, 0)
         layout.setSpacing(16)
+
+        header_card = QFrame()
+        header_card.setObjectName("feedbackHeader")
+        header_card.setStyleSheet("""
+            QFrame#feedbackHeader {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                                            stop:0 #0f172a, stop:1 #1e293b);
+                border-radius: 10px;
+                padding: 18px 22px;
+            }
+        """)
+        header_layout = QHBoxLayout(header_card)
+        header_layout.setContentsMargins(20, 16, 20, 16)
+
+        header_stack = QVBoxLayout()
+        header_stack.setSpacing(4)
+        header_title = QLabel("Feedback & Requests")
+        header_title.setFont(QFont('Segoe UI Variable', 18, QFont.Weight.DemiBold))
+        header_title.setStyleSheet("color: #f8fafc;")
+        header_stack.addWidget(header_title)
+
+        header_subtitle = QLabel("Help us improve Water Balance with clear, actionable feedback.")
+        header_subtitle.setFont(QFont('Segoe UI', 11))
+        header_subtitle.setStyleSheet("color: #cbd5f5;")
+        header_stack.addWidget(header_subtitle)
+        header_layout.addLayout(header_stack)
+        header_layout.addStretch()
+
+        header_note = QLabel("Typical response: 1-2 business days")
+        header_note.setFont(QFont('Segoe UI', 10, QFont.Weight.DemiBold))
+        header_note.setStyleSheet(
+            "color: #e2e8f0; border: 1px solid #475569; padding: 6px 10px; border-radius: 6px;"
+        )
+        header_layout.addWidget(header_note)
+
+        layout.addWidget(header_card)
+
+        content_row = QHBoxLayout()
+        content_row.setSpacing(16)
         
         # Form container card
         form_card = QFrame()
@@ -781,6 +820,74 @@ class MessagesPage(QWidget):
             }
         """)
         form_layout.addWidget(self.feedback_type)
+
+        type_hint = QLabel("Choose the category that best matches your request.")
+        type_hint.setFont(QFont('Segoe UI', 9))
+        type_hint.setStyleSheet("color: #6e7781;")
+        form_layout.addWidget(type_hint)
+
+        # Contact row
+        contact_title = QLabel("Contact (optional)")
+        contact_title.setFont(QFont('Segoe UI', 11, QFont.Weight.DemiBold))
+        form_layout.addWidget(contact_title)
+
+        contact_row = QHBoxLayout()
+        contact_row.setSpacing(12)
+
+        name_col = QVBoxLayout()
+        name_label = QLabel("Customer Name")
+        name_label.setFont(QFont('Segoe UI', 10, QFont.Weight.DemiBold))
+        name_col.addWidget(name_label)
+
+        self.feedback_name = QLineEdit()
+        self.feedback_name.setPlaceholderText("Your name or company")
+        self.feedback_name.setFont(QFont('Segoe UI', 11))
+        self.feedback_name.setFixedHeight(36)
+        self.feedback_name.setStyleSheet("""
+            QLineEdit {
+                padding: 8px 12px;
+                border: 1px solid #d0d7de;
+                border-radius: 6px;
+                background-color: #ffffff;
+            }
+            QLineEdit:focus {
+                border-color: #0969da;
+                outline: none;
+            }
+        """)
+        name_col.addWidget(self.feedback_name)
+
+        email_col = QVBoxLayout()
+        email_label = QLabel("Email (optional)")
+        email_label.setFont(QFont('Segoe UI', 10, QFont.Weight.DemiBold))
+        email_col.addWidget(email_label)
+
+        self.feedback_email = QLineEdit()
+        self.feedback_email.setPlaceholderText("you@example.com")
+        self.feedback_email.setFont(QFont('Segoe UI', 11))
+        self.feedback_email.setFixedHeight(36)
+        self.feedback_email.setStyleSheet("""
+            QLineEdit {
+                padding: 8px 12px;
+                border: 1px solid #d0d7de;
+                border-radius: 6px;
+                background-color: #ffffff;
+            }
+            QLineEdit:focus {
+                border-color: #0969da;
+                outline: none;
+            }
+        """)
+        email_col.addWidget(self.feedback_email)
+
+        contact_row.addLayout(name_col, 1)
+        contact_row.addLayout(email_col, 1)
+        form_layout.addLayout(contact_row)
+
+        contact_hint = QLabel("Include an email if you want updates or follow-ups.")
+        contact_hint.setFont(QFont('Segoe UI', 9))
+        contact_hint.setStyleSheet("color: #6e7781;")
+        form_layout.addWidget(contact_hint)
         
         # Title
         title_label = QLabel("Title")
@@ -804,6 +911,11 @@ class MessagesPage(QWidget):
             }
         """)
         form_layout.addWidget(self.feedback_title)
+
+        title_hint = QLabel("Keep it short. Example: \"Flow chart export freezes\"")
+        title_hint.setFont(QFont('Segoe UI', 9))
+        title_hint.setStyleSheet("color: #6e7781;")
+        form_layout.addWidget(title_hint)
         
         # Description
         desc_label = QLabel("Description")
@@ -830,6 +942,11 @@ class MessagesPage(QWidget):
             }
         """)
         form_layout.addWidget(self.feedback_body, 1)
+
+        body_hint = QLabel("Attach key steps, expected result, and actual result where possible.")
+        body_hint.setFont(QFont('Segoe UI', 9))
+        body_hint.setStyleSheet("color: #6e7781;")
+        form_layout.addWidget(body_hint)
         
         # Submit button
         submit_row = QHBoxLayout()
@@ -861,8 +978,72 @@ class MessagesPage(QWidget):
         submit_row.addWidget(self.submit_btn)
         
         form_layout.addLayout(submit_row)
-        
-        layout.addWidget(form_card)
+
+        # Drawer panel
+        drawer = QFrame()
+        drawer.setObjectName("feedbackDrawer")
+        drawer.setFixedWidth(260)
+        drawer.setStyleSheet("""
+            QFrame#feedbackDrawer {
+                background-color: #0f172a;
+                border-radius: 10px;
+                padding: 18px;
+            }
+        """)
+        drawer_layout = QVBoxLayout(drawer)
+        drawer_layout.setSpacing(14)
+
+        drawer_header = QHBoxLayout()
+        drawer_header.setContentsMargins(0, 0, 0, 0)
+
+        drawer_title = QLabel("Feedback Guide")
+        drawer_title.setFont(QFont('Segoe UI', 12, QFont.Weight.DemiBold))
+        drawer_title.setStyleSheet("color: #e2e8f0;")
+        drawer_header.addWidget(drawer_title)
+        drawer_header.addStretch()
+
+        self.drawer_toggle = QPushButton("Hide")
+        self.drawer_toggle.setFixedHeight(26)
+        self.drawer_toggle.setStyleSheet("""
+            QPushButton {
+                color: #cbd5f5;
+                background-color: transparent;
+                border: 1px solid #475569;
+                border-radius: 6px;
+                padding: 2px 10px;
+            }
+            QPushButton:hover {
+                border-color: #93c5fd;
+                color: #e2e8f0;
+            }
+        """)
+        drawer_header.addWidget(self.drawer_toggle)
+        drawer_layout.addLayout(drawer_header)
+
+        drawer_body = QLabel(
+            "• Describe the issue clearly\n"
+            "• Include steps to reproduce\n"
+            "• Add expected vs actual results\n"
+            "• Mention data or screen name"
+        )
+        drawer_body.setStyleSheet("color: #cbd5f5; line-height: 1.4;")
+        drawer_body.setWordWrap(True)
+        drawer_layout.addWidget(drawer_body)
+
+        drawer_note = QLabel("Support replies go to the email you provide.")
+        drawer_note.setStyleSheet("color: #94a3b8; font-size: 10px;")
+        drawer_note.setWordWrap(True)
+        drawer_layout.addWidget(drawer_note)
+
+        drawer_layout.addStretch()
+
+        content_row.addWidget(form_card, 3)
+        content_row.addWidget(drawer, 1)
+
+        self._feedback_drawer = drawer
+        self.drawer_toggle.clicked.connect(self._toggle_feedback_drawer)
+
+        layout.addLayout(content_row)
         layout.addStretch()
         
         return tab
@@ -931,8 +1112,8 @@ class MessagesPage(QWidget):
             from services.notification_service import get_notification_service
             service = get_notification_service()
             
-            # Mark as read/dismissed
-            service.mark_as_read(notification_id)
+            # Hide locally for this device
+            service.mark_as_deleted(notification_id)
             
             # Reload notifications
             self._load_notifications()
@@ -967,6 +1148,12 @@ class MessagesPage(QWidget):
         feedback_type = self.feedback_type.currentText()
         title = self.feedback_title.text().strip()
         body = self.feedback_body.toPlainText().strip()
+        customer_name = self.feedback_name.text().strip()
+        email = self.feedback_email.text().strip() or None
+
+        if email and not self._is_valid_email(email):
+            QMessageBox.warning(self, "Invalid Email", "Please enter a valid email address.")
+            return
         
         if not title:
             QMessageBox.warning(self, "Missing Title", "Please enter a title for your feedback.")
@@ -994,7 +1181,9 @@ class MessagesPage(QWidget):
             success = service.submit_feedback(
                 feedback_type=feedback_code,
                 title=title,
-                description=body
+                description=body,
+                email=email,
+                customer_name=customer_name
             )
             
             if success:
@@ -1006,6 +1195,8 @@ class MessagesPage(QWidget):
                 self.feedback_title.clear()
                 self.feedback_body.clear()
                 self.feedback_type.setCurrentIndex(0)
+                self.feedback_name.clear()
+                self.feedback_email.clear()
             else:
                 QMessageBox.warning(
                     self,
@@ -1027,3 +1218,16 @@ class MessagesPage(QWidget):
     def refresh(self):
         """Refresh the messages page (PUBLIC REFRESH METHOD)."""
         self._load_notifications()
+
+    def _toggle_feedback_drawer(self) -> None:
+        if not hasattr(self, "_feedback_drawer"):
+            return
+        is_visible = self._feedback_drawer.isVisible()
+        self._feedback_drawer.setVisible(not is_visible)
+        self.drawer_toggle.setText("Show" if is_visible else "Hide")
+
+    def _is_valid_email(self, email: str) -> bool:
+        import re
+
+        pattern = r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
+        return bool(re.match(pattern, email))

@@ -164,10 +164,11 @@ def get_hwid_display() -> str:
 # (MODULE TEST)
 
 if __name__ == "__main__":
-    print("Hardware ID Generation Test")
-    print("=" * 50)
-    print(f"Raw HWID:     {get_hwid()}")
-    print(f"Display HWID: {get_hwid_display()}")
-    print(f"Platform:     {platform.system()} {platform.release()}")
-    print(f"Node:         {platform.node()}")
-    print(f"Machine:      {platform.machine()}")
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
+    logger.info("Hardware ID Generation Test")
+    logger.info("=" * 50)
+    logger.info("Raw HWID:     %s", get_hwid())
+    logger.info("Display HWID: %s", get_hwid_display())
+    logger.info("Platform:     %s %s", platform.system(), platform.release())
+    logger.info("Node:         %s", platform.node())
+    logger.info("Machine:      %s", platform.machine())

@@ -19,6 +19,10 @@ from typing import List, Dict, Optional, Any
 from datetime import datetime, date
 from enum import Enum
 from pathlib import Path
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 # ============================================================================
@@ -390,7 +394,8 @@ if __name__ == "__main__":
         ]
     )
     
-    print(f"✓ DataSourceDefinition: {source_def.id}")
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
+    logger.info("✓ DataSourceDefinition: %s", source_def.id)
     
     # Test BoreholeStaticRecord
     record = BoreholeStaticRecord(
@@ -402,7 +407,7 @@ if __name__ == "__main__":
         static_level_m=42.5
     )
     
-    print(f"✓ BoreholeStaticRecord: {record}")
+    logger.info("✓ BoreholeStaticRecord: %s", record)
     
     # Test ParseResult
     result = ParseResult(
@@ -414,8 +419,8 @@ if __name__ == "__main__":
         parse_time_ms=245.5
     )
     
-    print(f"✓ ParseResult: {result}")
-    print(f"  Success: {result.success}")
-    print(f"  Error rate: {result.error_rate:.1f}%")
+    logger.info("✓ ParseResult: %s", result)
+    logger.info("  Success: %s", result.success)
+    logger.info("  Error rate: %.1f%%", result.error_rate)
     
-    print("\n✅ All models created successfully!")
+    logger.info("\n✅ All models created successfully!")

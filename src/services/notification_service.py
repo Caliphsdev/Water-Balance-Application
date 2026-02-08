@@ -295,6 +295,7 @@ class NotificationService(QObject):
         self._supabase = supabase_client
         self._notifications: List[Notification] = []
         self._read_ids: set = set()
+        self._deleted_ids: set = set()
         self._sync_timer: Optional[QTimer] = None
         self._last_sync: Optional[datetime] = None
         self._init_lock = threading.Lock()
@@ -359,6 +360,7 @@ class NotificationService(QObject):
                 for n in data.get("notifications", [])
             ]
             self._read_ids = set(data.get("read_ids", []))
+            self._deleted_ids = set(data.get("deleted_ids", []))
             
             # Update read status from read_ids
             for notif in self._notifications:
@@ -376,6 +378,7 @@ class NotificationService(QObject):
             data = {
                 "notifications": [n.to_dict() for n in self._notifications[:MAX_CACHED_NOTIFICATIONS]],
                 "read_ids": list(self._read_ids),
+                "deleted_ids": list(self._deleted_ids),
                 "last_sync": self._last_sync.isoformat() if self._last_sync else None
             }
             
@@ -435,6 +438,8 @@ class NotificationService(QObject):
             new_notifications = []
             
             for row in result:
+                if row["id"] in self._deleted_ids:
+                    continue
                 is_read = row["id"] in read_notification_ids or row["id"] in self._read_ids
                 notif = Notification.from_dict(row, is_read=is_read)
                 new_notifications.append(notif)
@@ -583,6 +588,19 @@ class NotificationService(QObject):
         
         self.unread_count_changed.emit(self.unread_count)
         return True
+
+    def mark_as_deleted(self, notification_id: str) -> bool:
+        """Hide a notification locally for this device."""
+        self._ensure_initialized()
+
+        self._deleted_ids.add(notification_id)
+        self._read_ids.add(notification_id)
+
+        self._notifications = [n for n in self._notifications if n.id != notification_id]
+
+        self._save_cache()
+        self.unread_count_changed.emit(self.unread_count)
+        return True
     
     def mark_all_as_read(self) -> None:
         """Mark all notifications as read."""
@@ -627,7 +645,7 @@ class NotificationService(QObject):
             - id, title, message, type, created_at, is_read
         """
         self._ensure_initialized()
-        return [n.to_dict() for n in self._notifications]
+        return [n.to_dict() for n in self._notifications if n.id not in self._deleted_ids]
 
 
 # (SINGLETON)
@@ -652,24 +670,27 @@ def get_notification_service() -> NotificationService:
 
 if __name__ == "__main__":
     from PySide6.QtWidgets import QApplication
-    
+
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
+
     app = QApplication(sys.argv)
     
-    print("Notification Service Test")
-    print("=" * 50)
+    logger.info("Notification Service Test")
+    logger.info("=" * 50)
     
     service = get_notification_service()
     
-    print(f"Cache file: {service.cache_file_path}")
-    print(f"HWID: {service.hwid[:16]}...")
-    
-    print("\nSyncing notifications...")
+    logger.info("Cache file: %s", service.cache_file_path)
+    logger.info("HWID: %s...", service.hwid[:16])
+
+    logger.info("")
+    logger.info("Syncing notifications...")
     notifications = service.sync(force=True)
     
-    print(f"Total: {len(notifications)}")
-    print(f"Unread: {service.unread_count}")
+    logger.info("Total: %s", len(notifications))
+    logger.info("Unread: %s", service.unread_count)
     
     for n in notifications[:5]:
-        print(f"  {n.type_icon} {n.title} ({n.age_display}) {'NEW' if n.is_new else ''}")
+        logger.info("  %s %s (%s) %s", n.type_icon, n.title, n.age_display, "NEW" if n.is_new else "")
     
     sys.exit(0)

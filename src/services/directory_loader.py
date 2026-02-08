@@ -55,7 +55,7 @@ class DirectoryLoadWorker(QObject):
     Example Usage:
         worker = DirectoryLoadWorker("static_boreholes")
         worker.load_directory("/path/to/folder")
-        worker.progress.connect(lambda c, t, n: print(f"Loading {n} ({c}/{t})..."))
+        worker.progress.connect(lambda c, t, n: logger.info("Loading %s (%s/%s)...", n, c, t))
         worker.complete.connect(on_load_complete)
         worker.start()
     """

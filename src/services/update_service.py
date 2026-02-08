@@ -686,26 +686,29 @@ def get_update_service() -> UpdateService:
 
 if __name__ == "__main__":
     from PySide6.QtWidgets import QApplication
-    
+
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
+
     app = QApplication(sys.argv)
     
-    print("Update Service Test")
-    print("=" * 50)
+    logger.info("Update Service Test")
+    logger.info("=" * 50)
     
     service = get_update_service()
     
-    print(f"Current version: {service.current_version}")
-    print(f"Database path: {service.db_path}")
-    print(f"Backup dir: {service.backup_dir}")
-    
-    print("\nChecking for updates...")
+    logger.info("Current version: %s", service.current_version)
+    logger.info("Database path: %s", service.db_path)
+    logger.info("Backup dir: %s", service.backup_dir)
+
+    logger.info("")
+    logger.info("Checking for updates...")
     update = service.check_for_updates(force=True)
     
     if update:
-        print(f"Update available: {update.version}")
-        print(f"Download URL: {update.download_url}")
-        print(f"Critical: {update.is_critical}")
+        logger.info("Update available: %s", update.version)
+        logger.info("Download URL: %s", update.download_url)
+        logger.info("Critical: %s", update.is_critical)
     else:
-        print("No updates available")
+        logger.info("No updates available")
     
     sys.exit(0)

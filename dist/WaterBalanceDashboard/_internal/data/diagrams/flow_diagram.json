@@ -1,0 +1,4556 @@
+{
+  "area_code": "UG2N",
+  "title": "UG2 North Decline Area",
+  "stockpile_title": "Stockpile Area",
+  "ug2south_title": "UG2 Main Decline Area",
+  "merenskysouth_title": "Merensky South Area",
+  "oldtsf_title": "Old TSF",
+  "newtsf_title": "New TSF",
+  "ug2plant_title": "UG2 Plant Area",
+  "width": 1800,
+  "height": 3470,
+  "zone_bg": [
+    {
+      "name": "UG2 North Decline Area",
+      "x": 40,
+      "y": 40,
+      "width": 1800,
+      "height": 420,
+      "color": "#f5f6fa"
+    },
+    {
+      "name": "Stockpile Area",
+      "x": 40,
+      "y": 480,
+      "width": 1800,
+      "height": 420,
+      "color": "#f9e79f"
+    },
+    {
+      "name": "UG2 Main Decline Area",
+      "x": 40,
+      "y": 920,
+      "width": 1800,
+      "height": 320,
+      "color": "#e8d4c1"
+    },
+    {
+      "name": "Merensky South Area",
+      "x": 40,
+      "y": 1260,
+      "width": 1800,
+      "height": 420,
+      "color": "#d4e9f7"
+    },
+    {
+      "name": "UG2 Plant Area",
+      "x": 40,
+      "y": 2310,
+      "width": 1800,
+      "height": 570,
+      "color": "#fdecea"
+    },
+    {
+      "name": "Merensky Plant Area",
+      "x": 40,
+      "y": 2900,
+      "width": 1800,
+      "height": 570,
+      "color": "#e8f4f8"
+    },
+    {
+      "name": "Old TSF",
+      "x": 40,
+      "y": 1700,
+      "width": 1800,
+      "height": 285,
+      "color": "#e8f5e9"
+    },
+    {
+      "name": "New TSF",
+      "x": 40,
+      "y": 2005,
+      "width": 1800,
+      "height": 285,
+      "color": "#fff9c4"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "bh_ndgwa",
+      "label": "BOREHOLE ABSTRACTION\n(NDGWA 1-6)",
+      "type": "source",
+      "shape": "rect",
+      "x": 44.0,
+      "y": 130.0,
+      "width": 152,
+      "height": 35,
+      "fill": "#8ab7e6",
+      "outline": "#2c5d8a",
+      "locked": true,
+      "font_size": 7.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "rainfall_inflow",
+      "label": "DIRECT RAINFALL",
+      "type": "source",
+      "shape": "rect",
+      "x": 45.0,
+      "y": 362.0,
+      "width": 136,
+      "height": 35,
+      "fill": "#b7d4f3",
+      "outline": "#2c5d8a",
+      "locked": true,
+      "font_size": 7.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "softening",
+      "label": "SOFTENING PLANT",
+      "type": "process",
+      "shape": "rect",
+      "x": 354.0,
+      "y": 128.0,
+      "width": 120,
+      "height": 36,
+      "fill": "#e89c3d",
+      "outline": "#c46f00",
+      "locked": true,
+      "font_size": 7.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "reservoir",
+      "label": "RESERVOIR",
+      "type": "reservoir",
+      "shape": "oval",
+      "x": 346.0,
+      "y": 217.0,
+      "width": 136,
+      "height": 52,
+      "fill": "#4b78a8",
+      "outline": "#2c5d8a",
+      "locked": true,
+      "font_size": 7,
+      "font_weight": "bold"
+    },
+    {
+      "id": "trp_clinic",
+      "label": "TRP Clinic",
+      "type": "consumption",
+      "shape": "rect",
+      "x": 556.0,
+      "y": 61.0,
+      "width": 120,
+      "height": 32,
+      "fill": "#b7d4f3",
+      "outline": "#2c5d8a",
+      "locked": false,
+      "font_size": 7.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "offices",
+      "label": "OFFICES",
+      "type": "office/buildings",
+      "shape": "rect",
+      "x": 562.0,
+      "y": 169.0,
+      "width": 120,
+      "height": 40,
+      "fill": "#5d88b6",
+      "outline": "#2c5d8a",
+      "locked": true,
+      "font_size": 7,
+      "font_weight": "bold"
+    },
+    {
+      "id": "sewage",
+      "label": "SEWAGE TREATMENT 3",
+      "type": "process",
+      "shape": "rect",
+      "x": 554.0,
+      "y": 260.0,
+      "width": 136,
+      "height": 36,
+      "fill": "#e89c3d",
+      "outline": "#c46f00",
+      "locked": true,
+      "font_size": 7.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "ndcd",
+      "label": "NDCD 1-2 / NDSWD 1",
+      "type": "dam",
+      "shape": "oval",
+      "x": 1024.0,
+      "y": 366.0,
+      "width": 160,
+      "height": 56,
+      "fill": "#3f6ea3",
+      "outline": "#1f4d7a",
+      "locked": false,
+      "font_size": 7,
+      "font_weight": "bold",
+      "recirculation_volume": -26.0,
+      "badge_angle": -167.0053832080835
+    },
+    {
+      "id": "north_decline",
+      "label": "NORTH DECLINE",
+      "type": "process",
+      "shape": "rect",
+      "x": 560.0,
+      "y": 419.0,
+      "width": 128,
+      "height": 36,
+      "fill": "#a34136",
+      "outline": "#6d1c12",
+      "locked": true,
+      "font_size": 7.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "north_shaft",
+      "label": "NORTH DECLINE SHAFT AREA",
+      "type": "process",
+      "shape": "rect",
+      "x": 1018.0,
+      "y": 226.0,
+      "width": 170,
+      "height": 32,
+      "fill": "#b04c40",
+      "outline": "#6d1c12",
+      "locked": true,
+      "font_size": 7.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "septic",
+      "label": "SEPTIC TANK",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1312.0,
+      "y": 66.0,
+      "width": 140,
+      "height": 25,
+      "fill": "#ffffff",
+      "outline": "#c40000",
+      "locked": true,
+      "font_size": 7.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "consumption",
+      "label": "CONSUMPTION",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1314.0,
+      "y": 105.0,
+      "width": 140,
+      "height": 25,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": true,
+      "font_size": 7.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "losses",
+      "label": "LOSSES",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1315.0,
+      "y": 162.0,
+      "width": 140,
+      "height": 25,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": true,
+      "font_size": 7.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "consumption2",
+      "label": "CONSUMPTION",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1315.0,
+      "y": 198.0,
+      "width": 140,
+      "height": 25,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": true,
+      "font_size": 7.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "losses2",
+      "label": "LOSSES",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1317.0,
+      "y": 264.0,
+      "width": 140,
+      "height": 25,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": true,
+      "font_size": 7.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "spill",
+      "label": "SPILL",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1318.0,
+      "y": 325.0,
+      "width": 140,
+      "height": 25,
+      "fill": "#ffffff",
+      "outline": "#c40000",
+      "locked": true,
+      "font_size": 7.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "evaporation",
+      "label": "EVAPORATION",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1320.0,
+      "y": 382.0,
+      "width": 140,
+      "height": 25,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": true,
+      "font_size": 7.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "dust_suppression",
+      "label": "DUST SUPPRESSION",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1322.0,
+      "y": 432.0,
+      "width": 140,
+      "height": 25,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": true,
+      "font_size": 7.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "stockpile_area",
+      "label": "STOCKPILE AREA",
+      "type": "dam",
+      "shape": "oval",
+      "x": 629.0,
+      "y": 506.0,
+      "width": 180,
+      "height": 60,
+      "fill": "#4b78a8",
+      "outline": "#1f4d7a",
+      "locked": true,
+      "font_size": 8,
+      "font_weight": "bold",
+      "badge_angle": 162.75854060106005,
+      "recirculation_volume": 484.0
+    },
+    {
+      "id": "spcd1",
+      "label": "SPCD 1",
+      "type": "dam",
+      "shape": "oval",
+      "x": 989.0,
+      "y": 667.0,
+      "width": 160,
+      "height": 56,
+      "fill": "#3f6ea3",
+      "outline": "#1f4d7a",
+      "locked": true,
+      "font_size": 8,
+      "font_weight": "bold",
+      "badge_angle": -161.87813975209863,
+      "recirculation_volume": 3014.0
+    },
+    {
+      "id": "stockpile_offices",
+      "label": "OFFICES",
+      "type": "consumption",
+      "shape": "rect",
+      "x": 604.0,
+      "y": 818.0,
+      "width": 120,
+      "height": 35,
+      "fill": "#5d88b6",
+      "outline": "#2c5d8a",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "stockpile_septic",
+      "label": "SEPTIC TANK",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1320.0,
+      "y": 790.0,
+      "width": 140,
+      "height": 28,
+      "fill": "#ffffff",
+      "outline": "#c40000",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "stockpile_consumption",
+      "label": "CONSUMPTION",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1320.0,
+      "y": 853.0,
+      "width": 140,
+      "height": 28,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "stockpile_spill",
+      "label": "SPILL",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1319.0,
+      "y": 681.0,
+      "width": 140,
+      "height": 28,
+      "fill": "#ffffff",
+      "outline": "#c40000",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "stockpile_evaporation",
+      "label": "EVAPORATION",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1320.0,
+      "y": 525.0,
+      "width": 140,
+      "height": 28,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "stockpile_dust_suppression",
+      "label": "DUST SUPPRESSION",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1320.0,
+      "y": 723.0,
+      "width": 140,
+      "height": 28,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "stockpile_evaporation2",
+      "label": "EVAPORATION",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1319.0,
+      "y": 631.0,
+      "width": 140,
+      "height": 28,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "stockpile_bh_gwa",
+      "label": "BOREHOLE ABSTRACTION\n(SPGWA)",
+      "type": "source",
+      "shape": "rect",
+      "x": 44.0,
+      "y": 820.0,
+      "width": 165,
+      "height": 35,
+      "fill": "#8ab7e6",
+      "outline": "#2c5d8a",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "stockpile_rainfall",
+      "label": "DIRECT RAINFALL\n",
+      "type": "source",
+      "shape": "rect",
+      "x": 43.0,
+      "y": 519.0,
+      "width": 136,
+      "height": 35,
+      "fill": "#b7d4f3",
+      "outline": "#2c5d8a",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "stockpile_rainfall_spcd1",
+      "label": "DIRECT RAINFALL\n",
+      "type": "source",
+      "shape": "rect",
+      "x": 43.0,
+      "y": 678.0,
+      "width": 136,
+      "height": 35,
+      "fill": "#b7d4f3",
+      "outline": "#2c5d8a",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "ug2s_borehole",
+      "label": "BOREHOLE (MDGWA 1-5)",
+      "type": "source",
+      "shape": "rect",
+      "x": 46.0,
+      "y": 971.0,
+      "width": 152,
+      "height": 35,
+      "fill": "#8ab7e6",
+      "outline": "#2c5d8a",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "ug2s_rainfall",
+      "label": "DIRECT RAINFALL ",
+      "type": "source",
+      "shape": "rect",
+      "x": 45.0,
+      "y": 1190.0,
+      "width": 190,
+      "height": 40,
+      "fill": "#b7d4f3",
+      "outline": "#2c5d8a",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "ug2s_mdcdg",
+      "label": "MDCD 1-4\n(Group)",
+      "type": "reservoir",
+      "shape": "oval",
+      "x": 1031.0,
+      "y": 1183.0,
+      "width": 160,
+      "height": 56,
+      "fill": "#3f6ea3",
+      "outline": "#1f4d7a",
+      "locked": true,
+      "font_size": 8,
+      "font_weight": "bold",
+      "badge_angle": -164.6498635075756,
+      "recirculation_volume": 190.0
+    },
+    {
+      "id": "ug2s_soft",
+      "label": "SOFTENING\nPLANT",
+      "type": "process",
+      "shape": "rect",
+      "x": 322.0,
+      "y": 973.0,
+      "width": 100,
+      "height": 30,
+      "fill": "#e89c3d",
+      "outline": "#c46f00",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "ug2s_res",
+      "label": "RESERVOIR",
+      "type": "reservoir",
+      "shape": "oval",
+      "x": 304.0,
+      "y": 1054.0,
+      "width": 136,
+      "height": 52,
+      "fill": "#4b78a8",
+      "outline": "#2c5d8a",
+      "locked": true,
+      "font_size": 8,
+      "font_weight": "bold"
+    },
+    {
+      "id": "ug2s_offices",
+      "label": "OFFICES",
+      "type": "consumption",
+      "shape": "rect",
+      "x": 536.0,
+      "y": 971.0,
+      "width": 120,
+      "height": 30,
+      "fill": "#5d88b6",
+      "outline": "#2c5d8a",
+      "locked": false,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "ug2s_sd",
+      "label": "SOUTH\nDECLINE",
+      "type": "process",
+      "shape": "rect",
+      "x": 684.0,
+      "y": 1107.0,
+      "width": 100,
+      "height": 40,
+      "fill": "#a34136",
+      "outline": "#6d1c12",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "ug2s_sdsa",
+      "label": "SOUTH DECLINE\nSHAFT AREA",
+      "type": "process",
+      "shape": "rect",
+      "x": 1052.0,
+      "y": 1048.0,
+      "width": 120,
+      "height": 40,
+      "fill": "#b04c40",
+      "outline": "#6d1c12",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "ug2s_stp",
+      "label": "SEWAGE\nTREATMEN T1",
+      "type": "treatment",
+      "shape": "rect",
+      "x": 909.0,
+      "y": 1010.0,
+      "width": 110,
+      "height": 35,
+      "fill": "#e89c3d",
+      "outline": "#c46f00",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "ug2s_consumption",
+      "label": "CONSUMPTION",
+      "type": "consumption",
+      "shape": "rect",
+      "x": 1348.0,
+      "y": 971.0,
+      "width": 105,
+      "height": 25,
+      "fill": "#ffffff",
+      "outline": "#c40000",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "ug2s_mdcd_spill",
+      "label": "SPILL",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1367.0,
+      "y": 1129.0,
+      "width": 70,
+      "height": 25,
+      "fill": "#ffffff",
+      "outline": "#c40000",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "ug2s_mdcd_evap",
+      "label": "EVAPORATION",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1354.0,
+      "y": 1169.0,
+      "width": 100,
+      "height": 25,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "ug2s_mdcd_dust",
+      "label": "DUST\nSUPPRESSION",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1353.0,
+      "y": 1203.0,
+      "width": 100,
+      "height": 30,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "ug2s_soft_losses",
+      "label": "LOSSES",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1367.0,
+      "y": 1012.0,
+      "width": 70,
+      "height": 25,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": false,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "ug2s_stp_losses",
+      "label": "LOSSES",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1368.0,
+      "y": 929.0,
+      "width": 70,
+      "height": 25,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "mers_borehole",
+      "label": "BOREHOLE ABSTRACTION(MERS1_2)",
+      "type": "source",
+      "shape": "rect",
+      "x": 45.0,
+      "y": 1302.0,
+      "width": 210,
+      "height": 35,
+      "fill": "#8ab7e6",
+      "outline": "#2c5d8a",
+      "locked": true,
+      "font_size": 7.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "mers_rainfall",
+      "label": "DIRECT RAINFALL\n(MDCD 5-6)",
+      "type": "source",
+      "shape": "rect",
+      "x": 43.0,
+      "y": 1556.0,
+      "width": 136,
+      "height": 40,
+      "fill": "#b7d4f3",
+      "outline": "#2c5d8a",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "mers_mdcdg",
+      "label": "MDCD 5-6\n(Group)",
+      "type": "storage",
+      "shape": "oval",
+      "x": 1064.0,
+      "y": 1549.0,
+      "width": 160,
+      "height": 56,
+      "fill": "#3f6ea3",
+      "outline": "#1f4d7a",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold",
+      "badge_angle": 164.9315118405078,
+      "recirculation_volume": 77.0
+    },
+    {
+      "id": "mers_soft",
+      "label": "SOFTENING\nPLANT",
+      "type": "process",
+      "shape": "rect",
+      "x": 452.0,
+      "y": 1299.0,
+      "width": 100,
+      "height": 40,
+      "fill": "#e89c3d",
+      "outline": "#c46f00",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "mers_offices",
+      "label": "OFFICES",
+      "type": "consumption",
+      "shape": "rect",
+      "x": 734.0,
+      "y": 1297.0,
+      "width": 120,
+      "height": 40,
+      "fill": "#5d88b6",
+      "outline": "#2c5d8a",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "mers_sd",
+      "label": "MERENSKY SOUTH\nDECLINE",
+      "type": "process",
+      "shape": "rect",
+      "x": 738.0,
+      "y": 1615.0,
+      "width": 120,
+      "height": 40,
+      "fill": "#a34136",
+      "outline": "#6d1c12",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "mers_sdsa",
+      "label": "MERENSKY SOUTH\nDECLINE SHAFT AREA",
+      "type": "process",
+      "shape": "rect",
+      "x": 916.0,
+      "y": 1402.0,
+      "width": 140,
+      "height": 40,
+      "fill": "#b04c40",
+      "outline": "#6d1c12",
+      "locked": false,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "mers_consumption",
+      "label": "CONSUMPTION",
+      "type": "consumption",
+      "shape": "rect",
+      "x": 1365.0,
+      "y": 1337.0,
+      "width": 100,
+      "height": 32,
+      "fill": "#ffffff",
+      "outline": "#c40000",
+      "locked": false,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "mers_mdcd_spill",
+      "label": "SPILL",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1385.0,
+      "y": 1509.0,
+      "width": 70,
+      "height": 30,
+      "fill": "#ffffff",
+      "outline": "#c40000",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "mers_mdcd_evap",
+      "label": "EVAPORATION",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1359.0,
+      "y": 1560.0,
+      "width": 100,
+      "height": 30,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "mers_mdcd_dust",
+      "label": "DUST\nSUPPRESSION",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1361.0,
+      "y": 1605.0,
+      "width": 100,
+      "height": 30,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "mers_soft_losses",
+      "label": "LOSSES",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1378.0,
+      "y": 1266.0,
+      "width": 70,
+      "height": 30,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "oldtsf_gwa_boreholes",
+      "label": "BOREHOLE\n(NTSFGWA1-2)",
+      "type": "inflow",
+      "shape": "rect",
+      "x": 44.0,
+      "y": 2102.0,
+      "width": 160,
+      "height": 35,
+      "fill": "#d1f2eb",
+      "outline": "#148f77",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "oldtsf_old_tsf_rainrun",
+      "label": "RAINFALL &\nRUNOFF",
+      "type": "inflow",
+      "shape": "rect",
+      "x": 46.06215728567004,
+      "y": 1822.4351009996903,
+      "width": 160,
+      "height": 30,
+      "fill": "#d1f2eb",
+      "outline": "#148f77",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "oldtsf_trtd_rain",
+      "label": "DIRECT\nRAINFALL",
+      "type": "inflow",
+      "shape": "rect",
+      "x": 42.0,
+      "y": 1912.0,
+      "width": 160,
+      "height": 30,
+      "fill": "#d1f2eb",
+      "outline": "#148f77",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "oldtsf_new_tsf_rainrun",
+      "label": "RAINFALL &\nRUNOFF",
+      "type": "inflow",
+      "shape": "rect",
+      "x": 40.0,
+      "y": 2040.0,
+      "width": 160,
+      "height": 30,
+      "fill": "#d1f2eb",
+      "outline": "#148f77",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "oldtsf_nt_rwd_rain",
+      "label": "DIRECT\nRAINFALL",
+      "type": "inflow",
+      "shape": "rect",
+      "x": 42.0,
+      "y": 2157.0,
+      "width": 160,
+      "height": 30,
+      "fill": "#d1f2eb",
+      "outline": "#148f77",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "oldtsf_offices",
+      "label": "OFFICES",
+      "type": "building",
+      "shape": "rect",
+      "x": 639.0,
+      "y": 1712.0,
+      "width": 200,
+      "height": 40,
+      "fill": "#5499c7",
+      "outline": "#21618c",
+      "locked": false
+    },
+    {
+      "id": "oldtsf_old_tsf",
+      "label": "OLD TAILINGS\nSTORAGE FACILITY",
+      "type": "tsf",
+      "shape": "rect",
+      "x": 598.0,
+      "y": 1812.0,
+      "width": 300,
+      "height": 50,
+      "fill": "#f9a825",
+      "outline": "#f57f17",
+      "locked": false,
+      "font_size": 8.0,
+      "font_weight": "bold",
+      "badge_angle": 166.38319105635904,
+      "recirculation_volume": -347.0
+    },
+    {
+      "id": "oldtsf_trtd",
+      "label": "TRTD 1-2(RWDs)",
+      "type": "reservoir",
+      "shape": "oval",
+      "x": 645.0,
+      "y": 1907.0,
+      "width": 160,
+      "height": 50,
+      "fill": "#5499c7",
+      "outline": "#21618c",
+      "locked": true,
+      "badge_angle": 166.90810693565314,
+      "recirculation_volume": -114.0
+    },
+    {
+      "id": "oldtsf_new_tsf",
+      "label": "NEW TAILINGS\nSTORAGE FACILITY",
+      "type": "tsf",
+      "shape": "rect",
+      "x": 567.0,
+      "y": 2030.0,
+      "width": 300,
+      "height": 50,
+      "fill": "#f9a825",
+      "outline": "#f57f17",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold",
+      "badge_angle": -166.97080519205628,
+      "recirculation_volume": 68.0
+    },
+    {
+      "id": "oldtsf_nt_rwd",
+      "label": "NT RWD 1&2",
+      "type": "reservoir",
+      "shape": "oval",
+      "x": 632.0,
+      "y": 2152.0,
+      "width": 160,
+      "height": 50,
+      "fill": "#5499c7",
+      "outline": "#21618c",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold",
+      "badge_angle": 166.3730051401085,
+      "recirculation_volume": 5836.0
+    },
+    {
+      "id": "oldtsf_off_septic",
+      "label": "SEPTIC TANK",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1366.0,
+      "y": 1718.0,
+      "width": 100,
+      "height": 20,
+      "fill": "#ffffff",
+      "outline": "#e74c3c",
+      "locked": true,
+      "font_size": 7.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "oldtsf_off_consumption",
+      "label": "CONSUMPTION",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1366.0,
+      "y": 1751.0,
+      "width": 100,
+      "height": 20,
+      "fill": "#ffffff",
+      "outline": "#e74c3c",
+      "locked": true,
+      "font_size": 7.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "oldtsf_old_tsf_evap",
+      "label": "EVAPORATION",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1367.0,
+      "y": 1794.0,
+      "width": 100,
+      "height": 20,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": true,
+      "font_size": 7.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "oldtsf_old_tsf_interstitial",
+      "label": "INTERSTITIAL\nSTORAGE",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1368.0,
+      "y": 1823.0,
+      "width": 100,
+      "height": 25,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "oldtsf_old_tsf_seepage",
+      "label": "SEEPAGE",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1369.0,
+      "y": 1851.0,
+      "width": 100,
+      "height": 20,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": true,
+      "font_size": 7.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "oldtsf_trtd_evap",
+      "label": "EVAPORATION",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1366.8135281429898,
+      "y": 1887.8811688579392,
+      "width": 100,
+      "height": 20,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": true,
+      "font_size": 7.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "oldtsf_trtd_spill",
+      "label": "SPILL",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1363.5648990003099,
+      "y": 1958.0621572856703,
+      "width": 100,
+      "height": 20,
+      "fill": "#ffffff",
+      "outline": "#e74c3c",
+      "locked": true,
+      "font_size": 7.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "oldtsf_new_tsf_evap",
+      "label": "EVAPORATION",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1370.0,
+      "y": 2006.0,
+      "width": 100,
+      "height": 25,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "oldtsf_new_tsf_interstitial",
+      "label": "INTERSTITIAL\nSTORAGE",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1369.0,
+      "y": 2040.0,
+      "width": 100,
+      "height": 30,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "oldtsf_new_tsf_seepage",
+      "label": "SEEPAGE",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1369.0,
+      "y": 2078.0,
+      "width": 100,
+      "height": 25,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "oldtsf_nt_rwd_evap",
+      "label": "EVAPORATION",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1369.0,
+      "y": 2161.0,
+      "width": 100,
+      "height": 25,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "oldtsf_nt_rwd_spill",
+      "label": "SPILL",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1371.0,
+      "y": 2205.0,
+      "width": 100,
+      "height": 25,
+      "fill": "#ffffff",
+      "outline": "#e74c3c",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "ug2plant_cpgwa_boreholes",
+      "label": "BOREHOLE CPGWA 1-4)",
+      "type": "none",
+      "shape": "rect",
+      "x": 45.0,
+      "y": 2755.0,
+      "width": 150,
+      "height": 30,
+      "fill": "#8ab7e6",
+      "outline": "#2980b9",
+      "locked": true,
+      "font_size": 8,
+      "font_weight": "bold"
+    },
+    {
+      "id": "ug2plant_ug2pcd1_rain",
+      "label": "DIRECT RAINFALL",
+      "type": "source",
+      "shape": "rect",
+      "x": 46.0,
+      "y": 2629.0,
+      "width": 150,
+      "height": 30,
+      "fill": "#8ab7e6",
+      "outline": "#2980b9",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "ug2plant_ug2p_ore_water",
+      "label": "WATER IN ORE",
+      "type": "source",
+      "shape": "rect",
+      "x": 251.0,
+      "y": 2530.0,
+      "width": 152,
+      "height": 30,
+      "fill": "#8ab7e6",
+      "outline": "#2980b9",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "ug2plant_ug2p_rivers",
+      "label": "DWARSRIVIER(RIVER)",
+      "type": "source",
+      "shape": "rect",
+      "x": 50.0,
+      "y": 2345.0,
+      "width": 150,
+      "height": 30,
+      "fill": "#8ab7e6",
+      "outline": "#2980b9",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "ug2plant_ug2p_off",
+      "label": "OFFICES",
+      "type": "building",
+      "shape": "rect",
+      "x": 678.0,
+      "y": 2754.0,
+      "width": 120,
+      "height": 30,
+      "fill": "#5dade2",
+      "outline": "#2980b9",
+      "locked": false,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "ug2plant_ug2p_plant",
+      "label": "UG2 CONCENTRATOR Plant",
+      "type": "plant",
+      "shape": "rect",
+      "x": 537.0,
+      "y": 2497.0,
+      "width": 370,
+      "height": 100,
+      "fill": "#95a5a6",
+      "outline": "#2c3e50",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "ug2plant_cprwsd1",
+      "label": "CPRWSD 1",
+      "type": "reservoir",
+      "shape": "oval",
+      "x": 648.0,
+      "y": 2355.0,
+      "width": 130,
+      "height": 50,
+      "fill": "#5dade2",
+      "outline": "#2980b9",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "ug2plant_ug2pcd1",
+      "label": "UG2PCD 1",
+      "type": "reservoir",
+      "shape": "oval",
+      "x": 1003.0,
+      "y": 2614.0,
+      "width": 150,
+      "height": 70,
+      "fill": "#5dade2",
+      "outline": "#2980b9",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold",
+      "badge_angle": 157.1094483437517,
+      "recirculation_volume": 36.0
+    },
+    {
+      "id": "ug2plant_ug2p_res",
+      "label": "RESERVOIR",
+      "type": "reservoir",
+      "shape": "oval",
+      "x": 492.0,
+      "y": 2812.0,
+      "width": 120,
+      "height": 60,
+      "fill": "#5dade2",
+      "outline": "#2980b9",
+      "locked": true
+    },
+    {
+      "id": "ug2plant_cppwt",
+      "label": "CPPWT",
+      "type": "treatment",
+      "shape": "oval",
+      "x": 568.0,
+      "y": 2520.0,
+      "width": 100,
+      "height": 60,
+      "fill": "#5dade2",
+      "outline": "#2980b9",
+      "locked": true
+    },
+    {
+      "id": "ug2plant_ug2p_soft",
+      "label": "SOFTENING PLANT",
+      "type": "treatment",
+      "shape": "rect",
+      "x": 357.0,
+      "y": 2755.0,
+      "width": 140,
+      "height": 30,
+      "fill": "#f39c12",
+      "outline": "#d68910",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "ug2plant_ug2p_stp",
+      "label": "SEWAGE TREATMENT 2",
+      "type": "treatment",
+      "shape": "rect",
+      "x": 668.0,
+      "y": 2837.0,
+      "width": 140,
+      "height": 30,
+      "fill": "#f39c12",
+      "outline": "#d68910",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "ug2plant_ug2pcd1_dust",
+      "label": "DUST SUPPRESSION",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1358.0,
+      "y": 2685.0,
+      "width": 120,
+      "height": 25,
+      "fill": "#ffffff",
+      "outline": "#e74c3c",
+      "locked": false,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "ug2plant_ug2pcd1_evap",
+      "label": "EVAPORATION",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1369.0,
+      "y": 2636.0,
+      "width": 100,
+      "height": 25,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": false,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "ug2plant_ug2pcd1_spill",
+      "label": "SPILL",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1369.0,
+      "y": 2588.0,
+      "width": 100,
+      "height": 25,
+      "fill": "#ffffff",
+      "outline": "#e74c3c",
+      "locked": false,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "ug2plant_ug2p_off_consumption",
+      "label": "CONSUMPTION",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1368.0,
+      "y": 2782.0,
+      "width": 100,
+      "height": 25,
+      "fill": "#ffffff",
+      "outline": "#3498db",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "ug2plant_ug2p_plant_losses",
+      "label": "LOSSES",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1370.0,
+      "y": 2472.0,
+      "width": 100,
+      "height": 25,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "ug2plant_ug2p_plant_product",
+      "label": "WATER IN\nCONCENTRATE",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1369.0,
+      "y": 2531.0,
+      "width": 100,
+      "height": 30,
+      "fill": "#ffffff",
+      "outline": "#e74c3c",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "ug2plant_ug2p_soft_losses",
+      "label": "LOSSES",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1366.0,
+      "y": 2840.0,
+      "width": 100,
+      "height": 25,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "ug2plant_ug2p_stp_losses",
+      "label": "LOSSES",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1368.0,
+      "y": 2722.0,
+      "width": 100,
+      "height": 25,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "merplant_mprwsd1_rivers",
+      "label": "KLEIN DWARS(RIVER)",
+      "type": "source",
+      "shape": "rect",
+      "x": 49.0,
+      "y": 2938.0,
+      "width": 150,
+      "height": 30,
+      "fill": "#8ab7e6",
+      "outline": "#2980b9",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "merplant_merp_ore_water",
+      "label": "WATER IN ORE",
+      "type": "source",
+      "shape": "rect",
+      "x": 318.0,
+      "y": 3039.0,
+      "width": 150,
+      "height": 30,
+      "fill": "#8ab7e6",
+      "outline": "#2980b9",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "merplant_mpswd12_rain",
+      "label": "DIRECT RAINFALL",
+      "type": "source",
+      "shape": "rect",
+      "x": 46.0,
+      "y": 3119.0,
+      "width": 150,
+      "height": 30,
+      "fill": "#8ab7e6",
+      "outline": "#2980b9",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "merplant_mpgwa_boreholes",
+      "label": "BOREHOLE (MPGWA)",
+      "type": "none",
+      "shape": "rect",
+      "x": 42.0,
+      "y": 3205.0,
+      "width": 152,
+      "height": 30,
+      "fill": "#8ab7e6",
+      "outline": "#2980b9",
+      "locked": true,
+      "font_size": 8,
+      "font_weight": "bold"
+    },
+    {
+      "id": "merplant_mprwsd1",
+      "label": "MPRWSD 1",
+      "type": "reservoir",
+      "shape": "oval",
+      "x": 334.0,
+      "y": 2928.0,
+      "width": 130,
+      "height": 50,
+      "fill": "#5dade2",
+      "outline": "#2980b9",
+      "locked": false,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "merplant_merp_plant",
+      "label": "MERENSKY CONCENTRATOR Plant",
+      "type": "plant",
+      "shape": "rect",
+      "x": 595.0,
+      "y": 3002.0,
+      "width": 370,
+      "height": 100,
+      "fill": "#95a5a6",
+      "outline": "#2c3e50",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "merplant_mpswd12",
+      "label": "MPSWD 1-2",
+      "type": "reservoir",
+      "shape": "oval",
+      "x": 1046.0,
+      "y": 3105.0,
+      "width": 150,
+      "height": 70,
+      "fill": "#5dade2",
+      "outline": "#2980b9",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold",
+      "badge_angle": -166.20051460398062,
+      "recirculation_volume": 36.0
+    },
+    {
+      "id": "merplant_merp_soft",
+      "label": "SOFTENING PLANT",
+      "type": "treatment",
+      "shape": "rect",
+      "x": 344.0,
+      "y": 3206.0,
+      "width": 140,
+      "height": 30,
+      "fill": "#f39c12",
+      "outline": "#d68910",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "merplant_merp_res",
+      "label": "RESERVOIR",
+      "type": "reservoir",
+      "shape": "oval",
+      "x": 354.0,
+      "y": 3289.0,
+      "width": 120,
+      "height": 60,
+      "fill": "#5dade2",
+      "outline": "#2980b9",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "merplant_merp_off",
+      "label": "OFFICES",
+      "type": "building",
+      "shape": "rect",
+      "x": 608.0,
+      "y": 3249.0,
+      "width": 120,
+      "height": 30,
+      "fill": "#5dade2",
+      "outline": "#2980b9",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "merplant_merp_stp",
+      "label": "SEWAGE TREATMENT(PROPOSED)",
+      "type": "treatment",
+      "shape": "rect",
+      "x": 822.0,
+      "y": 3342.0,
+      "width": 200,
+      "height": 30,
+      "fill": "#f39c12",
+      "outline": "#d68910",
+      "locked": false,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "merplant_merp_plant_product",
+      "label": "WATER IN\nCONCENTRATE",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1387.0,
+      "y": 2965.0,
+      "width": 100,
+      "height": 30,
+      "fill": "#ffffff",
+      "outline": "#e74c3c",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "merplant_merp_plant_losses",
+      "label": "LOSSES",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1389.0,
+      "y": 3039.0,
+      "width": 100,
+      "height": 25,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "merplant_mpswd12_dust",
+      "label": "DUST SUPPRESSION",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1372.0,
+      "y": 3175.0,
+      "width": 120,
+      "height": 25,
+      "fill": "#ffffff",
+      "outline": "#e74c3c",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "merplant_mpswd12_evap",
+      "label": "EVAPORATION",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1390.0,
+      "y": 3129.0,
+      "width": 100,
+      "height": 25,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "merplant_mpswd12_spill",
+      "label": "SPILL",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1388.0,
+      "y": 3083.0,
+      "width": 100,
+      "height": 25,
+      "fill": "#ffffff",
+      "outline": "#e74c3c",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "merplant_merp_off_consumption",
+      "label": "CONSUMPTION",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1381.0,
+      "y": 3253.0,
+      "width": 100,
+      "height": 25,
+      "fill": "#ffffff",
+      "outline": "#3498db",
+      "locked": true,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "merplant_merp_off_losses",
+      "label": "LOSSES",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1384.0,
+      "y": 3210.0,
+      "width": 100,
+      "height": 25,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": false,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "merplant_merp_stp_losses",
+      "label": "LOSSES",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1387.0,
+      "y": 3342.0,
+      "width": 100,
+      "height": 25,
+      "fill": "#ffffff",
+      "outline": "#000000",
+      "locked": false,
+      "font_size": 8.0,
+      "font_weight": "bold"
+    },
+    {
+      "id": "klein_dwars_river",
+      "label": "KLEIN DWARS (RIVER)",
+      "type": "source",
+      "shape": "rect",
+      "x": 50.0,
+      "y": 2401.0,
+      "width": 150,
+      "height": 30,
+      "fill": "#3498db",
+      "outline": "#2c3e50",
+      "font_size": 8.0,
+      "font_weight": "bold",
+      "locked": true
+    },
+    {
+      "id": "dwarsrivierriver",
+      "label": "DWARSRIVIER(RIVER)",
+      "type": "process",
+      "shape": "rect",
+      "x": 47.0,
+      "y": 2991.0,
+      "width": 150,
+      "height": 30,
+      "fill": "#8ab7e6",
+      "outline": "#2c3e50",
+      "font_size": 8.0,
+      "font_weight": "bold",
+      "locked": true
+    },
+    {
+      "id": "septick",
+      "label": "SEPTIC TANK",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1344.0,
+      "y": 1080.0,
+      "width": 120,
+      "height": 28,
+      "fill": "#ffffff",
+      "outline": "#eb0214",
+      "font_size": 8.0,
+      "font_weight": "bold",
+      "locked": true
+    },
+    {
+      "id": "septic_tank",
+      "label": "SEPTIC TANK",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1345.0,
+      "y": 1413.0,
+      "width": 120,
+      "height": 28,
+      "fill": "#ffffff",
+      "outline": "#e1031e",
+      "font_size": 8.0,
+      "font_weight": "normal",
+      "locked": true
+    },
+    {
+      "id": "scavenger_boreholes1_6",
+      "label": "SCAVENGER BOREHOLES(1-6)",
+      "type": "process",
+      "shape": "rect",
+      "x": 43.0,
+      "y": 2219.0,
+      "width": 170,
+      "height": 30,
+      "fill": "#d1f2eb",
+      "outline": "#148f77",
+      "font_size": 7.0,
+      "font_weight": "bold",
+      "locked": true
+    },
+    {
+      "id": "septic_tank_1",
+      "label": "SEPTIC TANK",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1351.0,
+      "y": 2255.0,
+      "width": 120,
+      "height": 28,
+      "fill": "#ffffff",
+      "outline": "#d70428",
+      "font_size": 8.0,
+      "font_weight": "bold",
+      "locked": true
+    },
+    {
+      "id": "scavenger_borehole1_6",
+      "label": "SCAVENGER BOREHOLE(1-6)",
+      "type": "process",
+      "shape": "rect",
+      "x": 42.0,
+      "y": 1862.0,
+      "width": 170,
+      "height": 30,
+      "fill": "#d1f2eb",
+      "outline": "#148f77",
+      "font_size": 7.0,
+      "font_weight": "bold",
+      "locked": true
+    },
+    {
+      "id": "septic_tank_2",
+      "label": "SEPTIC TANK",
+      "type": "loss",
+      "shape": "rect",
+      "x": 1367.0,
+      "y": 3309.0,
+      "width": 120,
+      "height": 25,
+      "fill": "#ffffff",
+      "outline": "#e1031e",
+      "font_size": 8.0,
+      "font_weight": "bold",
+      "locked": false
+    }
+  ],
+  "edges": [
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 47485.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 North",
+        "column": "Softening Plant \u2192 Reservoir"
+      },
+      "from_id": "softening",
+      "to_id": "reservoir",
+      "waypoints": [],
+      "from": "softening",
+      "to": "reservoir",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 47485.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 North",
+        "column": "Reservoir \u2192 Offices"
+      },
+      "from_id": "reservoir",
+      "to_id": "offices",
+      "waypoints": [
+        [
+          529.0,
+          243.0
+        ],
+        [
+          529.0,
+          189.0
+        ]
+      ],
+      "from": "reservoir",
+      "to": "offices",
+      "segments": [
+        [
+          529.0,
+          243.0
+        ],
+        [
+          529.0,
+          189.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 33240.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 North",
+        "column": "Offices \u2192 Sewage Treatment"
+      },
+      "from_id": "offices",
+      "to_id": "sewage",
+      "waypoints": [],
+      "from": "offices",
+      "to": "sewage",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 5363.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 North",
+        "column": "Rainfall \u2192 North Decline Clean Dams"
+      },
+      "from_id": "rainfall_inflow",
+      "to_id": "ndcd",
+      "waypoints": [
+        [
+          953.0,
+          379.5
+        ],
+        [
+          953.0,
+          394.0
+        ]
+      ],
+      "from": "rainfall_inflow",
+      "to": "ndcd",
+      "segments": [
+        [
+          953.0,
+          379.5
+        ],
+        [
+          953.0,
+          394.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 71530.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 North",
+        "column": "Borehole Abstraction (NDGWA) \u2192 Softening Plant"
+      },
+      "from_id": "bh_ndgwa",
+      "to_id": "softening",
+      "waypoints": [],
+      "from": "bh_ndgwa",
+      "to": "softening",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 3706.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 North",
+        "column": "Softening Plant \u2192 TRP Clinic"
+      },
+      "from_id": "softening",
+      "to_id": "trp_clinic",
+      "waypoints": [
+        [
+          414.0,
+          79.0
+        ]
+      ],
+      "from": "softening",
+      "to": "trp_clinic",
+      "segments": [
+        [
+          414.0,
+          79.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 2594.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 North",
+        "column": "TRP Clinic \u2192 Septic Tank"
+      },
+      "from_id": "trp_clinic",
+      "to_id": "septic",
+      "waypoints": [],
+      "from": "trp_clinic",
+      "to": "septic",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 245572.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 North",
+        "column": "North Decline \u2192 North Decline Clean Dams"
+      },
+      "from_id": "north_decline",
+      "to_id": "ndcd",
+      "waypoints": [
+        [
+          1104.0,
+          446.0
+        ]
+      ],
+      "from": "north_decline",
+      "to": "ndcd",
+      "segments": [
+        [
+          1104.0,
+          446.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 17288.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 North",
+        "column": "North Decline Shaft Area \u2192 North Decline Clean Dams"
+      },
+      "from_id": "north_shaft",
+      "to_id": "ndcd",
+      "waypoints": [],
+      "from": "north_shaft",
+      "to": "ndcd",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 1112.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 North",
+        "column": "TRP Clinic \u2192 Consumption"
+      },
+      "from_id": "trp_clinic",
+      "to_id": "consumption",
+      "waypoints": [
+        [
+          616.0,
+          117.0
+        ]
+      ],
+      "from": "trp_clinic",
+      "to": "consumption",
+      "segments": [
+        [
+          616.0,
+          117.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 14759.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 North",
+        "column": "Softening Plant \u2192 Losses"
+      },
+      "from_id": "softening",
+      "to_id": "losses",
+      "waypoints": [],
+      "from": "softening",
+      "to": "losses",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 14246.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 North",
+        "column": "Offices \u2192 Consumption2"
+      },
+      "from_id": "offices",
+      "to_id": "consumption2",
+      "waypoints": [
+        [
+          1214.0,
+          199.0
+        ],
+        [
+          1214.0,
+          211.0
+        ]
+      ],
+      "from": "offices",
+      "to": "consumption2",
+      "segments": [
+        [
+          1214.0,
+          199.0
+        ],
+        [
+          1214.0,
+          211.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 947.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 North",
+        "column": "Sewage Treatment \u2192 Losses2"
+      },
+      "from_id": "sewage",
+      "to_id": "losses2",
+      "waypoints": [],
+      "from": "sewage",
+      "to": "losses2",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 27.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 North",
+        "column": "North Decline Clean Dams \u2192 Spill"
+      },
+      "from_id": "ndcd",
+      "to_id": "spill",
+      "waypoints": [
+        [
+          1144.0,
+          337.0
+        ]
+      ],
+      "from": "ndcd",
+      "to": "spill",
+      "segments": [
+        [
+          1144.0,
+          337.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 5923.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 North",
+        "column": "North Decline Clean Dams \u2192 Evaporation"
+      },
+      "from_id": "ndcd",
+      "to_id": "evaporation",
+      "waypoints": [],
+      "from": "ndcd",
+      "to": "evaporation",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 0.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 North",
+        "column": "North Decline Clean Dams \u2192 Dust Suppression"
+      },
+      "from_id": "ndcd",
+      "to_id": "dust_suppression",
+      "waypoints": [
+        [
+          1144.0,
+          445.0
+        ]
+      ],
+      "from": "ndcd",
+      "to": "dust_suppression",
+      "segments": [
+        [
+          1144.0,
+          445.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 46425.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 North",
+        "column": "Sewage Treatment \u2192 Junction 127 1208 365"
+      },
+      "from_id": "sewage",
+      "to_id": "junction:1165:337",
+      "waypoints": [
+        [
+          1167.0,
+          296.0
+        ]
+      ],
+      "is_junction": true,
+      "junction_pos": {
+        "x": 1165.7500897982945,
+        "y": 337.0625002580411
+      },
+      "from": "sewage",
+      "to": "junction:1165:337",
+      "segments": [
+        [
+          1167.0,
+          296.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 187761.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 North",
+        "column": "North Decline Clean Dams \u2192 North Decline"
+      },
+      "from_id": "ndcd",
+      "to_id": "north_decline",
+      "waypoints": [
+        [
+          1064.0,
+          340.0
+        ],
+        [
+          656.0,
+          340.0
+        ]
+      ],
+      "from": "ndcd",
+      "to": "north_decline",
+      "segments": [
+        [
+          1064.0,
+          340.0
+        ],
+        [
+          656.0,
+          340.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 15112.0,
+      "excel_mapping": {
+        "sheet": "Flows_Stockpile1",
+        "column": "Stockpile Borehole (SPGWA) \u2192 Stockpile Offices"
+      },
+      "from_id": "stockpile_bh_gwa",
+      "to_id": "stockpile_offices",
+      "waypoints": [],
+      "from": "stockpile_bh_gwa",
+      "to": "stockpile_offices",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 4534.0,
+      "excel_mapping": {
+        "sheet": "Flows_Stockpile1",
+        "column": "Stockpile Offices \u2192 Stockpile Consumption"
+      },
+      "from_id": "stockpile_offices",
+      "to_id": "stockpile_consumption",
+      "waypoints": [],
+      "from": "stockpile_offices",
+      "to": "stockpile_consumption",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 10579.0,
+      "excel_mapping": {
+        "sheet": "Flows_Stockpile1",
+        "column": "Stockpile Offices \u2192 Stockpile Septic"
+      },
+      "from_id": "stockpile_offices",
+      "to_id": "stockpile_septic",
+      "waypoints": [],
+      "from": "stockpile_offices",
+      "to": "stockpile_septic",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 3971.0,
+      "excel_mapping": {
+        "sheet": "Flows_Stockpile1",
+        "column": "SPCD1 Rainfall \u2192 Stockpile Clean Dam 1"
+      },
+      "from_id": "stockpile_rainfall_spcd1",
+      "to_id": "spcd1",
+      "waypoints": [],
+      "from": "stockpile_rainfall_spcd1",
+      "to": "spcd1",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 32371.0,
+      "excel_mapping": {
+        "sheet": "Flows_Stockpile1",
+        "column": "Stockpile Rainfall \u2192 Stockpile Area"
+      },
+      "from_id": "stockpile_rainfall",
+      "to_id": "stockpile_area",
+      "waypoints": [],
+      "from": "stockpile_rainfall",
+      "to": "stockpile_area",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 631.0,
+      "excel_mapping": {
+        "sheet": "Flows_Stockpile1",
+        "column": "Stockpile Area \u2192 Stockpile Evaporation"
+      },
+      "from_id": "stockpile_area",
+      "to_id": "stockpile_evaporation",
+      "waypoints": [],
+      "from": "stockpile_area",
+      "to": "stockpile_evaporation",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 19550.0,
+      "excel_mapping": {
+        "sheet": "Flows_Stockpile1",
+        "column": "Stockpile Clean Dam 1 \u2192 Stockpile Dust Suppression"
+      },
+      "from_id": "spcd1",
+      "to_id": "stockpile_dust_suppression",
+      "waypoints": [],
+      "from": "spcd1",
+      "to": "stockpile_dust_suppression",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 0.0,
+      "excel_mapping": {
+        "sheet": "Flows_Stockpile1",
+        "column": "Stockpile Clean Dam 1 \u2192 Stockpile Spill"
+      },
+      "from_id": "spcd1",
+      "to_id": "stockpile_spill",
+      "waypoints": [],
+      "from": "spcd1",
+      "to": "stockpile_spill",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 12435.0,
+      "excel_mapping": {
+        "sheet": "Flows_Stockpile1",
+        "column": "Stockpile Area \u2192 Stockpile Clean Dam 1"
+      },
+      "from_id": "stockpile_area",
+      "to_id": "spcd1",
+      "waypoints": [
+        [
+          719.0,
+          755.0
+        ],
+        [
+          1069.0,
+          755.0
+        ]
+      ],
+      "from": "stockpile_area",
+      "to": "spcd1",
+      "segments": [
+        [
+          719.0,
+          755.0
+        ],
+        [
+          1069.0,
+          755.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 1193.0,
+      "excel_mapping": {
+        "sheet": "Flows_Stockpile1",
+        "column": "Stockpile Clean Dam 1 \u2192 Stockpile Evaporation2"
+      },
+      "from_id": "spcd1",
+      "to_id": "stockpile_evaporation2",
+      "waypoints": [
+        [
+          1109.0,
+          644.0
+        ]
+      ],
+      "from": "spcd1",
+      "to": "stockpile_evaporation2",
+      "segments": [
+        [
+          1109.0,
+          644.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 4835.0,
+      "excel_mapping": {
+        "sheet": "Flows_Stockpile1",
+        "column": "Stockpile Area(Runoff) \u2192 Stockpile Clean Dam 1"
+      },
+      "from_id": "stockpile_area",
+      "to_id": "spcd1",
+      "waypoints": [
+        [
+          764.0,
+          601.0
+        ],
+        [
+          1071.0,
+          601.0
+        ]
+      ],
+      "from": "stockpile_area",
+      "to": "spcd1",
+      "segments": [
+        [
+          764.0,
+          601.0
+        ],
+        [
+          1071.0,
+          601.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 114160.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 Main",
+        "column": "UG2 Main Borehole (MGDWA) \u2192 UG2 Main Softening Plant"
+      },
+      "from_id": "ug2s_borehole",
+      "to_id": "ug2s_soft",
+      "waypoints": [],
+      "from": "ug2s_borehole",
+      "to": "ug2s_soft",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 5708.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 Main",
+        "column": "UG2 Main Softening Plant \u2192 Sewage Treatment Losses"
+      },
+      "from_id": "ug2s_soft",
+      "to_id": "ug2s_stp_losses",
+      "waypoints": [
+        [
+          372.0,
+          943.0
+        ]
+      ],
+      "from": "ug2s_soft",
+      "to": "ug2s_stp_losses",
+      "segments": [
+        [
+          372.0,
+          943.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 108452.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 Main",
+        "column": "UG2 Main Softening Plant \u2192 UG2 Main Reservoir"
+      },
+      "from_id": "ug2s_soft",
+      "to_id": "ug2s_res",
+      "waypoints": [],
+      "from": "ug2s_soft",
+      "to": "ug2s_res",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 32536.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 Main",
+        "column": "UG2 Main Offices \u2192 UG2 Main Consumption"
+      },
+      "from_id": "ug2s_offices",
+      "to_id": "ug2s_consumption",
+      "waypoints": [],
+      "from": "ug2s_offices",
+      "to": "ug2s_consumption",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 1895.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 Main",
+        "column": "UG2 Main Sewage Treatment \u2192 Softening Losses"
+      },
+      "from_id": "ug2s_stp",
+      "to_id": "ug2s_soft_losses",
+      "waypoints": [],
+      "from": "ug2s_stp",
+      "to": "ug2s_soft_losses",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 7337.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 Main",
+        "column": "UG2 Main Rainfall \u2192 Main Decline Clean Dams (Group)"
+      },
+      "from_id": "ug2s_rainfall",
+      "to_id": "ug2s_mdcdg",
+      "waypoints": [],
+      "from": "ug2s_rainfall",
+      "to": "ug2s_mdcdg",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 587705.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 Main",
+        "column": "South Decline \u2192 Main Decline Clean Dams (Group)"
+      },
+      "from_id": "ug2s_sd",
+      "to_id": "ug2s_mdcdg",
+      "waypoints": [
+        [
+          1071.0,
+          1127.0
+        ]
+      ],
+      "from": "ug2s_sd",
+      "to": "ug2s_mdcdg",
+      "segments": [
+        [
+          1071.0,
+          1127.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 514763.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 Main",
+        "column": "Main Decline Clean Dams (Group) \u2192 South Decline"
+      },
+      "from_id": "ug2s_mdcdg",
+      "to_id": "ug2s_sd",
+      "waypoints": [
+        [
+          733.0,
+          1227.0
+        ]
+      ],
+      "from": "ug2s_mdcdg",
+      "to": "ug2s_sd",
+      "segments": [
+        [
+          733.0,
+          1227.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 5166.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 Main",
+        "column": "Main Decline Clean Dams (Group) \u2192 MDCD Evaporation"
+      },
+      "from_id": "ug2s_mdcdg",
+      "to_id": "ug2s_mdcd_evap",
+      "waypoints": [
+        [
+          1265.0,
+          1199.0
+        ],
+        [
+          1265.0,
+          1182.0
+        ]
+      ],
+      "from": "ug2s_mdcdg",
+      "to": "ug2s_mdcd_evap",
+      "segments": [
+        [
+          1265.0,
+          1199.0
+        ],
+        [
+          1265.0,
+          1182.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 109.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 Main",
+        "column": "Main Decline Clean Dams (Group) \u2192 MDCD Spill"
+      },
+      "from_id": "ug2s_mdcdg",
+      "to_id": "ug2s_mdcd_spill",
+      "waypoints": [
+        [
+          1151.0,
+          1141.0
+        ]
+      ],
+      "from": "ug2s_mdcdg",
+      "to": "ug2s_mdcd_spill",
+      "segments": [
+        [
+          1151.0,
+          1141.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 17506.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 Main",
+        "column": "Main Decline Clean Dams (Group) \u2192 MDCD Dust Suppression"
+      },
+      "from_id": "ug2s_mdcdg",
+      "to_id": "ug2s_mdcd_dust",
+      "waypoints": [
+        [
+          1256.0,
+          1227.0
+        ],
+        [
+          1256.0,
+          1218.0
+        ]
+      ],
+      "from": "ug2s_mdcdg",
+      "to": "ug2s_mdcd_dust",
+      "segments": [
+        [
+          1256.0,
+          1227.0
+        ],
+        [
+          1256.0,
+          1218.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 1225.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 Main",
+        "column": "South Decline Shaft Area \u2192 Main Decline Clean Dams (Group)"
+      },
+      "from_id": "ug2s_sdsa",
+      "to_id": "ug2s_mdcdg",
+      "waypoints": [],
+      "from": "ug2s_sdsa",
+      "to": "ug2s_mdcdg",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 92864.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 Main",
+        "column": "UG2 Main Sewage Treatment \u2192 Main Decline Clean Dams (Group)"
+      },
+      "from_id": "ug2s_stp",
+      "to_id": "junction:1039:1127",
+      "waypoints": [
+        [
+          964.0,
+          1101.0
+        ],
+        [
+          1043.0,
+          1101.0
+        ]
+      ],
+      "is_junction": true,
+      "junction_pos": {
+        "x": 1039.772727272727,
+        "y": 1127.0
+      },
+      "from": "ug2s_stp",
+      "to": "junction:1039:1127",
+      "segments": [
+        [
+          964.0,
+          1101.0
+        ],
+        [
+          1043.0,
+          1101.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 75916.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 Main",
+        "column": "UG2 Main Offices \u2192 UG2 Main Sewage Treatment"
+      },
+      "from_id": "ug2s_offices",
+      "to_id": "ug2s_stp",
+      "waypoints": [
+        [
+          596.0,
+          1032.0
+        ]
+      ],
+      "from": "ug2s_offices",
+      "to": "ug2s_stp",
+      "segments": [
+        [
+          596.0,
+          1032.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 108452.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 Main",
+        "column": "UG2 Main Reservoir \u2192 UG2 Main Offices"
+      },
+      "from_id": "ug2s_res",
+      "to_id": "ug2s_offices",
+      "waypoints": [
+        [
+          464.0,
+          1080.0
+        ],
+        [
+          464.0,
+          987.0
+        ]
+      ],
+      "from": "ug2s_res",
+      "to": "ug2s_offices",
+      "segments": [
+        [
+          464.0,
+          1080.0
+        ],
+        [
+          464.0,
+          987.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 28336.0,
+      "excel_mapping": {
+        "sheet": "Flows_Merensky South",
+        "column": "Merensky Borehole (MERS1-2) \u2192 Merensky Softening Plant"
+      },
+      "from_id": "mers_borehole",
+      "to_id": "mers_soft",
+      "waypoints": [],
+      "from": "mers_borehole",
+      "to": "mers_soft",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 28336.0,
+      "excel_mapping": {
+        "sheet": "Flows_Merensky South",
+        "column": "Merensky Softening Plant \u2192 Merensky Offices"
+      },
+      "from_id": "mers_soft",
+      "to_id": "mers_offices",
+      "waypoints": [],
+      "from": "mers_soft",
+      "to": "mers_offices",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 8076.0,
+      "excel_mapping": {
+        "sheet": "Flows_Merensky South",
+        "column": "Merensky Offices \u2192 Merensky Consumption"
+      },
+      "from_id": "mers_offices",
+      "to_id": "mers_consumption",
+      "waypoints": [],
+      "from": "mers_offices",
+      "to": "mers_consumption",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 1417.0,
+      "excel_mapping": {
+        "sheet": "Flows_Merensky South",
+        "column": "Merensky Softening Plant \u2192 Merensky Softening Losses"
+      },
+      "from_id": "mers_soft",
+      "to_id": "mers_soft_losses",
+      "waypoints": [
+        [
+          502.0,
+          1278.0
+        ]
+      ],
+      "from": "mers_soft",
+      "to": "mers_soft_losses",
+      "segments": [
+        [
+          502.0,
+          1278.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 983.0,
+      "excel_mapping": {
+        "sheet": "Flows_Merensky South",
+        "column": "Merensky Offices \u2192 UG2 Main Sewage Treatment"
+      },
+      "from_id": "mers_offices",
+      "to_id": "ug2s_stp",
+      "waypoints": [
+        [
+          794.0,
+          1061.0
+        ],
+        [
+          936.0,
+          1061.0
+        ]
+      ],
+      "from": "mers_offices",
+      "to": "ug2s_stp",
+      "segments": [
+        [
+          794.0,
+          1061.0
+        ],
+        [
+          936.0,
+          1061.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 10626.0,
+      "excel_mapping": {
+        "sheet": "Flows_Merensky South",
+        "column": "Merensky Decline Dams (Group) \u2192 Merensky Dust Suppression"
+      },
+      "from_id": "mers_mdcdg",
+      "to_id": "mers_mdcd_dust",
+      "waypoints": [],
+      "from": "mers_mdcdg",
+      "to": "mers_mdcd_dust",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 4481.0,
+      "excel_mapping": {
+        "sheet": "Flows_Merensky South",
+        "column": "Merensky Decline Dams (Group) \u2192 Merensky Dam Evaporation"
+      },
+      "from_id": "mers_mdcdg",
+      "to_id": "mers_mdcd_evap",
+      "waypoints": [],
+      "from": "mers_mdcdg",
+      "to": "mers_mdcd_evap",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 0.0,
+      "excel_mapping": {
+        "sheet": "Flows_Merensky South",
+        "column": "Merensky Decline Dams (Group) \u2192 Merensky Dam Spill"
+      },
+      "from_id": "mers_mdcdg",
+      "to_id": "mers_mdcd_spill",
+      "waypoints": [
+        [
+          1184.0,
+          1524.0
+        ]
+      ],
+      "from": "mers_mdcdg",
+      "to": "mers_mdcd_spill",
+      "segments": [
+        [
+          1184.0,
+          1524.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 212517.0,
+      "excel_mapping": {
+        "sheet": "Flows_Merensky South",
+        "column": "Merensky South Decline \u2192 Merensky Decline Dams (Group)"
+      },
+      "from_id": "mers_sd",
+      "to_id": "mers_mdcdg",
+      "waypoints": [
+        [
+          1140.0,
+          1635.0
+        ]
+      ],
+      "from": "mers_sd",
+      "to": "mers_mdcdg",
+      "segments": [
+        [
+          1140.0,
+          1635.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 180639.0,
+      "excel_mapping": {
+        "sheet": "Flows_Merensky South",
+        "column": "Merensky Decline Dams (Group) \u2192 Merensky South Decline"
+      },
+      "from_id": "mers_mdcdg",
+      "to_id": "mers_sd",
+      "waypoints": [
+        [
+          829.0,
+          1549.0
+        ]
+      ],
+      "from": "mers_mdcdg",
+      "to": "mers_sd",
+      "segments": [
+        [
+          829.0,
+          1549.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 4236.0,
+      "excel_mapping": {
+        "sheet": "Flows_Merensky South",
+        "column": "Merensky South Rainfall \u2192 Merensky Decline Dams (Group)"
+      },
+      "from_id": "mers_rainfall",
+      "to_id": "mers_mdcdg",
+      "waypoints": [],
+      "from": "mers_rainfall",
+      "to": "mers_mdcdg",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 1832.0,
+      "excel_mapping": {
+        "sheet": "Flows_Merensky South",
+        "column": "Merensky Decline Dams (Group) \u2192 Main Decline Clean Dams (Group)"
+      },
+      "from_id": "mers_mdcdg",
+      "to_id": "ug2s_mdcdg",
+      "waypoints": [
+        [
+          1144.0,
+          1262.0
+        ],
+        [
+          1144.0,
+          1262.0
+        ],
+        [
+          1144.0,
+          1262.0
+        ]
+      ],
+      "from": "mers_mdcdg",
+      "to": "ug2s_mdcdg",
+      "segments": [
+        [
+          1144.0,
+          1262.0
+        ],
+        [
+          1144.0,
+          1262.0
+        ],
+        [
+          1144.0,
+          1262.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 0.0,
+      "excel_mapping": {
+        "sheet": "Flows_Merensky South",
+        "column": "Merensky Decline Shaft Area \u2192 Main Decline Clean Dams (Group)"
+      },
+      "from_id": "mers_sdsa",
+      "to_id": "ug2s_mdcdg",
+      "waypoints": [
+        [
+          986.0,
+          1253.0
+        ],
+        [
+          1109.0,
+          1253.0
+        ]
+      ],
+      "from": "mers_sdsa",
+      "to": "ug2s_mdcdg",
+      "segments": [
+        [
+          986.0,
+          1253.0
+        ],
+        [
+          1109.0,
+          1253.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 26447.0,
+      "excel_mapping": {
+        "sheet": "Flows_Old TSF",
+        "column": "Old TSF Offices \u2192 Oldtsf Off Septic"
+      },
+      "from_id": "oldtsf_offices",
+      "to_id": "oldtsf_off_septic",
+      "waypoints": [],
+      "from": "oldtsf_offices",
+      "to": "oldtsf_off_septic",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 11334.0,
+      "excel_mapping": {
+        "sheet": "Flows_Old TSF",
+        "column": "Old TSF Offices \u2192 Oldtsf Off Consumption"
+      },
+      "from_id": "oldtsf_offices",
+      "to_id": "oldtsf_off_consumption",
+      "waypoints": [],
+      "from": "oldtsf_offices",
+      "to": "oldtsf_off_consumption",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 32779.0,
+      "excel_mapping": {
+        "sheet": "Flows_Old TSF",
+        "column": "Old Tailings Storage Facility \u2192 Oldtsf Old Tsf Evap"
+      },
+      "from_id": "oldtsf_old_tsf",
+      "to_id": "oldtsf_old_tsf_evap",
+      "waypoints": [],
+      "from": "oldtsf_old_tsf",
+      "to": "oldtsf_old_tsf_evap",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 559670.0,
+      "excel_mapping": {
+        "sheet": "Flows_Old TSF",
+        "column": "Old Tailings Storage Facility \u2192 Oldtsf Old Tsf Interstitial"
+      },
+      "from_id": "oldtsf_old_tsf",
+      "to_id": "oldtsf_old_tsf_interstitial",
+      "waypoints": [],
+      "from": "oldtsf_old_tsf",
+      "to": "oldtsf_old_tsf_interstitial",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 1324.0,
+      "excel_mapping": {
+        "sheet": "Flows_Old TSF",
+        "column": "Old Tailings Storage Facility \u2192 Oldtsf Old Tsf Seepage"
+      },
+      "from_id": "oldtsf_old_tsf",
+      "to_id": "oldtsf_old_tsf_seepage",
+      "waypoints": [
+        [
+          899.0,
+          1860.0
+        ]
+      ],
+      "from": "oldtsf_old_tsf",
+      "to": "oldtsf_old_tsf_seepage",
+      "segments": [
+        [
+          899.0,
+          1860.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 3227.0,
+      "excel_mapping": {
+        "sheet": "Flows_Old TSF",
+        "column": "TSF Return Water Dams (TRTD) \u2192 Oldtsf Trtd Evap"
+      },
+      "from_id": "oldtsf_trtd",
+      "to_id": "oldtsf_trtd_evap",
+      "waypoints": [],
+      "from": "oldtsf_trtd",
+      "to": "oldtsf_trtd_evap",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 0.0,
+      "excel_mapping": {
+        "sheet": "Flows_Old TSF",
+        "column": "TSF Return Water Dams (TRTD) \u2192 Oldtsf Trtd Spill"
+      },
+      "from_id": "oldtsf_trtd",
+      "to_id": "oldtsf_trtd_spill",
+      "waypoints": [],
+      "from": "oldtsf_trtd",
+      "to": "oldtsf_trtd_spill",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 19757.0,
+      "excel_mapping": {
+        "sheet": "Flows_Old TSF",
+        "column": "TRTD Rainfall \u2192 TSF Return Water Dams (TRTD)"
+      },
+      "from_id": "oldtsf_trtd_rain",
+      "to_id": "oldtsf_trtd",
+      "waypoints": [],
+      "from": "oldtsf_trtd_rain",
+      "to": "oldtsf_trtd",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 48477.0,
+      "excel_mapping": {
+        "sheet": "Flows_Old TSF",
+        "column": "Old TSF Rainfall & Runoff \u2192 Old Tailings Storage Facility"
+      },
+      "from_id": "oldtsf_old_tsf_rainrun",
+      "to_id": "oldtsf_old_tsf",
+      "waypoints": [],
+      "from": "oldtsf_old_tsf_rainrun",
+      "to": "oldtsf_old_tsf",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 5298.0,
+      "excel_mapping": {
+        "sheet": "Flows_Old TSF",
+        "column": "Old Tailings Storage Facility \u2192 TSF Return Water Dams (TRTD) (Drainage)"
+      },
+      "from_id": "oldtsf_old_tsf",
+      "to_id": "oldtsf_trtd",
+      "waypoints": [
+        [
+          823.0,
+          1888.0
+        ],
+        [
+          771.0,
+          1888.0
+        ]
+      ],
+      "from": "oldtsf_old_tsf",
+      "to": "oldtsf_trtd",
+      "segments": [
+        [
+          823.0,
+          1888.0
+        ],
+        [
+          771.0,
+          1888.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 62270.0,
+      "excel_mapping": {
+        "sheet": "Flows_Old TSF",
+        "column": "TSF Return Water Dams (TRTD) \u2192 Old Tailings Storage Facility"
+      },
+      "from_id": "oldtsf_trtd",
+      "to_id": "oldtsf_old_tsf",
+      "waypoints": [
+        [
+          725.0,
+          1879.0
+        ],
+        [
+          749.0,
+          1879.0
+        ]
+      ],
+      "from": "oldtsf_trtd",
+      "to": "oldtsf_old_tsf",
+      "segments": [
+        [
+          725.0,
+          1879.0
+        ],
+        [
+          749.0,
+          1879.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 508180.0,
+      "excel_mapping": {
+        "sheet": "Flows_Old TSF",
+        "column": "Old Tailings Storage Facility \u2192 TSF Return Water Dams (TRTD) (Return Flow)"
+      },
+      "from_id": "oldtsf_old_tsf",
+      "to_id": "oldtsf_trtd",
+      "waypoints": [
+        [
+          673.0,
+          1884.0
+        ],
+        [
+          655.0,
+          1884.0
+        ]
+      ],
+      "from": "oldtsf_old_tsf",
+      "to": "oldtsf_trtd",
+      "segments": [
+        [
+          673.0,
+          1884.0
+        ],
+        [
+          655.0,
+          1884.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 39875.0,
+      "excel_mapping": {
+        "sheet": "Flows_New TSF",
+        "column": "New TSF Rainfall & Runoff \u2192 New Tailings Storage Facility"
+      },
+      "from_id": "oldtsf_new_tsf_rainrun",
+      "to_id": "oldtsf_new_tsf",
+      "waypoints": [],
+      "from": "oldtsf_new_tsf_rainrun",
+      "to": "oldtsf_new_tsf",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 35460.0,
+      "excel_mapping": {
+        "sheet": "Flows_New TSF",
+        "column": "New Tailings Storage Facility \u2192 Oldtsf New Tsf Evap"
+      },
+      "from_id": "oldtsf_new_tsf",
+      "to_id": "oldtsf_new_tsf_evap",
+      "waypoints": [],
+      "from": "oldtsf_new_tsf",
+      "to": "oldtsf_new_tsf_evap",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 2943653.0,
+      "excel_mapping": {
+        "sheet": "Flows_New TSF",
+        "column": "New Tailings Storage Facility \u2192 Oldtsf New Tsf Interstitial"
+      },
+      "from_id": "oldtsf_new_tsf",
+      "to_id": "oldtsf_new_tsf_interstitial",
+      "waypoints": [],
+      "from": "oldtsf_new_tsf",
+      "to": "oldtsf_new_tsf_interstitial",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 1488.0,
+      "excel_mapping": {
+        "sheet": "Flows_New TSF",
+        "column": "New Tailings Storage Facility \u2192 Oldtsf New Tsf Seepage"
+      },
+      "from_id": "oldtsf_new_tsf",
+      "to_id": "oldtsf_new_tsf_seepage",
+      "waypoints": [
+        [
+          1154.0,
+          2080.0
+        ],
+        [
+          1154.0,
+          2092.0
+        ]
+      ],
+      "from": "oldtsf_new_tsf",
+      "to": "oldtsf_new_tsf_seepage",
+      "segments": [
+        [
+          1154.0,
+          2080.0
+        ],
+        [
+          1154.0,
+          2092.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 26593.0,
+      "excel_mapping": {
+        "sheet": "Flows_New TSF",
+        "column": "New TSF Return Water Dams \u2192 Oldtsf Evap"
+      },
+      "from_id": "oldtsf_nt_rwd",
+      "to_id": "oldtsf_nt_rwd_evap",
+      "waypoints": [],
+      "from": "oldtsf_nt_rwd",
+      "to": "oldtsf_nt_rwd_evap",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 0.0,
+      "excel_mapping": {
+        "sheet": "Flows_New TSF",
+        "column": "New TSF Return Water Dams \u2192 Oldtsf Spill"
+      },
+      "from_id": "oldtsf_nt_rwd",
+      "to_id": "oldtsf_nt_rwd_spill",
+      "waypoints": [],
+      "from": "oldtsf_nt_rwd",
+      "to": "oldtsf_nt_rwd_spill",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 61866.0,
+      "excel_mapping": {
+        "sheet": "Flows_New TSF",
+        "column": "New Tsf Rainrun \u2192 New Tsf Nt Rwd"
+      },
+      "from_id": "oldtsf_nt_rwd_rain",
+      "to_id": "oldtsf_nt_rwd",
+      "waypoints": [],
+      "from": "oldtsf_nt_rwd_rain",
+      "to": "oldtsf_nt_rwd",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 2486143.0,
+      "excel_mapping": {
+        "sheet": "Flows_New TSF",
+        "column": "New Tailings Storage Facility \u2192 New TSF Return Water Dams (Return Flow)"
+      },
+      "from_id": "oldtsf_new_tsf",
+      "to_id": "oldtsf_nt_rwd",
+      "waypoints": [],
+      "from": "oldtsf_new_tsf",
+      "to": "oldtsf_nt_rwd",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 5953.0,
+      "excel_mapping": {
+        "sheet": "Flows_New TSF",
+        "column": "New Tailings Storage Facility \u2192 New TSF Return Water Dams (Drainage)"
+      },
+      "from_id": "oldtsf_new_tsf",
+      "to_id": "oldtsf_nt_rwd",
+      "waypoints": [
+        [
+          567.0,
+          2150.0
+        ],
+        [
+          616.0,
+          2150.0
+        ]
+      ],
+      "from": "oldtsf_new_tsf",
+      "to": "oldtsf_nt_rwd",
+      "segments": [
+        [
+          567.0,
+          2150.0
+        ],
+        [
+          616.0,
+          2150.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 105786.0,
+      "excel_mapping": {
+        "sheet": "Flows_New TSF",
+        "column": "New TSF Return Water Dams \u2192 New Tailings Storage Facility"
+      },
+      "from_id": "oldtsf_nt_rwd",
+      "to_id": "oldtsf_new_tsf",
+      "waypoints": [
+        [
+          757.0,
+          2125.0
+        ],
+        [
+          852.0,
+          2125.0
+        ]
+      ],
+      "from": "oldtsf_nt_rwd",
+      "to": "oldtsf_new_tsf",
+      "segments": [
+        [
+          757.0,
+          2125.0
+        ],
+        [
+          852.0,
+          2125.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 1548729.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 Plant",
+        "column": "Ug2Plant Ug2P Dwarsrivier \u2192 UG2 Plant River Water Dam"
+      },
+      "from_id": "ug2plant_ug2p_rivers",
+      "to_id": "ug2plant_cprwsd1",
+      "waypoints": [
+        [
+          402.0,
+          2360.0
+        ],
+        [
+          402.0,
+          2322.0
+        ],
+        [
+          713.0,
+          2322.0
+        ]
+      ],
+      "from": "ug2plant_ug2p_rivers",
+      "to": "ug2plant_cprwsd1",
+      "segments": [
+        [
+          402.0,
+          2360.0
+        ],
+        [
+          402.0,
+          2322.0
+        ],
+        [
+          713.0,
+          2322.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 1548729.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 Plant",
+        "column": "Ug2Plant Ug2P Kleindwars \u2192 UG2 Plant River Water Dam"
+      },
+      "from_id": "klein_dwars_river",
+      "to_id": "ug2plant_cprwsd1",
+      "waypoints": [
+        [
+          397.0,
+          2416.0
+        ],
+        [
+          397.0,
+          2437.0
+        ],
+        [
+          713.0,
+          2437.0
+        ]
+      ],
+      "from": "klein_dwars_river",
+      "to": "ug2plant_cprwsd1",
+      "segments": [
+        [
+          397.0,
+          2416.0
+        ],
+        [
+          397.0,
+          2437.0
+        ],
+        [
+          713.0,
+          2437.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 3889500.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 Plant",
+        "column": "UG2 Plant River Water Dam \u2192 UG2 Concentrator Plant"
+      },
+      "from_id": "ug2plant_cprwsd1",
+      "to_id": "ug2plant_ug2p_plant",
+      "waypoints": [
+        [
+          814.0,
+          2380.0
+        ]
+      ],
+      "from": "ug2plant_cprwsd1",
+      "to": "ug2plant_ug2p_plant",
+      "segments": [
+        [
+          814.0,
+          2380.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 159715.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 Plant",
+        "column": "Water in UG2 Ore \u2192 UG2 Concentrator Plant"
+      },
+      "from_id": "ug2plant_ug2p_ore_water",
+      "to_id": "ug2plant_ug2p_plant",
+      "waypoints": [],
+      "from": "ug2plant_ug2p_ore_water",
+      "to": "ug2plant_ug2p_plant",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 108847.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 Plant",
+        "column": "UG2 Concentrator Plant \u2192 UG2 Plant Losses"
+      },
+      "from_id": "ug2plant_ug2p_plant",
+      "to_id": "ug2plant_ug2p_plant_losses",
+      "waypoints": [],
+      "from": "ug2plant_ug2p_plant",
+      "to": "ug2plant_ug2p_plant_losses",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 11747.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 Plant",
+        "column": "UG2 Concentrator Plant \u2192 Water in UG2 Concentrate"
+      },
+      "from_id": "ug2plant_ug2p_plant",
+      "to_id": "ug2plant_ug2p_plant_product",
+      "waypoints": [],
+      "from": "ug2plant_ug2p_plant",
+      "to": "ug2plant_ug2p_plant_product",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 37.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 Plant",
+        "column": "UG2 Plant Clean Dam 1 \u2192 UG2 Dam Spill"
+      },
+      "from_id": "ug2plant_ug2pcd1",
+      "to_id": "ug2plant_ug2pcd1_spill",
+      "waypoints": [],
+      "from": "ug2plant_ug2pcd1",
+      "to": "ug2plant_ug2pcd1_spill",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 166.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 Plant",
+        "column": "UG2 Plant Clean Dam 1 \u2192 UG2 Dam Evaporation"
+      },
+      "from_id": "ug2plant_ug2pcd1",
+      "to_id": "ug2plant_ug2pcd1_evap",
+      "waypoints": [],
+      "from": "ug2plant_ug2pcd1",
+      "to": "ug2plant_ug2pcd1_evap",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 1548.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 Plant",
+        "column": "UG2 Plant Clean Dam 1 \u2192 UG2 Dam Dust Suppression"
+      },
+      "from_id": "ug2plant_ug2pcd1",
+      "to_id": "ug2plant_ug2pcd1_dust",
+      "waypoints": [],
+      "from": "ug2plant_ug2pcd1",
+      "to": "ug2plant_ug2pcd1_dust",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 25328.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 Plant",
+        "column": "Ug2Pcd1 To Plant"
+      },
+      "from_id": "ug2plant_ug2pcd1",
+      "to_id": "ug2plant_ug2p_plant",
+      "waypoints": [
+        [
+          1078.0,
+          2571.0
+        ]
+      ],
+      "from": "ug2plant_ug2pcd1",
+      "to": "ug2plant_ug2p_plant",
+      "segments": [
+        [
+          1078.0,
+          2571.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 4888.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 Plant",
+        "column": "UG2 Plant Dam Rainfall \u2192 UG2 Plant Clean Dam 1"
+      },
+      "from_id": "ug2plant_ug2pcd1_rain",
+      "to_id": "ug2plant_ug2pcd1",
+      "waypoints": [],
+      "from": "ug2plant_ug2pcd1_rain",
+      "to": "ug2plant_ug2pcd1",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 22227.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 Plant",
+        "column": "UG2 Concentrator Plant \u2192 UG2 Plant Clean Dam 1"
+      },
+      "from_id": "ug2plant_ug2p_plant",
+      "to_id": "ug2plant_ug2pcd1",
+      "waypoints": [
+        [
+          814.5,
+          2709.0
+        ],
+        [
+          1075.0,
+          2709.0
+        ]
+      ],
+      "from": "ug2plant_ug2p_plant",
+      "to": "ug2plant_ug2pcd1",
+      "segments": [
+        [
+          814.5,
+          2709.0
+        ],
+        [
+          1075.0,
+          2709.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 2717.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 Plant",
+        "column": "UG2 Plant Softening \u2192 UG2 Sewage Losses"
+      },
+      "from_id": "ug2plant_ug2p_soft",
+      "to_id": "ug2plant_ug2p_stp_losses",
+      "waypoints": [
+        [
+          427.0,
+          2736.0
+        ]
+      ],
+      "from": "ug2plant_ug2p_soft",
+      "to": "ug2plant_ug2p_stp_losses",
+      "segments": [
+        [
+          427.0,
+          2736.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 15489.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 Plant",
+        "column": "UG2 Plant Offices \u2192 UG2 Office Consumption"
+      },
+      "from_id": "ug2plant_ug2p_off",
+      "to_id": "ug2plant_ug2p_off_consumption",
+      "waypoints": [],
+      "from": "ug2plant_ug2p_off",
+      "to": "ug2plant_ug2p_off_consumption",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 723.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 Plant",
+        "column": "UG2 Plant Sewage Treatment \u2192 UG2 Softening Losses"
+      },
+      "from_id": "ug2plant_ug2p_stp",
+      "to_id": "ug2plant_ug2p_soft_losses",
+      "waypoints": [],
+      "from": "ug2plant_ug2p_stp",
+      "to": "ug2plant_ug2p_soft_losses",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 1886.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 Plant",
+        "column": "UG2 Plant Offices \u2192 UG2 Plant Sewage Treatment"
+      },
+      "from_id": "ug2plant_ug2p_off",
+      "to_id": "ug2plant_ug2p_stp",
+      "waypoints": [],
+      "from": "ug2plant_ug2p_off",
+      "to": "ug2plant_ug2p_stp",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 2694.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 Plant",
+        "column": "UG2 Plant Reservoir \u2192 UG2 Plant Offices"
+      },
+      "from_id": "ug2plant_ug2p_res",
+      "to_id": "ug2plant_ug2p_off",
+      "waypoints": [
+        [
+          552.0,
+          2771.0
+        ]
+      ],
+      "from": "ug2plant_ug2p_res",
+      "to": "ug2plant_ug2p_off",
+      "segments": [
+        [
+          552.0,
+          2771.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 54347.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 Plant",
+        "column": "UG2 Plant Borehole (CPGWA) \u2192 UG2 Plant Softening"
+      },
+      "from_id": "ug2plant_cpgwa_boreholes",
+      "to_id": "ug2plant_ug2p_soft",
+      "waypoints": [],
+      "from": "ug2plant_cpgwa_boreholes",
+      "to": "ug2plant_ug2p_soft",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 0.0,
+      "excel_mapping": {
+        "sheet": "Flows_Merensky Plant",
+        "column": "Merplant Kleindwars \u2192 Merensky River Water Dam"
+      },
+      "from_id": "merplant_mprwsd1_rivers",
+      "to_id": "merplant_mprwsd1",
+      "waypoints": [],
+      "from": "merplant_mprwsd1_rivers",
+      "to": "merplant_mprwsd1",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 0.0,
+      "excel_mapping": {
+        "sheet": "Flows_Merensky Plant",
+        "column": "Merplant Dwarsrivier \u2192 Merensky River Water Dam"
+      },
+      "from_id": "dwarsrivierriver",
+      "to_id": "merplant_mprwsd1",
+      "waypoints": [
+        [
+          399.0,
+          3006.0
+        ]
+      ],
+      "from": "dwarsrivierriver",
+      "to": "merplant_mprwsd1",
+      "segments": [
+        [
+          399.0,
+          3006.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 93447.0,
+      "excel_mapping": {
+        "sheet": "Flows_Merensky Plant",
+        "column": "Water in Merensky Ore \u2192 Merensky Concentrator Plant"
+      },
+      "from_id": "merplant_merp_ore_water",
+      "to_id": "merplant_merp_plant",
+      "waypoints": [],
+      "from": "merplant_merp_ore_water",
+      "to": "merplant_merp_plant",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 8502.0,
+      "excel_mapping": {
+        "sheet": "Flows_Merensky Plant",
+        "column": "Merensky Concentrator Plant \u2192 Water in Merensky Concentrate"
+      },
+      "from_id": "merplant_merp_plant",
+      "to_id": "merplant_merp_plant_product",
+      "waypoints": [
+        [
+          965.0,
+          2974.0
+        ]
+      ],
+      "from": "merplant_merp_plant",
+      "to": "merplant_merp_plant_product",
+      "segments": [
+        [
+          965.0,
+          2974.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": -4839.0,
+      "excel_mapping": {
+        "sheet": "Flows_Merensky Plant",
+        "column": "Merensky Concentrator Plant \u2192 Merensky Plant Losses"
+      },
+      "from_id": "merplant_merp_plant",
+      "to_id": "merplant_merp_plant_losses",
+      "waypoints": [],
+      "from": "merplant_merp_plant",
+      "to": "merplant_merp_plant_losses",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 377.0,
+      "excel_mapping": {
+        "sheet": "Flows_Merensky Plant",
+        "column": "Merensky Plant Sewage Treatment \u2192 Merensky Sewage Losses"
+      },
+      "from_id": "merplant_merp_stp",
+      "to_id": "merplant_merp_stp_losses",
+      "waypoints": [],
+      "from": "merplant_merp_stp",
+      "to": "merplant_merp_stp_losses",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 3457.0,
+      "excel_mapping": {
+        "sheet": "Flows_Merensky Plant",
+        "column": "Merensky Storm Water Dams \u2192 Merensky Dam Dust Suppression"
+      },
+      "from_id": "merplant_mpswd12",
+      "to_id": "merplant_mpswd12_dust",
+      "waypoints": [],
+      "from": "merplant_mpswd12",
+      "to": "merplant_mpswd12_dust",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 268.0,
+      "excel_mapping": {
+        "sheet": "Flows_Merensky Plant",
+        "column": "Merensky Storm Water Dams \u2192 Merensky Dam Evaporation"
+      },
+      "from_id": "merplant_mpswd12",
+      "to_id": "merplant_mpswd12_evap",
+      "waypoints": [],
+      "from": "merplant_mpswd12",
+      "to": "merplant_mpswd12_evap",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 0.0,
+      "excel_mapping": {
+        "sheet": "Flows_Merensky Plant",
+        "column": "Merensky Storm Water Dams \u2192 Merensky Dam Spill"
+      },
+      "from_id": "merplant_mpswd12",
+      "to_id": "merplant_mpswd12_spill",
+      "waypoints": [],
+      "from": "merplant_mpswd12",
+      "to": "merplant_mpswd12_spill",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 1417.0,
+      "excel_mapping": {
+        "sheet": "Flows_Merensky Plant",
+        "column": "Merensky Plant Softening \u2192 Merensky Office Losses"
+      },
+      "from_id": "merplant_merp_soft",
+      "to_id": "merplant_merp_off_losses",
+      "waypoints": [],
+      "from": "merplant_merp_soft",
+      "to": "merplant_merp_off_losses",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 71530.0,
+      "excel_mapping": {
+        "sheet": "Flows_UG2 North",
+        "column": "Borehole Abstraction (NDGWA) \u2192 Softening Plant"
+      },
+      "from_id": "merplant_merp_off",
+      "to_id": "merplant_merp_off_consumption",
+      "waypoints": [],
+      "from": "merplant_merp_off",
+      "to": "merplant_merp_off_consumption",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 26919.0,
+      "excel_mapping": {
+        "sheet": "Flows_Merensky Plant",
+        "column": "Merensky Plant Softening \u2192 Merensky Plant Reservoir"
+      },
+      "from_id": "merplant_merp_soft",
+      "to_id": "merplant_merp_res",
+      "waypoints": [],
+      "from": "merplant_merp_soft",
+      "to": "merplant_merp_res",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 18843.0,
+      "excel_mapping": {
+        "sheet": "Flows_Merensky Plant",
+        "column": "Merensky Plant Offices \u2192 Merensky Plant Sewage Treatment"
+      },
+      "from_id": "merplant_merp_off",
+      "to_id": "merplant_merp_stp",
+      "waypoints": [
+        [
+          698.0,
+          3361.0
+        ]
+      ],
+      "from": "merplant_merp_off",
+      "to": "merplant_merp_stp",
+      "segments": [
+        [
+          698.0,
+          3361.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 26919.0,
+      "excel_mapping": {
+        "sheet": "Flows_Merensky Plant",
+        "column": "Merensky Plant Reservoir \u2192 Merensky Plant Offices"
+      },
+      "from_id": "merplant_merp_res",
+      "to_id": "merplant_merp_off",
+      "waypoints": [
+        [
+          662.0,
+          3319.0
+        ]
+      ],
+      "from": "merplant_merp_res",
+      "to": "merplant_merp_off",
+      "segments": [
+        [
+          662.0,
+          3319.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 28336.0,
+      "excel_mapping": {
+        "sheet": "Flows_Merensky Plant",
+        "column": "Merensky Plant Borehole (MPGWA) \u2192 Merensky Plant Softening"
+      },
+      "from_id": "merplant_mpgwa_boreholes",
+      "to_id": "merplant_merp_soft",
+      "waypoints": [],
+      "from": "merplant_mpgwa_boreholes",
+      "to": "merplant_merp_soft",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 6952.0,
+      "excel_mapping": {
+        "sheet": "Flows_Merensky Plant",
+        "column": "Merensky Dam Rainfall \u2192 Merensky Storm Water Dams"
+      },
+      "from_id": "merplant_mpswd12_rain",
+      "to_id": "merplant_mpswd12",
+      "waypoints": [],
+      "from": "merplant_mpswd12_rain",
+      "to": "merplant_mpswd12",
+      "segments": []
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 18466.0,
+      "excel_mapping": {
+        "sheet": "Flows_Merensky Plant",
+        "column": "Merensky Plant Sewage Treatment \u2192 Merensky Storm Water Dams"
+      },
+      "from_id": "merplant_merp_stp",
+      "to_id": "merplant_mpswd12",
+      "waypoints": [
+        [
+          972.0,
+          3199.0
+        ],
+        [
+          1121.0,
+          3199.0
+        ]
+      ],
+      "from": "merplant_merp_stp",
+      "to": "merplant_mpswd12",
+      "segments": [
+        [
+          972.0,
+          3199.0
+        ],
+        [
+          1121.0,
+          3199.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 5497.0,
+      "excel_mapping": {
+        "sheet": "Flows_Merensky Plant",
+        "column": "Merensky Storm Water Dams \u2192 Merensky Concentrator Plant"
+      },
+      "from_id": "merplant_mpswd12",
+      "to_id": "merplant_merp_plant",
+      "waypoints": [
+        [
+          1121.0,
+          3086.0
+        ],
+        [
+          1035.0,
+          3086.0
+        ],
+        [
+          1011.0,
+          3086.0
+        ],
+        [
+          1011.0,
+          3102.0
+        ]
+      ],
+      "from": "merplant_mpswd12",
+      "to": "merplant_merp_plant",
+      "segments": [
+        [
+          1121.0,
+          3086.0
+        ],
+        [
+          1035.0,
+          3086.0
+        ],
+        [
+          1011.0,
+          3086.0
+        ],
+        [
+          1011.0,
+          3102.0
+        ]
+      ]
+    },
+    {
+      "flow_type": "transfer",
+      "color": "#0066cc",
+      "volume": 5497.0,
+      "excel_mapping": {
+        "sheet": "Flows_Merensky Plant",
+        "column": "Merensky Concentrator Plant \u2192 Merensky Storm Water Dams"
+      },
+      "from_id": "merplant_merp_plant",
+      "to_id": "merplant_mpswd12",
+      "waypoints": [
+        [
+          872.5,
+          3171.0
+        ],
+        [
+          1045.0,
+          3171.0
+        ]
+      ],
+      "from": "merplant_merp_plant",
+      "to": "merplant_mpswd12",
+      "segments": [
+        [
+          872.5,
+          3171.0
+        ],
+        [
+          1045.0,
+          3171.0
+        ]
+      ]
+    }
+  ],
+  "merplant_title": "Merensky Plant Area",
+  "recirculation": [
+    {
+      "component_id": "ndcd",
+      "component_name": "NDCD 1-2 / NDSWD 1",
+      "excel_sheet": "Flows_UG2 North",
+      "excel_column": "North Decline Clean Dams \u2192 North Decline Clean Dams",
+      "enabled": true
+    },
+    {
+      "component_id": "stockpile_area",
+      "component_name": "STOCKPILE AREA",
+      "excel_sheet": "Flows_Stockpile1",
+      "excel_column": "Stockpile Area \u2192 Stockpile Area",
+      "enabled": true
+    },
+    {
+      "component_id": "spcd1",
+      "component_name": "SPCD 1",
+      "excel_sheet": "Flows_Stockpile1",
+      "excel_column": "Stockpile Clean Dam 1 \u2192 Stockpile Clean Dam 1",
+      "enabled": true
+    },
+    {
+      "component_id": "ug2s_mdcdg",
+      "component_name": "MDCD 1-4\n(Group)",
+      "excel_sheet": "Flows_UG2 Main",
+      "excel_column": "Main Decline Clean Dams (Group) \u2192 Main Decline Clean Dams (Group)",
+      "enabled": true
+    },
+    {
+      "component_id": "mers_mdcdg",
+      "component_name": "MDCD 5-6\n(Group)",
+      "excel_sheet": "Flows_Merensky South",
+      "excel_column": "Merensky Decline Dams (Group) \u2192 Merensky Decline Dams (Group)",
+      "enabled": true
+    },
+    {
+      "component_id": "oldtsf_old_tsf",
+      "component_name": "OLD TAILINGS\nSTORAGE FACILITY",
+      "excel_sheet": "Flows_Old TSF",
+      "excel_column": "Old Tailings Storage Facility \u2192 Old Tailings Storage Facility",
+      "enabled": true
+    },
+    {
+      "component_id": "oldtsf_trtd",
+      "component_name": "TRTD 1-2(RWDs)",
+      "excel_sheet": "Flows_Old TSF",
+      "excel_column": "TSF Return Water Dams (TRTD) \u2192 TSF Return Water Dams (TRTD)",
+      "enabled": true
+    },
+    {
+      "component_id": "oldtsf_new_tsf",
+      "component_name": "NEW TAILINGS\nSTORAGE FACILITY",
+      "excel_sheet": "Flows_New TSF",
+      "excel_column": "New Tailings Storage Facility \u2192 New Tailings Storage Facility",
+      "enabled": true
+    },
+    {
+      "component_id": "oldtsf_nt_rwd",
+      "component_name": "NT RWD 1&2",
+      "excel_sheet": "Flows_New TSF",
+      "excel_column": "New TSF Return Water Dams \u2192 New TSF Return Water Dams",
+      "enabled": true
+    },
+    {
+      "component_id": "ug2plant_ug2pcd1",
+      "component_name": "UG2PCD 1",
+      "excel_sheet": "Flows_UG2 Plant",
+      "excel_column": "UG2 Plant Clean Dam 1 \u2192 UG2 Plant Clean Dam 1",
+      "enabled": true
+    },
+    {
+      "component_id": "merplant_mpswd12",
+      "component_name": "MPSWD 1-2",
+      "excel_sheet": "Flows_Merensky Plant",
+      "excel_column": "Merensky Storm Water Dams \u2192 Merensky Storm Water Dams",
+      "enabled": true
+    }
+  ]
+}

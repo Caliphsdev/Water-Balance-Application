@@ -1,0 +1,407 @@
+INFO | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+INFO | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+INFO | === ANALYTICS Dashboard Logger Initialized ===
+INFO | Analytics dashboard initializing...
+INFO | === MONITORING.DASHBOARD Dashboard Logger Initialized ===
+INFO | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+INFO | DirectoryLoadWorker initialized for static_boreholes
+INFO | Cache functions configured
+INFO | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+INFO | Started background load for static borehole data from C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+INFO | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+INFO | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+INFO | DirectoryLoadWorker initialized for borehole_monitoring
+INFO | Cache functions configured
+INFO | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+INFO | Started background load for monitoring borehole data from C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+INFO | [_load_saved_directories] PCD dir from config: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+DEBUG | Cache HIT: Boreholes Static Levels April - June  2021.xls
+INFO | [_load_saved_directories] PCD path exists: True
+INFO | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+INFO | [_load_saved_directories] Calling _load_pcd_data(C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam)
+DEBUG | Cache HIT: Boreholes Static Levels April - June  2022.xls
+DEBUG | Cache HIT: Boreholes Q3 2021.xls
+INFO | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+INFO | DirectoryLoadWorker initialized for pcd_monitoring
+INFO | Cache functions configured
+DEBUG | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+DEBUG | Cache HIT: Copy of Boreholes Q4 2021.xls
+INFO | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+DEBUG | Cache HIT: Boreholes Static Levels Q3  2021.xls
+INFO | Started background load for PCD monitoring data from C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+INFO | Combined 4 files into DataFrame: 108 total rows, 6 columns
+DEBUG | Cache HIT: Copy of Boreholes Q4 2022.xls
+INFO | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+INFO | Cache performance: 4 cached, 0 parsed, 4 total
+INFO | Combined 3 files into DataFrame: 46 total rows, 14 columns
+DEBUG | Cache HIT: Copy of Pollution control dams Q3 2021.xls
+INFO | Directory loading complete
+INFO | Cache performance: 3 cached, 0 parsed, 3 total
+DEBUG | Cache HIT: Copy Pollution control dams Q4 2022.xls
+INFO | Directory loading complete
+DEBUG | Cache HIT: Pollution control dams Q4 2021.xls
+INFO | Combined 3 files into DataFrame: 55 total rows, 28 columns
+INFO | Cache performance: 3 cached, 0 parsed, 3 total
+INFO | Directory loading complete
+INFO | _populate_table_model START: 108 rows x 3 columns
+INFO |   DataFrame columns: ['Date', 'Borehole', 'Static Level']
+INFO |   Column index mapping: {'Date': 'Date', 'Borehole': 'Borehole', 'Static Level': 'Static Level'}
+INFO | _on_monitoring_complete: Received 46 rows. Errors: {'errors': None, 'failed_files': 0, 'loaded_files': 3, 'total_files': 3}
+INFO | Monitoring data columns: ['borehole', 'borehole_norm', 'date', 'aquifer', 'Calcium', 'Chloride', 'Magnesium', 'Nitrate (NO3)', 'Potassium', 'Sulphate', 'Total Desolved solid', 'Static Level', 'Sodium', 'source_file']
+INFO | Monitoring data shape: (46, 14)
+DEBUG | Column matches: date=date, borehole=borehole, aquifer=aquifer
+DEBUG | Standardized data ready: (46, 17)
+INFO | Calling populate_table_model with 46 rows and headers: ['Borehole', 'Aquifer', 'Date', 'Calcium', 'Chloride', 'Magnesium', 'Nitrate (No3)', 'Potassium', 'Sulphate', 'Total Desolved solid', 'Static Level', 'Sodium']
+INFO | _populate_table_model START: 46 rows x 12 columns
+INFO |   DataFrame columns: ['borehole', 'borehole_norm', 'date', 'aquifer', 'Calcium', 'Chloride', 'Magnesium', 'Nitrate (NO3)', 'Potassium', 'Sulphate', 'Total Desolved solid', 'Static Level', 'Sodium', 'source_file', 'Date', 'Borehole', 'Aquifer']
+INFO |   Column index mapping: {'Borehole': 'Borehole', 'Aquifer': 'Aquifer', 'Date': 'Date', 'Calcium': 'Calcium', 'Chloride': 'Chloride', 'Magnesium': 'Magnesium', 'Nitrate (No3)': None, 'Potassium': 'Potassium', 'Sulphate': 'Sulphate', 'Total Desolved solid': 'Total Desolved solid', 'Static Level': 'Static Level', 'Sodium': 'Sodium'}
+INFO | _on_pcd_complete CALLED with 55 rows
+INFO | PCD data loaded: columns = ['borehole', 'borehole_norm', 'date', 'aquifer', 'Aluminium as AL', 'Total Hardness as CaCO3', 'Iron as Fe', 'Total Alkalinity as CaCO3', 'pH', 'Electrical Conductivity', 'Total dissolved solids', 'Chloride', 'Fluoride', 'Nitrate (NO3)', 'Sulphate', 'Total inorganic nitrogen', 'Calcium', 'Magnesium', 'Sodium', 'Potassium', 'Manganese', 'Chrome hexavalent', 'Chrome total', 'Cadmium', 'Vanadium', 'Lead', 'Copper', 'source_file']
+INFO | PCD: date_col=date, point_col=borehole
+INFO |   Creating 'Point' column from 'borehole' (type: <class 'pandas.Series'>)
+INFO |   First 3 Point values: ['CPD 1', 'CPD 1', 'CPSWD 1']
+INFO |   PCD DataFrame after normalization: columns = ['borehole', 'borehole_norm', 'date', 'aquifer', 'Aluminium as AL', 'Total Hardness as CaCO3', 'Iron as Fe', 'Total Alkalinity as CaCO3', 'pH', 'Electrical Conductivity', 'Total dissolved solids', 'Chloride', 'Fluoride', 'Nitrate (NO3)', 'Sulphate', 'Total inorganic nitrogen', 'Calcium', 'Magnesium', 'Sodium', 'Potassium', 'Manganese', 'Chrome hexavalent', 'Chrome total', 'Cadmium', 'Vanadium', 'Lead', 'Copper', 'source_file', 'Date', 'Point']
+INFO |   DataFrame shape: (55, 30)
+INFO |   First row: {'borehole': 'CPD 1', 'borehole_norm': 'CPD 1', 'date': Timestamp('2021-01-12 12:28:00'), 'aquifer': '', 'Aluminium as AL': np.float64(0.2), 'Total Hardness as CaCO3': np.float64(417.0), 'Iron as Fe': np.float64(0.23), 'Total Alkalinity as CaCO3': np.float64(190.0), 'pH': np.float64(8.36), 'Electrical Conductivity': np.float64(195.0), 'Total dissolved solids': np.float64(1334.0), 'Chloride': np.float64(188.0), 'Fluoride': np.float64(0.8), 'Nitrate (NO3)': np.float64(52.4), 'Sulphate': np.float64(312.0), 'Total inorganic nitrogen': np.float64(102.0), 'Calcium': np.float64(40.1), 'Magnesium': '76..9', 'Sodium': np.float64(227.0), 'Potassium': np.float64(35.0), 'Manganese': np.float64(0.02), 'Chrome hexavalent': np.float64(0.01), 'Chrome total': np.float64(0.1), 'Cadmium': np.float64(0.003), 'Vanadium': np.float64(0.01), 'Lead': np.float64(0.01), 'Copper': np.float64(0.01), 'source_file': 'Copy of Pollution control dams Q3 2021.xls', 'Date': Timestamp('2021-01-12 12:28:00'), 'Point': 'CPD 1'}
+INFO |   Table headers: ['Monitoring Point', 'Date', 'Aluminium as AL', 'Total Hardness as CaCO3', 'Iron as Fe', 'Total Alkalinity as CaCO3', 'pH', 'Electrical Conductivity', 'Total dissolved solids', 'Chloride', 'Fluoride', 'Nitrate (NO3)', 'Sulphate', 'Total inorganic nitrogen', 'Calcium', 'Magnesium', 'Sodium', 'Potassium', 'Manganese', 'Chrome hexavalent', 'Chrome total', 'Cadmium', 'Vanadium', 'Lead', 'Copper']
+INFO |   Starting populate_table_model...
+INFO | _populate_table_model START: 55 rows x 25 columns
+INFO |   DataFrame columns: ['borehole', 'borehole_norm', 'date', 'aquifer', 'Aluminium as AL', 'Total Hardness as CaCO3', 'Iron as Fe', 'Total Alkalinity as CaCO3', 'pH', 'Electrical Conductivity', 'Total dissolved solids', 'Chloride', 'Fluoride', 'Nitrate (NO3)', 'Sulphate', 'Total inorganic nitrogen', 'Calcium', 'Magnesium', 'Sodium', 'Potassium', 'Manganese', 'Chrome hexavalent', 'Chrome total', 'Cadmium', 'Vanadium', 'Lead', 'Copper', 'source_file', 'Date', 'Point']
+INFO |   Using alias: 'Monitoring Point' -> 'Point'
+INFO |   Column index mapping: {'Monitoring Point': 'Point', 'Date': 'Date', 'Aluminium as AL': 'Aluminium as AL', 'Total Hardness as CaCO3': 'Total Hardness as CaCO3', 'Iron as Fe': 'Iron as Fe', 'Total Alkalinity as CaCO3': 'Total Alkalinity as CaCO3', 'pH': 'pH', 'Electrical Conductivity': 'Electrical Conductivity', 'Total dissolved solids': 'Total dissolved solids', 'Chloride': 'Chloride', 'Fluoride': 'Fluoride', 'Nitrate (NO3)': 'Nitrate (NO3)', 'Sulphate': 'Sulphate', 'Total inorganic nitrogen': 'Total inorganic nitrogen', 'Calcium': 'Calcium', 'Magnesium': 'Magnesium', 'Sodium': 'Sodium', 'Potassium': 'Potassium', 'Manganese': 'Manganese', 'Chrome hexavalent': 'Chrome hexavalent', 'Chrome total': 'Chrome total', 'Cadmium': 'Cadmium', 'Vanadium': 'Vanadium', 'Lead': 'Lead', 'Copper': 'Copper'}
+INFO | DirectoryLoadWorker initialized for static_boreholes
+INFO | Cache functions configured
+INFO | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+INFO | Started background load for static borehole data from C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+INFO | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+DEBUG | Cache HIT: Boreholes Static Levels April - June  2021.xls
+DEBUG | Cache HIT: Boreholes Static Levels April - June  2022.xls
+DEBUG | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+DEBUG | Cache HIT: Boreholes Static Levels Q3  2021.xls
+INFO | Combined 4 files into DataFrame: 108 total rows, 6 columns
+INFO | Cache performance: 4 cached, 0 parsed, 4 total
+INFO | Directory loading complete
+INFO | _populate_table_model START: 108 rows x 3 columns
+INFO |   DataFrame columns: ['Date', 'Borehole', 'Static Level']
+INFO |   Column index mapping: {'Date': 'Date', 'Borehole': 'Borehole', 'Static Level': 'Static Level'}
+INFO | _populate_table_model END: populated 108 rows
+INFO | Static borehole load complete: Loaded 108 records from 4 file(s), 10 boreholes
+INFO | _populate_table_model END: populated 55 rows
+INFO |   populate_table_model completed!
+INFO |   Populating comboBox_6 with 12 points: ['CPD 1', 'CPSWD 1', 'MDCD 1', 'MDCD 2', 'NDCD 2']...
+INFO |   comboBox_6 now has 13 items
+DEBUG | [FILTER] PCD point changed to: ''
+DEBUG | [FILTER] Found point column: Point
+INFO | [FILTER] Showing all PCD data: 55 rows
+INFO | _populate_table_model START: 55 rows x 25 columns
+INFO |   DataFrame columns: ['borehole', 'borehole_norm', 'date', 'aquifer', 'Aluminium as AL', 'Total Hardness as CaCO3', 'Iron as Fe', 'Total Alkalinity as CaCO3', 'pH', 'Electrical Conductivity', 'Total dissolved solids', 'Chloride', 'Fluoride', 'Nitrate (NO3)', 'Sulphate', 'Total inorganic nitrogen', 'Calcium', 'Magnesium', 'Sodium', 'Potassium', 'Manganese', 'Chrome hexavalent', 'Chrome total', 'Cadmium', 'Vanadium', 'Lead', 'Copper', 'source_file', 'Date', 'Point']
+INFO |   Column index mapping: {'Monitoring Point': 'Point', 'Date': 'Date', 'Aluminium as AL': 'Aluminium as AL', 'Total Hardness as CaCO3': 'Total Hardness as CaCO3', 'Iron as Fe': 'Iron as Fe', 'Total Alkalinity as CaCO3': 'Total Alkalinity as CaCO3', 'pH': 'pH', 'Electrical Conductivity': 'Electrical Conductivity', 'Total dissolved solids': 'Total dissolved solids', 'Chloride': 'Chloride', 'Fluoride': 'Fluoride', 'Nitrate (NO3)': 'Nitrate (NO3)', 'Sulphate': 'Sulphate', 'Total inorganic nitrogen': 'Total inorganic nitrogen', 'Calcium': 'Calcium', 'Magnesium': 'Magnesium', 'Sodium': 'Sodium', 'Potassium': 'Potassium', 'Manganese': 'Manganese', 'Chrome hexavalent': 'Chrome hexavalent', 'Chrome total': 'Chrome total', 'Cadmium': 'Cadmium', 'Vanadium': 'Vanadium', 'Lead': 'Lead', 'Copper': 'Copper'}
+INFO | _populate_table_model END: populated 55 rows
+DEBUG | [FILTER] PCD point changed to: 'All'
+DEBUG | [FILTER] Found point column: Point
+INFO | [FILTER] Showing all PCD data: 55 rows
+INFO | _populate_table_model START: 55 rows x 25 columns
+INFO |   DataFrame columns: ['borehole', 'borehole_norm', 'date', 'aquifer', 'Aluminium as AL', 'Total Hardness as CaCO3', 'Iron as Fe', 'Total Alkalinity as CaCO3', 'pH', 'Electrical Conductivity', 'Total dissolved solids', 'Chloride', 'Fluoride', 'Nitrate (NO3)', 'Sulphate', 'Total inorganic nitrogen', 'Calcium', 'Magnesium', 'Sodium', 'Potassium', 'Manganese', 'Chrome hexavalent', 'Chrome total', 'Cadmium', 'Vanadium', 'Lead', 'Copper', 'source_file', 'Date', 'Point']
+INFO |   Column index mapping: {'Monitoring Point': 'Point', 'Date': 'Date', 'Aluminium as AL': 'Aluminium as AL', 'Total Hardness as CaCO3': 'Total Hardness as CaCO3', 'Iron as Fe': 'Iron as Fe', 'Total Alkalinity as CaCO3': 'Total Alkalinity as CaCO3', 'pH': 'pH', 'Electrical Conductivity': 'Electrical Conductivity', 'Total dissolved solids': 'Total dissolved solids', 'Chloride': 'Chloride', 'Fluoride': 'Fluoride', 'Nitrate (NO3)': 'Nitrate (NO3)', 'Sulphate': 'Sulphate', 'Total inorganic nitrogen': 'Total inorganic nitrogen', 'Calcium': 'Calcium', 'Magnesium': 'Magnesium', 'Sodium': 'Sodium', 'Potassium': 'Potassium', 'Manganese': 'Manganese', 'Chrome hexavalent': 'Chrome hexavalent', 'Chrome total': 'Chrome total', 'Cadmium': 'Cadmium', 'Vanadium': 'Vanadium', 'Lead': 'Lead', 'Copper': 'Copper'}
+INFO | _populate_table_model END: populated 55 rows
+INFO | PCD Monitoring: Loaded 55 records from 3 file(s)
+INFO | PCD monitoring load complete: 55 records, 0 errors
+INFO | _populate_table_model END: populated 46 rows
+DEBUG | [FILTER] Monitoring aquifer changed to: ''
+INFO | [FILTER] Showing all data: 46 rows
+INFO | _populate_table_model START: 46 rows x 12 columns
+INFO |   DataFrame columns: ['borehole', 'borehole_norm', 'date', 'aquifer', 'Calcium', 'Chloride', 'Magnesium', 'Nitrate (NO3)', 'Potassium', 'Sulphate', 'Total Desolved solid', 'Static Level', 'Sodium', 'source_file', 'Date', 'Borehole', 'Aquifer']
+INFO |   Column index mapping: {'Borehole': 'Borehole', 'Aquifer': 'Aquifer', 'Date': 'Date', 'Calcium': 'Calcium', 'Chloride': 'Chloride', 'Magnesium': 'Magnesium', 'Nitrate (No3)': None, 'Potassium': 'Potassium', 'Sulphate': 'Sulphate', 'Total Desolved solid': 'Total Desolved solid', 'Static Level': 'Static Level', 'Sodium': 'Sodium'}
+INFO | _populate_table_model END: populated 46 rows
+DEBUG | [FILTER] Table updated with 46 rows
+DEBUG | [FILTER] Monitoring aquifer changed to: 'All'
+INFO | [FILTER] Showing all data: 46 rows
+INFO | _populate_table_model START: 46 rows x 12 columns
+INFO |   DataFrame columns: ['borehole', 'borehole_norm', 'date', 'aquifer', 'Calcium', 'Chloride', 'Magnesium', 'Nitrate (NO3)', 'Potassium', 'Sulphate', 'Total Desolved solid', 'Static Level', 'Sodium', 'source_file', 'Date', 'Borehole', 'Aquifer']
+INFO |   Column index mapping: {'Borehole': 'Borehole', 'Aquifer': 'Aquifer', 'Date': 'Date', 'Calcium': 'Calcium', 'Chloride': 'Chloride', 'Magnesium': 'Magnesium', 'Nitrate (No3)': None, 'Potassium': 'Potassium', 'Sulphate': 'Sulphate', 'Total Desolved solid': 'Total Desolved solid', 'Static Level': 'Static Level', 'Sodium': 'Sodium'}
+INFO | _populate_table_model END: populated 46 rows
+DEBUG | [FILTER] Table updated with 46 rows
+INFO | Monitoring borehole load complete: 46 records, 0 errors
+INFO | _populate_table_model END: populated 108 rows
+INFO | Static borehole load complete: Loaded 108 records from 4 file(s), 10 boreholes
+DEBUG | Restored year: 2025
+DEBUG | Restored month: 12
+DEBUG | Filter dropdowns populated
+DEBUG | Toolbar buttons connected
+INFO | Loaded diagram for UG2N
+DEBUG | Created zone background: UG2 North Decline Area
+DEBUG | Created zone background: Stockpile Area
+DEBUG | Created zone background: UG2 Main Decline Area
+DEBUG | Created zone background: Merensky South Area
+DEBUG | Created zone background: UG2 Plant Area
+DEBUG | Created zone background: Merensky Plant Area
+DEBUG | Created zone background: Old TSF
+DEBUG | Created zone background: New TSF
+DEBUG | Created FlowNodeItem: bh_ndgwa
+DEBUG | Created FlowNodeItem: rainfall_inflow
+DEBUG | Created FlowNodeItem: softening
+DEBUG | Created FlowNodeItem: reservoir
+DEBUG | Created FlowNodeItem: trp_clinic
+DEBUG | Created FlowNodeItem: offices
+DEBUG | Created FlowNodeItem: sewage
+DEBUG | Created FlowNodeItem: ndcd
+DEBUG | Created FlowNodeItem: north_decline
+DEBUG | Created FlowNodeItem: north_shaft
+DEBUG | Created FlowNodeItem: septic
+DEBUG | Created FlowNodeItem: consumption
+DEBUG | Created FlowNodeItem: losses
+DEBUG | Created FlowNodeItem: consumption2
+DEBUG | Created FlowNodeItem: losses2
+DEBUG | Created FlowNodeItem: spill
+DEBUG | Created FlowNodeItem: evaporation
+DEBUG | Created FlowNodeItem: dust_suppression
+DEBUG | Created FlowNodeItem: stockpile_area
+DEBUG | Created FlowNodeItem: spcd1
+DEBUG | Created FlowNodeItem: stockpile_offices
+DEBUG | Created FlowNodeItem: stockpile_septic
+DEBUG | Created FlowNodeItem: stockpile_consumption
+DEBUG | Created FlowNodeItem: stockpile_spill
+DEBUG | Created FlowNodeItem: stockpile_evaporation
+DEBUG | Created FlowNodeItem: stockpile_dust_suppression
+DEBUG | Created FlowNodeItem: stockpile_evaporation2
+DEBUG | Created FlowNodeItem: stockpile_bh_gwa
+DEBUG | Created FlowNodeItem: stockpile_rainfall
+DEBUG | Created FlowNodeItem: stockpile_rainfall_spcd1
+DEBUG | Created FlowNodeItem: ug2s_borehole
+DEBUG | Created FlowNodeItem: ug2s_rainfall
+DEBUG | Created FlowNodeItem: ug2s_mdcdg
+DEBUG | Created FlowNodeItem: ug2s_soft
+DEBUG | Created FlowNodeItem: ug2s_res
+DEBUG | Created FlowNodeItem: ug2s_offices
+DEBUG | Created FlowNodeItem: ug2s_sd
+DEBUG | Created FlowNodeItem: ug2s_sdsa
+DEBUG | Created FlowNodeItem: ug2s_stp
+DEBUG | Created FlowNodeItem: ug2s_consumption
+DEBUG | Created FlowNodeItem: ug2s_mdcd_spill
+DEBUG | Created FlowNodeItem: ug2s_mdcd_evap
+DEBUG | Created FlowNodeItem: ug2s_mdcd_dust
+DEBUG | Created FlowNodeItem: ug2s_soft_losses
+DEBUG | Created FlowNodeItem: ug2s_stp_losses
+DEBUG | Created FlowNodeItem: mers_borehole
+DEBUG | Created FlowNodeItem: mers_rainfall
+DEBUG | Created FlowNodeItem: mers_mdcdg
+DEBUG | Created FlowNodeItem: mers_soft
+DEBUG | Created FlowNodeItem: mers_offices
+DEBUG | Created FlowNodeItem: mers_sd
+DEBUG | Created FlowNodeItem: mers_sdsa
+DEBUG | Created FlowNodeItem: mers_consumption
+DEBUG | Created FlowNodeItem: mers_mdcd_spill
+DEBUG | Created FlowNodeItem: mers_mdcd_evap
+DEBUG | Created FlowNodeItem: mers_mdcd_dust
+DEBUG | Created FlowNodeItem: mers_soft_losses
+DEBUG | Created FlowNodeItem: oldtsf_gwa_boreholes
+DEBUG | Created FlowNodeItem: oldtsf_old_tsf_rainrun
+DEBUG | Created FlowNodeItem: oldtsf_trtd_rain
+DEBUG | Created FlowNodeItem: oldtsf_new_tsf_rainrun
+DEBUG | Created FlowNodeItem: oldtsf_nt_rwd_rain
+DEBUG | Created FlowNodeItem: oldtsf_offices
+DEBUG | Created FlowNodeItem: oldtsf_old_tsf
+DEBUG | Created FlowNodeItem: oldtsf_trtd
+DEBUG | Created FlowNodeItem: oldtsf_new_tsf
+DEBUG | Created FlowNodeItem: oldtsf_nt_rwd
+DEBUG | Created FlowNodeItem: oldtsf_off_septic
+DEBUG | Created FlowNodeItem: oldtsf_off_consumption
+DEBUG | Created FlowNodeItem: oldtsf_old_tsf_evap
+DEBUG | Created FlowNodeItem: oldtsf_old_tsf_interstitial
+DEBUG | Created FlowNodeItem: oldtsf_old_tsf_seepage
+DEBUG | Created FlowNodeItem: oldtsf_trtd_evap
+DEBUG | Created FlowNodeItem: oldtsf_trtd_spill
+DEBUG | Created FlowNodeItem: oldtsf_new_tsf_evap
+DEBUG | Created FlowNodeItem: oldtsf_new_tsf_interstitial
+DEBUG | Created FlowNodeItem: oldtsf_new_tsf_seepage
+DEBUG | Created FlowNodeItem: oldtsf_nt_rwd_evap
+DEBUG | Created FlowNodeItem: oldtsf_nt_rwd_spill
+DEBUG | Created FlowNodeItem: ug2plant_cpgwa_boreholes
+DEBUG | Created FlowNodeItem: ug2plant_ug2pcd1_rain
+DEBUG | Created FlowNodeItem: ug2plant_ug2p_ore_water
+DEBUG | Created FlowNodeItem: ug2plant_ug2p_rivers
+DEBUG | Created FlowNodeItem: ug2plant_ug2p_off
+DEBUG | Created FlowNodeItem: ug2plant_ug2p_plant
+DEBUG | Created FlowNodeItem: ug2plant_cprwsd1
+DEBUG | Created FlowNodeItem: ug2plant_ug2pcd1
+DEBUG | Created FlowNodeItem: ug2plant_ug2p_res
+DEBUG | Created FlowNodeItem: ug2plant_cppwt
+DEBUG | Created FlowNodeItem: ug2plant_ug2p_soft
+DEBUG | Created FlowNodeItem: ug2plant_ug2p_stp
+DEBUG | Created FlowNodeItem: ug2plant_ug2pcd1_dust
+DEBUG | Created FlowNodeItem: ug2plant_ug2pcd1_evap
+DEBUG | Created FlowNodeItem: ug2plant_ug2pcd1_spill
+DEBUG | Created FlowNodeItem: ug2plant_ug2p_off_consumption
+DEBUG | Created FlowNodeItem: ug2plant_ug2p_plant_losses
+DEBUG | Created FlowNodeItem: ug2plant_ug2p_plant_product
+DEBUG | Created FlowNodeItem: ug2plant_ug2p_soft_losses
+DEBUG | Created FlowNodeItem: ug2plant_ug2p_stp_losses
+DEBUG | Created FlowNodeItem: merplant_mprwsd1_rivers
+DEBUG | Created FlowNodeItem: merplant_merp_ore_water
+DEBUG | Created FlowNodeItem: merplant_mpswd12_rain
+DEBUG | Created FlowNodeItem: merplant_mpgwa_boreholes
+DEBUG | Created FlowNodeItem: merplant_mprwsd1
+DEBUG | Created FlowNodeItem: merplant_merp_plant
+DEBUG | Created FlowNodeItem: merplant_mpswd12
+DEBUG | Created FlowNodeItem: merplant_merp_soft
+DEBUG | Created FlowNodeItem: merplant_merp_res
+DEBUG | Created FlowNodeItem: merplant_merp_off
+DEBUG | Created FlowNodeItem: merplant_merp_stp
+DEBUG | Created FlowNodeItem: merplant_merp_plant_product
+DEBUG | Created FlowNodeItem: merplant_merp_plant_losses
+DEBUG | Created FlowNodeItem: merplant_mpswd12_dust
+DEBUG | Created FlowNodeItem: merplant_mpswd12_evap
+DEBUG | Created FlowNodeItem: merplant_mpswd12_spill
+DEBUG | Created FlowNodeItem: merplant_merp_off_consumption
+DEBUG | Created FlowNodeItem: merplant_merp_off_losses
+DEBUG | Created FlowNodeItem: merplant_merp_stp_losses
+DEBUG | Created FlowNodeItem: klein_dwars_river
+DEBUG | Created FlowNodeItem: dwarsrivierriver
+DEBUG | Created FlowNodeItem: septick
+DEBUG | Created FlowNodeItem: septic_tank
+DEBUG | Created FlowNodeItem: scavenger_boreholes1_6
+DEBUG | Created FlowNodeItem: septic_tank_1
+DEBUG | Created FlowNodeItem: scavenger_borehole1_6
+DEBUG | Created FlowNodeItem: septic_tank_2
+DEBUG | Created FlowEdgeItem: softening -> reservoir
+DEBUG | Created FlowEdgeItem: reservoir -> offices
+DEBUG | Created FlowEdgeItem: offices -> sewage
+DEBUG | Created FlowEdgeItem: rainfall_inflow -> ndcd
+DEBUG | Created FlowEdgeItem: bh_ndgwa -> softening
+DEBUG | Created FlowEdgeItem: softening -> trp_clinic
+DEBUG | Created FlowEdgeItem: trp_clinic -> septic
+DEBUG | Created FlowEdgeItem: north_decline -> ndcd
+DEBUG | Created FlowEdgeItem: north_shaft -> ndcd
+DEBUG | Created FlowEdgeItem: trp_clinic -> consumption
+DEBUG | Created FlowEdgeItem: softening -> losses
+DEBUG | Created FlowEdgeItem: offices -> consumption2
+DEBUG | Created FlowEdgeItem: sewage -> losses2
+DEBUG | Created FlowEdgeItem: ndcd -> spill
+DEBUG | Created FlowEdgeItem: ndcd -> evaporation
+DEBUG | Created FlowEdgeItem: ndcd -> dust_suppression
+DEBUG | Created FlowEdgeItem: sewage -> junction:1165:337
+DEBUG | Created FlowEdgeItem: ndcd -> north_decline
+DEBUG | Created FlowEdgeItem: stockpile_bh_gwa -> stockpile_offices
+DEBUG | Created FlowEdgeItem: stockpile_offices -> stockpile_consumption
+DEBUG | Created FlowEdgeItem: stockpile_offices -> stockpile_septic
+DEBUG | Created FlowEdgeItem: stockpile_rainfall_spcd1 -> spcd1
+DEBUG | Created FlowEdgeItem: stockpile_rainfall -> stockpile_area
+DEBUG | Created FlowEdgeItem: stockpile_area -> stockpile_evaporation
+DEBUG | Created FlowEdgeItem: spcd1 -> stockpile_dust_suppression
+DEBUG | Created FlowEdgeItem: spcd1 -> stockpile_spill
+DEBUG | Created FlowEdgeItem: stockpile_area -> spcd1
+DEBUG | Created FlowEdgeItem: spcd1 -> stockpile_evaporation2
+DEBUG | Created FlowEdgeItem: stockpile_area -> spcd1
+DEBUG | Created FlowEdgeItem: ug2s_borehole -> ug2s_soft
+DEBUG | Created FlowEdgeItem: ug2s_soft -> ug2s_stp_losses
+DEBUG | Created FlowEdgeItem: ug2s_soft -> ug2s_res
+DEBUG | Created FlowEdgeItem: ug2s_offices -> ug2s_consumption
+DEBUG | Created FlowEdgeItem: ug2s_stp -> ug2s_soft_losses
+DEBUG | Created FlowEdgeItem: ug2s_rainfall -> ug2s_mdcdg
+DEBUG | Created FlowEdgeItem: ug2s_sd -> ug2s_mdcdg
+DEBUG | Created FlowEdgeItem: ug2s_mdcdg -> ug2s_sd
+DEBUG | Created FlowEdgeItem: ug2s_mdcdg -> ug2s_mdcd_evap
+DEBUG | Created FlowEdgeItem: ug2s_mdcdg -> ug2s_mdcd_spill
+DEBUG | Created FlowEdgeItem: ug2s_mdcdg -> ug2s_mdcd_dust
+DEBUG | Created FlowEdgeItem: ug2s_sdsa -> ug2s_mdcdg
+DEBUG | Created FlowEdgeItem: ug2s_stp -> junction:1039:1127
+DEBUG | Created FlowEdgeItem: ug2s_offices -> ug2s_stp
+DEBUG | Created FlowEdgeItem: ug2s_res -> ug2s_offices
+DEBUG | Created FlowEdgeItem: mers_borehole -> mers_soft
+DEBUG | Created FlowEdgeItem: mers_soft -> mers_offices
+DEBUG | Created FlowEdgeItem: mers_offices -> mers_consumption
+DEBUG | Created FlowEdgeItem: mers_soft -> mers_soft_losses
+DEBUG | Created FlowEdgeItem: mers_offices -> ug2s_stp
+DEBUG | Created FlowEdgeItem: mers_mdcdg -> mers_mdcd_dust
+DEBUG | Created FlowEdgeItem: mers_mdcdg -> mers_mdcd_evap
+DEBUG | Created FlowEdgeItem: mers_mdcdg -> mers_mdcd_spill
+DEBUG | Created FlowEdgeItem: mers_sd -> mers_mdcdg
+DEBUG | Created FlowEdgeItem: mers_mdcdg -> mers_sd
+DEBUG | Created FlowEdgeItem: mers_rainfall -> mers_mdcdg
+DEBUG | Created FlowEdgeItem: mers_mdcdg -> ug2s_mdcdg
+DEBUG | Created FlowEdgeItem: mers_sdsa -> ug2s_mdcdg
+DEBUG | Created FlowEdgeItem: oldtsf_offices -> oldtsf_off_septic
+DEBUG | Created FlowEdgeItem: oldtsf_offices -> oldtsf_off_consumption
+DEBUG | Created FlowEdgeItem: oldtsf_old_tsf -> oldtsf_old_tsf_evap
+DEBUG | Created FlowEdgeItem: oldtsf_old_tsf -> oldtsf_old_tsf_interstitial
+DEBUG | Created FlowEdgeItem: oldtsf_old_tsf -> oldtsf_old_tsf_seepage
+DEBUG | Created FlowEdgeItem: oldtsf_trtd -> oldtsf_trtd_evap
+DEBUG | Created FlowEdgeItem: oldtsf_trtd -> oldtsf_trtd_spill
+DEBUG | Created FlowEdgeItem: oldtsf_trtd_rain -> oldtsf_trtd
+DEBUG | Created FlowEdgeItem: oldtsf_old_tsf_rainrun -> oldtsf_old_tsf
+DEBUG | Created FlowEdgeItem: oldtsf_old_tsf -> oldtsf_trtd
+DEBUG | Created FlowEdgeItem: oldtsf_trtd -> oldtsf_old_tsf
+DEBUG | Created FlowEdgeItem: oldtsf_old_tsf -> oldtsf_trtd
+DEBUG | Created FlowEdgeItem: oldtsf_new_tsf_rainrun -> oldtsf_new_tsf
+DEBUG | Created FlowEdgeItem: oldtsf_new_tsf -> oldtsf_new_tsf_evap
+DEBUG | Created FlowEdgeItem: oldtsf_new_tsf -> oldtsf_new_tsf_interstitial
+DEBUG | Created FlowEdgeItem: oldtsf_new_tsf -> oldtsf_new_tsf_seepage
+DEBUG | Created FlowEdgeItem: oldtsf_nt_rwd -> oldtsf_nt_rwd_evap
+DEBUG | Created FlowEdgeItem: oldtsf_nt_rwd -> oldtsf_nt_rwd_spill
+DEBUG | Created FlowEdgeItem: oldtsf_nt_rwd_rain -> oldtsf_nt_rwd
+DEBUG | Created FlowEdgeItem: oldtsf_new_tsf -> oldtsf_nt_rwd
+DEBUG | Created FlowEdgeItem: oldtsf_new_tsf -> oldtsf_nt_rwd
+DEBUG | Created FlowEdgeItem: oldtsf_nt_rwd -> oldtsf_new_tsf
+DEBUG | Created FlowEdgeItem: ug2plant_ug2p_rivers -> ug2plant_cprwsd1
+DEBUG | Created FlowEdgeItem: klein_dwars_river -> ug2plant_cprwsd1
+DEBUG | Created FlowEdgeItem: ug2plant_cprwsd1 -> ug2plant_ug2p_plant
+DEBUG | Created FlowEdgeItem: ug2plant_ug2p_ore_water -> ug2plant_ug2p_plant
+DEBUG | Created FlowEdgeItem: ug2plant_ug2p_plant -> ug2plant_ug2p_plant_losses
+DEBUG | Created FlowEdgeItem: ug2plant_ug2p_plant -> ug2plant_ug2p_plant_product
+DEBUG | Created FlowEdgeItem: ug2plant_ug2pcd1 -> ug2plant_ug2pcd1_spill
+DEBUG | Created FlowEdgeItem: ug2plant_ug2pcd1 -> ug2plant_ug2pcd1_evap
+DEBUG | Created FlowEdgeItem: ug2plant_ug2pcd1 -> ug2plant_ug2pcd1_dust
+DEBUG | Created FlowEdgeItem: ug2plant_ug2pcd1 -> ug2plant_ug2p_plant
+DEBUG | Created FlowEdgeItem: ug2plant_ug2pcd1_rain -> ug2plant_ug2pcd1
+DEBUG | Created FlowEdgeItem: ug2plant_ug2p_plant -> ug2plant_ug2pcd1
+DEBUG | Created FlowEdgeItem: ug2plant_ug2p_soft -> ug2plant_ug2p_stp_losses
+DEBUG | Created FlowEdgeItem: ug2plant_ug2p_off -> ug2plant_ug2p_off_consumption
+DEBUG | Created FlowEdgeItem: ug2plant_ug2p_stp -> ug2plant_ug2p_soft_losses
+DEBUG | Created FlowEdgeItem: ug2plant_ug2p_off -> ug2plant_ug2p_stp
+DEBUG | Created FlowEdgeItem: ug2plant_ug2p_res -> ug2plant_ug2p_off
+DEBUG | Created FlowEdgeItem: ug2plant_cpgwa_boreholes -> ug2plant_ug2p_soft
+DEBUG | Created FlowEdgeItem: merplant_mprwsd1_rivers -> merplant_mprwsd1
+DEBUG | Created FlowEdgeItem: dwarsrivierriver -> merplant_mprwsd1
+DEBUG | Created FlowEdgeItem: merplant_merp_ore_water -> merplant_merp_plant
+DEBUG | Created FlowEdgeItem: merplant_merp_plant -> merplant_merp_plant_product
+DEBUG | Created FlowEdgeItem: merplant_merp_plant -> merplant_merp_plant_losses
+DEBUG | Created FlowEdgeItem: merplant_merp_stp -> merplant_merp_stp_losses
+DEBUG | Created FlowEdgeItem: merplant_mpswd12 -> merplant_mpswd12_dust
+DEBUG | Created FlowEdgeItem: merplant_mpswd12 -> merplant_mpswd12_evap
+DEBUG | Created FlowEdgeItem: merplant_mpswd12 -> merplant_mpswd12_spill
+DEBUG | Created FlowEdgeItem: merplant_merp_soft -> merplant_merp_off_losses
+DEBUG | Created FlowEdgeItem: merplant_merp_off -> merplant_merp_off_consumption
+DEBUG | Created FlowEdgeItem: merplant_merp_soft -> merplant_merp_res
+DEBUG | Created FlowEdgeItem: merplant_merp_off -> merplant_merp_stp
+DEBUG | Created FlowEdgeItem: merplant_merp_res -> merplant_merp_off
+DEBUG | Created FlowEdgeItem: merplant_mpgwa_boreholes -> merplant_merp_soft
+DEBUG | Created FlowEdgeItem: merplant_mpswd12_rain -> merplant_mpswd12
+DEBUG | Created FlowEdgeItem: merplant_merp_stp -> merplant_mpswd12
+DEBUG | Created FlowEdgeItem: merplant_mpswd12 -> merplant_merp_plant
+DEBUG | Created FlowEdgeItem: merplant_merp_plant -> merplant_mpswd12
+INFO | Rendered diagram: 126 nodes, 116 edges
+INFO | Found 11 recirculation configs to load
+DEBUG | Loading recirculation for 2025/12
+DEBUG | Updated ndcd recirculation badge: -26.0 m³
+DEBUG | Updated stockpile_area recirculation badge: 484.0 m³
+DEBUG | Updated spcd1 recirculation badge: 3014.0 m³
+DEBUG | Updated ug2s_mdcdg recirculation badge: 190.0 m³
+DEBUG | Updated mers_mdcdg recirculation badge: 77.0 m³
+DEBUG | Updated oldtsf_old_tsf recirculation badge: -347.0 m³
+DEBUG | Updated oldtsf_trtd recirculation badge: -114.0 m³
+DEBUG | Updated oldtsf_new_tsf recirculation badge: 68.0 m³
+DEBUG | Updated oldtsf_nt_rwd recirculation badge: 5836.0 m³
+DEBUG | Updated ug2plant_ug2pcd1 recirculation badge: 36.0 m³
+DEBUG | Updated merplant_mpswd12 recirculation badge: 36.0 m³
+INFO | Loaded 11 recirculation volumes for UG2N (2025/12)
+DEBUG | Balance check labels updated: Inflows=5783439, Recirculation=9254, Outflows=5007265, Error=13.3%
+INFO | Flow Diagram Page initialized
+[DEBUG] _update_network_status called
+[DEBUG] Network check: trying to connect to 8.8.8.8:53...
+[DEBUG] Network check: ONLINE
+[DEBUG] Network check: emitting result signal is_online=True
+[DEBUG] update_ui called with is_online=True
+[DEBUG] Icon isNull=False, availableSizes=[]
+[DEBUG] Pixmap isNull=False, width=20, height=20
+[DEBUG] Pixmap set successfully
+[DEBUG] Network status updated to Online

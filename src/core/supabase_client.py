@@ -394,20 +394,21 @@ def configure_supabase(url: str, anon_key: str) -> None:
 # (MODULE TEST)
 
 if __name__ == "__main__":
-    print("Supabase Client Test")
-    print("=" * 50)
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
+    logger.info("Supabase Client Test")
+    logger.info("=" * 50)
     
     client = get_supabase_client()
     
     if client.is_configured:
-        print(f"URL: {client.url}")
-        print(f"Configured: ✓")
+        logger.info("URL: %s", client.url)
+        logger.info("Configured: ✓")
         
-        print("\nTesting health check...")
+        logger.info("\nTesting health check...")
         if client.health_check():
-            print("Health check: ✓ Connected")
+            logger.info("Health check: ✓ Connected")
         else:
-            print("Health check: ✗ Failed")
+            logger.info("Health check: ✗ Failed")
     else:
-        print("Supabase not configured.")
-        print("Set SUPABASE_URL and SUPABASE_ANON_KEY environment variables.")
+        logger.info("Supabase not configured.")
+        logger.info("Set SUPABASE_URL and SUPABASE_ANON_KEY environment variables.")

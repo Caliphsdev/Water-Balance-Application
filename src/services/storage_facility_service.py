@@ -547,10 +547,10 @@ class StorageFacilityService:
             service = StorageFacilityService()
             summary = service.get_summary()
             
-            print(f"Total capacity: {summary['total_capacity']} m³")
-            print(f"Total volume: {summary['total_volume']} m³")
-            print(f"Fill: {summary['average_fullness']:.1f}%")
-            print(f"Risk count: {summary['facilities_at_risk']}")
+            logger.info("Total capacity: %s m³", summary['total_capacity'])
+            logger.info("Total volume: %s m³", summary['total_volume'])
+            logger.info("Fill: %.1f%%", summary['average_fullness'])
+            logger.info("Risk count: %s", summary['facilities_at_risk'])
         """
         # Lazy init keeps DB/schema work out of UI startup path.
         self._ensure_initialized()

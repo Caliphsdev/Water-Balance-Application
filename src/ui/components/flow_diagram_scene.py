@@ -17,6 +17,10 @@ from PySide6.QtWidgets import QGraphicsScene, QGraphicsRectItem, QGraphicsLineIt
 from PySide6.QtGui import QBrush, QColor, QPen, QFont, QPolygonF
 from PySide6.QtCore import Qt, QPointF, QSize
 
+from core.app_logger import logger as app_logger
+
+logger = app_logger.get_dashboard_logger('flow_diagram')
+
 
 class FlowZoneItem(QGraphicsRectItem):
     """Background zone (colored rectangle with label)."""
@@ -93,7 +97,11 @@ class FlowNodeItem(QGraphicsRectItem):
     
     def mousePressEvent(self, event):
         """Handle click on node."""
-        print(f"✓ Clicked node: {self.node_data['id']} ({self.node_data['label']})")
+        logger.debug(
+            "Clicked node: %s (%s)",
+            self.node_data.get('id'),
+            self.node_data.get('label'),
+        )
     
     def hoverEnterEvent(self, event):
         """Highlight on hover."""

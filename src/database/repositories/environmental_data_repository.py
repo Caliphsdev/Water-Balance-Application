@@ -45,7 +45,7 @@ class EnvironmentalDataRepository:
         Example:
             data = repo.get_by_year_month(2025, 3)  # March 2025
             if data:
-                print(f"Rainfall: {data.rainfall_mm}mm")
+                logger.info("Rainfall: %smm", data.rainfall_mm)
         """
         rows = self.db.execute_query(
             "SELECT * FROM environmental_data WHERE year = ? AND month = ?",

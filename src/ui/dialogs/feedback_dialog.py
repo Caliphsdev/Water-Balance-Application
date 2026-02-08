@@ -571,4 +571,4 @@ if __name__ == "__main__":
     dialog = FeedbackDialog(app_version="2.0.0-beta")
     result = dialog.exec()
     
-    print(f"Dialog result: {'Accepted' if result else 'Rejected'}")
+    logger.info("Dialog result: %s", "Accepted" if result else "Rejected")

@@ -66,8 +66,12 @@ class SplashScreen(QWidget):
         title_label.setStyleSheet("color: #0D47A1; background: transparent; border: none;")
         container_layout.addWidget(title_label)
         
-        # Subtitle
-        subtitle_label = QLabel("PySide6 Edition")
+        # Subtitle with version
+        from core.config_manager import ConfigManager
+        config = ConfigManager()
+        app_version = config.get('app.version', '1.0.1')
+        subtitle_text = f"PySide6 Edition - v{app_version}"
+        subtitle_label = QLabel(subtitle_text)
         subtitle_font = QFont()
         subtitle_font.setPointSize(10)
         subtitle_label.setFont(subtitle_font)
@@ -106,15 +110,6 @@ class SplashScreen(QWidget):
             }
         """)
         container_layout.addWidget(self.progress_bar)
-        
-        # Version info
-        version_label = QLabel("Version 2.0.0")
-        version_font = QFont()
-        version_font.setPointSize(8)
-        version_label.setFont(version_font)
-        version_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        version_label.setStyleSheet("color: #999999; background: transparent; border: none;")
-        container_layout.addWidget(version_label)
         
         layout.addWidget(container)
         self.setFixedSize(450, 400)

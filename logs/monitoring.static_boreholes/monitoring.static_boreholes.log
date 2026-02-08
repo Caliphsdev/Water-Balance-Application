@@ -9827,3 +9827,946 @@ RuntimeError: Signal source has been deleted
 2026-02-05 03:22:59 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
 2026-02-05 03:22:59 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
 2026-02-05 03:22:59 | INFO     | run:277 | Directory loading complete
+2026-02-05 15:09:33 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-05 15:09:33 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 15:09:33 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 15:09:33 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 15:09:33 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 15:09:33 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 15:09:33 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 15:09:33 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 15:09:33 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 15:09:33 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 15:09:33 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 15:09:33 | INFO     | run:277 | Directory loading complete
+2026-02-05 15:09:33 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 15:09:33 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 15:09:33 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 15:09:33 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 15:09:33 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 15:09:33 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 15:09:33 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 15:09:33 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 15:09:33 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 15:09:33 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 15:09:33 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:09:18 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-05 16:09:18 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:09:18 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:09:18 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:09:18 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:09:18 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:09:18 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:09:18 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:09:18 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:09:18 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:09:18 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:09:18 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:09:18 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:09:18 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:09:18 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:09:18 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:09:18 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:09:18 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:09:18 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:09:18 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:09:18 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:09:18 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:09:18 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:19:49 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-05 16:19:49 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:19:49 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:19:49 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:19:49 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:19:49 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:19:49 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:19:49 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:19:49 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:19:49 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:19:49 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:19:49 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:19:49 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:19:49 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:19:49 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:19:49 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:19:49 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:19:49 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:19:49 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:19:49 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:19:49 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:19:49 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:19:49 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:22:13 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-05 16:22:13 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:22:13 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:22:13 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:22:13 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:22:13 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:22:13 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:22:13 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:22:13 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:22:13 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:22:13 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:22:13 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:22:13 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:22:13 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:22:13 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:22:13 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:22:13 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:22:13 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:22:13 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:22:13 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:22:13 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:22:13 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:22:13 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:28:41 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-05 16:28:41 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:28:41 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:28:41 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:28:41 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:28:41 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:28:41 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:28:41 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:28:41 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:28:41 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:28:41 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:28:41 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:28:41 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:28:41 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:28:41 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:28:41 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:28:41 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:28:41 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:28:41 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:28:41 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:28:41 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:28:41 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:28:41 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:31:38 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-05 16:31:38 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:31:38 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:31:38 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:31:38 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:31:38 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:31:38 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:31:38 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:31:38 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:31:38 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:31:38 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:31:38 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:31:38 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:31:38 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:31:38 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:31:38 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:31:38 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:31:38 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:31:38 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:31:38 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:31:38 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:31:38 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:31:38 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:35:27 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-05 16:35:27 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:35:27 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:35:27 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:35:27 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:35:27 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:35:27 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:35:27 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:35:27 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:35:27 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:35:27 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:35:27 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:35:27 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:35:27 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:35:27 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:35:27 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:35:27 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:35:27 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:35:27 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:35:27 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:35:27 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:35:27 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:35:27 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:36:08 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-05 16:36:08 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:36:08 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:36:08 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:36:08 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:36:08 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:36:08 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:36:08 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:36:08 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:36:08 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:36:08 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:36:08 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:36:08 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:36:08 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:36:08 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:36:08 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:36:08 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:36:08 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:36:08 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:36:08 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:36:08 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:36:08 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:36:08 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:38:13 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-05 16:38:13 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:38:13 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:38:13 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:38:13 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:38:13 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:38:13 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:38:13 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:38:13 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:38:13 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:38:13 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:38:13 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:38:13 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:38:13 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:38:13 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:38:13 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:38:13 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:38:13 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:38:13 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:38:13 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:38:13 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:38:13 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:38:13 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:40:09 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-05 16:40:09 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:40:09 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:40:09 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:40:09 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:40:09 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:40:09 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:40:09 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:40:09 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:40:09 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:40:09 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:40:09 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:40:09 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:40:09 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:40:09 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:40:09 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:40:09 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:40:09 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:40:09 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:40:09 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:40:09 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:40:09 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:40:09 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:41:03 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-05 16:41:03 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:41:03 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:41:03 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:41:03 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:41:03 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:41:03 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:41:03 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:41:03 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:41:03 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:41:03 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:41:03 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:41:03 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:41:03 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:41:03 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:41:03 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:41:03 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:41:03 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:41:03 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:41:03 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:41:03 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:41:03 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:41:03 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:41:45 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-05 16:41:45 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:41:45 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:41:45 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:41:45 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:41:45 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:41:45 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:41:45 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:41:45 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:41:45 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:41:45 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:41:45 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:41:45 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:41:45 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:41:45 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:41:45 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:41:45 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:41:45 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:41:45 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:41:45 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:41:45 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:41:45 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:41:45 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:43:34 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-05 16:43:34 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:43:34 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:43:34 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:43:34 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:43:34 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:43:34 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:43:34 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:43:34 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:43:34 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:43:34 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:43:34 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:43:34 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:43:34 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:43:34 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:43:34 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:43:34 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:43:34 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:43:34 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:43:34 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:43:34 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:43:34 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:43:34 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:43:55 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-05 16:43:55 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:43:55 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:43:55 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:43:55 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:43:55 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:43:55 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:43:55 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:43:55 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:43:55 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:43:55 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:43:55 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:43:55 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:43:55 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:43:55 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:43:55 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:43:55 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:43:55 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:43:55 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:43:55 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:43:55 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:43:55 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:43:55 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:46:31 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-05 16:46:31 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:46:31 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:46:31 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:46:31 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:46:31 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:46:31 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:46:31 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:46:31 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:46:31 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:46:31 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:46:31 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:46:32 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:46:32 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:46:32 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:46:32 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:46:32 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:46:32 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:46:32 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:46:32 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:46:32 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:46:32 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:46:32 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:47:04 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-05 16:47:04 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:47:04 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:47:04 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:47:04 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:47:04 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:47:04 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:47:04 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:47:04 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:47:04 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:47:04 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:47:04 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:47:04 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:47:04 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:47:04 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:47:04 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:47:04 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:47:04 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:47:04 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:47:04 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:47:04 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:47:04 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:47:04 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:47:37 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-05 16:47:37 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:47:37 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:47:37 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:47:37 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:47:37 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:47:37 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:47:37 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:47:37 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:47:37 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:47:37 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:47:37 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:47:37 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:47:37 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:47:37 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:47:37 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:47:37 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:47:37 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:47:37 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:47:37 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:47:37 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:47:37 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:47:37 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:51:58 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-05 16:51:58 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:51:58 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:51:58 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:51:58 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:51:58 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:51:58 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:51:58 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:51:58 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:51:58 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:51:58 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:51:58 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:51:58 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:51:58 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:51:58 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:51:58 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:51:58 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:51:58 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:51:58 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:51:58 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:51:58 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:51:58 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:51:58 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:53:39 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-05 16:53:39 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:53:39 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:53:39 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:53:39 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:53:39 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:53:39 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:53:39 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:53:39 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:53:39 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:53:39 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:53:39 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:53:39 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:53:39 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:53:39 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:53:39 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:53:39 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:53:39 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:53:39 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:53:39 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:53:39 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:53:39 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:53:39 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:53:49 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-05 16:53:49 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:53:49 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:53:49 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:53:49 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:53:49 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:53:49 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:53:49 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:53:49 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:53:49 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:53:49 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:53:49 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:53:50 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:53:50 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:53:50 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:53:50 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:53:50 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:53:50 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:53:50 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:53:50 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:53:50 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:53:50 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:53:50 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:55:59 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-05 16:55:59 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:55:59 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:55:59 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:55:59 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:55:59 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:55:59 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:55:59 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:55:59 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:55:59 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:55:59 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:55:59 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:56:00 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:56:00 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:56:00 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:56:00 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:56:00 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:56:00 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:56:00 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:56:00 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:56:00 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:56:00 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:56:00 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:58:12 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-05 16:58:12 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:58:12 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:58:12 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:58:12 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:58:12 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:58:12 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:58:12 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:58:12 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:58:12 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:58:12 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:58:12 | INFO     | run:277 | Directory loading complete
+2026-02-05 16:58:12 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 16:58:12 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 16:58:12 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 16:58:13 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 16:58:13 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 16:58:13 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 16:58:13 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 16:58:13 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 16:58:13 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 16:58:13 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 16:58:13 | INFO     | run:277 | Directory loading complete
+2026-02-05 17:01:38 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-05 17:01:38 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 17:01:38 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 17:01:38 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 17:01:38 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 17:01:38 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 17:01:38 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 17:01:38 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 17:01:38 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 17:01:38 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 17:01:38 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 17:01:38 | INFO     | run:277 | Directory loading complete
+2026-02-05 17:01:38 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 17:01:38 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 17:01:38 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 17:01:38 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 17:01:38 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 17:01:38 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 17:01:38 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 17:01:38 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 17:01:38 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 17:01:38 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 17:01:38 | INFO     | run:277 | Directory loading complete
+2026-02-05 17:02:11 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-05 17:02:11 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 17:02:11 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 17:02:11 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 17:02:11 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 17:02:11 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 17:02:11 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 17:02:11 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 17:02:11 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 17:02:11 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 17:02:11 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 17:02:11 | INFO     | run:277 | Directory loading complete
+2026-02-05 17:02:11 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-05 17:02:11 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-05 17:02:11 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-05 17:02:11 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-05 17:02:11 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-05 17:02:11 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-05 17:02:11 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-05 17:02:11 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-05 17:02:11 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-05 17:02:11 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-05 17:02:11 | INFO     | run:277 | Directory loading complete
+2026-02-07 22:03:51 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-07 22:03:51 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-07 22:03:51 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-07 22:03:51 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-07 22:03:51 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-07 22:03:51 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-07 22:03:51 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-07 22:03:51 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-07 22:03:51 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-07 22:03:51 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-07 22:03:51 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-07 22:03:51 | INFO     | run:277 | Directory loading complete
+2026-02-07 22:03:52 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-07 22:03:52 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-07 22:03:52 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-07 22:03:52 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-07 22:03:52 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-07 22:03:52 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-07 22:03:52 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-07 22:03:52 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-07 22:03:52 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-07 22:03:52 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-07 22:03:52 | INFO     | run:277 | Directory loading complete
+2026-02-07 22:29:24 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-07 22:29:24 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-07 22:29:24 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-07 22:29:24 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-07 22:29:24 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-07 22:29:24 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-07 22:29:24 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-07 22:29:24 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-07 22:29:24 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-07 22:29:24 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-07 22:29:24 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-07 22:29:24 | INFO     | run:277 | Directory loading complete
+2026-02-07 22:29:24 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-07 22:29:24 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-07 22:29:24 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-07 22:29:24 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-07 22:29:24 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-07 22:29:24 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-07 22:29:24 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-07 22:29:24 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-07 22:29:24 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-07 22:29:24 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-07 22:29:24 | INFO     | run:277 | Directory loading complete
+2026-02-07 22:49:51 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-07 22:49:51 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-07 22:49:51 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-07 22:49:51 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-07 22:49:51 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-07 22:49:51 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-07 22:49:51 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-07 22:49:51 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-07 22:49:51 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-07 22:49:51 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-07 22:49:51 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-07 22:49:51 | INFO     | run:277 | Directory loading complete
+2026-02-07 22:49:52 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-07 22:49:52 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-07 22:49:52 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-07 22:49:52 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-07 22:49:52 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-07 22:49:52 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-07 22:49:52 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-07 22:49:52 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-07 22:49:52 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-07 22:49:52 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-07 22:49:52 | INFO     | run:277 | Directory loading complete
+2026-02-07 22:51:56 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-07 22:51:56 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-07 22:51:56 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-07 22:51:56 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-07 22:51:56 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-07 22:51:56 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-07 22:51:56 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-07 22:51:56 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-07 22:51:56 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-07 22:51:56 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-07 22:51:56 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-07 22:51:56 | INFO     | run:277 | Directory loading complete
+2026-02-07 22:51:56 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-07 22:51:56 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-07 22:51:56 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-07 22:51:56 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-07 22:51:56 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-07 22:51:56 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-07 22:51:56 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-07 22:51:56 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-07 22:51:56 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-07 22:51:56 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-07 22:51:56 | INFO     | run:277 | Directory loading complete
+2026-02-07 23:09:38 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-07 23:09:38 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-07 23:09:38 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-07 23:09:38 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-07 23:09:38 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-07 23:09:38 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-07 23:09:38 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-07 23:09:38 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-07 23:09:38 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-07 23:09:38 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-07 23:09:38 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-07 23:09:38 | INFO     | run:277 | Directory loading complete
+2026-02-07 23:09:39 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-07 23:09:39 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-07 23:09:39 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-07 23:09:39 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-07 23:09:39 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-07 23:09:39 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-07 23:09:39 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-07 23:09:39 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-07 23:09:39 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-07 23:09:39 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-07 23:09:39 | INFO     | run:277 | Directory loading complete
+2026-02-07 23:13:18 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-07 23:13:18 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-07 23:13:18 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-07 23:13:18 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-07 23:13:18 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-07 23:13:18 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-07 23:13:18 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-07 23:13:18 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-07 23:13:18 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-07 23:13:18 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-07 23:13:18 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-07 23:13:18 | INFO     | run:277 | Directory loading complete
+2026-02-07 23:13:18 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-07 23:13:18 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-07 23:13:18 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-07 23:13:18 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-07 23:13:18 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-07 23:13:18 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-07 23:13:18 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-07 23:13:18 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-07 23:13:18 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-07 23:13:18 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-07 23:13:18 | INFO     | run:277 | Directory loading complete
+2026-02-07 23:18:14 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-07 23:18:14 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-07 23:18:14 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-07 23:18:14 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-07 23:18:14 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-07 23:18:14 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-07 23:18:14 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-07 23:18:14 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-07 23:18:14 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-07 23:18:14 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-07 23:18:14 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-07 23:18:14 | INFO     | run:277 | Directory loading complete
+2026-02-07 23:18:14 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-07 23:18:14 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-07 23:18:14 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-07 23:18:14 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-07 23:18:14 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-07 23:18:14 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-07 23:18:14 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-07 23:18:14 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-07 23:18:14 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-07 23:18:14 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-07 23:18:14 | INFO     | run:277 | Directory loading complete
+2026-02-07 23:25:37 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-07 23:25:37 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-07 23:25:37 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-07 23:25:37 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-07 23:25:37 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-07 23:25:37 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-07 23:25:37 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-07 23:25:37 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-07 23:25:37 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-07 23:25:37 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-07 23:25:37 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-07 23:25:37 | INFO     | run:277 | Directory loading complete
+2026-02-07 23:25:37 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-07 23:25:37 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-07 23:25:37 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-07 23:25:37 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-07 23:25:37 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-07 23:25:37 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-07 23:25:37 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-07 23:25:37 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-07 23:25:37 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-07 23:25:37 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-07 23:25:37 | INFO     | run:277 | Directory loading complete
+2026-02-07 23:27:35 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-07 23:27:35 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-07 23:27:35 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-07 23:27:35 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-07 23:27:35 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-07 23:27:35 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-07 23:27:35 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-07 23:27:35 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-07 23:27:35 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-07 23:27:35 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-07 23:27:35 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-07 23:27:35 | INFO     | run:277 | Directory loading complete
+2026-02-07 23:27:36 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-07 23:27:36 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-07 23:27:36 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-07 23:27:36 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-07 23:27:36 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-07 23:27:36 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-07 23:27:36 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-07 23:27:36 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-07 23:27:36 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-07 23:27:36 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-07 23:27:36 | INFO     | run:277 | Directory loading complete
+2026-02-07 23:32:52 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-07 23:32:52 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-07 23:32:52 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-07 23:32:52 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-07 23:32:52 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-07 23:32:52 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-07 23:32:52 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-07 23:32:52 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-07 23:32:52 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-07 23:32:52 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-07 23:32:52 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-07 23:32:52 | INFO     | run:277 | Directory loading complete
+2026-02-07 23:32:52 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-07 23:32:52 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-07 23:32:52 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-07 23:32:52 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-07 23:32:52 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-07 23:32:52 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-07 23:32:52 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-07 23:32:52 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-07 23:32:52 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-07 23:32:52 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-07 23:32:52 | INFO     | run:277 | Directory loading complete
+2026-02-07 23:33:35 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-07 23:33:35 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-07 23:33:35 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-07 23:33:35 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-07 23:33:35 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-07 23:33:35 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-07 23:33:35 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-07 23:33:35 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-07 23:33:35 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-07 23:33:35 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-07 23:33:35 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-07 23:33:35 | INFO     | run:277 | Directory loading complete
+2026-02-07 23:33:35 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-07 23:33:35 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-07 23:33:35 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-07 23:33:35 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-07 23:33:35 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-07 23:33:35 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-07 23:33:35 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-07 23:33:35 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-07 23:33:35 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-07 23:33:35 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-07 23:33:35 | INFO     | run:277 | Directory loading complete
+2026-02-07 23:38:34 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-07 23:38:34 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-07 23:38:34 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-07 23:38:34 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-07 23:38:34 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-07 23:38:34 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-07 23:38:34 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-07 23:38:34 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-07 23:38:34 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-07 23:38:34 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-07 23:38:34 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-07 23:38:34 | INFO     | run:277 | Directory loading complete
+2026-02-07 23:38:34 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-07 23:38:34 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-07 23:38:34 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-07 23:38:34 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-07 23:38:34 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-07 23:38:34 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-07 23:38:34 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-07 23:38:34 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-07 23:38:34 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-07 23:38:34 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-07 23:38:34 | INFO     | run:277 | Directory loading complete
+2026-02-08 00:00:56 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-08 00:00:56 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-08 00:00:56 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-08 00:00:56 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-08 00:00:56 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-08 00:00:56 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-08 00:00:57 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-08 00:00:57 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-08 00:00:57 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-08 00:00:57 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-08 00:00:57 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-08 00:00:57 | INFO     | run:277 | Directory loading complete
+2026-02-08 00:00:57 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-08 00:00:57 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-08 00:00:57 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-08 00:00:57 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-08 00:00:57 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-08 00:00:57 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-08 00:00:57 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-08 00:00:57 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-08 00:00:57 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-08 00:00:57 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-08 00:00:57 | INFO     | run:277 | Directory loading complete
+2026-02-08 00:07:38 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-08 00:07:38 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-08 00:07:38 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-08 00:07:38 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-08 00:07:38 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-08 00:07:38 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-08 00:07:38 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-08 00:07:38 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-08 00:07:38 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-08 00:07:38 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-08 00:07:38 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-08 00:07:38 | INFO     | run:277 | Directory loading complete
+2026-02-08 00:07:38 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-08 00:07:38 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-08 00:07:38 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-08 00:07:38 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-08 00:07:38 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-08 00:07:38 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-08 00:07:38 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-08 00:07:38 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-08 00:07:38 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-08 00:07:38 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-08 00:07:38 | INFO     | run:277 | Directory loading complete
+2026-02-08 00:13:06 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-08 00:13:06 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-08 00:13:06 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-08 00:13:06 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-08 00:13:06 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-08 00:13:06 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-08 00:13:06 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-08 00:13:06 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-08 00:13:06 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-08 00:13:06 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-08 00:13:06 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-08 00:13:06 | INFO     | run:277 | Directory loading complete
+2026-02-08 00:13:06 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-08 00:13:06 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-08 00:13:06 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-08 00:13:06 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-08 00:13:06 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-08 00:13:06 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-08 00:13:06 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-08 00:13:06 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-08 00:13:06 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-08 00:13:06 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-08 00:13:06 | INFO     | run:277 | Directory loading complete
+2026-02-08 00:18:39 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-08 00:18:39 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-08 00:18:39 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-08 00:18:39 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-08 00:18:39 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-08 00:18:39 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-08 00:18:39 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-08 00:18:39 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-08 00:18:39 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-08 00:18:39 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-08 00:18:39 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-08 00:18:39 | INFO     | run:277 | Directory loading complete
+2026-02-08 00:18:39 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-08 00:18:39 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-08 00:18:39 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-08 00:18:39 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-08 00:18:39 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-08 00:18:39 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-08 00:18:39 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-08 00:18:39 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-08 00:18:39 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-08 00:18:39 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-08 00:18:39 | INFO     | run:277 | Directory loading complete
+2026-02-08 00:43:51 | INFO     | get_dashboard_logger:572 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-08 00:43:51 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-08 00:43:51 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-08 00:43:51 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-08 00:43:51 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-08 00:43:51 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-08 00:43:51 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-08 00:43:51 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-08 00:43:51 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-08 00:43:51 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-08 00:43:51 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-08 00:43:51 | INFO     | run:277 | Directory loading complete
+2026-02-08 00:43:51 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-08 00:43:51 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-08 00:43:51 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-08 00:43:51 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-08 00:43:51 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2021.xls
+2026-02-08 00:43:51 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels April - June  2022.xls
+2026-02-08 00:43:51 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q 3  2022.xls
+2026-02-08 00:43:51 | DEBUG    | run:194 | Cache HIT: Boreholes Static Levels Q3  2021.xls
+2026-02-08 00:43:51 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-08 00:43:51 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-08 00:43:51 | INFO     | run:277 | Directory loading complete

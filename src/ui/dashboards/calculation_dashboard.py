@@ -152,9 +152,10 @@ class CalculationPage(QWidget):
         Workflow:
         1. Get selected month/year from comboboxes
         2. Validate input
-        3. Call BalanceService.calculate_for_date()
-        4. Populate tabs with BalanceResult
-        5. Show success/error message
+        3. CHECK DATA QUALITY & REQUIRED FILES (NEW)
+        4. Call BalanceService.calculate_for_date()
+        5. Populate tabs with BalanceResult
+        6. Show success/error message
         """
         # Get selected month and year
         try:
@@ -176,6 +177,23 @@ class CalculationPage(QWidget):
                 return
             
             year = int(year_str)
+            
+            # VALIDATE DATA QUALITY BEFORE CALCULATION (NEW)
+            data_check = self._validate_data_completeness()
+            if not data_check['is_complete']:
+                # Show warning with missing items
+                missing_list = "\n".join([f"  • {item}" for item in data_check['missing']])
+                response = QMessageBox.warning(
+                    self, 
+                    "⚠ Missing Data",
+                    f"The following required data is missing or incomplete:\n\n{missing_list}\n\n"
+                    f"This will result in INCORRECT calculation results.\n\n"
+                    f"Do you want to continue anyway?",
+                    QMessageBox.Yes | QMessageBox.No
+                )
+                if response != QMessageBox.Yes:
+                    logger.warning(f"User cancelled calculation due to missing data")
+                    return
             
             # Log the calculation request
             logger.info(f"User requested balance calculation for {month_str} {year}")
@@ -199,15 +217,28 @@ class CalculationPage(QWidget):
                 # Populate tabs with real data
                 self._populate_tabs_from_result(result)
                 
-                # Show success message with summary
+                # Show success message with summary (updated to include data quality warnings)
                 status_icon = "✓" if result.is_balanced else "⚠"
-                QMessageBox.information(self, "Calculation Complete", 
+                summary_msg = (
                     f"{status_icon} Water Balance for {result.period.period_label}\n\n"
                     f"Fresh Inflows:  {result.inflows.total_m3:,.0f} m³\n"
                     f"Total Outflows: {result.outflows.total_m3:,.0f} m³\n"
                     f"Storage Change: {result.storage.delta_m3:,.0f} m³\n"
                     f"Balance Error:  {result.error_pct:.2f}%\n\n"
-                    f"Status: {result.status}")
+                    f"Status: {result.status}"
+                )
+                
+                # Add quality warnings if present
+                if result.quality_flags and result.quality_flags.warnings:
+                    summary_msg += (
+                        f"\n\n⚠ Data Quality Warnings ({len(result.quality_flags.warnings)}):\n"
+                        + "\n".join([f"  • {w}" for w in list(result.quality_flags.warnings)[:5]])
+                    )
+                    if len(result.quality_flags.warnings) > 5:
+                        summary_msg += f"\n  ... and {len(result.quality_flags.warnings) - 5} more"
+                
+                QMessageBox.information(self, "Calculation Complete", summary_msg)
+
                 
                 logger.info(f"Balance calculation complete: {result.status} "
                            f"(error={result.error_pct:.1f}%)")
@@ -228,6 +259,82 @@ class CalculationPage(QWidget):
             if hasattr(self.ui, 'pushButton'):
                 self.ui.pushButton.setEnabled(True)
                 self.ui.pushButton.setText("Calculate Balance")
+    
+    def _validate_data_completeness(self) -> dict:
+        """Validate that all required data sources are available (DATA QUALITY CHECK).
+        
+        Checks:
+        1. Excel file loaded with Meter Readings data
+        2. Environmental data (rainfall, evaporation) exists
+        3. Storage facilities configured
+        4. At least one inflow source available
+        5. At least one outflow calculation possible
+        
+        Returns:
+            Dict with 'is_complete' bool and 'missing' list of missing items
+        """
+        missing = []
+        
+        try:
+            from services.excel_manager import get_excel_manager
+            from database.db_manager import DatabaseManager
+            
+            excel_mgr = get_excel_manager()
+            db = DatabaseManager()
+            
+            # Check 1: Excel Meter Readings loaded
+            try:
+                # First check if file exists
+                if not excel_mgr.meter_readings_exists():
+                    missing.append("Excel Meter Readings file not found")
+                else:
+                    # Load and validate data
+                    meter_data = excel_mgr.load_meter_readings()
+                    if meter_data is None or meter_data.empty:
+                        missing.append("Excel Meter Readings data (tonnes milled, water consumption, etc.) is empty")
+                    else:
+                        # Check that key columns exist
+                        required_cols = ['Tonnes Milled', 'Total Water Consumption', 'Total Recycled Water']
+                        for col in required_cols:
+                            if col not in meter_data.columns:
+                                missing.append(f"Excel Meter Readings column missing: {col}")
+            except Exception as e:
+                missing.append(f"Excel file access error: {str(e)}")
+            
+            # Check 2: Environmental data
+            try:
+                conn = db.get_connection()
+                cursor = conn.execute("SELECT COUNT(*) as cnt FROM environmental_data LIMIT 1")
+                count = cursor.fetchone()['cnt']
+                conn.close()
+                if count == 0:
+                    missing.append("Environmental data (rainfall, evaporation) - Add via Monitoring page")
+            except Exception as e:
+                missing.append(f"Environmental data access: {str(e)}")
+            
+            # Check 3: Storage facilities
+            try:
+                conn = db.get_connection()
+                cursor = conn.execute("SELECT COUNT(*) as cnt FROM storage_facilities WHERE status='active'")
+                count = cursor.fetchone()['cnt']
+                conn.close()
+                if count == 0:
+                    missing.append("Storage facilities configured - Create facilities in Storage page")
+            except Exception as e:
+                missing.append(f"Storage facilities access: {str(e)}")
+            
+            return {
+                'is_complete': len(missing) == 0,
+                'missing': missing
+            }
+            
+        except Exception as e:
+            logger.warning(f"Data validation check error: {e}")
+            return {
+                'is_complete': False,
+                'missing': [f"Data validation error: {str(e)}"]
+            }
+
     
     def _setup_tabs(self):
         """Initialize 4 essential tabs with placeholder content (INITIALIZATION).

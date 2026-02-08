@@ -11,10 +11,12 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
+from core.app_logger import logger as app_logger
 from database.db_manager import DatabaseManager
 from database.repositories.environmental_data_repository import EnvironmentalDataRepository
 from models.environmental_data import EnvironmentalData
 
+logger = app_logger.get_dashboard_logger('environmental')
 
 # Singleton instance
 _service_instance = None
@@ -261,7 +263,7 @@ class EnvironmentalDataService:
                 count += 1
             except ValueError as e:
                 # Log validation error but continue with other entries
-                print(f"Skipping ({year}, {month}): {e}")
+                logger.warning("Skipping (%s, %s): %s", year, month, e)
         
         return count
     

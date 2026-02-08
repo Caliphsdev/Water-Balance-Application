@@ -1,0 +1,464 @@
+{
+  "inflows": [
+    {
+      "code": "MOGWA_boreholes",
+      "name": "borehole",
+      "area": "MER_NORTH",
+      "enabled": true
+    },
+    {
+      "code": "MERN_NDCD_rainfall",
+      "name": "rainfall",
+      "area": "MER_NORTH",
+      "enabled": true
+    },
+    {
+      "code": "MERN_ND",
+      "name": "dewatering",
+      "area": "MER_NORTH",
+      "enabled": true
+    },
+    {
+      "code": "MERN_NDSA",
+      "name": "runoff",
+      "area": "MER_NORTH",
+      "enabled": true
+    },
+    {
+      "code": "MPGWA_boreholes",
+      "name": "borehole",
+      "area": "MER_PLANT",
+      "enabled": true
+    },
+    {
+      "code": "MERP_ore_water",
+      "name": "ore_water",
+      "area": "MER_PLANT",
+      "enabled": true
+    },
+    {
+      "code": "MPSWD12_rain",
+      "name": "rainfall",
+      "area": "MER_PLANT",
+      "enabled": true
+    },
+    {
+      "code": "MPRWSD1_rivers",
+      "name": "river",
+      "area": "MER_PLANT",
+      "enabled": true
+    },
+    {
+      "code": "MPSWD12",
+      "name": "proc_supply",
+      "area": "MER_PLANT",
+      "enabled": true
+    },
+    {
+      "code": "MOGWA_boreholes_south",
+      "name": "borehole",
+      "area": "MER_SOUTH",
+      "enabled": true
+    },
+    {
+      "code": "MERS_MDCD_rainfall",
+      "name": "rainfall",
+      "area": "MER_SOUTH",
+      "enabled": true
+    },
+    {
+      "code": "MERS_SD",
+      "name": "dewatering",
+      "area": "MER_SOUTH",
+      "enabled": true
+    },
+    {
+      "code": "OT_GWA_boreholes",
+      "name": "borehole",
+      "area": "OLD_TSF",
+      "enabled": true
+    },
+    {
+      "code": "OT_NEW_TSF_rainrun",
+      "name": "rainfall",
+      "area": "OLD_TSF",
+      "enabled": true
+    },
+    {
+      "code": "OT_NT_RWD_rain",
+      "name": "rainfall",
+      "area": "OLD_TSF",
+      "enabled": true
+    },
+    {
+      "code": "OT_OLD_TSF_rainrun",
+      "name": "rainfall",
+      "area": "OLD_TSF",
+      "enabled": true
+    },
+    {
+      "code": "OT_TRTD_rain",
+      "name": "rainfall",
+      "area": "OLD_TSF",
+      "enabled": true
+    },
+    {
+      "code": "SPGWA_boreholes",
+      "name": "borehole",
+      "area": "STOCKPILE",
+      "enabled": true
+    },
+    {
+      "code": "STP_SPCD1_rainfall",
+      "name": "rainfall",
+      "area": "STOCKPILE",
+      "enabled": true
+    },
+    {
+      "code": "STP_STOCK_rainfall",
+      "name": "rainfall",
+      "area": "STOCKPILE",
+      "enabled": true
+    },
+    {
+      "code": "NDGWA_boreholes",
+      "name": "borehole",
+      "area": "UG2_NORTH",
+      "enabled": true
+    },
+    {
+      "code": "UG2N_NDCD_rainfall",
+      "name": "rainfall",
+      "area": "UG2_NORTH",
+      "enabled": true
+    },
+    {
+      "code": "UG2N_ND",
+      "name": "dewatering",
+      "area": "UG2_NORTH",
+      "enabled": true
+    },
+    {
+      "code": "UG2N_NDSA",
+      "name": "runoff",
+      "area": "UG2_NORTH",
+      "enabled": true
+    },
+    {
+      "code": "CPGWA_boreholes",
+      "name": "borehole",
+      "area": "UG2_PLANT",
+      "enabled": true
+    },
+    {
+      "code": "UG2P_ore_water",
+      "name": "ore_water",
+      "area": "UG2_PLANT",
+      "enabled": true
+    },
+    {
+      "code": "UG2PCD1_rain",
+      "name": "rainfall",
+      "area": "UG2_PLANT",
+      "enabled": true
+    },
+    {
+      "code": "UG2P_rivers",
+      "name": "river",
+      "area": "UG2_PLANT",
+      "enabled": true
+    },
+    {
+      "code": "UG2PCD1",
+      "name": "process_rtrn",
+      "area": "UG2_PLANT",
+      "enabled": true
+    },
+    {
+      "code": "MGDWA_boreholes",
+      "name": "borehole",
+      "area": "UG2_SOUTH",
+      "enabled": true
+    },
+    {
+      "code": "UG2S_MDCD_rainfall",
+      "name": "rainfall",
+      "area": "UG2_SOUTH",
+      "enabled": true
+    },
+    {
+      "code": "UG2S_SD",
+      "name": "dewatering",
+      "area": "UG2_SOUTH",
+      "enabled": true
+    },
+    {
+      "code": "UG2S_SDSA",
+      "name": "runoff",
+      "area": "UG2_SOUTH",
+      "enabled": true
+    },
+    {
+      "code": "MER_SOUTH/MERS_MDCDG",
+      "name": "dam_transfer",
+      "area": "UG2_SOUTH",
+      "enabled": true
+    }
+  ],
+  "recirculation": [
+    {
+      "code": "MERN_NDCDG",
+      "name": "dam_return",
+      "area": "MER_NORTH",
+      "enabled": true
+    },
+    {
+      "code": "MPSWD12",
+      "name": "dam_return",
+      "area": "MER_PLANT",
+      "enabled": true
+    },
+    {
+      "code": "MERS_MDCDG",
+      "name": "dam_return",
+      "area": "MER_SOUTH",
+      "enabled": true
+    },
+    {
+      "code": "OT_NEW_TSF",
+      "name": "dam_return",
+      "area": "OLD_TSF",
+      "enabled": true
+    },
+    {
+      "code": "OT_OLD_TSF",
+      "name": "dam_return",
+      "area": "OLD_TSF",
+      "enabled": true
+    },
+    {
+      "code": "OT_NT_RWD",
+      "name": "dam_return",
+      "area": "OLD_TSF",
+      "enabled": true
+    },
+    {
+      "code": "OT_TRTD",
+      "name": "dam_return",
+      "area": "OLD_TSF",
+      "enabled": true
+    },
+    {
+      "code": "STP_SPCD1",
+      "name": "dam_return",
+      "area": "STOCKPILE",
+      "enabled": true
+    },
+    {
+      "code": "STP_STOCK",
+      "name": "area_return",
+      "area": "STOCKPILE",
+      "enabled": true
+    },
+    {
+      "code": "UG2N_NDCDG",
+      "name": "dam_return",
+      "area": "UG2_NORTH",
+      "enabled": true
+    },
+    {
+      "code": "UG2PCD1",
+      "name": "dam_return",
+      "area": "UG2_PLANT",
+      "enabled": true
+    },
+    {
+      "code": "UG2S_MDCDG",
+      "name": "dam_return",
+      "area": "UG2_SOUTH",
+      "enabled": true
+    }
+  ],
+  "outflows": [
+    {
+      "code": "MERN_NDCDG_evap",
+      "name": "evaporation",
+      "area": "MER_NORTH",
+      "enabled": true
+    },
+    {
+      "code": "MERN_NDCDG",
+      "name": "ug_return",
+      "area": "MER_NORTH",
+      "enabled": true
+    },
+    {
+      "code": "MERN_SOFT_losses",
+      "name": "proc_losses",
+      "area": "MER_NORTH",
+      "enabled": true
+    },
+    {
+      "code": "MERN_OFF_consumption",
+      "name": "consumption",
+      "area": "MER_NORTH",
+      "enabled": true
+    },
+    {
+      "code": "MERN_dust_suppress",
+      "name": "dust_suppr",
+      "area": "MER_NORTH",
+      "enabled": true
+    },
+    {
+      "code": "MERN_NDCDG_spill",
+      "name": "spill",
+      "area": "MER_NORTH",
+      "enabled": true
+    },
+    {
+      "code": "MPSWD12_evap",
+      "name": "evaporation",
+      "area": "MER_PLANT",
+      "enabled": true
+    },
+    {
+      "code": "MERP_PLANT_losses",
+      "name": "proc_losses",
+      "area": "MER_PLANT",
+      "enabled": true
+    },
+    {
+      "code": "MERP_PLANT_product",
+      "name": "product_bnd",
+      "area": "MER_PLANT",
+      "enabled": true
+    },
+    {
+      "code": "MERP_SOFT_losses",
+      "name": "proc_losses",
+      "area": "MER_PLANT",
+      "enabled": true
+    },
+    {
+      "code": "MERP_STP_losses",
+      "name": "proc_losses",
+      "area": "MER_PLANT",
+      "enabled": true
+    },
+    {
+      "code": "MERP_OFF_consumption",
+      "name": "consumption",
+      "area": "MER_PLANT",
+      "enabled": true
+    },
+    {
+      "code": "MERP_dust_suppress",
+      "name": "dust_suppr",
+      "area": "MER_PLANT",
+      "enabled": true
+    },
+    {
+      "code": "MPSWD12_spill",
+      "name": "spill",
+      "area": "MER_PLANT",
+      "enabled": true
+    },
+    {
+      "code": "MERS_MDCDG_evap",
+      "name": "evaporation",
+      "area": "MER_SOUTH",
+      "enabled": true
+    },
+    {
+      "code": "MERS_MDCDG",
+      "name": "ug_return",
+      "area": "MER_SOUTH",
+      "enabled": true
+    },
+    {
+      "code": "MERS_SOFT_losses",
+      "name": "proc_losses",
+      "area": "MER_SOUTH",
+      "enabled": true
+    },
+    {
+      "code": "MERS_OFF_consumption",
+      "name": "consumption",
+      "area": "MER_SOUTH",
+      "enabled": true
+    },
+    {
+      "code": "MERS_dust_suppress",
+      "name": "dust_suppr",
+      "area": "MER_SOUTH",
+      "enabled": true
+    },
+    {
+      "code": "MERS_MDCDG_spill",
+      "name": "spill",
+      "area": "MER_SOUTH",
+      "enabled": true
+    },
+    {
+      "code": "OT_NEW_TSF_evap",
+      "name": "evaporation",
+      "area": "OLD_TSF",
+      "enabled": true
+    },
+    {
+      "code": "OT_OLD_TSF_evap",
+      "name": "evaporation",
+      "area": "OLD_TSF",
+      "enabled": true
+    },
+    {
+      "code": "OT_NT_RWD_evap",
+      "name": "evaporation",
+      "area": "OLD_TSF",
+      "enabled": true
+    },
+    {
+      "code": "OT_TRTD_evap",
+      "name": "evaporation",
+      "area": "OLD_TSF",
+      "enabled": true
+    },
+    {
+      "code": "OT_NT_RWD",
+      "name": "irrigation",
+      "area": "OLD_TSF",
+      "enabled": true
+    },
+    {
+      "code": "OT_TRTD",
+      "name": "irrigation",
+      "area": "OLD_TSF",
+      "enabled": true
+    },
+    {
+      "code": "OT_TRTD_spill",
+      "name": "spill",
+      "area": "OLD_TSF",
+      "enabled": true
+    },
+    {
+      "code": "OT_NT_RWD_spill",
+      "name": "spill",
+      "area": "OLD_TSF",
+      "enabled": true
+    },
+    {
+      "code": "OT_NEW_TSF_seepage",
+      "name": "seepage",
+      "area": "OLD_TSF",
+      "enabled": true
+    },
+    {
+      "code": "OT_NEW_TSF_interstitial",
+      "name": "interstitial",
+      "area": "OLD_TSF",
+      "enabled": true
+    }
+  ]
+}

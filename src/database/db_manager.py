@@ -233,7 +233,7 @@ class DatabaseManager:
                 fetch_one=True
             )
             if facility:
-                print(f"Facility: {facility['name']}")
+                logger.info("Facility: %s", facility['name'])
             
             # Get all active facilities
             facilities = db.execute_query(
@@ -241,7 +241,7 @@ class DatabaseManager:
                 ("active",)
             )
             for facility in facilities:
-                print(facility['code'], facility['current_volume_m3'])
+                logger.info("%s %s", facility['code'], facility['current_volume_m3'])
         
         Performance note: Large result sets (>10k rows) should use pagination
         or streaming to avoid loading entire result set into memory.

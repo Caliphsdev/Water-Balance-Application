@@ -27,11 +27,17 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt, QThread, Signal, QTimer, Slot
 from PySide6.QtGui import QColor, QFont
 from pathlib import Path
+import logging
+import os
 import yaml
 import pandas as pd
 
 from models.monitoring_data import DataSourceDefinition, StructureType
 from services.monitoring_data_loader import MonitoringDataLoader
+from core.config_manager import get_resource_path
+
+
+logger = logging.getLogger(__name__)
 
 
 # ============================================================================
@@ -312,7 +318,15 @@ class MonitoringDataDashboard(QWidget):
         """Load monitoring sources from YAML config"""
         
         try:
-            config_path = Path('config/monitoring_data_sources.yaml')
+            user_dir = os.environ.get("WATERBALANCE_USER_DIR", "")
+            if user_dir:
+                config_path = Path(user_dir) / "config" / "monitoring_data_sources.yaml"
+            else:
+                config_path = get_resource_path("config/monitoring_data_sources.yaml")
+
+            if not config_path.exists():
+                config_path = get_resource_path("config/monitoring_data_sources.yaml")
+
             if not config_path.exists():
                 self.notebook.addTab(
                     QLabel("Config file not found: config/monitoring_data_sources.yaml"),
@@ -364,7 +378,8 @@ if __name__ == "__main__":
     dashboard.resize(1200, 800)
     dashboard.show()
     
-    print("✅ Dashboard UI ready for testing")
-    print("Click 'Load' buttons to parse Excel files\n")
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
+    logger.info("✅ Dashboard UI ready for testing")
+    logger.info("Click 'Load' buttons to parse Excel files\n")
     
     sys.exit(app.exec())

@@ -26,3 +26,35 @@
 2026-02-05 01:16:39 | ERROR    | water_balance.errors | error:427 | Failed to load notifications: 'NotificationService' object has no attribute 'get_cached_notifications'
 2026-02-05 01:38:30 | ERROR    | water_balance.errors | error:427 | Failed to load notifications: 'NotificationService' object has no attribute 'get_cached_notifications'
 2026-02-05 03:20:20 | ERROR    | water_balance.errors | error:427 | Failed to handle notification click: Internal C++ object (PySide6.QtWidgets.QLabel) already deleted.
+2026-02-05 17:01:43 | ERROR    | water_balance.errors | error:427 | Failed to load Storage Facilities page on demand
+Traceback (most recent call last):
+  File "D:\Projects\dashboard_waterbalance\src\ui\main_window.py", line 789, in _ensure_storage_facilities_page
+    storage_facilities_page = StorageFacilitiesPage()
+  File "D:\Projects\dashboard_waterbalance\src\ui\dashboards\storage_facilities_dashboard.py", line 175, in __init__
+    self.ui.add_facility_button.clicked.connect(self._on_add_facility)
+                                                ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'StorageFacilitiesPage' object has no attribute '_on_add_facility'. Did you mean: '_on_edit_facility'?
+2026-02-05 17:01:45 | ERROR    | water_balance.errors | error:427 | Failed to load Storage Facilities page on demand
+Traceback (most recent call last):
+  File "D:\Projects\dashboard_waterbalance\src\ui\main_window.py", line 789, in _ensure_storage_facilities_page
+    storage_facilities_page = StorageFacilitiesPage()
+  File "D:\Projects\dashboard_waterbalance\src\ui\dashboards\storage_facilities_dashboard.py", line 175, in __init__
+    self.ui.add_facility_button.clicked.connect(self._on_add_facility)
+                                                ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'StorageFacilitiesPage' object has no attribute '_on_add_facility'. Did you mean: '_on_edit_facility'?
+2026-02-05 17:01:48 | ERROR    | water_balance.errors | error:427 | Failed to load Storage Facilities page on demand
+Traceback (most recent call last):
+  File "D:\Projects\dashboard_waterbalance\src\ui\main_window.py", line 789, in _ensure_storage_facilities_page
+    storage_facilities_page = StorageFacilitiesPage()
+  File "D:\Projects\dashboard_waterbalance\src\ui\dashboards\storage_facilities_dashboard.py", line 175, in __init__
+    self.ui.add_facility_button.clicked.connect(self._on_add_facility)
+                                                ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'StorageFacilitiesPage' object has no attribute '_on_add_facility'. Did you mean: '_on_edit_facility'?
+2026-02-05 17:01:49 | ERROR    | water_balance.errors | error:427 | Failed to load Storage Facilities page on demand
+Traceback (most recent call last):
+  File "D:\Projects\dashboard_waterbalance\src\ui\main_window.py", line 789, in _ensure_storage_facilities_page
+    storage_facilities_page = StorageFacilitiesPage()
+  File "D:\Projects\dashboard_waterbalance\src\ui\dashboards\storage_facilities_dashboard.py", line 175, in __init__
+    self.ui.add_facility_button.clicked.connect(self._on_add_facility)
+                                                ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'StorageFacilitiesPage' object has no attribute '_on_add_facility'. Did you mean: '_on_edit_facility'?

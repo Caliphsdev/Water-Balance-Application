@@ -25,7 +25,7 @@ Usage:
     
     service = BalanceService()
     result = service.calculate(facility_code='UG2N', month=3, year=2026)
-    print(result.error_percent)  # < 5% = good balance
+    logger.info(result.error_percent)  # < 5% = good balance
 """
 
 from services.calculation.models import (

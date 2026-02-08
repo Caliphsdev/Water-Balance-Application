@@ -78,7 +78,12 @@ class StorageFacilityRepository:
             repo = StorageFacilityRepository()
             facilities = repo.get_all()
             for facility in facilities:
-                print(f"{facility.code}: {facility.name} ({facility.volume_percentage:.0f}%)")
+                logger.info(
+                    "%s: %s (%.0f%%)",
+                    facility.code,
+                    facility.name,
+                    facility.volume_percentage
+                )
         """
         try:
             rows = self.db.execute_query(
@@ -119,9 +124,9 @@ class StorageFacilityRepository:
         Example:
             facility = repo.get_by_id(1)
             if facility:
-                print(f"Found: {facility.name}")
+                logger.info("Found: %s", facility.name)
             else:
-                print("Facility not found")
+                logger.info("Facility not found")
         """
         try:
             row = self.db.execute_query(

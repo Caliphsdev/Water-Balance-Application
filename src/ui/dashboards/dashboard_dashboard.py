@@ -12,7 +12,8 @@ Data Sources:
 
 import logging
 from PySide6.QtWidgets import QWidget
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt, Signal, QTimer
+from PySide6.QtGui import QGuiApplication, QFont
 from ui.dashboards.generated_ui_dashboard import Ui_Form
 from services.dashboard_service import get_dashboard_service
 
@@ -66,8 +67,38 @@ class DashboardPage(QWidget):
         if hasattr(self.ui, 'card_storage_facilities'):
             self.ui.card_storage_facilities.hide()
         
+        # Apply dynamic font scaling based on screen size
+        self._apply_dynamic_font_scaling()
+        
+        # Re-apply fonts when window is resized (connect to parent if available)
+        if parent:
+            parent.resized.connect(self._apply_dynamic_font_scaling)
+        
         # Load initial data from database (replaces placeholder values)
         self._load_initial_data()
+    
+    def _load_initial_data(self):
+        """Load initial KPI data from database (STARTUP DATA LOAD).
+        
+        Called during __init__ to populate dashboard with real values.
+        Uses DashboardService to aggregate data from multiple sources.
+        
+        Data loaded:
+        - Storage facilities count, capacity, volume from StorageFacilityService
+        - Environmental data (rainfall, evaporation) from EnvironmentalDataService
+        
+        Balance data (inflows, outflows, error) is loaded separately when
+        FlowDiagramPage emits balance_data_updated signal.
+        """
+        try:
+            service = get_dashboard_service()
+            data = service.get_dashboard_kpis(month=self.current_month, year=self.current_year)
+            self.update_data(data)
+            logger.info(f"Dashboard loaded initial KPIs: {len(data)} fields")
+        except Exception as e:
+            logger.warning(f"Could not load initial dashboard data: {e}")
+            # Keep placeholder values from Designer if load fails
+
 
     def _apply_layout_improvements(self):
         """Improve layout spacing and card margins (VISUAL POLISH).
@@ -149,28 +180,113 @@ class DashboardPage(QWidget):
                     if current_style.endswith('}'):
                         new_style = current_style[:-1] + '\nmargin: 4px;\n}'
                         card_widget.setStyleSheet(new_style)
-    
-    def _load_initial_data(self):
-        """Load initial KPI data from database (STARTUP DATA LOAD).
+
+    def _apply_dynamic_font_scaling(self) -> None:
+        """Scale all dashboard fonts based on current window size (RESPONSIVE FONTS).
         
-        Called during __init__ to populate dashboard with real values.
-        Uses DashboardService to aggregate data from multiple sources.
+        Calculates scale factor from screen width and applies proportional
+        font sizes to ensure labels and values fit perfectly at any resolution.
         
-        Data loaded:
-        - Storage facilities count, capacity, volume from StorageFacilityService
-        - Environmental data (rainfall, evaporation) from EnvironmentalDataService
+        Scaling Strategy:
+        - Reference: 1920x1080 screen (full HD) = 100% baseline
+        - Small screens (1280px): 80% font size
+        - Large screens (2560px+): 120% font size
+        - Title fonts: 120% of calculated size (emphasis)
+        - Value fonts: 100% of calculated size (main data)
+        - Label fonts: 90% of calculated size (secondary text)
         
-        Balance data (inflows, outflows, error) is loaded separately when
-        FlowDiagramPage emits balance_data_updated signal.
+        This ensures all text remains readable and properly proportioned
+        regardless of window size or monitor DPI.
         """
         try:
-            service = get_dashboard_service()
-            data = service.get_dashboard_kpis(month=self.current_month, year=self.current_year)
-            self.update_data(data)
-            logger.info(f"Dashboard loaded initial KPIs: {len(data)} fields")
+            # Get the primary screen dimensions
+            screen = QGuiApplication.primaryScreen()
+            if not screen:
+                return
+            
+            # Calculate scale factor based on available screen width
+            # Reference: 1920px = 100% (baseline for full HD)
+            screen_width = screen.availableGeometry().width()
+            base_scale = screen_width / 1920.0
+            
+            # Clamp scale between 0.75 (min 1280px) and 1.3 (max 2560px)
+            scale = max(0.75, min(1.3, base_scale))
+            
+            # Define base font sizes (optimized for 1920px reference)
+            base_title_size = 14       # Section titles
+            base_label_size = 11       # Card titles, small labels
+            base_value_size = 24       # Main KPI values
+            base_unit_size = 10        # Unit labels (m³, %, mm)
+            base_date_size = 10        # Date labels
+            
+            # Calculate actual font sizes with scale factor
+            title_size = int(base_title_size * scale * 1.2)      # 20-22px at 1920px
+            label_size = int(base_label_size * scale * 0.95)     # 10-11px at 1920px
+            value_size = int(base_value_size * scale)            # 24-31px at 1920px
+            unit_size = int(base_unit_size * scale)              # 10-13px at 1920px
+            date_size = int(base_date_size * scale * 0.95)       # 9-10px at 1920px
+            
+            # Apply to section/page titles
+            for title_widget in ['title_water_sources', 'title_storage_facilities', 
+                                'title_total_capacity', 'title_current_volume',
+                                'title_utilization', 'title_rainfall', 'title_evaporation',
+                                'title_total_inflows', 'title_total_outflows',
+                                'title_recirculation', 'title_balance_error', 'title_status']:
+                if hasattr(self.ui, title_widget):
+                    widget = getattr(self.ui, title_widget)
+                    font = widget.font()
+                    font.setPointSize(label_size)
+                    font.setWeight(QFont.Weight.Medium)
+                    widget.setFont(font)
+            
+            # Apply to KPI value labels (largest font)
+            for value_widget in ['value_water_sources', 'value_storage_facilities',
+                                'value_total_capacity', 'value_current_volume',
+                                'value_utilization', 'value_rainfall', 'value_evaporation',
+                                'value_total_inflows', 'value_total_outflows',
+                                'value_recirculation', 'value_balance_error', 'value_status']:
+                if hasattr(self.ui, value_widget):
+                    widget = getattr(self.ui, value_widget)
+                    font = widget.font()
+                    font.setPointSize(value_size)
+                    font.setWeight(QFont.Weight.Bold)
+                    widget.setFont(font)
+            
+            # Apply to unit labels (e.g., "m³", "%", "mm")
+            for unit_widget in ['unit_water_sources', 'unit_storage_facilities',
+                               'unit_total_capacity', 'unit_current_volume',
+                               'unit_utilization', 'unit_rainfall', 'unit_evaporation',
+                               'unit_total_inflows', 'unit_total_outflows',
+                               'unit_recirculation', 'unit_balance_error', 'unit_status']:
+                if hasattr(self.ui, unit_widget):
+                    widget = getattr(self.ui, unit_widget)
+                    font = widget.font()
+                    font.setPointSize(unit_size)
+                    widget.setFont(font)
+            
+            # Apply to date label
+            if hasattr(self.ui, 'label_balance_status'):
+                widget = self.ui.label_balance_status
+                font = widget.font()
+                font.setPointSize(date_size)
+                widget.setFont(font)
+            
+            # Apply to section header labels if they exist
+            for header_widget in ['label_water_sources', 'label_storage_facilities',
+                                 'label_total_capacity', 'label_current_volume',
+                                 'label_utilization', 'label_rainfall', 'label_evaporation',
+                                 'label_total_inflows', 'label_total_outflows',
+                                 'label_recirculation', 'label_balance_error', 'label_status']:
+                if hasattr(self.ui, header_widget):
+                    widget = getattr(self.ui, header_widget)
+                    font = widget.font()
+                    font.setPointSize(label_size)
+                    widget.setFont(font)
+            
+            logger.debug(f"Dashboard fonts scaled (scale={scale:.2f}, value_size={value_size}px)")
+            
         except Exception as e:
-            logger.warning(f"Could not load initial dashboard data: {e}")
-            # Keep placeholder values from Designer if load fails
+            logger.warning(f"Failed to apply dynamic font scaling: {e}")
     
     def update_data(self, data: dict):
         """Update all dashboard values with live data (PRIMARY UPDATE METHOD).
@@ -178,14 +294,14 @@ class DashboardPage(QWidget):
         Args:
             data: Dict containing all KPI values with keys:
                 - storage_facilities: int (count of active storage facilities)
-                - total_capacity: float (Mm³)
-                - current_volume: float (Mm³)
+                - total_capacity: float (Mm^3)
+                - current_volume: float (Mm^3)
                 - utilization: float (percentage)
                 - rainfall: float (mm)
                 - evaporation: float (mm)
-                - total_inflows: float (m³)
-                - total_outflows: float (m³)
-                - recirculation: float (m³)
+                - total_inflows: float (m^3)
+                - total_outflows: float (m^3)
+                - recirculation: float (m^3)
                 - balance_error: float (percentage)
                 - status: str (e.g., "Excellent", "Good", "Warning")
                 - month: int (1-12, optional - for date label)

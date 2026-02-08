@@ -17,7 +17,8 @@ Structure:
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Dict
+import os
 from PySide6.QtCore import Qt, QDateTime, QDate, QTimer, QSizeF, QRect
 from PySide6.QtGui import QStandardItem, QStandardItemModel, QPainter, QPdfWriter, QPageSize
 from PySide6.QtWidgets import (
@@ -306,7 +307,12 @@ class MonitoringPage(QWidget):
         self._table_preview_max_rows: int = 5000
         
         # Cache infrastructure (HYBRID: memory + disk persistence)
-        self._cache_dir = Path(config.get('data_sources.base_path', 'data')) / '.cache' / 'monitoring'
+        # Use user data directory for packaged builds
+        user_dir = os.environ.get('WATERBALANCE_USER_DIR')
+        if user_dir:
+            self._cache_dir = Path(user_dir) / 'data' / '.cache' / 'monitoring'
+        else:
+            self._cache_dir = Path(config.get('data_sources.base_path', 'data')) / '.cache' / 'monitoring'
         self._cache_dir.mkdir(parents=True, exist_ok=True)
         self._memory_cache: Dict[str, Dict] = {}  # {file_path: {mtime, dataframe, rows}}
         self._cache_enabled: bool = True  # Toggle for troubleshooting

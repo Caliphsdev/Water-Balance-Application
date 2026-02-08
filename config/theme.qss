@@ -1,0 +1,57 @@
+/* Global theme base */
+QWidget {
+    font-family: "Segoe UI";
+    font-size: 11px;
+    color: #1f2933;
+}
+
+QMainWindow {
+    background-color: #f5f6f7;
+}
+
+QLabel#headerTitle,
+QLabel#headerSubtitle {
+    color: #f8fafc;
+}
+
+QLineEdit, QComboBox, QDateTimeEdit, QTextEdit {
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 6px 10px;
+}
+
+QPushButton {
+    border-radius: 6px;
+    padding: 6px 12px;
+}
+
+QPushButton#primaryButton {
+    background-color: #2563eb;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+QPushButton#primaryButton:hover {
+    background-color: #1d4ed8;
+}
+
+QPushButton#ghostButton {
+    background-color: #e2e8f0;
+    color: #0f172a;
+    font-weight: 600;
+}
+
+QPushButton#ghostButton:hover {
+    background-color: #cbd5e1;
+}
+
+QPushButton#dangerButton {
+    background-color: #fee2e2;
+    color: #991b1b;
+    font-weight: 600;
+}
+
+QPushButton#dangerButton:hover {
+    background-color: #fecaca;
+}

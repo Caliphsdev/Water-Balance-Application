@@ -101,6 +101,20 @@ QLineEdit#licenseKeyInput {
     selection-background-color: #388BFD;
 }
 
+QLineEdit#textInput {
+    background-color: #0D1117;
+    border: 1px solid #30363D;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 13px;
+    color: #E6EDF3;
+}
+
+QLineEdit#textInput:focus {
+    border-color: #58A6FF;
+    background-color: #161B22;
+}
+
 QLineEdit#licenseKeyInput:focus {
     border-color: #58A6FF;
     background-color: #161B22;
@@ -268,15 +282,21 @@ class ActivationWorker(QObject):
     finished = Signal(object)  # LicenseStatus
     error = Signal(str)
     
-    def __init__(self, license_key: str):
+    def __init__(self, license_key: str, customer_name: str, customer_email: str):
         super().__init__()
         self.license_key = license_key
+        self.customer_name = customer_name
+        self.customer_email = customer_email
     
     def run(self):
         """Perform activation in background thread."""
         try:
             service = get_license_service()
-            status = service.activate(self.license_key)
+            status = service.activate(
+                self.license_key,
+                customer_name=self.customer_name,
+                customer_email=self.customer_email
+            )
             self.finished.emit(status)
         except Exception as e:
             logger.error(f"Activation worker error: {e}")
@@ -316,7 +336,7 @@ class LicenseDialog(QDialog):
         """Set up the dialog UI with commercial-grade design."""
         self.setObjectName("LicenseDialog")
         self.setWindowTitle("Activate License")
-        self.setFixedSize(520, 580)  # Taller to fit status message
+        self.setMinimumSize(560, 720)  # Allow resize to avoid overlap
         self.setModal(True)
         self.setStyleSheet(LICENSE_DIALOG_STYLE)
         
@@ -363,7 +383,8 @@ class LicenseDialog(QDialog):
         # ══════════════════════════════════════════════════════════════════
         input_frame = QFrame()
         input_frame.setObjectName("inputFrame")
-        input_frame.setMinimumHeight(220)  # Ensure consistent height
+        input_frame.setMinimumHeight(360)  # Ensure consistent height
+        input_frame.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
         input_layout = QVBoxLayout(input_frame)
         input_layout.setSpacing(16)
         input_layout.setContentsMargins(24, 24, 24, 24)
@@ -386,6 +407,27 @@ class LicenseDialog(QDialog):
         format_hint = QLabel("Format: XXXX-XXXX-XXXX-XXXX (include dashes)")
         format_hint.setObjectName("formatHint")
         input_layout.addWidget(format_hint)
+
+        # Customer info
+        name_label = QLabel("CUSTOMER NAME")
+        name_label.setObjectName("fieldLabel")
+        name_label.setMinimumHeight(20)
+        input_layout.addWidget(name_label)
+
+        self.customer_name_input = QLineEdit()
+        self.customer_name_input.setObjectName("textInput")
+        self.customer_name_input.setPlaceholderText("Customer or company name")
+        input_layout.addWidget(self.customer_name_input)
+
+        email_label = QLabel("CUSTOMER EMAIL")
+        email_label.setObjectName("fieldLabel")
+        email_label.setMinimumHeight(20)
+        input_layout.addWidget(email_label)
+
+        self.customer_email_input = QLineEdit()
+        self.customer_email_input.setObjectName("textInput")
+        self.customer_email_input.setPlaceholderText("customer@example.com")
+        input_layout.addWidget(self.customer_email_input)
         
         # Machine ID section with frame
         input_layout.addSpacing(8)
@@ -506,19 +548,27 @@ class LicenseDialog(QDialog):
     def _on_activate(self):
         """Handle activate button click."""
         license_key = self.key_input.text().strip()
+        customer_name = self.customer_name_input.text().strip()
+        customer_email = self.customer_email_input.text().strip()
         
         if len(license_key) < 10:
             self._show_status("Please enter a valid license key", "warning")
             return
+
+        if (customer_name and not customer_email) or (customer_email and not customer_name):
+            self._show_status("Please enter both name and email, or leave both blank", "warning")
+            return
         
         # Disable inputs during activation
         self.key_input.setEnabled(False)
+        self.customer_name_input.setEnabled(False)
+        self.customer_email_input.setEnabled(False)
         self.activate_button.setEnabled(False)
         self._show_status("Activating license...", "info")
         
         # Run activation in background
         self._worker_thread = QThread()
-        self._worker = ActivationWorker(license_key)
+        self._worker = ActivationWorker(license_key, customer_name, customer_email)
         self._worker.moveToThread(self._worker_thread)
         
         self._worker_thread.started.connect(self._worker.run)
@@ -532,6 +582,8 @@ class LicenseDialog(QDialog):
     def _on_activation_complete(self, status: LicenseStatus):
         """Handle activation completion."""
         self.key_input.setEnabled(True)
+        self.customer_name_input.setEnabled(True)
+        self.customer_email_input.setEnabled(True)
         self.activate_button.setEnabled(True)
         
         if status.is_valid:
@@ -550,6 +602,8 @@ class LicenseDialog(QDialog):
     def _on_activation_error(self, error: str):
         """Handle activation error."""
         self.key_input.setEnabled(True)
+        self.customer_name_input.setEnabled(True)
+        self.customer_email_input.setEnabled(True)
         self.activate_button.setEnabled(True)
         self._show_status(f"✗ Error: {error}", "error")
     
@@ -766,6 +820,6 @@ if __name__ == "__main__":
     dialog = LicenseDialog(allow_cancel=True)
     result = dialog.exec()
     
-    print(f"Dialog result: {'Accepted' if result else 'Rejected'}")
+    logger.info("Dialog result: %s", "Accepted" if result else "Rejected")
     
     sys.exit(0)

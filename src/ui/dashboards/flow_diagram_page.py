@@ -22,6 +22,8 @@ Key Concepts:
 """
 
 import sys
+import os
+import shutil
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
@@ -52,6 +54,7 @@ from ui.components.flow_graphics_items import FlowNodeItem, FlowEdgeItem
 from services.excel_manager import get_excel_manager
 from services.recirculation_loader import get_recirculation_loader
 from core.app_logger import logger as app_logger
+from core.config_manager import get_resource_path
 
 # Flow Diagram dashboard-specific logger (logs/flow_diagram/ folder)
 logger = app_logger.get_dashboard_logger('flow_diagram')
@@ -150,6 +153,40 @@ class FlowDiagramPage(QWidget):
         self.load_diagram("UG2N")
         
         logger.info("Flow Diagram Page initialized")
+
+    def _get_user_data_dir(self) -> Optional[Path]:
+        """Return user data directory (or None in dev mode)."""
+        user_dir = os.environ.get('WATERBALANCE_USER_DIR')
+        if user_dir:
+            return Path(user_dir) / "data"
+        return None
+
+    def _resolve_data_file(self, relative_path: Path) -> Path:
+        """Resolve a data file path with user-dir preference and bundled fallback."""
+        user_data = self._get_user_data_dir()
+        if user_data:
+            user_path = user_data / relative_path
+            if user_path.exists():
+                return user_path
+
+        return get_resource_path(str(Path("data") / relative_path))
+
+    def _ensure_user_data_copy(self, relative_path: Path) -> Path:
+        """Ensure a writable copy exists in user data; fall back to bundled resource."""
+        resource_path = self._resolve_data_file(relative_path)
+        user_data = self._get_user_data_dir()
+
+        if user_data:
+            user_path = user_data / relative_path
+            if not user_path.exists() and resource_path.exists():
+                try:
+                    user_path.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(resource_path, user_path)
+                except Exception:
+                    return resource_path
+            return user_path if user_path.exists() else resource_path
+
+        return resource_path
 
     def _on_escape_pressed(self):
         """
@@ -259,7 +296,7 @@ class FlowDiagramPage(QWidget):
             self.ui.comboBox_filter_year.blockSignals(True)
             self.ui.comboBox_filter_month.blockSignals(True)
             
-            state_file = "data/filter_state.json"
+            state_file = self._ensure_user_data_copy(Path("filter_state.json"))
             if Path(state_file).exists():
                 with open(state_file, 'r') as f:
                     state_data = json.load(f)
@@ -312,8 +349,9 @@ class FlowDiagramPage(QWidget):
                 "month": selected_month
             }
             
-            Path("data").mkdir(exist_ok=True)
-            state_file = "data/filter_state.json"
+            data_dir = self._get_user_data_dir() or get_resource_path("data")
+            data_dir.mkdir(parents=True, exist_ok=True)
+            state_file = data_dir / "filter_state.json"
             with open(state_file, 'w') as f:
                 json.dump(state_data, f, indent=2)
             
@@ -329,11 +367,21 @@ class FlowDiagramPage(QWidget):
             area_code: Mining area code (e.g., 'UG2N', 'MERS')
         """
         self.area_code = area_code
-        self.diagram_path = "data/diagrams/flow_diagram.json"
+        self.diagram_path = self._ensure_user_data_copy(Path("diagrams") / "flow_diagram.json")
         
         try:
             with open(self.diagram_path, 'r') as f:
                 self.diagram_data = json.load(f)
+
+            # Fallback: if user copy is empty or missing zones/nodes, load bundled version
+            resource_path = get_resource_path("data/diagrams/flow_diagram.json")
+            if resource_path.exists():
+                if not self.diagram_data.get('nodes') or not self.diagram_data.get('zone_bg'):
+                    with open(resource_path, 'r') as f:
+                        self.diagram_data = json.load(f)
+                    # Ensure user copy exists for future saves
+                    self.diagram_path = self._ensure_user_data_copy(Path("diagrams") / "flow_diagram.json")
+
             logger.info(f"Loaded diagram for {area_code}")
             self._render_diagram()
             self._load_and_display_recirculation()
@@ -1219,12 +1267,12 @@ class FlowDiagramPage(QWidget):
             return self._on_canvas_mouse_press(event)
         elif event.type() == QEvent.KeyPress:
             # Diagnostic print to confirm keypress events are captured by viewport filter
-            print(f"[FlowDiagramPage] KeyPress captured: key={event.key()}")
+            logger.debug("KeyPress captured: key=%s", event.key())
             if event.key() == Qt.Key_Escape:
                 # Always exit drawing mode on ESC (user-requested behavior)
                 if self.drawing_mode:
                     logger.info("Drawing mode disabled by user (ESC pressed)")
-                    print("[FlowDiagramPage] ESC detected - exiting drawing mode")
+                    logger.debug("ESC detected - exiting drawing mode")
                     self._on_draw_clicked()  # Toggle off
                 return True
         
@@ -2467,7 +2515,7 @@ class FlowDiagramPage(QWidget):
         """
         try:
             # Load saved flow categorizations from JSON
-            categories_file = "data/balance_check_flow_categories.json"
+            categories_file = self._ensure_user_data_copy(Path("balance_check_flow_categories.json"))
             flow_categories = {}
             
             try:
@@ -2577,7 +2625,7 @@ class FlowDiagramPage(QWidget):
         """
         try:
             # Load saved flow categorizations from JSON
-            categories_file = "data/balance_check_flow_categories.json"
+            categories_file = self._ensure_user_data_copy(Path("balance_check_flow_categories.json"))
             flow_categories = {}
             
             try:

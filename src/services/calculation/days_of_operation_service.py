@@ -207,10 +207,14 @@ class DaysOfOperationService:
     Usage:
         service = DaysOfOperationService()
         result = service.calculate_runway(month=9, year=2025)
-        print(f"System runway: {result.system_days_remaining} days")
+        logger.info("System runway: %s days", result.system_days_remaining)
         
         for facility in result.facilities:
-            print(f"{facility.facility_name}: {facility.days_remaining_conservative} days")
+            logger.info(
+                "%s: %s days",
+                facility.facility_name,
+                facility.days_remaining_conservative
+            )
     """
     
     # Minimum reserve as percentage of capacity (can't run to zero)
@@ -298,8 +302,12 @@ class DaysOfOperationService:
         
         Example:
             runway = service.calculate_runway(9, 2025, balance_result=result)
-            print(f"Combined runway: {runway.combined_days_remaining} days")
-            print(f"Limiting facility: {runway.limiting_facility} ({runway.system_days_remaining}d)")
+            logger.info("Combined runway: %s days", runway.combined_days_remaining)
+            logger.info(
+                "Limiting facility: %s (%sd)",
+                runway.limiting_facility,
+                runway.system_days_remaining
+            )
         """
         logger.info(f"Calculating runway for {month}/{year} ({projection_months} months projection)")
         

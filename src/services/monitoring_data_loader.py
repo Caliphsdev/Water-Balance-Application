@@ -23,6 +23,7 @@ REUSE: Async pattern from existing app architecture
 """
 
 import os
+import logging
 import threading
 import time
 from typing import Dict, List, Optional, Callable
@@ -34,6 +35,8 @@ from models.monitoring_data import (
     DataSourceDefinition, MonitoringRecord, ParseResult, LoadResult, CacheEntry
 )
 from services.monitoring_parsers import ParserFactory
+
+logger = logging.getLogger(__name__)
 
 
 # ============================================================================
@@ -348,7 +351,8 @@ def create_loader(source_def: DataSourceDefinition, directory: Optional[Path] = 
 
 if __name__ == "__main__":
     """Test loader"""
-    
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
+
     from models.monitoring_data import StructureType, DataType, ColumnMapping
     
     # Create test source
@@ -369,12 +373,13 @@ if __name__ == "__main__":
     
     # Create loader
     loader = MonitoringDataLoader(source_def)
-    print(f"✓ Loader created: {loader.source_def.id}")
-    print(f"  Directory: {loader.directory}")
-    print(f"  Parser: {loader.parser.__class__.__name__}")
+    logger.info("✓ Loader created: %s", loader.source_def.id)
+    logger.info("  Directory: %s", loader.directory)
+    logger.info("  Parser: %s", loader.parser.__class__.__name__)
     
     # Scan (won't find files in non-existent directory, but that's OK)
     files = loader.scan_files()
-    print(f"✓ Scanned: {len(files)} files")
-    
-    print("\n✅ Loader framework ready!")
+    logger.info("✓ Scanned: %s files", len(files))
+
+    logger.info("")
+    logger.info("✅ Loader framework ready!")

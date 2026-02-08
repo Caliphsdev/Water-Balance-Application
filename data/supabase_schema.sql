@@ -44,6 +44,8 @@ CREATE TABLE licenses (
     status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'expired', 'revoked')),
     expires_at TIMESTAMPTZ,
     last_validated TIMESTAMPTZ,
+    customer_name TEXT,
+    customer_email TEXT,
     notes TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -53,6 +55,7 @@ CREATE TABLE licenses (
 CREATE INDEX idx_licenses_key ON licenses(license_key);
 CREATE INDEX idx_licenses_hwid ON licenses(hwid);
 CREATE INDEX idx_licenses_status ON licenses(status);
+CREATE INDEX idx_licenses_customer_email ON licenses(customer_email);
 
 -- Row Level Security
 ALTER TABLE licenses ENABLE ROW LEVEL SECURITY;
@@ -160,6 +163,7 @@ CREATE TABLE feature_requests (
     type TEXT NOT NULL CHECK (type IN ('bug', 'feature', 'general')),
     title TEXT NOT NULL,
     description TEXT NOT NULL,
+    customer_name TEXT,
     email TEXT,  -- Optional contact email
     hwid TEXT,
     license_key TEXT,
@@ -213,6 +217,67 @@ CREATE TRIGGER update_feature_requests_updated_at
     BEFORE UPDATE ON feature_requests
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
+
+-- ============================================================================
+-- LICENSE BINDING RPC (SECURITY DEFINER)
+-- Allows client app to bind HWID + customer info safely
+-- ============================================================================
+
+CREATE OR REPLACE FUNCTION bind_license(
+    p_license_key TEXT,
+    p_hwid TEXT,
+    p_customer_name TEXT DEFAULT NULL,
+    p_customer_email TEXT DEFAULT NULL
+)
+RETURNS TABLE (
+    license_key TEXT,
+    hwid TEXT,
+    customer_name TEXT,
+    customer_email TEXT,
+    last_validated TIMESTAMPTZ
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+    v_record licenses%ROWTYPE;
+BEGIN
+    SELECT * INTO v_record
+    FROM licenses
+    WHERE license_key = p_license_key;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'License key not found';
+    END IF;
+
+    IF v_record.status <> 'active' THEN
+        RAISE EXCEPTION 'License is not active';
+    END IF;
+
+    IF v_record.expires_at IS NOT NULL AND v_record.expires_at < NOW() THEN
+        RAISE EXCEPTION 'License has expired';
+    END IF;
+
+    IF v_record.hwid IS NOT NULL AND v_record.hwid <> p_hwid THEN
+        RAISE EXCEPTION 'License bound to different machine';
+    END IF;
+
+    UPDATE licenses
+    SET hwid = COALESCE(v_record.hwid, p_hwid),
+        last_validated = NOW(),
+        customer_name = COALESCE(v_record.customer_name, p_customer_name),
+        customer_email = COALESCE(v_record.customer_email, p_customer_email)
+    WHERE license_key = p_license_key;
+
+    RETURN QUERY
+    SELECT license_key, hwid, customer_name, customer_email, last_validated
+    FROM licenses
+    WHERE license_key = p_license_key;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION bind_license(TEXT, TEXT, TEXT, TEXT) TO anon, authenticated;
 
 -- ============================================================================
 -- SAMPLE DATA (for testing)

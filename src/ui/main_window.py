@@ -16,7 +16,7 @@ from __future__ import annotations
 
 from PySide6.QtWidgets import QMainWindow, QVBoxLayout, QLabel, QPushButton, QHBoxLayout, QWidget
 from PySide6.QtCore import Slot, QSize, QPropertyAnimation, QEasingCurve, QTimer
-from PySide6.QtGui import QIcon, QPixmap
+from PySide6.QtGui import QIcon, QPixmap, QGuiApplication
 
 # Register compiled Qt resources (icons, images, fonts)
 import ui.resources.resources_rc  # noqa: F401
@@ -31,6 +31,7 @@ from ui.dashboards.flow_diagram_page import FlowDiagramPage
 from ui.dashboards.settings_dashboard import SettingsPage
 from ui.dashboards.messages_dashboard import MessagesPage
 from core.app_logger import logger as app_logger
+from core.config_manager import ConfigManager
 from services.environmental_data_service import get_environmental_data_service
 
 logger = app_logger
@@ -60,6 +61,7 @@ class MainWindow(QMainWindow):
         self.ui.setupUi(self)
         self._storage_facilities_page = None
         self._messages_page = None
+        self._apply_window_sizing()
         self._setup_animations()
         self._set_initial_state()
         
@@ -69,6 +71,9 @@ class MainWindow(QMainWindow):
         self._setup_notification_drawer()
         self._setup_status_bar()  # Setup status bar with license/network info
         self._set_default_page()  # Set Dashboard as the startup page
+        
+        # Enable resize event handling for responsive layout updates
+        self.setWindowFlags(self.windowFlags())  # Ensure resize events are enabled
 
     def _connect_navigation(self) -> None:
         """Wire sidebar buttons to stacked widget pages.
@@ -147,6 +152,33 @@ class MainWindow(QMainWindow):
         self.ui.icon_only.setVisible(True)
         self.ui.icon_name.setVisible(False)
         self.ui.pushButton_19.setChecked(False)
+
+    def _apply_window_sizing(self) -> None:
+        """Apply responsive window sizing based on screen and config."""
+        config = ConfigManager()
+        geometry = config.get('window.geometry', '1400x900')
+        min_width = int(config.get('window.min_width', 1200))
+        min_height = int(config.get('window.min_height', 700))
+
+        try:
+            width_str, height_str = geometry.lower().split('x')
+            width = int(width_str.strip())
+            height = int(height_str.strip())
+        except Exception:
+            width, height = 1400, 900
+
+        screen = QGuiApplication.primaryScreen()
+        if screen:
+            avail = screen.availableGeometry()
+            max_width = int(avail.width() * 0.95)
+            max_height = int(avail.height() * 0.95)
+            min_width = min(min_width, max_width)
+            min_height = min(min_height, max_height)
+            width = max(min(width, max_width), min_width)
+            height = max(min(height, max_height), min_height)
+
+        self.setMinimumSize(min_width, min_height)
+        self.resize(width, height)
 
     def _setup_notification_drawer(self) -> None:
         """Set up notification drawer and bell button in header.
@@ -283,7 +315,7 @@ class MainWindow(QMainWindow):
             if not default_pixmap.isNull():
                 self.network_icon.setPixmap(default_pixmap)
             else:
-                print("[DEBUG] Network icon resource not found!", flush=True)
+                logger.debug("Network icon resource not found")
             self.network_icon.setToolTip("Network Status")
             network_layout.addWidget(self.network_icon)
             
@@ -366,7 +398,7 @@ class MainWindow(QMainWindow):
         
         Uses QRunnable to avoid blocking the UI thread during network check.
         """
-        print("[DEBUG] _update_network_status called", flush=True)
+        logger.debug("Network status check requested")
         try:
             from PySide6.QtCore import QRunnable, QThreadPool, Signal, QObject
             
@@ -382,32 +414,37 @@ class MainWindow(QMainWindow):
                 def run(self):
                     import socket
                     try:
-                        print("[DEBUG] Network check: trying to connect to 8.8.8.8:53...", flush=True)
+                        logger.debug("Network check: connecting to 8.8.8.8:53")
                         socket.create_connection(("8.8.8.8", 53), timeout=2)
                         is_online = True
-                        print("[DEBUG] Network check: ONLINE", flush=True)
+                        logger.debug("Network check: online")
                     except (socket.timeout, socket.error, OSError) as e:
                         is_online = False
-                        print(f"[DEBUG] Network check: OFFLINE - {e}", flush=True)
-                    print(f"[DEBUG] Network check: emitting result signal is_online={is_online}", flush=True)
+                        logger.debug(f"Network check: offline ({e})")
+                    logger.debug(f"Network check: emitting result is_online={is_online}")
                     self.signals.result.emit(is_online)
             
             def update_ui(is_online):
-                print(f"[DEBUG] update_ui called with is_online={is_online}", flush=True)
+                logger.debug(f"Network status UI update is_online={is_online}")
                 try:
                     if is_online:
                         icon = QIcon(":/icons/network-wireless-svgrepo-com.svg")
-                        print(f"[DEBUG] Icon isNull={icon.isNull()}, availableSizes={icon.availableSizes()}", flush=True)
+                        logger.debug(f"Network icon isNull={icon.isNull()}, sizes={icon.availableSizes()}")
                         network_pixmap = icon.pixmap(16, 16)
-                        print(f"[DEBUG] Pixmap isNull={network_pixmap.isNull()}, width={network_pixmap.width()}, height={network_pixmap.height()}", flush=True)
+                        logger.debug(
+                            "Network pixmap isNull=%s width=%s height=%s",
+                            network_pixmap.isNull(),
+                            network_pixmap.width(),
+                            network_pixmap.height(),
+                        )
                         
                         if not network_pixmap.isNull():
                             self.network_icon.setPixmap(network_pixmap)
-                            print(f"[DEBUG] Pixmap set successfully", flush=True)
+                            logger.debug("Network pixmap set successfully")
                         else:
                             # Fallback: Use text if icon fails
                             self.network_icon.setText("🟢")
-                            print(f"[DEBUG] Using emoji fallback", flush=True)
+                            logger.debug("Network icon fallback in use")
                         
                         self.network_label.setText("Online")
                         self.network_label.setStyleSheet("""
@@ -417,7 +454,7 @@ class MainWindow(QMainWindow):
                             }
                         """)
                         self.network_icon.setToolTip("Connected to network")
-                        print(f"[DEBUG] Network status updated to Online", flush=True)
+                        logger.debug("Network status updated to Online")
                     else:
                         icon = QIcon(":/icons/network-wireless-disabled-svgrepo-com.svg")
                         network_pixmap = icon.pixmap(16, 16)
@@ -606,7 +643,14 @@ class MainWindow(QMainWindow):
         """
         if page_widget == self.ui.storge_facilitites:
             page_widget = self._ensure_storage_facilities_page()
+        elif page_widget is not None and getattr(page_widget, "objectName", lambda: "")() == "storge_facilitites":
+            page_widget = self._ensure_storage_facilities_page()
+
         index = self.ui.stackedWidget.indexOf(page_widget)
+        if index < 0 and self._storage_facilities_page is not None:
+            if page_widget is not None and getattr(page_widget, "objectName", lambda: "")() == "storge_facilitites":
+                page_widget = self._storage_facilities_page
+                index = self.ui.stackedWidget.indexOf(page_widget)
         if index >= 0:
             self.ui.stackedWidget.setCurrentIndex(index)
     
@@ -809,6 +853,22 @@ class MainWindow(QMainWindow):
 
         # Accept the close event to allow the application to shut down
         event.accept()
+    
+    def resizeEvent(self, event) -> None:
+        """Handle window resize events (RESPONSIVE LAYOUT).
+        
+        Triggers font rescaling in dashboard page when window is resized
+        to ensure fonts remain proportional at all window sizes.
+        """
+        super().resizeEvent(event)
+        
+        # Trigger font rescaling on the current dashboard page if it supports it
+        if self.ui.stackedWidget:
+            current_page = self.ui.stackedWidget.currentWidget()
+            if current_page and hasattr(current_page, '_apply_dynamic_font_scaling'):
+                # Use QTimer to defer rescaling to next event loop (prevents resize lag)
+                from PySide6.QtCore import QTimer
+                QTimer.singleShot(50, current_page._apply_dynamic_font_scaling)
     
     def changeEvent(self, event) -> None:
         """Handle window state changes (WINDOW STATE HANDLING).

@@ -19,8 +19,12 @@ KEY EXCEL DATA SOURCE PATHS (both REQUIRED):
 import yaml
 import os
 import sys
+import logging
 from pathlib import Path
 from typing import Any, Dict
+
+
+logger = logging.getLogger(__name__)
 
 
 def get_resource_path(relative_path: str) -> Path:
@@ -101,10 +105,10 @@ class ConfigManager:
             with open(config_path, 'r') as f:
                 self._config = yaml.safe_load(f)
         except FileNotFoundError:
-            print(f"Config file not found: {config_path}")
+            logger.warning("Config file not found: %s", config_path)
             self._config = self._get_default_config()
         except yaml.YAMLError as e:
-            print(f"Error parsing config file: {e}")
+            logger.error("Error parsing config file: %s", e)
             self._config = self._get_default_config()
         # Store config path for saving
         self._config_path = config_path
@@ -209,7 +213,7 @@ class ConfigManager:
             with open(config_path, 'w') as f:
                 yaml.dump(self._config, f, default_flow_style=False)
         except Exception as e:
-            print(f'Error saving config: {e}')
+            logger.error("Error saving config: %s", e)
 
     # ============ User Session ============
     def get_current_user(self) -> str:
@@ -268,6 +272,9 @@ class ConfigManager:
                 'text_primary': '#212121',
                 'text_light': '#FFFFFF',
                 'divider': '#E0E0E0'
+            },
+            'logging': {
+                'level': 'INFO'
             }
         }
     

@@ -18,6 +18,7 @@ REUSE PATTERN: Inherits async + caching from existing app architecture
 """
 
 import pandas as pd
+import logging
 from datetime import datetime, date
 from typing import List, Dict, Optional, Tuple
 import time
@@ -30,6 +31,8 @@ from models.monitoring_data import (
     BoreholeMonitoringRecord, PCDMonitoringRecord, ParseResult,
     DataType, StructureType
 )
+
+logger = logging.getLogger(__name__)
 
 
 # ============================================================================
@@ -519,7 +522,8 @@ def get_parser(source_def: DataSourceDefinition) -> MonitoringExcelParser:
 
 if __name__ == "__main__":
     """Test parsers"""
-    
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
+
     from models.monitoring_data import StructureType, DataType, ColumnMapping
     
     # Create test source definition
@@ -540,10 +544,11 @@ if __name__ == "__main__":
     
     # Test parser creation
     parser = ParserFactory.create_parser(source_def)
-    print(f"✓ Created parser: {parser.__class__.__name__}")
+    logger.info("✓ Created parser: %s", parser.__class__.__name__)
     
     # Test fuzzy matching
     match = fuzzy_match_column("Static Level", ["Static Level (m)", "SWL", "Level"])
-    print(f"✓ Fuzzy match: {match}")
-    
-    print("\n✅ Parser framework ready!")
+    logger.info("✓ Fuzzy match: %s", match)
+
+    logger.info("")
+    logger.info("✅ Parser framework ready!")

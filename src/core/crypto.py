@@ -351,12 +351,13 @@ def verify_password(password: str, hashed_hex: str, salt_hex: str) -> bool:
 # (MODULE TEST)
 
 if __name__ == "__main__":
-    print("Crypto Module Test")
-    print("=" * 50)
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
+    logger.info("Crypto Module Test")
+    logger.info("=" * 50)
     
     # Generate test key
     test_key = generate_license_key()
-    print(f"Generated license key: {test_key}")
+    logger.info("Generated license key: %s", test_key)
     
     # Create test token (requires WATERBALANCE_PRIVATE_KEY to be set)
     if os.environ.get('WATERBALANCE_PRIVATE_KEY'):
@@ -369,15 +370,16 @@ if __name__ == "__main__":
             expires_at=datetime.now(timezone.utc) + timedelta(days=30)
         )
         
-        print(f"\nToken payload: {token.to_dict()}")
+        logger.info("\nToken payload: %s", token.to_dict())
         
         signed = sign_token(token)
-        print(f"\nSigned token: {signed[:50]}...")
+        logger.info("\nSigned token: %s...", signed[:50])
         
         is_valid, verified_token, error = verify_token(signed)
-        print(f"\nVerification: {'✓ Valid' if is_valid else f'✗ Invalid: {error}'}")
+        status = "✓ Valid" if is_valid else f"✗ Invalid: {error}"
+        logger.info("\nVerification: %s", status)
         
         if verified_token:
-            print(f"Days until expiry: {verified_token.days_until_expiry()}")
+            logger.info("Days until expiry: %s", verified_token.days_until_expiry())
     else:
-        print("\nNote: Set WATERBALANCE_PRIVATE_KEY to test signing/verification")
+        logger.info("\nNote: Set WATERBALANCE_PRIVATE_KEY to test signing/verification")

@@ -8,6 +8,7 @@ Wrapper around generated_ui_balance_check_dialog.py that provides:
 """
 
 import sys
+import os
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
@@ -17,6 +18,7 @@ from typing import Dict, List, Tuple
 import json
 
 from ui.dialogs.generated_ui_balance_check_dialog import Ui_BalanceCheckDialog
+from core.config_manager import get_resource_path
 
 
 class BalanceCheckDialog(QDialog):
@@ -50,7 +52,7 @@ class BalanceCheckDialog(QDialog):
         
         self.parent_page = parent
         self.area_code = area_code
-        self.categories_file = "data/balance_check_flow_categories.json"
+        self.categories_file = self._get_categories_file()
         self.flow_categories = {}  # {edge_idx: category}
         
         # Configure dialog size and responsiveness (LARGE & DYNAMIC)
@@ -65,6 +67,13 @@ class BalanceCheckDialog(QDialog):
         self._calculate_balance()
         
         self.setModal(True)
+
+    def _get_categories_file(self) -> Path:
+        """Resolve categories file path with user-dir preference."""
+        user_dir = os.environ.get('WATERBALANCE_USER_DIR')
+        if user_dir:
+            return Path(user_dir) / "data" / "balance_check_flow_categories.json"
+        return get_resource_path("data/balance_check_flow_categories.json")
     
     def _configure_dialog_size(self):
         """Configure dialog size to be large and responsive (RESPONSIVE UI).
@@ -403,6 +412,7 @@ class BalanceCheckDialog(QDialog):
             categories_data[self.area_code] = self.flow_categories
             
             # Save
+            Path(self.categories_file).parent.mkdir(parents=True, exist_ok=True)
             with open(self.categories_file, 'w') as f:
                 json.dump(categories_data, f, indent=2)
             

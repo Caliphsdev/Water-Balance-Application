@@ -149,8 +149,8 @@ class StorageFacilitiesPage(QWidget):
         self._load_thread: Optional[QThread] = None
         self._load_worker: Optional[FacilitiesLoadWorker] = None
         
-        # Initialize service (dependency injection - accepts custom service for testing)
-        self.service = StorageFacilityService()
+        # Initialize service lazily to avoid UI stalls (created on-demand)
+        self.service = None
 
         # Data storage
         self._facilities = []
@@ -250,6 +250,12 @@ class StorageFacilitiesPage(QWidget):
         else:
             logger.warning("Could not find table widget in UI")
 
+    def _get_service(self) -> StorageFacilityService:
+        """Lazily create the storage facility service when needed."""
+        if self.service is None:
+            self.service = StorageFacilityService()
+        return self.service
+
     def _load_facilities(self) -> None:
         """Legacy wrapper to load facilities asynchronously.
 
@@ -262,12 +268,27 @@ class StorageFacilitiesPage(QWidget):
 
         This prevents UI freezing on slow database operations.
         Service instantiation is also deferred to the background thread.
+        
+        THREAD SAFETY: Refuses to start if a worker is already running
+        to prevent concurrent DB access issues and UI thread blocking.
+        Follows Qt best practices for thread cleanup and signal management.
         """
+        # Prevent concurrent loads - check if thread is running
         if self._load_thread and self._load_thread.isRunning():
-            self._logger.info("Facility load already in progress")
+            self._logger.warning("[LOAD] Load already in progress - ignoring request")
             return
+        
+        # CRITICAL: Clean up previous thread completely before starting new one
+        # This prevents stale signal connections and ensures clean state
+        if self._load_worker is not None or self._load_thread is not None:
+            self._logger.info("[LOAD] Previous worker/thread detected - force cleaning before new load")
+            # Immediately and forcefully clean up
+            self._force_cleanup_worker()
+            # Ensure cleanup completes by processing events
+            from PySide6.QtCore import QCoreApplication
+            QCoreApplication.processEvents()
 
-        self._logger.info("Starting async facility load")
+        self._logger.info("[LOAD] Starting async facility load")
 
         # Worker instantiation with no service (deferred to background)
         self._load_worker = FacilitiesLoadWorker(self._logger)
@@ -275,17 +296,20 @@ class StorageFacilitiesPage(QWidget):
         self._load_worker.moveToThread(self._load_thread)
 
         # Connect worker signals
+        self._logger.debug("[LOAD] Connecting signals...")
         self._load_thread.started.connect(self._load_worker.run)
         self._load_worker.finished.connect(self._on_facilities_loaded)
         self._load_worker.failed.connect(self._on_facilities_load_error)
 
-        # Cleanup
-        self._load_worker.finished.connect(self._load_thread.quit)
-        self._load_worker.failed.connect(self._load_thread.quit)
-        self._load_thread.finished.connect(self._clear_load_worker)
-
+        # Cleanup: When worker finishes (success or failure), immediately mark as None
+        # and defer actual Qt cleanup
+        self._load_worker.finished.connect(self._cleanup_worker_signal)
+        self._load_worker.failed.connect(self._cleanup_worker_signal)
+        self._logger.debug("[LOAD] Signals connected successfully")
+        
+        # Start the thread
         self._load_thread.start()
-
+        self._logger.info("[LOAD] Thread started")
     def _show_loading_state(self) -> None:
         """Show loading indicator and disable interactions (IMMEDIATE VISUAL FEEDBACK).
         
@@ -340,12 +364,16 @@ class StorageFacilitiesPage(QWidget):
         Args:
             facilities: List of facility dicts ready for table rendering.
         """
+        self._logger.info(f"[SIGNAL] _on_facilities_loaded received with {len(facilities)} items")
         self._facilities = facilities
         self._filtered_facilities = self._facilities.copy()
+        self._logger.debug(f"[SIGNAL] Updating summary cards...")
         self._update_summary_cards()
+        self._logger.debug(f"[SIGNAL] Populating table...")
         self._populate_table()
+        self._logger.debug(f"[SIGNAL] Hiding loading state...")
         self._hide_loading_state()  # Hide loading indicator after data loaded
-        self._logger.info(f"Storage facilities ready: {len(facilities)} items")
+        self._logger.info(f"[SIGNAL] Storage facilities ready: {len(facilities)} items")
 
     def _on_facilities_load_error(self, error_message: str) -> None:
         """Handle background worker errors (UI thread)."""
@@ -359,13 +387,86 @@ class StorageFacilitiesPage(QWidget):
         )
 
     def _clear_load_worker(self) -> None:
-        """Cleanup background worker and thread after completion."""
-        if self._load_worker:
-            self._load_worker.deleteLater()
-        if self._load_thread:
-            self._load_thread.deleteLater()
+        """Cleanup background worker and thread after completion (CRITICAL CLEANUP).
+        
+        This is called after the worker finishes. It ensures proper cleanup of Qt objects.
+        
+        Note: Worker and thread refs should already be set to None by _cleanup_worker_signal.
+        This method is called after that as a safety measure for Qt object cleanup.
+        
+        Must be called on the main thread (Qt requirement for deleteLater).
+        """
+        try:
+            self._logger.debug("[CLEANUP] Qt cleanup starting...")
+            
+            # These should already be None, but try to cleanup if they exist
+            # (defensive programming in case called from elsewhere)
+            if self._load_thread:
+                if self._load_thread.isRunning():
+                    self._logger.debug("[CLEANUP] Thread is running - quitting...")
+                    self._load_thread.quit()
+                    success = self._load_thread.wait(1000)
+                    self._logger.debug(f"[CLEANUP] Quit result: {success}")
+                
+                try:
+                    self._load_thread.deleteLater()
+                except:
+                    pass
+            
+            if self._load_worker:
+                try:
+                    self._load_worker.deleteLater()
+                except:
+                    pass
+            
+            self._logger.info("[CLEANUP] Qt cleanup completed")
+        except Exception as e:
+            self._logger.error(f"[CLEANUP] Error in Qt cleanup: {e}", exc_info=True)
+
+    def _force_cleanup_worker(self) -> None:
+        """Alias for _clear_load_worker for backward compatibility."""
+        self._clear_load_worker()
+
+    def _cleanup_worker_signal(self) -> None:
+        """Cleanup handler called when worker emits finished or failed signal.
+        
+        Properly stops the QThread and clears references to allow garbage collection.
+        """
+        from PySide6.QtCore import QTimer
+        
+        self._logger.info("[CLEANUP] Worker signal received - starting cleanup")
+        
+        # Store refs before clearing so we can properly quit the thread
+        thread_ref = self._load_thread
+        
+        # Immediately clear refs so subsequent loads can proceed
         self._load_worker = None
         self._load_thread = None
+        self._logger.debug("[CLEANUP] References cleared")
+        
+        # Defer thread quit to next event loop to prevent signal handler issues
+        if thread_ref:
+            self._logger.debug("[CLEANUP] Scheduling thread quit for next event loop")
+            QTimer.singleShot(0, lambda: self._perform_thread_quit(thread_ref))
+        
+    def _perform_thread_quit(self, thread_ref) -> None:
+        """Properly quit the thread after all signals finish.
+        
+        This ensures the thread is stopped before it gets garbage collected.
+        """
+        try:
+            if thread_ref and thread_ref.isRunning():
+                self._logger.debug("[CLEANUP] Quitting thread...")
+                thread_ref.quit()
+                success = thread_ref.wait(2000)
+                if success:
+                    self._logger.info("[CLEANUP] Thread quit successfully")
+                else:
+                    self._logger.warning("[CLEANUP] Thread quit timeout - forcing termination")
+                    thread_ref.terminate()
+                    thread_ref.wait(1000)
+        except Exception as e:
+            self._logger.error(f"[CLEANUP] Error quitting thread: {e}", exc_info=True)
 
     def stop_background_tasks(self) -> None:
         """Stop any active background loads (SHUTDOWN SAFETY).
@@ -384,6 +485,8 @@ class StorageFacilitiesPage(QWidget):
         Converts facility dicts to the model's expected data format. This method
         runs on the UI thread to safely update Qt models.
         """
+        self._logger.debug(f"[POPULATE] Starting with {len(self._filtered_facilities)} filtered facilities")
+        
         facilities_data = []
         for facility in self._filtered_facilities:
             # Calculate utilization when missing (defensive fallback)
@@ -409,7 +512,9 @@ class StorageFacilitiesPage(QWidget):
 
         # Pass to model (model stores raw data, no QStandardItem objects created)
         # View will call data() method only for visible cells
+        self._logger.debug(f"[POPULATE] Calling setFacilitiesData with {len(facilities_data)} items")
         self._table_model.setFacilitiesData(facilities_data)
+        self._logger.debug(f"[POPULATE] Model data set successfully")
 
         logger.debug(
             f"Table populated with {len(facilities_data)} facilities (lazy loading)"
@@ -555,16 +660,37 @@ class StorageFacilitiesPage(QWidget):
         This ensures that after a balance calculation updates storage volumes,
         navigating to the Storage Facilities page shows the new values.
         
+        IMPORTANT: Only refreshes if a background worker is not already running
+        to prevent multiple concurrent loads (which causes freezing).
+        
         Args:
             event: Qt show event with visibility context
         """
         super().showEvent(event)
         
-        # Refresh data when page becomes visible
-        # This syncs the display with any balance calculations done elsewhere
-        if self._facilities:  # Only refresh if already loaded once
-            logger.debug("Storage Facilities page shown - refreshing data")
-            self._on_refresh()
+        # Check for running worker
+        is_worker_running = self._load_thread and self._load_thread.isRunning()
+        has_pending_worker = self._load_worker is not None or self._load_thread is not None
+        
+        self._logger.info(f"[SHOW] Page shown: is_worker_running={is_worker_running}, has_pending_worker={has_pending_worker}, has_facilities={len(self._facilities) > 0}")
+        
+        # If nothing is running and nothing is pending, safe to load
+        if not is_worker_running and not has_pending_worker:
+            if self._facilities:
+                # Safe to refresh - data exists and no active worker
+                self._logger.info("[SHOW] Data exists - refreshing")
+                self._on_refresh()
+            else:
+                # First-time load (no data yet) and no active worker
+                self._logger.info("[SHOW] First-time load - starting async load")
+                self._load_facilities_async()
+        else:
+            # Thread is running or cleanup is pending - don't start new load
+            if is_worker_running:
+                self._logger.warning("[SHOW] Worker still running - skipping load (THIS CAUSES FREEZE!)")
+            else:
+                self._logger.warning("[SHOW] Cleanup still pending - skipping load")
+
     
     def _on_refresh(self) -> None:
         """Refresh facilities data from database (REFRESH OPERATION).
@@ -572,24 +698,44 @@ class StorageFacilitiesPage(QWidget):
         Called when user clicks Refresh button, after Add/Edit/Delete,
         or automatically when page becomes visible (showEvent).
         Reloads all facilities and updates display.
+        
+        THREAD SAFETY: Checks if a worker is already running to prevent
+        multiple concurrent loads (which can cause freezes/deadlocks).
+        Uses a reload flag to track whether we're in the middle of cleanup.
         """
+        self._logger.info("[REFRESH] Refresh requested")
+        
+        # Double-check thread state before starting refresh
+        is_worker_running = self._load_thread and self._load_thread.isRunning()
+        has_pending_worker = self._load_worker is not None or self._load_thread is not None
+        
+        self._logger.debug(f"[REFRESH] Thread state: is_running={is_worker_running}, has_pending={has_pending_worker}")
+        
+        if is_worker_running:
+            self._logger.debug("[REFRESH] Skipped - load already in progress")
+            return  # Don't start another load if one is running
+        
+        if has_pending_worker:
+            self._logger.debug("[REFRESH] Skipped - previous load cleanup still pending")
+            return  # Don't start while cleanup is happening
+        
         try:
-            self._load_facilities()
-            self._populate_table()
-            logger.info("Facilities data refreshed successfully")
-            # Optional: Show brief notification
+            self._logger.debug("[REFRESH] Starting async load...")
+            self._load_facilities_async()
+            self._logger.info("[REFRESH] Facilities data refresh started")
         except Exception as e:
-            logger.error(f"Failed to refresh facilities: {e}")
-            QMessageBox.warning(self, "Refresh Error", f"Failed to refresh: {e}")
+            self._logger.error(f"[REFRESH] Failed: {e}")
+            QMessageBox.critical(self, "Error", f"Failed to refresh facilities: {e}")
 
     def _on_add_facility(self) -> None:
-        """Open add facility dialog (ADD OPERATION).
+        """Open new facility dialog (ADD OPERATION).
         
-        Shows modal dialog for creating new facility.
-        If user clicks Save, creates facility and refreshes table.
+        Shows modal dialog for creating a new storage facility.
+        If user clicks Save, adds facility to database and refreshes table.
         """
         try:
-            dialog = StorageFacilityDialog(self.service, mode='add', parent=self)
+            service = self._get_service()
+            dialog = StorageFacilityDialog(service, mode='add', parent=self)
             if dialog.exec() == QDialog.Accepted:
                 # User clicked Save in dialog, refresh to show new facility
                 self._on_refresh()
@@ -597,7 +743,7 @@ class StorageFacilitiesPage(QWidget):
         except Exception as e:
             logger.error(f"Failed to open add dialog: {e}")
             QMessageBox.critical(self, "Error", f"Failed to open add dialog: {e}")
-    
+
     def _on_edit_facility(self, facility_dict: dict) -> None:
         """Open edit facility dialog (EDIT OPERATION).
         
@@ -613,7 +759,8 @@ class StorageFacilitiesPage(QWidget):
                 QMessageBox.warning(self, "Error", "Could not load facility data")
                 return
             
-            dialog = StorageFacilityDialog(self.service, mode='edit', 
+            service = self._get_service()
+            dialog = StorageFacilityDialog(service, mode='edit', 
                                          facility=facility_obj, parent=self)
             if dialog.exec() == QDialog.Accepted:
                 # User clicked Save in dialog, refresh to show updated facility
@@ -621,7 +768,6 @@ class StorageFacilitiesPage(QWidget):
                 logger.info(f"Facility {facility_dict['code']} updated successfully")
         except Exception as e:
             logger.error(f"Failed to open edit dialog: {e}")
-            QMessageBox.critical(self, "Error", f"Failed to open edit dialog: {e}")
     
     def _on_delete_facility(self, facility_dict: dict) -> None:
         """Delete facility (DELETE OPERATION).
@@ -649,7 +795,8 @@ class StorageFacilitiesPage(QWidget):
                 return  # User clicked No
             
             # Attempt delete via service
-            if self.service.delete_facility(facility_id):
+            service = self._get_service()
+            if service.delete_facility(facility_id):
                 QMessageBox.information(self, "Success", 
                                        f"Facility '{code}' deleted successfully")
                 self._on_refresh()

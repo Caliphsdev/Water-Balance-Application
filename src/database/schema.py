@@ -13,6 +13,7 @@ Accessed by: StorageFacilityRepository and related services
 
 import sqlite3
 import logging
+import os
 from pathlib import Path
 from datetime import datetime
 from typing import Optional
@@ -34,8 +35,12 @@ class DatabaseSchema:
     allows easy schema updates without touching core DB manager.
     """
     
-    # Database location (relative to project root)
-    DB_PATH = Path(__file__).parent.parent.parent / "data" / "water_balance.db"
+    # Database location (prefer user data dir if configured)
+    _user_dir = os.environ.get("WATERBALANCE_USER_DIR")
+    if _user_dir:
+        DB_PATH = Path(_user_dir) / "data" / "water_balance.db"
+    else:
+        DB_PATH = Path(__file__).parent.parent.parent / "data" / "water_balance.db"
     
     # Schema version (bump on any table/column changes)
     SCHEMA_VERSION = 7  # Added license_cache and notifications_cache tables

@@ -6,12 +6,80 @@ Sets up critical environment variables before importing any modules.
 """
 import sys
 import os
+import shutil
 from pathlib import Path
 
 # CRITICAL: Set WATERBALANCE_USER_DIR BEFORE any imports
 # This ensures config/db/license use correct paths (same pattern as Tkinter)
-user_base = Path(__file__).parent.parent
+def _get_user_base() -> Path:
+    if getattr(sys, "frozen", False):
+        local_appdata = os.environ.get("LOCALAPPDATA") or os.environ.get("APPDATA")
+        base = Path(local_appdata) if local_appdata else (Path.home() / "AppData" / "Local")
+        return base / "WaterBalanceDashboard"
+    return Path(__file__).parent.parent
+
+
+def _find_packaged_base() -> Path:
+    if getattr(sys, "frozen", False):
+        exe_base = Path(sys.executable).parent
+        internal = exe_base / "_internal"
+        return internal if internal.exists() else exe_base
+    return Path(__file__).parent.parent
+
+
+def _ensure_user_data(user_base: Path, packaged_base: Path) -> None:
+    (user_base / "config").mkdir(parents=True, exist_ok=True)
+    (user_base / "data").mkdir(parents=True, exist_ok=True)
+    (user_base / "logs").mkdir(parents=True, exist_ok=True)
+
+    user_cfg = user_base / "config" / "app_config.yaml"
+    if not user_cfg.exists():
+        for cfg_src in [packaged_base / "config" / "app_config.yaml"]:
+            if cfg_src.exists():
+                shutil.copy2(cfg_src, user_cfg)
+                break
+
+    data_dst = user_base / "data"
+    if data_dst.exists() and not any(data_dst.iterdir()):
+        data_src = packaged_base / "data"
+        if data_src.exists():
+            shutil.copytree(data_src, data_dst, dirs_exist_ok=True)
+
+
+def _clear_excel_cache(user_base: Path) -> None:
+    """Clear persistent Excel cache so users start fresh each run.
+
+    Removes disk cache under <user_base>/data/.cache.
+    Safe to call on every startup.
+    """
+    try:
+        cache_dir = user_base / "data" / ".cache"
+        if cache_dir.exists():
+            shutil.rmtree(cache_dir, ignore_errors=True)
+    except Exception:
+        # Never block startup on cache cleanup
+        pass
+
+
+def _run_sqlite_migrations() -> None:
+    """Apply pending SQLite migrations before the UI loads."""
+    try:
+        from database.migration_manager import MigrationManager
+
+        applied = MigrationManager().apply_pending()
+        if applied:
+            logger.info("Applied %s SQLite migrations", len(applied))
+    except Exception as exc:
+        logger.error("SQLite migrations failed: %s", exc)
+        raise
+
+
+user_base = _get_user_base()
 os.environ['WATERBALANCE_USER_DIR'] = str(user_base)
+
+if getattr(sys, "frozen", False):
+    _ensure_user_data(user_base, _find_packaged_base())
+    _clear_excel_cache(user_base)
 
 # Now safe to import PySide6 and app modules
 from PySide6.QtWidgets import QApplication
@@ -19,6 +87,7 @@ from PySide6.QtCore import QTimer
 from ui.components.splash_screen import SplashScreen
 from ui.main_window import MainWindow
 from core.app_logger import logger
+from core.config_manager import get_resource_path
 
 
 def check_license(app: QApplication, splash: SplashScreen) -> bool:
@@ -80,14 +149,26 @@ def main():
     # Install global exception hook
     import sys
     def excepthook(exc_type, exc_value, exc_tb):
-        import traceback
-        print("[EXCEPTION] Uncaught exception:", flush=True)
-        traceback.print_exception(exc_type, exc_value, exc_tb)
+        logger.error("Uncaught exception", exc_info=(exc_type, exc_value, exc_tb))
     sys.excepthook = excepthook
+
+    # Apply SQLite migrations before app initialization
+    _run_sqlite_migrations()
     
     app = QApplication(sys.argv)
     app.setApplicationName("Water Balance Dashboard")
     app.setOrganizationName("Two Rivers Platinum")
+
+    # Load global theme stylesheet if available
+    try:
+        theme_path = get_resource_path("config/theme.qss")
+        if theme_path.exists():
+            app.setStyleSheet(theme_path.read_text(encoding="utf-8"))
+            logger.info(f"Theme loaded from {theme_path}")
+        else:
+            logger.warning(f"Theme file not found at {theme_path}")
+    except Exception as e:
+        logger.warning(f"Failed to load theme stylesheet: {e}")
     
     
     # Show splash screen immediately

@@ -61,7 +61,8 @@ class FeedbackService:
         feedback_type: str,
         title: str,
         description: str,
-        email: Optional[str] = None
+        email: Optional[str] = None,
+        customer_name: Optional[str] = None
     ) -> bool:
         """
         Submit feedback to Supabase and send email notification.
@@ -104,6 +105,8 @@ class FeedbackService:
             
             if email:
                 feedback_data["email"] = email
+            if customer_name:
+                feedback_data["customer_name"] = customer_name
             
             # 1. Store in Supabase
             result = self._supabase.insert("feature_requests", feedback_data)

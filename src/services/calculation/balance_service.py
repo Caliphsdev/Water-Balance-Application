@@ -23,9 +23,9 @@ Usage:
     result = service.calculate_for_date(month=3, year=2026)
     
     if result.is_balanced:
-        print(f"Balance OK: {result.error_pct:.1f}% error")
+        logger.info("Balance OK: %.1f%% error", result.error_pct)
     else:
-        print(f"Balance issues: {result.quality_flags.warnings}")
+        logger.info("Balance issues: %s", result.quality_flags.warnings)
 """
 
 import logging

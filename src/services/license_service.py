@@ -39,13 +39,17 @@ logger = logging.getLogger(__name__)
 # (CONSTANTS)
 
 # License token validity period (days) for offline use
-OFFLINE_TOKEN_VALIDITY_DAYS = 30
+OFFLINE_TOKEN_VALIDITY_DAYS = 7
 
-# How often to refresh license online (days)
-REFRESH_INTERVAL_DAYS = 7
+# How many days before expiry to refresh online
+REFRESH_INTERVAL_DAYS = 1
 
 # License file location
 LICENSE_FILENAME = "license.dat"
+
+# Clock tamper guard
+CLOCK_GUARD_FILENAME = "license_clock.json"
+CLOCK_SKEW_TOLERANCE_SECONDS = 600
 
 
 # (LICENSE STATUS)
@@ -175,6 +179,11 @@ class LicenseService:
     def hwid_display(self) -> str:
         """Get formatted HWID for display."""
         return get_hwid_display()
+
+    @property
+    def _clock_guard_path(self) -> Path:
+        self._ensure_initialized()
+        return self._data_dir / CLOCK_GUARD_FILENAME
     
     # (LICENSE FILE OPERATIONS)
     
@@ -234,6 +243,43 @@ class LicenseService:
         except Exception as e:
             logger.error(f"Failed to delete license file: {e}")
             return False
+
+    # (CLOCK GUARD)
+
+    def _load_clock_guard(self) -> Optional[datetime]:
+        """Load last seen timestamp used to detect clock rollback."""
+        try:
+            if not self._clock_guard_path.exists():
+                return None
+            raw = self._clock_guard_path.read_text(encoding='utf-8')
+            data = json.loads(raw)
+            last_seen = data.get("last_seen")
+            if not last_seen:
+                return None
+            return datetime.fromisoformat(last_seen)
+        except Exception as e:
+            logger.debug(f"Failed to read clock guard: {e}")
+            return None
+
+    def _save_clock_guard(self, timestamp: datetime) -> None:
+        """Persist last seen timestamp."""
+        try:
+            payload = {"last_seen": timestamp.isoformat()}
+            self._clock_guard_path.write_text(json.dumps(payload), encoding='utf-8')
+        except Exception as e:
+            logger.debug(f"Failed to write clock guard: {e}")
+
+    def _check_clock_tamper(self) -> Tuple[bool, str]:
+        """Detect if system clock moved backward beyond tolerance."""
+        last_seen = self._load_clock_guard()
+        if not last_seen:
+            return True, ""
+        if last_seen.tzinfo is None:
+            last_seen = last_seen.replace(tzinfo=timezone.utc)
+        now = datetime.now(timezone.utc)
+        if now < last_seen - timedelta(seconds=CLOCK_SKEW_TOLERANCE_SECONDS):
+            return False, "System time appears to have been changed. Please reconnect and re-activate."
+        return True, ""
     
     # (ONLINE VALIDATION)
     
@@ -294,7 +340,12 @@ class LicenseService:
             logger.error(f"License validation failed: {e}")
             return False, None, f"Validation error: {e}"
     
-    def _bind_hwid_online(self, license_key: str) -> bool:
+    def _bind_hwid_online(
+        self,
+        license_key: str,
+        customer_name: Optional[str] = None,
+        customer_email: Optional[str] = None
+    ) -> Tuple[bool, str]:
         """
         Bind this machine's HWID to a license key.
         
@@ -305,19 +356,24 @@ class LicenseService:
             True if bound successfully.
         """
         try:
-            self._supabase.update(
-                table="licenses",
-                data={
-                    "hwid": self.hwid,
-                    "last_validated": datetime.now(timezone.utc).isoformat()
-                },
-                filters={"license_key": license_key}
-            )
-            logger.info(f"HWID bound to license {license_key[:12]}...")
-            return True
+            params = {
+                "p_license_key": license_key,
+                "p_hwid": self.hwid,
+                "p_customer_name": customer_name,
+                "p_customer_email": customer_email,
+            }
+            self._supabase.rpc("bind_license", params=params)
+            logger.info(f"HWID bound to license {license_key[:12]} via RPC")
+            return True, ""
+        except SupabaseAPIError as e:
+            details = e.details or str(e)
+            logger.error(f"Failed to bind HWID via RPC: {details}")
+            if "bind_license" in details and ("does not exist" in details or "not found" in details):
+                return False, "bind_license RPC missing. Run the Supabase migration SQL."
+            return False, f"Supabase RPC error: {details}"
         except Exception as e:
             logger.error(f"Failed to bind HWID: {e}")
-            return False
+            return False, f"Bind failed: {e}"
     
     def _update_last_validated(self, license_key: str) -> bool:
         """
@@ -384,7 +440,12 @@ class LicenseService:
     
     # (PUBLIC API)
     
-    def activate(self, license_key: str) -> LicenseStatus:
+    def activate(
+        self,
+        license_key: str,
+        customer_name: Optional[str] = None,
+        customer_email: Optional[str] = None
+    ) -> LicenseStatus:
         """
         Activate a license key (requires internet).
         
@@ -393,12 +454,16 @@ class LicenseService:
         
         Args:
             license_key: The license key to activate.
+            customer_name: Optional customer name for first activation.
+            customer_email: Optional customer email for first activation.
             
         Returns:
             LicenseStatus indicating result.
         """
         self._ensure_initialized()
         license_key = license_key.strip().upper()
+        customer_name = customer_name.strip() if customer_name else None
+        customer_email = customer_email.strip() if customer_email else None
         
         logger.info(f"Activating license {license_key[:12]}...")
         
@@ -429,12 +494,25 @@ class LicenseService:
                     message=error
                 )
         
-        # Bind HWID if not already bound
-        if not license_data.get("hwid"):
-            if not self._bind_hwid_online(license_key):
+        # Require customer details on first activation
+        missing_customer = not (license_data.get("customer_name") and license_data.get("customer_email"))
+        if not license_data.get("hwid") and missing_customer:
+            if not (customer_name and customer_email):
+                return LicenseStatus(
+                    LicenseStatus.INVALID,
+                    message="Name and email are required for first activation"
+                )
+
+        # Bind HWID or fill missing customer info
+        needs_customer_update = missing_customer and customer_name and customer_email
+        if not license_data.get("hwid") or needs_customer_update:
+            bind_name = customer_name if not license_data.get("customer_name") else None
+            bind_email = customer_email if not license_data.get("customer_email") else None
+            ok, bind_error = self._bind_hwid_online(license_key, bind_name, bind_email)
+            if not ok:
                 return LicenseStatus(
                     LicenseStatus.NETWORK_ERROR,
-                    message="Failed to bind license to this machine"
+                    message=bind_error or "Failed to bind license to this machine"
                 )
         
         # Create and save offline token
@@ -469,6 +547,7 @@ class LicenseService:
                 message="License activated successfully",
                 days_remaining=token.days_until_expiry()
             )
+            self._save_clock_guard(datetime.now(timezone.utc))
         
         logger.info(f"License activated: tier={tier}")
         return self._license_status
@@ -535,12 +614,23 @@ class LicenseService:
                 days_remaining=token.days_until_expiry()
             )
             return self._license_status
+
+        # Detect clock tampering
+        clock_ok, clock_error = self._check_clock_tamper()
+        if not clock_ok:
+            self._license_status = LicenseStatus(
+                LicenseStatus.INVALID,
+                tier=token.tier,
+                message=clock_error,
+                days_remaining=token.days_until_expiry()
+            )
+            return self._license_status
         
         # Token is valid
         self._current_token = token
         
         # Check if refresh is due
-        needs_refresh = token.days_until_expiry() < (OFFLINE_TOKEN_VALIDITY_DAYS - REFRESH_INTERVAL_DAYS)
+        needs_refresh = token.days_until_expiry() <= REFRESH_INTERVAL_DAYS
         
         if needs_refresh and try_refresh:
             # Try background refresh (non-blocking)
@@ -553,6 +643,8 @@ class LicenseService:
             days_remaining=token.days_until_expiry(),
             needs_online_refresh=needs_refresh
         )
+
+        self._save_clock_guard(datetime.now(timezone.utc))
         
         return self._license_status
     
@@ -603,6 +695,7 @@ class LicenseService:
             if is_valid:
                 self._current_token = token
                 logger.info("License refreshed successfully")
+                self._save_clock_guard(datetime.now(timezone.utc))
                 return LicenseStatus(
                     LicenseStatus.VALID,
                     tier=tier,
@@ -698,19 +791,21 @@ def get_license_service() -> LicenseService:
 # (MODULE TEST)
 
 if __name__ == "__main__":
-    print("License Service Test")
-    print("=" * 50)
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
+    logger.info("License Service Test")
+    logger.info("=" * 50)
     
     service = get_license_service()
     
-    print(f"HWID: {service.hwid_display}")
-    print(f"License file: {service.license_file_path}")
+    logger.info("HWID: %s", service.hwid_display)
+    logger.info("License file: %s", service.license_file_path)
     
-    print("\nValidating license...")
+    logger.info("")
+    logger.info("Validating license...")
     status = service.validate(try_refresh=False)
     
-    print(f"Status: {status.status}")
-    print(f"Tier: {status.tier}")
-    print(f"Message: {status.message}")
-    print(f"Days remaining: {status.days_remaining}")
-    print(f"Should block: {status.should_block}")
+    logger.info("Status: %s", status.status)
+    logger.info("Tier: %s", status.tier)
+    logger.info("Message: %s", status.message)
+    logger.info("Days remaining: %s", status.days_remaining)
+    logger.info("Should block: %s", status.should_block)
