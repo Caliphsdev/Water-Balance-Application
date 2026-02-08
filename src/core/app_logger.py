@@ -418,32 +418,32 @@ class AppLogger:
         self.app_logger.log(configured_level, "Water Balance Application Started")
         self.app_logger.log(configured_level, "=" * 60)
     
-    def debug(self, message: str, **kwargs):
+    def debug(self, message: str, *args, **kwargs):
         """Log debug message"""
-        self.app_logger.debug(message, **kwargs)
+        self.app_logger.debug(message, *args, **kwargs)
     
-    def info(self, message: str, **kwargs):
+    def info(self, message: str, *args, **kwargs):
         """Log info message"""
-        self.app_logger.info(message, **kwargs)
+        self.app_logger.info(message, *args, **kwargs)
     
-    def warning(self, message: str, **kwargs):
+    def warning(self, message: str, *args, **kwargs):
         """Log warning message"""
-        self.app_logger.warning(message, **kwargs)
+        self.app_logger.warning(message, *args, **kwargs)
     
-    def error(self, message: str, exc_info=False, **kwargs):
+    def error(self, message: str, *args, exc_info=False, **kwargs):
         """Log error message"""
-        self.app_logger.error(message, exc_info=exc_info, **kwargs)
-        self.error_logger.error(message, exc_info=exc_info, **kwargs)
+        self.app_logger.error(message, *args, exc_info=exc_info, **kwargs)
+        self.error_logger.error(message, *args, exc_info=exc_info, **kwargs)
     
-    def critical(self, message: str, exc_info=False, **kwargs):
+    def critical(self, message: str, *args, exc_info=False, **kwargs):
         """Log critical message"""
-        self.app_logger.critical(message, exc_info=exc_info, **kwargs)
-        self.error_logger.critical(message, exc_info=exc_info, **kwargs)
+        self.app_logger.critical(message, *args, exc_info=exc_info, **kwargs)
+        self.error_logger.critical(message, *args, exc_info=exc_info, **kwargs)
     
-    def exception(self, message: str, **kwargs):
+    def exception(self, message: str, *args, **kwargs):
         """Log exception with traceback"""
-        self.app_logger.exception(message, **kwargs)
-        self.error_logger.exception(message, **kwargs)
+        self.app_logger.exception(message, *args, **kwargs)
+        self.error_logger.exception(message, *args, **kwargs)
     
     def performance(self, operation: str, duration_ms: float, **kwargs):
         """Log performance metric"""

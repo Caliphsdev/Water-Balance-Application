@@ -68,7 +68,7 @@ def _run_sqlite_migrations() -> None:
 
         applied = MigrationManager().apply_pending()
         if applied:
-            logger.info("Applied %s SQLite migrations", len(applied))
+            logger.info(f"Applied {len(applied)} SQLite migrations")
     except Exception as exc:
         logger.error("SQLite migrations failed: %s", exc)
         raise
