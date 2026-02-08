@@ -18,18 +18,29 @@ jobs:
     
     steps:
       - name: Heartbeat Query
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: |
           echo "Pinging Supabase to prevent free tier pause..."
 
-          if [ -z "${{ secrets.SUPABASE_URL }}" ] || [ -z "${{ secrets.SUPABASE_ANON_KEY }}" ]; then
+          SUPABASE_URL=$(echo "$SUPABASE_URL" | tr -d '\r' | xargs)
+          SUPABASE_ANON_KEY=$(echo "$SUPABASE_ANON_KEY" | tr -d '\r' | xargs)
+
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
             echo "Missing SUPABASE_URL or SUPABASE_ANON_KEY secrets"
+            exit 1
+          fi
+
+          if ! echo "$SUPABASE_URL" | grep -qE '^https?://'; then
+            echo "SUPABASE_URL is not a valid http(s) URL"
             exit 1
           fi
           
           RESPONSE=$(curl -s -w "\n%{http_code}" \
-            "${{ secrets.SUPABASE_URL }}/rest/v1/keepalive?select=id&limit=1" \
-            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
-            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}")
+            "${SUPABASE_URL}/rest/v1/keepalive?select=id&limit=1" \
+            -H "apikey: ${SUPABASE_ANON_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_ANON_KEY}")
           CURL_EXIT=$?
           BODY=$(echo "$RESPONSE" | head -n -1)
           STATUS=$(echo "$RESPONSE" | tail -n 1)
