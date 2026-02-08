@@ -15,6 +15,10 @@ __pycache__/
 .DS_Store
 Thumbs.db
 
+# Local logs and editor tasks
+logs/
+.vscode/tasks.json
+
 # Build artifacts
 build/
 dist/
