@@ -18,6 +18,7 @@ Thumbs.db
 # Local logs and editor tasks
 logs/
 .vscode/tasks.json
+data/license.dat
 
 # Build artifacts
 build/
