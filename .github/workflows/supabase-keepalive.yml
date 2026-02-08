@@ -26,21 +26,24 @@ jobs:
             exit 1
           fi
           
-          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
-            "${{ secrets.SUPABASE_URL }}/rest/v1/licenses?select=count" \
+          RESPONSE=$(curl -s -w "\n%{http_code}" \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/keepalive?select=id&limit=1" \
             -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
             -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}")
           CURL_EXIT=$?
+          BODY=$(echo "$RESPONSE" | head -n -1)
+          STATUS=$(echo "$RESPONSE" | tail -n 1)
 
           if [ "$CURL_EXIT" -ne 0 ]; then
             echo "Curl failed with exit code $CURL_EXIT"
             exit $CURL_EXIT
           fi
           
-          if [ "$RESPONSE" = "200" ]; then
-            echo "✅ Supabase ping successful (HTTP $RESPONSE)"
+          if [ "$STATUS" = "200" ]; then
+            echo "✅ Supabase ping successful (HTTP $STATUS)"
           else
-            echo "⚠️ Supabase ping returned HTTP $RESPONSE"
+            echo "⚠️ Supabase ping returned HTTP $STATUS"
+            echo "Response body: $BODY"
             exit 1
           fi
       
