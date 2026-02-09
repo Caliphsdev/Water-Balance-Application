@@ -80,6 +80,48 @@ Copy-Item data\water_balance.db "data\water_balance.backup-$(Get-Date -Format 'y
 
 This is the end-to-end packaging and release workflow used for updates (PyInstaller + Inno Setup + GitHub + Supabase).
 
+### Automated Release Script (Recommended)
+
+Use the new script to run the full release workflow with prompts:
+
+```powershell
+\scripts\packaging\release_developer.ps1
+```
+
+What it does:
+- Prompts for version, release notes, tiers, mandatory flag
+- Updates version in config + Inno Setup script
+- Builds PyInstaller bundle
+- Builds Inno Setup installer
+- Computes SHA256 + file size
+- Creates GitHub release and uploads installer
+- Inserts/updates `app_updates` in Supabase (by version)
+
+Required environment variables (set in the same PowerShell session):
+
+```powershell
+$env:SUPABASE_URL="https://okcbvcogkypaezczywzo.supabase.co"
+$env:SUPABASE_SERVICE_ROLE_KEY="<service-role-key>"
+```
+
+Notes:
+- `min_tiers` default is `developer` (for initial testing).
+- When the same version is approved for wider access, rerun with additional tiers.
+- The script upserts by `version` so rerunning updates the existing row.
+
+Supabase Free tier limits (current at time of writing):
+- Storage: 1 GB
+- Egress (bandwidth): 5 GB/month (+ 5 GB cached egress)
+- Max file upload: 50 MB
+- Database size: 500 MB
+- Free projects pause after 1 week of inactivity
+
+Supabase-only update (skip build/release, update tiers or notes):
+
+```powershell
+\scripts\packaging\release.ps1 -SupabaseOnly
+```
+
 ### 1) Bump Versions
 
 Update both files to the new version:

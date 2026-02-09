@@ -25,19 +25,7 @@ class Ui_Form(object):
         if not Form.objectName():
             Form.setObjectName(u"Form")
         Form.resize(1196, 800)
-        Form.setStyleSheet(u"QWidget#Form {\n"
-"    background-color: #F5F6F7;\n"
-"}\n"
-"\n"
-"QLabel#label_title{\n"
-"	font:16px;\n"
-"	font-weight:bold;\n"
-"}\n"
-"\n"
-"QLabel#label_subtitle{\n"
-"	color: rgb(102, 102, 102);\n"
-"	font: Size 9;\n"
-"}")
+        Form.setStyleSheet("")
         self.verticalLayout = QVBoxLayout(Form)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
@@ -66,17 +54,7 @@ class Ui_Form(object):
         self.pushButton = QPushButton(self.frame_datasource_header)
         self.pushButton.setObjectName(u"pushButton")
         self.pushButton.setMaximumSize(QSize(200, 40))
-        self.pushButton.setStyleSheet(u"QPushButton {\n"
-"\n"
-"	color: black;\n"
-"	border: none;\n"
-"	border-radius: 4px;\n"
-"	font-weight: bold;\n"
-"	padding: 5px 10px;\n"
-"}\n"
-"QPushButton:hover {\n"
-"	background-color: rgb(10, 50, 120);\n"
-"}")
+        self.pushButton.setStyleSheet("")
         icon = QIcon()
         icon.addFile(u":/icons/folder.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.pushButton.setIcon(icon)
@@ -127,20 +105,7 @@ class Ui_Form(object):
         self.select_file_button.setObjectName(u"select_file_button")
         self.select_file_button.setMinimumSize(QSize(130, 30))
         self.select_file_button.setMaximumSize(QSize(140, 36))
-        self.select_file_button.setStyleSheet(u"QPushButton#select_file_button {\n"
-"	background-color: rgb(8, 201, 255);\n"
-"	color: white;\n"
-"	border: none;\n"
-"	border-radius: 4px;\n"
-"	font-weight: bold;\n"
-"	padding: 5px;\n"
-"}\n"
-"QPushButton#select_file_button:hover {\n"
-"	background-color: rgb(0, 175, 230);\n"
-"}\n"
-"QPushButton#select_file_button:pressed {\n"
-"	background-color: rgb(0, 150, 200);\n"
-"}")
+        self.select_file_button.setStyleSheet("")
         icon1 = QIcon()
         icon1.addFile(u":/icons/folder_open.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.select_file_button.setIcon(icon1)
@@ -178,10 +143,7 @@ class Ui_Form(object):
         self.chart_options_logo_2 = QPushButton(self.layoutWidget)
         self.chart_options_logo_2.setObjectName(u"chart_options_logo_2")
         self.chart_options_logo_2.setMaximumSize(QSize(120, 35))
-        self.chart_options_logo_2.setStyleSheet(u"QPushButton#chart_options_logo_2{\n"
-"	border:none;\n"
-"	font-weight: bold;\n"
-"}")
+        self.chart_options_logo_2.setStyleSheet("")
         icon2 = QIcon()
         icon2.addFile(u":/icons/charts.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.chart_options_logo_2.setIcon(icon2)
@@ -307,13 +269,7 @@ class Ui_Form(object):
         self.generate_chart.setObjectName(u"generate_chart")
         self.generate_chart.setMinimumSize(QSize(120, 25))
         self.generate_chart.setMaximumSize(QSize(180, 35))
-        self.generate_chart.setStyleSheet(u"QPushButton#generate_chart{\n"
-"	color:white;\n"
-"	background-color:rgb(51, 186, 28);\n"
-"	border: none;\n"
-"	border-radius: 4px;\n"
-"	font-weight: bold;\n"
-"}")
+        self.generate_chart.setStyleSheet("")
         icon3 = QIcon()
         icon3.addFile(u":/icons/chart_white.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.generate_chart.setIcon(icon3)
@@ -324,13 +280,7 @@ class Ui_Form(object):
         self.save_chart.setObjectName(u"save_chart")
         self.save_chart.setMinimumSize(QSize(120, 25))
         self.save_chart.setMaximumSize(QSize(150, 40))
-        self.save_chart.setStyleSheet(u"QPushButton#save_chart{\n"
-"	color:white;\n"
-"	background-color: rgb(42, 150, 232);\n"
-"	border: none;\n"
-"	border-radius: 4px;\n"
-"	font-weight: bold;\n"
-"}")
+        self.save_chart.setStyleSheet("")
         icon4 = QIcon()
         icon4.addFile(u":/icons/save_white.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.save_chart.setIcon(icon4)
@@ -383,7 +333,7 @@ class Ui_Form(object):
         self.sources_loaded_2.setText(QCoreApplication.translate("Form", u"43 sources loaded", None))
         self.excel_filemeter_readings_label.setText(QCoreApplication.translate("Form", u"Excel file with Meter Readings:", None))
         self.select_file_button.setText(QCoreApplication.translate("Form", u"Select File", None))
-        self.auto_loads_label.setStyleSheet(QCoreApplication.translate("Form", u"color: rgb(153, 153, 153); font-size: 9pt;", None))
+        self.auto_loads_label.setStyleSheet("")
         self.auto_loads_label.setText(QCoreApplication.translate("Form", u"Auto-loads: columns from row 3, data from row 5 onwards", None))
         self.chart_options_logo_2.setText(QCoreApplication.translate("Form", u"Chart Options", None))
         self.label_5.setText(QCoreApplication.translate("Form", u"(click to collapse)", None))
@@ -402,7 +352,9 @@ class Ui_Form(object):
         self.to_month_label.setText(QCoreApplication.translate("Form", u"Month:", None))
         self.generate_chart.setText(QCoreApplication.translate("Form", u"Generate Chart", None))
         self.save_chart.setText(QCoreApplication.translate("Form", u"Save Chart", None))
-        self.label_chartplaceholder.setStyleSheet(QCoreApplication.translate("Form", u"color: rgb(153, 153, 153); font-size: 12pt;", None))
+        self.label_chartplaceholder.setStyleSheet("")
         self.label_chartplaceholder.setText(QCoreApplication.translate("Form", u"Select Excel file and generate chart to view results", None))
     # retranslateUi
+
+
 

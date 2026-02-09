@@ -795,12 +795,14 @@ class LicenseManagerWindow(QMainWindow):
         from ui.admin.feedback_viewer_dialog import FeedbackViewerDialog
 
         dialog = FeedbackViewerDialog(self)
+        dialog.showMaximized()
         dialog.exec()
 
     def _open_notification_manager(self) -> None:
         from ui.admin.notification_manager_dialog import NotificationManagerDialog
 
         dialog = NotificationManagerDialog(self)
+        dialog.showMaximized()
         dialog.exec()
 
 
@@ -808,5 +810,5 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setApplicationName("Water Balance License Manager")
     window = LicenseManagerWindow()
-    window.show()
+    window.showMaximized()
     sys.exit(app.exec())

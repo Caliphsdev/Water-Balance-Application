@@ -31,6 +31,7 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
     QAbstractItemView,
     QPushButton,
+    QHBoxLayout,
     QVBoxLayout,
     QLabel,
     QComboBox,
@@ -369,6 +370,7 @@ class MonitoringPage(QWidget):
         # Add multi-select buttons for Monitoring and PCD tabs
         self._add_monitoring_multi_select_button()
         self._add_pcd_multi_select_button()
+        self._reflow_pcd_options_layout()
         
         # Auto-load previously saved directories on startup (user-friendly persistence)
         self._load_saved_directories()
@@ -493,10 +495,86 @@ class MonitoringPage(QWidget):
         btn = QPushButton("🔽 Multi-Select Points")
         btn.setToolTip("Select multiple monitoring points to compare on chart")
         btn.clicked.connect(self._show_pcd_multi_select_dialog)
+        self._pcd_multi_select_button = btn
         
         # Insert before Generate button
         layout = self.ui.horizontalLayout_pcd_options
         layout.insertWidget(layout.count() - 2, btn)
+
+    def _reflow_pcd_options_layout(self) -> None:
+        if not hasattr(self.ui, "frame_pcd_options"):
+            return
+
+        frame = self.ui.frame_pcd_options
+        old_layout = frame.layout()
+        if old_layout is None:
+            return
+
+        widgets: list = []
+        while old_layout.count():
+            item = old_layout.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.setParent(frame)
+                widgets.append(widget)
+
+        old_layout.setContentsMargins(0, 0, 0, 0)
+        old_layout.setSpacing(0)
+
+        container = QWidget(frame)
+        container_layout = QVBoxLayout(container)
+        container_layout.setContentsMargins(8, 6, 8, 6)
+        container_layout.setSpacing(4)
+
+        top_row = QHBoxLayout()
+        top_row.setSpacing(8)
+
+        bottom_row = QHBoxLayout()
+        bottom_row.setSpacing(6)
+
+        for name in [
+            "label_pcd_chart_type",
+            "pcd_chart_type",
+            "label_4",
+            "comboBox_5",
+            "label_5",
+            "comboBox_6",
+        ]:
+            if hasattr(self.ui, name):
+                top_row.addWidget(getattr(self.ui, name))
+
+        if hasattr(self, "_pcd_multi_select_button"):
+            top_row.addWidget(self._pcd_multi_select_button)
+
+        top_row.addStretch(1)
+
+        if hasattr(self.ui, "pushButton_8"):
+            top_row.addWidget(self.ui.pushButton_8)
+        if hasattr(self.ui, "pushButton_9"):
+            top_row.addWidget(self.ui.pushButton_9)
+
+        for name in [
+            "label_pcd_date_from",
+            "combo_year_from_pcd",
+            "combo_month_from_pcd",
+            "label_pcd_date_to",
+            "combo_year_to_pcd",
+            "combo_month_to_pcd",
+        ]:
+            if hasattr(self.ui, name):
+                bottom_row.addWidget(getattr(self.ui, name))
+
+        bottom_row.addStretch(1)
+
+        container_layout.addLayout(top_row)
+        container_layout.addLayout(bottom_row)
+        old_layout.addWidget(container)
+
+        for widget in widgets:
+            widget.setVisible(True)
+
+        frame.setMinimumHeight(84)
+        frame.setMaximumHeight(90)
     
     def _show_monitoring_multi_select_dialog(self) -> None:
         """Show dialog to select multiple boreholes for Monitoring chart."""

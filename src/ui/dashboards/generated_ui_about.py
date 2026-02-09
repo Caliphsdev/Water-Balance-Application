@@ -58,3 +58,5 @@ class Ui_Form(object):
         self.label_2.setText(QCoreApplication.translate("Form", u"Version 1.0.0", None))
     # retranslateUi
 
+
+

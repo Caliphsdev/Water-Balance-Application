@@ -164,3 +164,5 @@ class Ui_Form(object):
         self.help_tab.setTabText(self.help_tab.indexOf(self.Troubleshooting), QCoreApplication.translate("Form", u"Troubleshooting", None))
     # retranslateUi
 
+
+

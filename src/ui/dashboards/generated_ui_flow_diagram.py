@@ -52,9 +52,7 @@ class Ui_Form(object):
         self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
         self.total_inflows_label = QLabel(self.frame_2)
         self.total_inflows_label.setObjectName(u"total_inflows_label")
-        self.total_inflows_label.setStyleSheet(u"QLabel{\n"
-"border: 2px solid black;\n"
-"}")
+        self.total_inflows_label.setStyleSheet("")
 
         self.horizontalLayout_5.addWidget(self.total_inflows_label)
 
@@ -98,9 +96,7 @@ class Ui_Form(object):
         self.horizontalLayout_7.setObjectName(u"horizontalLayout_7")
         self.total_outflows_label = QLabel(self.frame_2)
         self.total_outflows_label.setObjectName(u"total_outflows_label")
-        self.total_outflows_label.setStyleSheet(u"QLabel{\n"
-"border: 2px solid black;\n"
-"}")
+        self.total_outflows_label.setStyleSheet("")
 
         self.horizontalLayout_7.addWidget(self.total_outflows_label)
 
@@ -164,10 +160,7 @@ class Ui_Form(object):
         self.frame = QFrame(Form)
         self.frame.setObjectName(u"frame")
         self.frame.setMinimumSize(QSize(0, 0))
-        self.frame.setStyleSheet(u"QFrame{\n"
-"	background-color: rgb(63, 63, 94);\n"
-"	color: rgb(255, 255, 255);\n"
-"}")
+        self.frame.setStyleSheet("")
         self.frame.setFrameShape(QFrame.Shape.StyledPanel)
         self.frame.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_2 = QGridLayout(self.frame)
@@ -404,4 +397,6 @@ class Ui_Form(object):
         self.excel_setup_button.setText(QCoreApplication.translate("Form", u"Excel Setup", None))
         self.balance_check_button.setText(QCoreApplication.translate("Form", u"Balance Check", None))
     # retranslateUi
+
+
 

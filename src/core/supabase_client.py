@@ -178,6 +178,52 @@ class SupabaseClient:
             logger.error(f"Supabase request failed: {e}")
             raise SupabaseError(f"Request failed: {e}")
 
+    def _make_storage_request(
+        self,
+        method: str,
+        endpoint: str,
+        data: Optional[Dict] = None,
+        params: Optional[Dict[str, str]] = None
+    ) -> Any:
+        if not self.is_configured:
+            raise SupabaseConnectionError("Supabase not configured")
+
+        url = f"{self.url}/storage/v1/{endpoint}"
+        if params:
+            query_string = urllib.parse.urlencode(params)
+            url = f"{url}?{query_string}"
+
+        headers = self._get_headers()
+        body = json.dumps(data).encode("utf-8") if data is not None else None
+
+        request = urllib.request.Request(
+            url,
+            data=body,
+            headers=headers,
+            method=method
+        )
+
+        try:
+            with urllib.request.urlopen(request, timeout=REQUEST_TIMEOUT) as response:
+                response_data = response.read().decode("utf-8")
+                if response_data:
+                    return json.loads(response_data)
+                return None
+        except urllib.error.HTTPError as e:
+            error_body = e.read().decode("utf-8") if e.fp else ""
+            logger.error(f"Supabase storage error: {e.code} - {error_body}")
+            raise SupabaseAPIError(
+                f"Storage error: {e.reason}",
+                status_code=e.code,
+                details=error_body
+            )
+        except urllib.error.URLError as e:
+            logger.error(f"Supabase storage connection error: {e.reason}")
+            raise SupabaseConnectionError(f"Connection failed: {e.reason}")
+        except Exception as e:
+            logger.error(f"Supabase storage request failed: {e}")
+            raise SupabaseError(f"Request failed: {e}")
+
     def invoke_function(self, function_name: str, payload: Dict[str, Any]) -> Any:
         """Invoke a Supabase Edge Function with a JSON payload."""
         if not self.is_configured:
@@ -216,6 +262,74 @@ class SupabaseClient:
         except Exception as e:
             logger.error(f"Supabase function request failed: {e}")
             raise SupabaseError(f"Request failed: {e}")
+
+    # (STORAGE OPERATIONS)
+
+    def upload_storage_object(
+        self,
+        bucket: str,
+        object_path: str,
+        data: bytes,
+        content_type: str
+    ) -> Any:
+        if not self.is_configured:
+            raise SupabaseConnectionError("Supabase not configured")
+
+        url = f"{self.url}/storage/v1/object/{bucket}/{object_path}"
+        headers = self._get_headers()
+        headers["Content-Type"] = content_type
+
+        request = urllib.request.Request(
+            url,
+            data=data,
+            headers=headers,
+            method="POST"
+        )
+
+        try:
+            with urllib.request.urlopen(request, timeout=REQUEST_TIMEOUT) as response:
+                response_data = response.read().decode("utf-8")
+                return json.loads(response_data) if response_data else None
+        except urllib.error.HTTPError as e:
+            error_body = e.read().decode("utf-8") if e.fp else ""
+            logger.error(f"Supabase storage upload error: {e.code} - {error_body}")
+            raise SupabaseAPIError(
+                f"Storage upload error: {e.reason}",
+                status_code=e.code,
+                details=error_body
+            )
+        except urllib.error.URLError as e:
+            logger.error(f"Supabase storage upload connection error: {e.reason}")
+            raise SupabaseConnectionError(f"Connection failed: {e.reason}")
+        except Exception as e:
+            logger.error(f"Supabase storage upload failed: {e}")
+            raise SupabaseError(f"Request failed: {e}")
+
+    def list_storage_objects(self, bucket: str, prefix: str = "") -> List[Dict[str, Any]]:
+        data = {
+            "prefix": prefix,
+            "limit": 1000,
+            "offset": 0,
+            "sortBy": {"column": "created_at", "order": "desc"},
+        }
+        return self._make_storage_request(
+            method="POST",
+            endpoint=f"object/list/{bucket}",
+            data=data
+        ) or []
+
+    def delete_storage_objects(self, bucket: str, paths: List[str]) -> Any:
+        if not paths:
+            return None
+        data = {
+            "bucketId": bucket,
+            "prefixes": paths,
+        }
+        return self._make_storage_request(
+            method="POST",
+            endpoint="object/remove",
+            data=data
+        )
     
     # (TABLE OPERATIONS)
     

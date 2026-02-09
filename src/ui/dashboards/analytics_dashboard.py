@@ -17,6 +17,7 @@ Notes:
 from __future__ import annotations
 
 from datetime import date
+import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -37,6 +38,7 @@ from PySide6.QtWidgets import (
     QWidget,
     QFileDialog,
     QVBoxLayout,
+    QGridLayout,
     QMessageBox,
     QPushButton,
     QLabel,
@@ -47,6 +49,7 @@ from PySide6.QtWidgets import (
     QAbstractItemView,
     QApplication,
     QSizePolicy,
+    QSpacerItem,
 )
 
 # QtCharts is part of PySide6-Addons; import conditionally
@@ -87,6 +90,7 @@ except Exception:  # pragma: no cover
 from .generated_ui_analytics import Ui_Form
 from services.excel_manager import get_excel_manager
 from core.app_logger import logger as app_logger
+from ui.theme import PALETTE
 
 
 class ChartDataWorker(QObject):
@@ -207,7 +211,7 @@ class AnalyticsPage(QWidget):
 
         # Status label for user feedback during background loading
         self._status_label = QLabel("Ready")
-        self._status_label.setStyleSheet("color: rgb(102, 102, 102); font-size: 11px;")
+        self._status_label.setStyleSheet("")
 
         # Excel manager for user-defined paths (persisted in config)
         self._excel_manager = get_excel_manager()
@@ -260,6 +264,10 @@ class AnalyticsPage(QWidget):
         self.ui.pushButton.setChecked(False)  # Start collapsed
         self.ui.pushButton.clicked.connect(self._on_toggle_datasource_section)
 
+        # Chart options collapse/expand (tighten space when collapsed)
+        self.ui.chart_options_logo_2.toggled.connect(self._on_toggle_chart_options)
+        self._on_toggle_chart_options(self.ui.chart_options_logo_2.isChecked())
+
         # Override chart options from UI with supported time-series types
         self._load_chart_type_options()
 
@@ -269,17 +277,26 @@ class AnalyticsPage(QWidget):
         # Track multi-select sources for comparison charts
         self._selected_sources: List[str] = []
 
-        # Load any previously saved Meter Readings path on startup
-        self._apply_saved_meter_readings_path()
+        # Clear saved Meter Readings path only in release builds
+        if getattr(sys, "frozen", False):
+            self._reset_meter_readings_state()
+        else:
+            self._apply_saved_meter_readings_path()
 
         # Populate UI selections from Excel (if available)
         self._refresh_meter_readings_metadata()
 
         # Add a dedicated multi-select UI control
         self._add_multi_select_button()
+        # Tighten chart options spacing and align controls into a compact grid
+        self._apply_compact_chart_options_layout()
 
-        # Start with DataSource section collapsed
-        self._collapse_datasource_section()
+        # Expand the DataSource section when no file is loaded
+        exists, _ = self._excel_manager.meter_readings_status()
+        if exists:
+            self._collapse_datasource_section()
+        else:
+            self._expand_datasource_section()
 
     def _apply_saved_meter_readings_path(self) -> None:
         """Populate the file path field from saved config (if present).
@@ -287,10 +304,19 @@ class AnalyticsPage(QWidget):
         This ensures the user-selected path is remembered across sessions.
         """
         exists, path = self._excel_manager.meter_readings_status()
-        self.ui.line_edit_folder_path.setText(str(path))
-        self.ui.line_edit_folder_path.setStyleSheet(
-            "" if exists else "border: 1px solid rgb(255, 87, 34);"
-        )
+        if exists:
+            self.ui.line_edit_folder_path.setText(str(path))
+        else:
+            self.ui.line_edit_folder_path.setText("")
+        self.ui.line_edit_folder_path.setStyleSheet("")
+
+    def _reset_meter_readings_state(self) -> None:
+        self._excel_manager.set_meter_readings_path("")
+        self.ui.line_edit_folder_path.setText("")
+        self.ui.line_edit_folder_path.setStyleSheet("")
+        self._set_header_counts(records=0, sources=0)
+        self._selected_sources = []
+        self._series_cache = None
 
     def _refresh_meter_readings_metadata(self) -> None:
         """Load sources/date ranges from Excel and update UI controls.
@@ -370,6 +396,17 @@ class AnalyticsPage(QWidget):
         self.ui.pushButton.setText("DataSource File")
         self.ui.pushButton.setChecked(True)
 
+    def _on_toggle_chart_options(self, checked: bool) -> None:
+        """Collapse chart options frame to remove reserved space."""
+        frame = self.ui.frame_2
+        frame.setVisible(checked)
+        if checked:
+            frame.setMaximumHeight(16777215)
+            frame.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        else:
+            frame.setMaximumHeight(0)
+            frame.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+
     def _add_multi_select_button(self) -> None:
         """Insert a dedicated multi-select button into the chart options row.
 
@@ -384,6 +421,78 @@ class AnalyticsPage(QWidget):
         layout = self.ui.horizontalLayout_chart_type
         insert_index = max(0, layout.count() - 1)
         layout.insertWidget(insert_index, button)
+
+    def _apply_compact_chart_options_layout(self) -> None:
+        """Reflow chart options into a compact two-row grid."""
+        if not hasattr(self.ui, "verticalLayout_chart_options"):
+            return
+
+        options_layout = self.ui.verticalLayout_chart_options
+        options_layout.setContentsMargins(12, 10, 12, 10)
+        options_layout.setSpacing(8)
+
+        grid = QGridLayout()
+        grid.setObjectName("gridLayout_chart_options")
+        grid.setContentsMargins(0, 0, 0, 0)
+        grid.setHorizontalSpacing(10)
+        grid.setVerticalSpacing(8)
+
+        # Move widgets from the existing layouts into a 2-row grid.
+        chart_type_layout = getattr(self.ui, "horizontalLayout_chart_type", None)
+        date_range_layout = getattr(self.ui, "horizontalLayout_date_range", None)
+
+        # Chart type row
+        if chart_type_layout:
+            options_layout.removeItem(chart_type_layout)
+            widgets = []
+            for idx in range(chart_type_layout.count() - 1, -1, -1):
+                item = chart_type_layout.takeAt(idx)
+                if item and item.widget():
+                    widgets.insert(0, item.widget())
+            if widgets:
+                # Expected order:
+                # label_chart_type, charts_options, water_source_label,
+                # water_source_options, btn_multi_select_sources
+                row = 0
+                col = 0
+                for widget in widgets:
+                    if widget.objectName().startswith("horizontalSpacer"):
+                        continue
+                    grid.addWidget(widget, row, col)
+                    col += 1
+                grid.setColumnStretch(col, 1)
+
+        # Date range row
+        if date_range_layout:
+            options_layout.removeItem(date_range_layout)
+            widgets = []
+            for idx in range(date_range_layout.count() - 1, -1, -1):
+                item = date_range_layout.takeAt(idx)
+                if item and item.widget():
+                    widgets.insert(0, item.widget())
+            if widgets:
+                row = 1
+                col = 0
+                for widget in widgets:
+                    if widget.objectName().startswith("horizontalSpacer"):
+                        continue
+                    grid.addWidget(widget, row, col)
+                    col += 1
+                grid.setColumnStretch(col, 1)
+
+        # Insert grid at the top of the chart options area.
+        options_layout.insertLayout(0, grid)
+
+        # Align buttons to the right and tighten spacing.
+        buttons_layout = getattr(self.ui, "horizontalLayout_buttons", None)
+        if buttons_layout:
+            buttons_layout.setSpacing(8)
+            # Remove existing spacer items.
+            for idx in range(buttons_layout.count() - 1, -1, -1):
+                item = buttons_layout.itemAt(idx)
+                if item and item.spacerItem():
+                    buttons_layout.takeAt(idx)
+            buttons_layout.insertStretch(0, 1)
 
     def _open_multi_select_dialog(self) -> None:
         """Open a modal dialog to select multiple sources.
@@ -787,10 +896,10 @@ class AnalyticsPage(QWidget):
         """
         if not hasattr(self, "_status_label"):
             return
-        color = "rgb(255, 87, 34)" if is_error else "rgb(102, 102, 102)"
+        color = PALETTE["danger"] if is_error else PALETTE["muted"]
         weight = "font-weight: bold;" if is_error else ""
         self._status_label.setText(message)
-        self._status_label.setStyleSheet(f"color: {color}; font-size: 11px; {weight}")
+        self._status_label.setStyleSheet("")
 
     def _get_series_data(
         self,
@@ -1252,7 +1361,7 @@ class AnalyticsPage(QWidget):
         # Increase label font size for better readability
         x_axis_font = QFont("Segoe UI", 10, QFont.Weight.Bold)
         x_axis.setLabelsFont(x_axis_font)
-        x_axis.setLabelsColor(QColor("#444444"))
+        x_axis.setLabelsColor(QColor(PALETTE["text"]))
         chart.addAxis(x_axis, Qt.AlignmentFlag.AlignBottom)
 
         y_axis = QValueAxis()
@@ -1305,12 +1414,12 @@ class AnalyticsPage(QWidget):
         # Apply styling to axes directly instead of using _style_axes
         x_axis_font = QFont("Segoe UI", 10, QFont.Weight.Bold)
         x_axis.setLabelsFont(x_axis_font)
-        x_axis.setLabelsColor(QColor("#444444"))
+        x_axis.setLabelsColor(QColor(PALETTE["text"]))
         y_axis_font = QFont("Segoe UI", 11, QFont.Weight.Bold)
         y_axis.setLabelsFont(y_axis_font)
-        y_axis.setLabelsColor(QColor("#444444"))
+        y_axis.setLabelsColor(QColor(PALETTE["text"]))
         y_axis.setGridLineVisible(True)
-        y_axis.setGridLineColor(QColor("#DADDE2"))
+        y_axis.setGridLineColor(QColor(PALETTE["border"]))
         self._enable_legend_filtering(chart)
         return chart
 
@@ -1333,7 +1442,7 @@ class AnalyticsPage(QWidget):
         # Increase label font size for better readability
         x_axis_font = QFont("Segoe UI", 10, QFont.Weight.Bold)
         x_axis.setLabelsFont(x_axis_font)
-        x_axis.setLabelsColor(QColor("#444444"))
+        x_axis.setLabelsColor(QColor(PALETTE["text"]))
         chart.addAxis(x_axis, Qt.AlignmentFlag.AlignBottom)
 
         y_axis = QValueAxis()
@@ -1382,12 +1491,12 @@ class AnalyticsPage(QWidget):
         # Apply styling to axes directly instead of using _style_axes
         x_axis_font = QFont("Segoe UI", 10, QFont.Weight.Bold)
         x_axis.setLabelsFont(x_axis_font)
-        x_axis.setLabelsColor(QColor("#444444"))
+        x_axis.setLabelsColor(QColor(PALETTE["text"]))
         y_axis_font = QFont("Segoe UI", 11, QFont.Weight.Bold)
         y_axis.setLabelsFont(y_axis_font)
-        y_axis.setLabelsColor(QColor("#444444"))
+        y_axis.setLabelsColor(QColor(PALETTE["text"]))
         y_axis.setGridLineVisible(True)
-        y_axis.setGridLineColor(QColor("#DADDE2"))
+        y_axis.setGridLineColor(QColor(PALETTE["border"]))
         self._enable_legend_filtering(chart)
         return chart
 
@@ -1410,7 +1519,7 @@ class AnalyticsPage(QWidget):
         # Increase label font size for better readability
         x_axis_font = QFont("Segoe UI", 10, QFont.Weight.Bold)
         x_axis.setLabelsFont(x_axis_font)
-        x_axis.setLabelsColor(QColor("#444444"))
+        x_axis.setLabelsColor(QColor(PALETTE["text"]))
         chart.addAxis(x_axis, Qt.AlignmentFlag.AlignBottom)
 
         y_axis = QValueAxis()
@@ -1464,12 +1573,12 @@ class AnalyticsPage(QWidget):
         # Apply styling to axes directly instead of using _style_axes
         x_axis_font = QFont("Segoe UI", 10, QFont.Weight.Bold)
         x_axis.setLabelsFont(x_axis_font)
-        x_axis.setLabelsColor(QColor("#444444"))
+        x_axis.setLabelsColor(QColor(PALETTE["text"]))
         y_axis_font = QFont("Segoe UI", 11, QFont.Weight.Bold)
         y_axis.setLabelsFont(y_axis_font)
-        y_axis.setLabelsColor(QColor("#444444"))
+        y_axis.setLabelsColor(QColor(PALETTE["text"]))
         y_axis.setGridLineVisible(True)
-        y_axis.setGridLineColor(QColor("#DADDE2"))
+        y_axis.setGridLineColor(QColor(PALETTE["border"]))
         self._enable_legend_filtering(chart)
         return chart
 
@@ -1521,7 +1630,7 @@ class AnalyticsPage(QWidget):
         # Apply styling to x-axis labels
         x_axis_font = QFont("Segoe UI", 10, QFont.Weight.Bold)
         x_axis.setLabelsFont(x_axis_font)
-        x_axis.setLabelsColor(QColor("#444444"))
+        x_axis.setLabelsColor(QColor(PALETTE["text"]))
 
         chart.addAxis(x_axis, Qt.AlignmentFlag.AlignBottom)
         stacked_series.attachAxis(x_axis)
@@ -1531,9 +1640,9 @@ class AnalyticsPage(QWidget):
         # Apply styling to y-axis labels
         y_axis_font = QFont("Segoe UI", 11, QFont.Weight.Bold)
         y_axis.setLabelsFont(y_axis_font)
-        y_axis.setLabelsColor(QColor("#444444"))
+        y_axis.setLabelsColor(QColor(PALETTE["text"]))
         y_axis.setGridLineVisible(True)
-        y_axis.setGridLineColor(QColor("#DADDE2"))
+        y_axis.setGridLineColor(QColor(PALETTE["border"]))
 
         chart.addAxis(y_axis, Qt.AlignmentFlag.AlignLeft)
         stacked_series.attachAxis(y_axis)
@@ -1621,7 +1730,7 @@ class AnalyticsPage(QWidget):
         # Increase label font size for better readability
         x_axis_font = QFont("Segoe UI", 10, QFont.Weight.Bold)
         x_axis.setLabelsFont(x_axis_font)
-        x_axis.setLabelsColor(QColor("#444444"))
+        x_axis.setLabelsColor(QColor(PALETTE["text"]))
         if min_dt and max_dt:
             x_axis.setRange(min_dt, max_dt)
         chart.addAxis(x_axis, Qt.AlignmentFlag.AlignBottom)
@@ -1642,12 +1751,12 @@ class AnalyticsPage(QWidget):
         # Apply styling to axes directly instead of using _style_axes
         x_axis_font = QFont("Segoe UI", 10, QFont.Weight.Bold)
         x_axis.setLabelsFont(x_axis_font)
-        x_axis.setLabelsColor(QColor("#444444"))
+        x_axis.setLabelsColor(QColor(PALETTE["text"]))
         y_axis_font = QFont("Segoe UI", 11, QFont.Weight.Bold)
         y_axis.setLabelsFont(y_axis_font)
-        y_axis.setLabelsColor(QColor("#444444"))
+        y_axis.setLabelsColor(QColor(PALETTE["text"]))
         y_axis.setGridLineVisible(True)
-        y_axis.setGridLineColor(QColor("#DADDE2"))
+        y_axis.setGridLineColor(QColor(PALETTE["border"]))
         self._enable_legend_filtering(chart)
         return chart
 
@@ -1686,7 +1795,7 @@ class AnalyticsPage(QWidget):
         # Increase label font size for better readability
         x_axis_font = QFont("Segoe UI", 10, QFont.Weight.Bold)
         x_axis.setLabelsFont(x_axis_font)
-        x_axis.setLabelsColor(QColor("#444444"))
+        x_axis.setLabelsColor(QColor(PALETTE["text"]))
         if min_dt and max_dt:
             x_axis.setRange(min_dt, max_dt)
         chart.addAxis(x_axis, Qt.AlignmentFlag.AlignBottom)
@@ -1707,12 +1816,12 @@ class AnalyticsPage(QWidget):
         # Apply styling to axes directly instead of using _style_axes
         x_axis_font = QFont("Segoe UI", 10, QFont.Weight.Bold)
         x_axis.setLabelsFont(x_axis_font)
-        x_axis.setLabelsColor(QColor("#444444"))
+        x_axis.setLabelsColor(QColor(PALETTE["text"]))
         y_axis_font = QFont("Segoe UI", 11, QFont.Weight.Bold)
         y_axis.setLabelsFont(y_axis_font)
-        y_axis.setLabelsColor(QColor("#444444"))
+        y_axis.setLabelsColor(QColor(PALETTE["text"]))
         y_axis.setGridLineVisible(True)
-        y_axis.setGridLineColor(QColor("#DADDE2"))
+        y_axis.setGridLineColor(QColor(PALETTE["border"]))
         self._enable_legend_filtering(chart)
         return chart
 
@@ -1751,7 +1860,7 @@ class AnalyticsPage(QWidget):
         # Increase label font size for better readability
         x_axis_font = QFont("Segoe UI", 10, QFont.Weight.Bold)
         x_axis.setLabelsFont(x_axis_font)
-        x_axis.setLabelsColor(QColor("#444444"))
+        x_axis.setLabelsColor(QColor(PALETTE["text"]))
         if min_dt and max_dt:
             x_axis.setRange(min_dt, max_dt)
         chart.addAxis(x_axis, Qt.AlignmentFlag.AlignBottom)
@@ -1762,9 +1871,9 @@ class AnalyticsPage(QWidget):
         # Apply styling to y-axis labels
         y_axis_font = QFont("Segoe UI", 11, QFont.Weight.Bold)
         y_axis.setLabelsFont(y_axis_font)
-        y_axis.setLabelsColor(QColor("#444444"))
+        y_axis.setLabelsColor(QColor(PALETTE["text"]))
         y_axis.setGridLineVisible(True)
-        y_axis.setGridLineColor(QColor("#DADDE2"))
+        y_axis.setGridLineColor(QColor(PALETTE["border"]))
         chart.addAxis(y_axis, Qt.AlignmentFlag.AlignLeft)
         series.attachAxis(y_axis)
 
@@ -1837,7 +1946,7 @@ class AnalyticsPage(QWidget):
         # Increase label size for visibility
         x_axis_font = QFont("Segoe UI", 10, QFont.Weight.Bold)
         x_axis.setLabelsFont(x_axis_font)
-        x_axis.setLabelsColor(QColor("#444444"))
+        x_axis.setLabelsColor(QColor(PALETTE["text"]))
 
         chart.addAxis(x_axis, Qt.AlignmentFlag.AlignBottom)
         bar_series.attachAxis(x_axis)
@@ -1847,9 +1956,9 @@ class AnalyticsPage(QWidget):
         # Apply styling to y-axis labels
         y_axis_font = QFont("Segoe UI", 11, QFont.Weight.Bold)
         y_axis.setLabelsFont(y_axis_font)
-        y_axis.setLabelsColor(QColor("#444444"))
+        y_axis.setLabelsColor(QColor(PALETTE["text"]))
         y_axis.setGridLineVisible(True)
-        y_axis.setGridLineColor(QColor("#DADDE2"))
+        y_axis.setGridLineColor(QColor(PALETTE["border"]))
 
         chart.addAxis(y_axis, Qt.AlignmentFlag.AlignLeft)
         bar_series.attachAxis(y_axis)
@@ -1879,14 +1988,14 @@ class AnalyticsPage(QWidget):
         - Consistent fonts for reporting
         """
         chart.setBackgroundVisible(True)
-        chart.setBackgroundBrush(QColor("#FFFFFF"))
+        chart.setBackgroundBrush(QColor(PALETTE["surface"]))
         chart.setPlotAreaBackgroundVisible(True)
-        chart.setPlotAreaBackgroundBrush(QColor("#F7F8FA"))
+        chart.setPlotAreaBackgroundBrush(QColor(PALETTE["surface_alt"]))
 
         title_font = QFont("Segoe UI", 11, QFont.Weight.Bold)
         chart.setTitleFont(title_font)
         chart.legend().setVisible(True)
-        chart.legend().setLabelColor(QColor("#333333"))
+        chart.legend().setLabelColor(QColor(PALETTE["text"]))
 
     @staticmethod
     def _style_axes(
@@ -1897,8 +2006,8 @@ class AnalyticsPage(QWidget):
         axis_font = QFont(
             "Segoe UI", 11
         )  # Increased from 9 to 11 for better readability
-        label_color = QColor("#444444")
-        grid_color = QColor("#DADDE2")
+        label_color = QColor(PALETTE["text"])
+        grid_color = QColor(PALETTE["border"])
 
         x_axis.setLabelsFont(axis_font)
         x_axis.setLabelsColor(label_color)
@@ -1956,7 +2065,9 @@ class AnalyticsPage(QWidget):
         series.setVisible(visible)
 
         # Keep legend entry visible but visually dim when hidden
-        marker.setLabelBrush(QColor("#333333") if visible else QColor("#B0B0B0"))
+        marker.setLabelBrush(
+            QColor(PALETTE["text"]) if visible else QColor(PALETTE["muted_light"])
+        )
 
     def _apply_responsive_chart_styling(self, chart: QChart) -> None:
         """Apply responsive font sizing based on available chart size.
@@ -1995,9 +2106,11 @@ class AnalyticsPage(QWidget):
             if hasattr(axis, "labelsFont"):
                 font = QFont("Segoe UI", x_font_size, QFont.Weight.Bold)
                 axis.setLabelsFont(font)
-                axis.setLabelsColor(QColor("#444444"))
+                axis.setLabelsColor(QColor(PALETTE["text"]))
 
         # Adjust title font if needed
         if chart.title():
             title_font = QFont("Segoe UI", title_font_size, QFont.Weight.Bold)
             chart.setTitleFont(title_font)
+
+

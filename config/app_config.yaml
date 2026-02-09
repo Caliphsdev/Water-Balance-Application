@@ -1,9 +1,26 @@
 app:
   name: Water Balance System
-  version: 1.0.7
+  version: 1.0.8
 branding:
   company_name: Water Balance Management
   logo_path: C:\PROJECTS\Water-Balance-Application\logo\Logo Two rivers.png
+calculation:
+  balance_error_threshold_pct: 5.0
+  dewatering_enabled: true
+  domestic_consumption_enabled: true
+  domestic_consumption_l_per_person_day: 150.0
+  dust_suppression_rate_l_per_t: 1.0
+  evap_pan_coefficient: 0.7
+  mining_consumption_enabled: false
+  mining_water_rate_m3_per_t: 0.05
+  ore_moisture_pct: 3.5
+  product_moisture_pct: 8.0
+  recovery_rate_pct: 2.0
+  runoff_enabled: false
+  seepage_rate_lined_pct: 0.1
+  seepage_rate_unlined_pct: 0.5
+  tailings_moisture_pct: 45.0
+  tsf_return_water_pct: 36.0
 colors:
   bg_header: '#0D47A1'
   bg_main: '#F5F6F7'
@@ -20,12 +37,10 @@ colors:
   text_primary: '#212121'
   text_secondary: '#607D8B'
   warning: '#FF9800'
-logging:
-  level: INFO
 data_sources:
   dam_recirculation_path: data\templates\DAM_RECIRCULATION_TEMPLATE.txt
   inflow_codes_path: data\templates\INFLOW_CODES_TEMPLATE.txt
-  legacy_excel_path: D:/Downloads/New Water Balance  20250930 Oct.xlsx
+  legacy_excel_path: ''
   outflow_codes_path: data\templates\OUTFLOW_CODES_TEMPLATE_CORRECTED.txt
   template_excel_path: data\Water_Balance_TimeSeries_Template.xlsx
   timeseries_excel_path: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Water_Balance_TimeSeries_Template.xlsx
@@ -41,46 +56,6 @@ features:
   fast_startup: true
   new_calculations: false
   new_dashboard: true
-
-# Calculation settings (can be overridden per constant)
-calculation:
-  # Feature toggles - Inflows
-  runoff_enabled: false  # Enable catchment runoff in inflows calculation
-  dewatering_enabled: true  # Include underground dewatering as inflow
-  
-  # Feature toggles - Outflows
-  # mining_consumption_enabled: false = water goes underground but returns as dewatering
-  # Set to true if underground water is lost to geology (rare for closed-loop mines)
-  mining_consumption_enabled: false
-  
-  # domestic_consumption_enabled: true = domestic water exits system (sewage)
-  # Set to false if sewage is treated and fully recycled on-site
-  domestic_consumption_enabled: true
-  
-  # Evaporation
-  evap_pan_coefficient: 0.7  # Pan-to-lake conversion factor
-  
-  # Seepage rates (% of volume per month)
-  seepage_rate_lined_pct: 0.1  # HDPE/clay lined dams
-  seepage_rate_unlined_pct: 0.5  # Unlined/natural soil
-  
-  # Ore processing
-  ore_moisture_pct: 3.5  # % moisture in mined ore
-  product_moisture_pct: 8.0  # % moisture in product/concentrate
-  recovery_rate_pct: 2.0  # % of ore recovered as product
-  tailings_moisture_pct: 45.0  # % moisture retained in tailings
-  
-  # Consumption rates
-  dust_suppression_rate_l_per_t: 1.0  # L water per tonne ore
-  mining_water_rate_m3_per_t: 0.05  # m³ per tonne mined
-  domestic_consumption_l_per_person_day: 150.0  # L per person per day
-  
-  # TSF return water
-  tsf_return_water_pct: 36.0  # % of plant water returning from TSF
-  
-  # Balance thresholds
-  balance_error_threshold_pct: 5.0  # Error < 5% = acceptable
-
 fonts:
   body:
     family: Segoe UI
@@ -102,6 +77,11 @@ fonts:
     family: Segoe UI
     size: 13
     weight: bold
+license:
+  offline_validity_days: 30
+  public_key: QGBSe4_kmF_rLAfkL9_KxebAsf3bGZlKmwsh3W2WDZM
+  refresh_interval_days: 7
+  signing_secret: ''
 licensing:
   api_key: a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6
   background_check_interval_seconds: 43200
@@ -134,6 +114,8 @@ licensing:
       max_calculations_per_month: 10
       priority_support: false
   webhook_url: https://script.google.com/macros/s/AKfycbyjOR-JUYuSTEIuInChx8uxhZk0RDreiHZrBS4jWINKCV9lXu0ylxXaFf4m_DBhCn7zeQ/exec
+logging:
+  level: INFO
 monitoring:
   borehole_monitoring_directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring
     Borehole
@@ -145,39 +127,17 @@ session:
 storage:
   critical_threshold_overrides: {}
   critical_threshold_pct_default: 0.2
-
-# Supabase configuration for licensing and updates
-# Get these values from your Supabase project dashboard:
-# Settings → API → Project URL and anon/public key
 supabase:
-  url: "https://okcbvcogkypaezczywzo.supabase.co"
-  anon_key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9rY2J2Y29na3lwYWV6Y3p5d3pvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyMDIxMzgsImV4cCI6MjA4NTc3ODEzOH0.Mcb4JfhprEhj662xnYby4LbmihbfQX2WM3DlN5MZ6mU"  # PASTE YOUR PUBLISHABLE KEY HERE
-  # service_key is only needed for admin tool, not client app
-  service_key: ""  # PASTE YOUR SERVICE ROLE KEY HERE
-
-# License configuration
-license:
-  public_key: "QGBSe4_kmF_rLAfkL9_KxebAsf3bGZlKmwsh3W2WDZM"
-  # HMAC signing secret for offline tokens (generate with: python -c "import secrets; print(secrets.token_hex(32))")
-  signing_secret: ""
-  # Offline token validity in days
-  offline_validity_days: 30
-  # Online refresh interval in days
-  refresh_interval_days: 7
-
-# Update configuration  
-updates:
-  # GitHub releases URL for update downloads
-  releases_url: "https://api.github.com/repos/Caliphsdev/Water-Balance-Application/releases"
-  # Enable auto-update checking
-  auto_check: true
-  # Check interval in hours
-  check_interval_hours: 24
-
-
+  anon_key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9rY2J2Y29na3lwYWV6Y3p5d3pvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyMDIxMzgsImV4cCI6MjA4NTc3ODEzOH0.Mcb4JfhprEhj662xnYby4LbmihbfQX2WM3DlN5MZ6mU
+  service_key: ''
+  url: https://okcbvcogkypaezczywzo.supabase.co
 ui:
   sidebar_width: 240
   toolbar_height: 56
+updates:
+  auto_check: true
+  check_interval_hours: 24
+  releases_url: https://api.github.com/repos/Caliphsdev/Water-Balance-Application/releases
 window:
   auto_scale: true
   geometry: 1400x900

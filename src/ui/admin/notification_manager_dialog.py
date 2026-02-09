@@ -17,21 +17,30 @@ from PySide6.QtWidgets import (
     QAbstractItemView,
     QCheckBox,
     QComboBox,
+    QColorDialog,
     QDateTimeEdit,
     QDialog,
+    QFileDialog,
     QFrame,
     QHBoxLayout,
     QLabel,
     QLineEdit,
     QMessageBox,
     QPushButton,
+    QScrollArea,
+    QSpinBox,
     QSplitter,
     QTableWidget,
     QTableWidgetItem,
     QTextEdit,
+    QTextBrowser,
+    QSizePolicy,
     QVBoxLayout,
     QWidget,
+    QFontComboBox,
+    QToolButton,
 )
+from PySide6.QtGui import QFont, QTextCharFormat, QTextCursor, QTextListFormat
 
 from services.license_admin_service import get_license_admin_service
 
@@ -68,7 +77,7 @@ class NotificationManagerDialog(QDialog):
     ]
 
     TYPES = ["announcement", "alert", "maintenance", "update"]
-    TIERS = ["developer", "premium", "standard", "free_trial"]
+    TIERS = ["developer", "premium", "standard", "free_trial", "customer"]
     TEMPLATES = {
         "Standard Update": {
             "sections": ["Summary", "Details", "Action", "Support"],
@@ -216,7 +225,11 @@ class NotificationManagerDialog(QDialog):
         self.title_input.setPlaceholderText("Notification title")
         form_layout.addWidget(self._labeled("Title", self.title_input))
 
+        self.format_toolbar = self._build_format_toolbar()
+        form_layout.addWidget(self.format_toolbar)
+
         self.body_input = QTextEdit()
+        self.body_input.setAcceptRichText(True)
         self.body_input.setPlaceholderText("Write the message or apply a structured template")
         self.body_input.setMinimumHeight(160)
         form_layout.addWidget(self._labeled("Message Body", self.body_input))
@@ -261,11 +274,29 @@ class NotificationManagerDialog(QDialog):
             tiers_layout.addWidget(checkbox)
         form_layout.addWidget(tiers_container)
 
-        self.preview_box = QTextEdit()
+        self.preview_box = QTextBrowser()
         self.preview_box.setReadOnly(True)
         self.preview_box.setObjectName("previewBox")
         self.preview_box.setMinimumHeight(140)
+        self.preview_box.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         form_layout.addWidget(self._labeled("Preview", self.preview_box))
+
+        cleanup_row = QHBoxLayout()
+        cleanup_label = QLabel("Auto cleanup (days)")
+        cleanup_label.setStyleSheet("font-size: 11px; font-weight: 600; color: #334155;")
+        cleanup_row.addWidget(cleanup_label)
+
+        self.cleanup_days_input = QSpinBox()
+        self.cleanup_days_input.setRange(1, 3650)
+        self.cleanup_days_input.setValue(30)
+        self.cleanup_days_input.setFixedWidth(90)
+        cleanup_row.addWidget(self.cleanup_days_input)
+
+        cleanup_row.addStretch(1)
+        self.cleanup_button = QPushButton("Cleanup Images")
+        self.cleanup_button.setObjectName("ghostButton")
+        cleanup_row.addWidget(self.cleanup_button)
+        form_layout.addLayout(cleanup_row)
 
         button_row = QHBoxLayout()
         button_row.addStretch(1)
@@ -274,7 +305,13 @@ class NotificationManagerDialog(QDialog):
         button_row.addWidget(self.create_button)
         form_layout.addLayout(button_row)
 
-        splitter.addWidget(form_panel)
+        form_scroll = QScrollArea()
+        form_scroll.setWidgetResizable(True)
+        form_scroll.setFrameShape(QFrame.Shape.NoFrame)
+        form_scroll.setWidget(form_panel)
+        form_scroll.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+
+        splitter.addWidget(form_scroll)
 
         list_panel = QFrame()
         list_panel.setObjectName("panelCard")
@@ -330,7 +367,7 @@ class NotificationManagerDialog(QDialog):
         self.history_title_text.setReadOnly(True)
         history_layout.addWidget(self._labeled("Title", self.history_title_text))
 
-        self.history_body = QTextEdit()
+        self.history_body = QTextBrowser()
         self.history_body.setReadOnly(True)
         self.history_body.setMinimumHeight(120)
         history_layout.addWidget(self._labeled("Message", self.history_body))
@@ -370,6 +407,7 @@ class NotificationManagerDialog(QDialog):
         self.expires_input.dateTimeChanged.connect(self._update_preview)
         self.table.itemSelectionChanged.connect(self._update_history_preview)
         self.delete_button.clicked.connect(self._delete_selected)
+        self.cleanup_button.clicked.connect(self._cleanup_images)
 
         self._apply_template()
         self._refresh()
@@ -412,18 +450,21 @@ class NotificationManagerDialog(QDialog):
         self._update_preview()
 
     def _update_preview(self) -> None:
-        body = self.body_input.toPlainText().strip()
-        lines = [body] if body else []
+        body_html = self.body_input.toHtml().strip()
+        footer_lines = []
 
-        if self.action_url_input.text().strip() and "Action URL:" not in body:
-            lines.append("")
-            lines.append(f"Action URL: {self.action_url_input.text().strip()}")
+        if self.action_url_input.text().strip():
+            footer_lines.append(f"Action URL: {self.action_url_input.text().strip()}")
 
-        if self.expires_toggle.isChecked() and "Expires:" not in body:
+        if self.expires_toggle.isChecked():
             expires_at = self.expires_input.dateTime().toPython()
-            lines.append(f"Expires: {expires_at.strftime('%Y-%m-%d %H:%M')}")
+            footer_lines.append(f"Expires: {expires_at.strftime('%Y-%m-%d %H:%M')}")
 
-        self.preview_box.setPlainText("\n".join(lines).strip())
+        footer_html = ""
+        if footer_lines:
+            footer_html = "<br><br>" + "<br>".join(footer_lines)
+
+        self.preview_box.setHtml(body_html + footer_html)
 
     def _run_async(self, fn, on_success, on_error=None) -> None:
         thread = QThread(self)
@@ -526,7 +567,7 @@ class NotificationManagerDialog(QDialog):
         self.history_published.setText(f"Published: {data.get('published_at') or '-'}")
         self.history_expires.setText(f"Expires: {data.get('expires_at') or '-'}")
         self.history_title_text.setText(data.get("title") or "")
-        self.history_body.setPlainText(data.get("body") or "")
+        self.history_body.setHtml(data.get("body") or "")
         self.history_action.setText(data.get("action_url") or "")
         self.delete_button.setEnabled(bool(self._selected_notification_id))
 
@@ -557,7 +598,7 @@ class NotificationManagerDialog(QDialog):
 
     def _on_create(self) -> None:
         title = self.title_input.text().strip()
-        body = self.body_input.toPlainText().strip()
+        body = self.body_input.toHtml().strip()
         if not title or not body:
             self._show_error("Title and message are required")
             return
@@ -593,3 +634,169 @@ class NotificationManagerDialog(QDialog):
             self._refresh()
 
         self._run_async(create, done)
+
+    def _build_format_toolbar(self) -> QWidget:
+        toolbar = QWidget()
+        layout = QHBoxLayout(toolbar)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(6)
+
+        self.font_family_input = QFontComboBox()
+        self.font_family_input.setCurrentFont(QFont("Segoe UI"))
+        self.font_family_input.currentFontChanged.connect(self._set_font_family)
+        layout.addWidget(self.font_family_input)
+
+        self.font_size_input = QComboBox()
+        self.font_size_input.addItems(["10", "11", "12", "13", "14", "16", "18", "20", "24", "28"])
+        self.font_size_input.setCurrentText("12")
+        self.font_size_input.currentTextChanged.connect(self._set_font_size)
+        layout.addWidget(self.font_size_input)
+
+        self.bold_btn = QToolButton()
+        self.bold_btn.setText("B")
+        self.bold_btn.setCheckable(True)
+        self.bold_btn.clicked.connect(self._toggle_bold)
+        layout.addWidget(self.bold_btn)
+
+        self.italic_btn = QToolButton()
+        self.italic_btn.setText("I")
+        self.italic_btn.setCheckable(True)
+        self.italic_btn.clicked.connect(self._toggle_italic)
+        layout.addWidget(self.italic_btn)
+
+        self.underline_btn = QToolButton()
+        self.underline_btn.setText("U")
+        self.underline_btn.setCheckable(True)
+        self.underline_btn.clicked.connect(self._toggle_underline)
+        layout.addWidget(self.underline_btn)
+
+        color_btn = QToolButton()
+        color_btn.setText("Color")
+        color_btn.clicked.connect(self._set_text_color)
+        layout.addWidget(color_btn)
+
+        align_left = QToolButton()
+        align_left.setText("Left")
+        align_left.clicked.connect(lambda: self._set_alignment(Qt.AlignmentFlag.AlignLeft))
+        layout.addWidget(align_left)
+
+        align_center = QToolButton()
+        align_center.setText("Center")
+        align_center.clicked.connect(lambda: self._set_alignment(Qt.AlignmentFlag.AlignCenter))
+        layout.addWidget(align_center)
+
+        align_right = QToolButton()
+        align_right.setText("Right")
+        align_right.clicked.connect(lambda: self._set_alignment(Qt.AlignmentFlag.AlignRight))
+        layout.addWidget(align_right)
+
+        bullet_btn = QToolButton()
+        bullet_btn.setText("• List")
+        bullet_btn.clicked.connect(self._toggle_bullets)
+        layout.addWidget(bullet_btn)
+
+        image_btn = QToolButton()
+        image_btn.setText("Image")
+        image_btn.clicked.connect(self._insert_image)
+        layout.addWidget(image_btn)
+
+        layout.addStretch(1)
+        return toolbar
+
+    def _merge_format(self, fmt: QTextCharFormat) -> None:
+        cursor = self.body_input.textCursor()
+        if not cursor.hasSelection():
+            cursor.select(QTextCursor.SelectionType.WordUnderCursor)
+        cursor.mergeCharFormat(fmt)
+        self.body_input.mergeCurrentCharFormat(fmt)
+
+    def _set_font_family(self, font: QFont) -> None:
+        fmt = QTextCharFormat()
+        fmt.setFontFamily(font.family())
+        self._merge_format(fmt)
+
+    def _set_font_size(self, size_text: str) -> None:
+        try:
+            size = float(size_text)
+        except ValueError:
+            return
+        fmt = QTextCharFormat()
+        fmt.setFontPointSize(size)
+        self._merge_format(fmt)
+
+    def _toggle_bold(self) -> None:
+        fmt = QTextCharFormat()
+        fmt.setFontWeight(QFont.Weight.Bold if self.bold_btn.isChecked() else QFont.Weight.Normal)
+        self._merge_format(fmt)
+
+    def _toggle_italic(self) -> None:
+        fmt = QTextCharFormat()
+        fmt.setFontItalic(self.italic_btn.isChecked())
+        self._merge_format(fmt)
+
+    def _toggle_underline(self) -> None:
+        fmt = QTextCharFormat()
+        fmt.setFontUnderline(self.underline_btn.isChecked())
+        self._merge_format(fmt)
+
+    def _set_text_color(self) -> None:
+        color = QColorDialog.getColor(parent=self)
+        if not color.isValid():
+            return
+        fmt = QTextCharFormat()
+        fmt.setForeground(color)
+        self._merge_format(fmt)
+
+    def _set_alignment(self, alignment: Qt.AlignmentFlag) -> None:
+        self.body_input.setAlignment(alignment)
+
+    def _toggle_bullets(self) -> None:
+        cursor = self.body_input.textCursor()
+        cursor.beginEditBlock()
+        if cursor.currentList():
+            cursor.currentList().remove(cursor.block())
+        else:
+            list_format = QTextListFormat()
+            list_format.setStyle(QTextListFormat.Style.ListDisc)
+            cursor.createList(list_format)
+        cursor.endEditBlock()
+
+    def _insert_image(self) -> None:
+        file_path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Select image",
+            "",
+            "Images (*.png *.jpg *.jpeg *.gif *.webp)"
+        )
+        if not file_path:
+            return
+        try:
+            image_url = self._service.upload_notification_asset(file_path)
+            cursor = self.body_input.textCursor()
+            cursor.insertHtml(f'<img src="{image_url}" style="max-width: 100%;" />')
+        except Exception as exc:
+            self._show_error(f"Image upload failed: {exc}")
+
+    def _cleanup_images(self) -> None:
+        days = int(self.cleanup_days_input.value())
+        confirm = QMessageBox.question(
+            self,
+            "Cleanup Images",
+            f"Delete notification images older than {days} days?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+        )
+        if confirm != QMessageBox.StandardButton.Yes:
+            return
+
+        def do_cleanup():
+            return self._service.delete_notification_assets_older_than(days)
+
+        def done(result):
+            removed = result or 0
+            QMessageBox.information(
+                self,
+                "Cleanup Complete",
+                f"Deleted {removed} old images."
+            )
+
+        self._run_async(do_cleanup, done)

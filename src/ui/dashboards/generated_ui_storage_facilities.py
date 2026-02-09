@@ -26,7 +26,7 @@ class Ui_Form(object):
         if not Form.objectName():
             Form.setObjectName(u"Form")
         Form.resize(1251, 793)
-        Form.setStyleSheet(u"")
+        Form.setStyleSheet("")
         self.gridLayout = QGridLayout(Form)
         self.gridLayout.setObjectName(u"gridLayout")
         self.gridLayout.setHorizontalSpacing(0)
@@ -40,9 +40,7 @@ class Ui_Form(object):
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
         self.pushButton = QPushButton(self.frame_5)
         self.pushButton.setObjectName(u"pushButton")
-        self.pushButton.setStyleSheet(u"QPushButton{\n"
-"border:none;\n"
-"}")
+        self.pushButton.setStyleSheet("")
         icon = QIcon()
         icon.addFile(u":/icons/search.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.pushButton.setIcon(icon)
@@ -318,10 +316,7 @@ class Ui_Form(object):
 
         self.frame_6 = QFrame(Form)
         self.frame_6.setObjectName(u"frame_6")
-        self.frame_6.setStyleSheet(u"QFrame{\n"
-"	background-color: rgb(62, 62, 93);\n"
-"	color:white;\n"
-"}")
+        self.frame_6.setStyleSheet("")
         self.frame_6.setFrameShape(QFrame.Shape.StyledPanel)
         self.frame_6.setFrameShadow(QFrame.Shadow.Raised)
         self.horizontalLayout_3 = QHBoxLayout(self.frame_6)
@@ -337,10 +332,7 @@ class Ui_Form(object):
 
         self.label_4 = QLabel(self.frame_6)
         self.label_4.setObjectName(u"label_4")
-        self.label_4.setStyleSheet(u"QLabel{\n"
-"font-weight: bold;\n"
-"font: 12px;\n"
-"}")
+        self.label_4.setStyleSheet("")
 
         self.horizontalLayout_3.addWidget(self.label_4)
 
@@ -350,9 +342,7 @@ class Ui_Form(object):
 
         self.label_5 = QLabel(self.frame_6)
         self.label_5.setObjectName(u"label_5")
-        self.label_5.setStyleSheet(u"QLabel{\n"
-"font:10px;\n"
-"}")
+        self.label_5.setStyleSheet("")
         self.label_5.setScaledContents(False)
         self.label_5.setWordWrap(False)
 
@@ -369,10 +359,7 @@ class Ui_Form(object):
 
         self.label_7 = QLabel(Form)
         self.label_7.setObjectName(u"label_7")
-        self.label_7.setStyleSheet(u"QLabel{\n"
-"font-weight:bold;\n"
-"font:28px;\n"
-"}")
+        self.label_7.setStyleSheet("")
 
         self.gridLayout.addWidget(self.label_7, 0, 0, 1, 1)
 
@@ -428,4 +415,6 @@ class Ui_Form(object):
         self.label_6.setText(QCoreApplication.translate("Form", u"Monitoring and manage water storage infrastructure", None))
         pass
     # retranslateUi
+
+
 

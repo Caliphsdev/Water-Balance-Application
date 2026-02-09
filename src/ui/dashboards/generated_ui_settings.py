@@ -1032,3 +1032,5 @@ class Ui_Form(object):
         self.Settings.setTabText(self.Settings.indexOf(self.Environmental), QCoreApplication.translate("Form", u"Environmental", None))
     # retranslateUi
 
+
+

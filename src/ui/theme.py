@@ -1,0 +1,18 @@
+PALETTE = {
+    "text": "#0b1a2a",
+    "muted": "#5b6775",
+    "muted_light": "#8a97a6",
+    "border": "#c7d0da",
+    "surface": "#ffffff",
+    "surface_alt": "#f2f5f8",
+    "surface_soft": "#e8edf2",
+    "accent": "#1f3a5f",
+    "success": "#2e7d32",
+    "success_bg": "#e7f4ea",
+    "info": "#2b5ea8",
+    "info_bg": "#e8eef7",
+    "warning": "#b26a00",
+    "warning_bg": "#fff4e5",
+    "danger": "#b3261e",
+    "danger_bg": "#fdeceb",
+}

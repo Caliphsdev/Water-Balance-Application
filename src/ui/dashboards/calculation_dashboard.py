@@ -54,6 +54,32 @@ from services.calculation.models import BalanceResult, CalculationPeriod, DataQu
 
 logger = logging.getLogger(__name__)
 
+PALETTE = {
+    "text": "#0f172a",
+    "muted": "#64748b",
+    "muted_light": "#94a3b8",
+    "border": "#e2e8f0",
+    "surface": "#ffffff",
+    "surface_alt": "#f8fafc",
+    "surface_soft": "#f1f5f9",
+    "accent": "#1d4ed8",
+    "success": "#16a34a",
+    "success_bg": "#ecfdf5",
+    "info": "#2563eb",
+    "info_bg": "#eff6ff",
+    "warning": "#d97706",
+    "warning_bg": "#fffbeb",
+    "danger": "#dc2626",
+    "danger_bg": "#fef2f2",
+}
+
+STATUS_THEMES = {
+    "healthy": {"color": PALETTE["success"], "gradient": ("stop:0 #14532d", "stop:1 #16a34a")},
+    "moderate": {"color": PALETTE["info"], "gradient": ("stop:0 #1e3a8a", "stop:1 #2563eb")},
+    "warning": {"color": PALETTE["warning"], "gradient": ("stop:0 #92400e", "stop:1 #d97706")},
+    "critical": {"color": PALETTE["danger"], "gradient": ("stop:0 #991b1b", "stop:1 #dc2626")},
+}
+
 
 class CalculationPage(QWidget):
     """Water Balance Calculations Dashboard (MAIN CALCULATION UI).
@@ -403,7 +429,7 @@ class CalculationPage(QWidget):
         # Add placeholder labels (will update in _populate_tabs)
         label = QLabel("System Balance Results\n(Click Calculate to populate)")
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        label.setStyleSheet("color: #999; font-size: 14px;")
+        label.setStyleSheet("")
         layout.addWidget(label)
         
         tab.setLayout(layout)
@@ -417,7 +443,7 @@ class CalculationPage(QWidget):
         layout = QVBoxLayout(tab)
         label = QLabel("Recycled Water Information\n(Data will appear here)")
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        label.setStyleSheet("color: #999; font-size: 14px;")
+        label.setStyleSheet("")
         layout.addWidget(label)
         
         tab.setLayout(layout)
@@ -431,7 +457,7 @@ class CalculationPage(QWidget):
         layout = QVBoxLayout(tab)
         label = QLabel("Data Quality Checks\n(Validation results will appear here)")
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        label.setStyleSheet("color: #999; font-size: 14px;")
+        label.setStyleSheet("")
         layout.addWidget(label)
         
         tab.setLayout(layout)
@@ -449,7 +475,7 @@ class CalculationPage(QWidget):
         layout = QVBoxLayout(tab)
         label = QLabel("Days of Operation Analysis\n(How long water will last at current usage)")
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        label.setStyleSheet("color: #999; font-size: 14px;")
+        label.setStyleSheet("")
         layout.addWidget(label)
         
         tab.setLayout(layout)
@@ -517,7 +543,7 @@ class CalculationPage(QWidget):
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QFrame.Shape.NoFrame)
-        scroll.setStyleSheet("QScrollArea { background: transparent; border: none; }")
+        scroll.setStyleSheet("")
         
         container = QWidget()
         main_layout = QVBoxLayout(container)
@@ -526,65 +552,32 @@ class CalculationPage(QWidget):
         
         # Determine status
         is_balanced = result.error_pct <= 5.0
-        status_color = "#10B981" if is_balanced else "#EF4444"
+        status_color = PALETTE["success"] if is_balanced else PALETTE["danger"]
         status_text = "✓ BALANCED" if is_balanced else "✗ UNBALANCED"
-        status_bg = "#ECFDF5" if is_balanced else "#FEF2F2"
+        status_bg = PALETTE["success_bg"] if is_balanced else PALETTE["danger_bg"]
         
         # ═══════════════════════════════════════════════════════════════════
         # HERO HEADER
         # ═══════════════════════════════════════════════════════════════════
         header = QFrame()
-        header.setStyleSheet(f"""
-            QFrame {{
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                    stop:0 #1E3A5F, stop:1 #2563EB);
-                border-radius: 12px;
-                padding: 20px;
-            }}
-        """)
+        header.setStyleSheet("")
         header_layout = QHBoxLayout(header)
         
         # Left: Period info
         period_label = QLabel(f"📊 SYSTEM BALANCE\n{result.period.period_label.upper()}")
-        period_label.setStyleSheet("""
-            QLabel { 
-                color: white; 
-                font-size: 18px; 
-                font-weight: bold;
-                background: transparent;
-            }
-        """)
+        period_label.setStyleSheet("")
         header_layout.addWidget(period_label)
         
         header_layout.addStretch()
         
         # Right: Status badge
         status_badge = QLabel(f"  {status_text}  ")
-        status_badge.setStyleSheet(f"""
-            QLabel {{
-                background-color: {status_bg};
-                color: {status_color};
-                font-size: 14px;
-                font-weight: bold;
-                padding: 8px 16px;
-                border-radius: 20px;
-                border: 2px solid {status_color};
-            }}
-        """)
+        status_badge.setStyleSheet("")
         header_layout.addWidget(status_badge)
         
         # Error badge
         error_badge = QLabel(f"  Error: {result.error_pct:.1f}%  ")
-        error_badge.setStyleSheet(f"""
-            QLabel {{
-                background-color: {'#DCFCE7' if is_balanced else '#FEE2E2'};
-                color: {status_color};
-                font-size: 12px;
-                font-weight: bold;
-                padding: 6px 12px;
-                border-radius: 16px;
-            }}
-        """)
+        error_badge.setStyleSheet("")
         header_layout.addWidget(error_badge)
         
         main_layout.addWidget(header)
@@ -605,16 +598,16 @@ class CalculationPage(QWidget):
             title="💧 FRESH INFLOWS",
             subtitle="Natural Water Entering System",
             items=[
-                ("🌧️ Rainfall", result.inflows.rainfall_m3, "#3B82F6"),
-                ("🏞️ Rivers", surface_water, "#06B6D4"),
-                ("🕳️ Boreholes", groundwater, "#0EA5E9"),
-                ("⛏️ Dewatering", dewatering, "#6366F1"),
-                ("⛏️ Ore Moisture", result.inflows.ore_moisture_m3, "#8B5CF6"),
-                ("📥 Other Sources", result.inflows.other_m3, "#6B7280"),
+                ("🌧️ Rainfall", result.inflows.rainfall_m3, PALETTE["accent"]),
+                ("🏞️ Rivers", surface_water, PALETTE["info"]),
+                ("🕳️ Boreholes", groundwater, PALETTE["info"]),
+                ("⛏️ Dewatering", dewatering, PALETTE["info"]),
+                ("⛏️ Ore Moisture", result.inflows.ore_moisture_m3, PALETTE["info"]),
+                ("📥 Other Sources", result.inflows.other_m3, PALETTE["muted"]),
             ],
             total=result.inflows.total_m3,
-            accent_color="#3B82F6",
-            bg_gradient=("from #EFF6FF to #DBEAFE", "#EFF6FF", "#DBEAFE")
+            accent_color=PALETTE["accent"],
+            bg_gradient=("from surface to surface", PALETTE["surface"], PALETTE["surface"])
         )
         cards_row.addWidget(inflows_card)
         
@@ -623,27 +616,27 @@ class CalculationPage(QWidget):
             title="🔥 OUTFLOWS",
             subtitle="Water Leaving System",
             items=[
-                ("☀️ Evaporation", result.outflows.evaporation_m3, "#F59E0B"),
-                ("💧 Seepage", result.outflows.seepage_m3, "#EF4444"),
-                ("🌫️ Dust Suppression", result.outflows.dust_suppression_m3, "#78716C"),
-                ("🏭 Tailings Lockup", result.outflows.tailings_lockup_m3, "#7C3AED"),
-                ("📤 Other Losses", result.outflows.other_m3, "#6B7280"),
+                ("☀️ Evaporation", result.outflows.evaporation_m3, PALETTE["warning"]),
+                ("💧 Seepage", result.outflows.seepage_m3, PALETTE["danger"]),
+                ("🌫️ Dust Suppression", result.outflows.dust_suppression_m3, PALETTE["muted"]),
+                ("🏭 Tailings Lockup", result.outflows.tailings_lockup_m3, PALETTE["info"]),
+                ("📤 Other Losses", result.outflows.other_m3, PALETTE["muted"]),
             ],
             total=result.outflows.total_m3,
-            accent_color="#F59E0B",
-            bg_gradient=("from #FFFBEB to #FEF3C7", "#FFFBEB", "#FEF3C7")
+            accent_color=PALETTE["warning"],
+            bg_gradient=("from surface to surface", PALETTE["surface"], PALETTE["surface"])
         )
         cards_row.addWidget(outflows_card)
         
         # --- STORAGE CARD ---
         delta = result.storage.delta_m3
         delta_icon = "📈" if delta >= 0 else "📉"
-        delta_color = "#10B981" if delta >= 0 else "#EF4444"
+        delta_color = PALETTE["success"] if delta >= 0 else PALETTE["danger"]
         
         # Build storage items including system totals
         storage_items = [
-            ("📂 Opening Storage", result.storage.opening_m3, "#6B7280"),
-            ("📁 Closing Storage", result.storage.closing_m3, "#059669"),
+            ("📂 Opening Storage", result.storage.opening_m3, PALETTE["muted"]),
+            ("📁 Closing Storage", result.storage.closing_m3, PALETTE["success"]),
         ]
         
         # Build facility breakdown for expandable section
@@ -651,7 +644,7 @@ class CalculationPage(QWidget):
         if result.storage.facility_breakdown:
             for fac in result.storage.facility_breakdown:
                 fac_delta_icon = "▲" if fac.delta_m3 >= 0 else "▼"
-                fac_color = "#10B981" if fac.delta_m3 >= 0 else "#EF4444"
+                fac_color = PALETTE["success"] if fac.delta_m3 >= 0 else PALETTE["danger"]
                 facility_breakdown.append({
                     'name': fac.facility_name or fac.facility_code,
                     'delta': fac.delta_m3,
@@ -666,8 +659,8 @@ class CalculationPage(QWidget):
             total=delta,
             total_label=f"{delta_icon} Delta (ΔS)",
             facility_breakdown=facility_breakdown,
-            accent_color="#059669",
-            bg_gradient=("from #ECFDF5 to #D1FAE5", "#ECFDF5", "#D1FAE5")
+            accent_color=PALETTE["success"],
+            bg_gradient=("from surface to surface", PALETTE["surface"], PALETTE["surface"])
         )
         cards_row.addWidget(storage_card)
         
@@ -677,32 +670,27 @@ class CalculationPage(QWidget):
         # CLOSURE EQUATION FOOTER
         # ═══════════════════════════════════════════════════════════════════
         footer = QFrame()
-        footer.setStyleSheet(f"""
-            QFrame {{
-                background-color: {status_bg};
-                border: 2px solid {status_color};
-                border-radius: 12px;
-                padding: 16px;
-            }}
-        """)
+        footer.setStyleSheet("")
         footer_layout = QHBoxLayout(footer)
         
         # Equation visualization
         eq_parts = [
-            (f"{result.inflows.total_m3:,.0f}", "Fresh IN", "#3B82F6"),
-            ("−", "", "#6B7280"),
-            (f"{result.outflows.total_m3:,.0f}", "Outflows", "#F59E0B"),
-            ("−", "", "#6B7280"),
-            (f"{result.storage.delta_m3:+,.0f}", "ΔStorage", "#059669"),
-            ("=", "", "#6B7280"),
+            (f"{result.inflows.total_m3:,.0f}", "Fresh IN", PALETTE["accent"]),
+            ("−", "", PALETTE["muted"]),
+            (f"{result.outflows.total_m3:,.0f}", "Outflows", PALETTE["warning"]),
+            ("−", "", PALETTE["muted"]),
+            (f"{result.storage.delta_m3:+,.0f}", "ΔStorage", PALETTE["success"]),
+            ("=", "", PALETTE["muted"]),
             (f"{result.balance_error_m3:+,.0f}", "Error", status_color),
         ]
         
         for value, label, color in eq_parts:
-            part_widget = QLabel(f"<div style='text-align:center;'>"
-                                  f"<span style='font-size:16px;font-weight:bold;color:{color};'>{value}</span><br/>"
-                                  f"<span style='font-size:10px;color:#6B7280;'>{label}</span></div>")
-            part_widget.setStyleSheet("background: transparent;")
+            part_widget = QLabel(
+                f"<div style='text-align:center;'>"
+                f"<span style='font-size:16px;font-weight:bold;color:{color};'>{value}</span><br/>"
+                f"<span style='font-size:10px;color:{PALETTE['muted']};'>{label}</span></div>"
+            )
+            part_widget.setStyleSheet("")
             part_widget.setAlignment(Qt.AlignmentFlag.AlignCenter)
             footer_layout.addWidget(part_widget)
         
@@ -710,7 +698,7 @@ class CalculationPage(QWidget):
         
         # Quality note
         note = QLabel("💡 <i>Error &lt; 5% indicates good data quality. Higher errors suggest measurement issues or missing data.</i>")
-        note.setStyleSheet("color: #6B7280; font-size: 11px; padding: 8px; background: transparent;")
+        note.setStyleSheet("")
         note.setWordWrap(True)
         main_layout.addWidget(note)
         
@@ -740,14 +728,7 @@ class CalculationPage(QWidget):
             QFrame: Styled card widget
         """
         card = QFrame()
-        card.setStyleSheet(f"""
-            QFrame {{
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 {bg_gradient[1]}, stop:1 {bg_gradient[2]});
-                border-radius: 12px;
-                border: 1px solid {accent_color}40;
-            }}
-        """)
+        card.setStyleSheet("")
         card.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         
         # Add shadow effect
@@ -764,32 +745,27 @@ class CalculationPage(QWidget):
         
         # Title
         title_label = QLabel(title)
-        title_label.setStyleSheet(f"""
-            font-size: 14px; 
-            font-weight: bold; 
-            color: {accent_color};
-            background: transparent;
-        """)
+        title_label.setStyleSheet("")
         layout.addWidget(title_label)
         
         # Subtitle
         sub_label = QLabel(subtitle)
-        sub_label.setStyleSheet("font-size: 10px; color: #6B7280; background: transparent;")
+        sub_label.setStyleSheet("")
         layout.addWidget(sub_label)
         
         # Divider
         divider = QFrame()
         divider.setFrameShape(QFrame.Shape.HLine)
-        divider.setStyleSheet(f"background-color: {accent_color}40; max-height: 1px;")
+        divider.setStyleSheet("")
         layout.addWidget(divider)
         
         # Items
         for name, value, color in items:
             item_row = QHBoxLayout()
             item_name = QLabel(name)
-            item_name.setStyleSheet(f"color: #374151; font-size: 11px; background: transparent;")
+            item_name.setStyleSheet("")
             item_value = QLabel(f"{value:,.0f} m³")
-            item_value.setStyleSheet(f"color: {color}; font-weight: bold; font-size: 11px; background: transparent;")
+            item_value.setStyleSheet("")
             item_value.setAlignment(Qt.AlignmentFlag.AlignRight)
             item_row.addWidget(item_name)
             item_row.addWidget(item_value)
@@ -798,19 +774,19 @@ class CalculationPage(QWidget):
         # Total divider
         divider2 = QFrame()
         divider2.setFrameShape(QFrame.Shape.HLine)
-        divider2.setStyleSheet(f"background-color: {accent_color}; max-height: 2px;")
+        divider2.setStyleSheet("")
         layout.addWidget(divider2)
         
         # Total row
         total_row = QHBoxLayout()
         total_name = QLabel(total_label)
-        total_name.setStyleSheet(f"color: {accent_color}; font-weight: bold; font-size: 12px; background: transparent;")
+        total_name.setStyleSheet("")
         
         if show_delta:
             total_val = QLabel(f"{total:+,.0f} m³")
         else:
             total_val = QLabel(f"{total:,.0f} m³")
-        total_val.setStyleSheet(f"color: {accent_color}; font-weight: bold; font-size: 14px; background: transparent;")
+        total_val.setStyleSheet("")
         total_val.setAlignment(Qt.AlignmentFlag.AlignRight)
         total_row.addWidget(total_name)
         total_row.addWidget(total_val)
@@ -841,14 +817,7 @@ class CalculationPage(QWidget):
             QFrame: Styled storage card widget with breakdown
         """
         card = QFrame()
-        card.setStyleSheet(f"""
-            QFrame {{
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 {bg_gradient[1]}, stop:1 {bg_gradient[2]});
-                border-radius: 12px;
-                border: 1px solid {accent_color}40;
-            }}
-        """)
+        card.setStyleSheet("")
         card.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         
         # Add shadow effect
@@ -865,32 +834,27 @@ class CalculationPage(QWidget):
         
         # Title
         title_label = QLabel(title)
-        title_label.setStyleSheet(f"""
-            font-size: 14px; 
-            font-weight: bold; 
-            color: {accent_color};
-            background: transparent;
-        """)
+        title_label.setStyleSheet("")
         layout.addWidget(title_label)
         
         # Subtitle
         sub_label = QLabel(subtitle)
-        sub_label.setStyleSheet("font-size: 10px; color: #6B7280; background: transparent;")
+        sub_label.setStyleSheet("")
         layout.addWidget(sub_label)
         
         # Divider
         divider = QFrame()
         divider.setFrameShape(QFrame.Shape.HLine)
-        divider.setStyleSheet(f"background-color: {accent_color}40; max-height: 1px;")
+        divider.setStyleSheet("")
         layout.addWidget(divider)
         
         # System totals (Opening/Closing)
         for name, value, color in items:
             item_row = QHBoxLayout()
             item_name = QLabel(name)
-            item_name.setStyleSheet(f"color: #374151; font-size: 11px; background: transparent;")
+            item_name.setStyleSheet("")
             item_value = QLabel(f"{value:,.0f} m³")
-            item_value.setStyleSheet(f"color: {color}; font-weight: bold; font-size: 11px; background: transparent;")
+            item_value.setStyleSheet("")
             item_value.setAlignment(Qt.AlignmentFlag.AlignRight)
             item_row.addWidget(item_name)
             item_row.addWidget(item_value)
@@ -899,17 +863,17 @@ class CalculationPage(QWidget):
         # Total divider
         divider2 = QFrame()
         divider2.setFrameShape(QFrame.Shape.HLine)
-        divider2.setStyleSheet(f"background-color: {accent_color}; max-height: 2px;")
+        divider2.setStyleSheet("")
         layout.addWidget(divider2)
         
         # Total (Delta) row with large value
         total_row = QHBoxLayout()
         total_name = QLabel(total_label)
-        total_name.setStyleSheet(f"color: {accent_color}; font-weight: bold; font-size: 12px; background: transparent;")
+        total_name.setStyleSheet("")
         
-        delta_color = "#10B981" if total >= 0 else "#EF4444"
+        delta_color = PALETTE["success"] if total >= 0 else PALETTE["danger"]
         total_val = QLabel(f"{total:+,.0f} m³")
-        total_val.setStyleSheet(f"color: {delta_color}; font-weight: bold; font-size: 14px; background: transparent;")
+        total_val.setStyleSheet("")
         total_val.setAlignment(Qt.AlignmentFlag.AlignRight)
         total_row.addWidget(total_name)
         total_row.addWidget(total_val)
@@ -920,12 +884,12 @@ class CalculationPage(QWidget):
             # Small divider before breakdown
             divider3 = QFrame()
             divider3.setFrameShape(QFrame.Shape.HLine)
-            divider3.setStyleSheet(f"background-color: {accent_color}30; max-height: 1px; margin-top: 4px;")
+            divider3.setStyleSheet("")
             layout.addWidget(divider3)
             
             # Breakdown header
             breakdown_header = QLabel("📊 By Facility:")
-            breakdown_header.setStyleSheet("font-size: 10px; color: #6B7280; font-style: italic; background: transparent; margin-top: 4px;")
+            breakdown_header.setStyleSheet("")
             layout.addWidget(breakdown_header)
             
             # Per-facility rows
@@ -935,11 +899,11 @@ class CalculationPage(QWidget):
                 
                 # Facility name with icon
                 fac_name = QLabel(f"  {fac['icon']} {fac['name']}")
-                fac_name.setStyleSheet("color: #4B5563; font-size: 10px; background: transparent;")
+                fac_name.setStyleSheet("")
                 
                 # Delta value with color
                 fac_delta = QLabel(f"{fac['delta']:+,.0f} m³")
-                fac_delta.setStyleSheet(f"color: {fac['color']}; font-weight: bold; font-size: 10px; background: transparent;")
+                fac_delta.setStyleSheet("")
                 fac_delta.setAlignment(Qt.AlignmentFlag.AlignRight)
                 
                 fac_row.addWidget(fac_name)
@@ -984,22 +948,24 @@ class CalculationPage(QWidget):
         
         # Determine status based on recycled %
         if recycled_pct >= 60:
-            status_color = "#10B981"  # Emerald green
             status_text = "EXCELLENT"
             status_emoji = "🌟"
+            theme = STATUS_THEMES["healthy"]
         elif recycled_pct >= 40:
-            status_color = "#F59E0B"  # Amber
             status_text = "GOOD"
             status_emoji = "✅"
+            theme = STATUS_THEMES["warning"]
         else:
-            status_color = "#EF4444"  # Red
             status_text = "NEEDS IMPROVEMENT"
             status_emoji = "⚠️"
+            theme = STATUS_THEMES["critical"]
+
+        status_color = theme["color"]
         
         # Create scrollable container
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
-        scroll.setStyleSheet("QScrollArea { border: none; background: #F8FAFC; }")
+        scroll.setStyleSheet("")
         
         container = QWidget()
         main_layout = QVBoxLayout(container)
@@ -1010,45 +976,31 @@ class CalculationPage(QWidget):
         # HERO HEADER - Big efficiency gauge (Compact -20%)
         # ═══════════════════════════════════════════════════════════════════
         header = QFrame()
-        header.setStyleSheet(f"""
-            QFrame {{
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                    stop:0 #065F46, stop:1 #10B981);
-                border-radius: 12px;
-                padding: 16px 20px;
-            }}
-        """)
+        header.setStyleSheet("")
         header_layout = QVBoxLayout(header)
         header_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header_layout.setSpacing(4)
         
         # Title
         title = QLabel(f"♻️ WATER RECYCLING EFFICIENCY")
-        title.setStyleSheet("color: white; font-size: 12px; font-weight: bold; letter-spacing: 1px; background: transparent;")
+        title.setStyleSheet("")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header_layout.addWidget(title)
         
         # Big percentage display (reduced from 48px to 38px)
         pct_display = QLabel(f"{recycled_pct:.1f}%")
-        pct_display.setStyleSheet("color: white; font-size: 38px; font-weight: bold; background: transparent;")
+        pct_display.setStyleSheet("")
         pct_display.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header_layout.addWidget(pct_display)
         
         # Status badge (compact)
         badge = QLabel(f"{status_emoji} {status_text}")
-        badge.setStyleSheet(f"""
-            color: #065F46;
-            background-color: rgba(255, 255, 255, 0.9);
-            padding: 4px 12px;
-            border-radius: 10px;
-            font-size: 11px;
-            font-weight: bold;
-        """)
+        badge.setStyleSheet("")
         badge.setAlignment(Qt.AlignmentFlag.AlignCenter)
         badge.setFixedWidth(160)
         
         badge_container = QWidget()
-        badge_container.setStyleSheet("background: transparent;")
+        badge_container.setStyleSheet("")
         badge_layout = QHBoxLayout(badge_container)
         badge_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         badge_layout.addWidget(badge)
@@ -1056,7 +1008,7 @@ class CalculationPage(QWidget):
         
         # Period subtitle (compact)
         period = QLabel(f"{result.period.period_label}")
-        period.setStyleSheet("color: rgba(255,255,255,0.8); font-size: 10px; background: transparent;")
+        period.setStyleSheet("")
         period.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header_layout.addWidget(period)
         
@@ -1075,8 +1027,8 @@ class CalculationPage(QWidget):
             value=f"{water_intensity:.3f}",
             unit="m³/tonne ore",
             subtitle="Lower is better",
-            color="#3B82F6",
-            bg_color="#EFF6FF"
+            color=PALETTE["accent"],
+            bg_color=PALETTE["surface"]
         )
         cards_row.addWidget(intensity_card)
         
@@ -1088,8 +1040,8 @@ class CalculationPage(QWidget):
             value=f"{total_consumption/1000:,.0f}",
             unit="thousand m³",
             subtitle="This period",
-            color="#8B5CF6",
-            bg_color="#F5F3FF"
+            color=PALETTE["info"],
+            bg_color=PALETTE["surface"]
         )
         cards_row.addWidget(consumption_card)
         
@@ -1101,8 +1053,8 @@ class CalculationPage(QWidget):
             value=f"{fresh_pct:.1f}",
             unit="% of total",
             subtitle="Target: < 40%",
-            color="#059669" if fresh_pct < 40 else "#F59E0B",
-            bg_color="#ECFDF5" if fresh_pct < 40 else "#FFFBEB"
+            color=PALETTE["success"] if fresh_pct < 40 else PALETTE["warning"],
+            bg_color=PALETTE["surface"]
         )
         cards_row.addWidget(ratio_card)
         
@@ -1114,18 +1066,12 @@ class CalculationPage(QWidget):
         # WATER SOURCE PIE CHART
         # ═══════════════════════════════════════════════════════════════════
         chart_frame = QFrame()
-        chart_frame.setStyleSheet("""
-            QFrame {
-                background: white;
-                border-radius: 12px;
-                border: 1px solid #E5E7EB;
-            }
-        """)
+        chart_frame.setStyleSheet("")
         chart_layout = QVBoxLayout(chart_frame)
         chart_layout.setContentsMargins(16, 16, 16, 16)
         
         chart_title = QLabel("📊 Water Source Breakdown")
-        chart_title.setStyleSheet("font-size: 14px; font-weight: bold; color: #1F2937; background: transparent;")
+        chart_title.setStyleSheet("")
         chart_layout.addWidget(chart_title)
         
         # Create pie chart
@@ -1135,14 +1081,14 @@ class CalculationPage(QWidget):
         
         # Style slices
         recycled_slice = series.slices()[0]
-        recycled_slice.setBrush(QColor("#10B981"))
+        recycled_slice.setBrush(QColor(PALETTE["success"]))
         recycled_slice.setLabelVisible(True)
         recycled_slice.setLabel(f"Recycled: {recycled_pct:.1f}%")
         recycled_slice.setExploded(True)
         recycled_slice.setExplodeDistanceFactor(0.05)
         
         fresh_slice = series.slices()[1]
-        fresh_slice.setBrush(QColor("#3B82F6"))
+        fresh_slice.setBrush(QColor(PALETTE["accent"]))
         fresh_slice.setLabelVisible(True)
         fresh_slice.setLabel(f"Fresh: {100-recycled_pct:.1f}%")
         
@@ -1157,7 +1103,7 @@ class CalculationPage(QWidget):
         chart_view = QChartView(chart)
         chart_view.setRenderHint(QPainter.RenderHint.Antialiasing)
         chart_view.setMinimumHeight(250)
-        chart_view.setStyleSheet("background: transparent;")
+        chart_view.setStyleSheet("")
         chart_layout.addWidget(chart_view)
         
         main_layout.addWidget(chart_frame)
@@ -1165,19 +1111,13 @@ class CalculationPage(QWidget):
         # ═══════════════════════════════════════════════════════════════════
         # INTERPRETATION FOOTER
         # ═══════════════════════════════════════════════════════════════════
-        footer = QLabel("""
+        footer = QLabel(f"""
         💡 <b>Performance Guide:</b><br/>
-        <span style="color:#10B981;">● > 60%</span> Excellent recycling | 
-        <span style="color:#F59E0B;">● 40-60%</span> Good, room for improvement | 
-        <span style="color:#EF4444;">● < 40%</span> Process optimization needed
+        <span style="color:{PALETTE['success']};">● > 60%</span> Excellent recycling | 
+        <span style="color:{PALETTE['warning']};">● 40-60%</span> Good, room for improvement | 
+        <span style="color:{PALETTE['danger']};">● < 40%</span> Process optimization needed
         """)
-        footer.setStyleSheet("""
-            color: #6B7280; 
-            font-size: 11px; 
-            padding: 12px 16px; 
-            background: #F9FAFB;
-            border-radius: 8px;
-        """)
+        footer.setStyleSheet("")
         footer.setWordWrap(True)
         main_layout.addWidget(footer)
         
@@ -1186,7 +1126,7 @@ class CalculationPage(QWidget):
         scroll.setWidget(container)
         tab.layout().addWidget(scroll)
     
-    def _create_metric_card(self, emoji: str, title: str, value: str, 
+    def _create_metric_card(self, emoji: str, title: str, value: str,
                             unit: str, subtitle: str, color: str, bg_color: str) -> QFrame:
         """Create a compact metric card for KPI display (UI HELPER).
         
@@ -1203,13 +1143,7 @@ class CalculationPage(QWidget):
             QFrame: Styled metric card widget
         """
         card = QFrame()
-        card.setStyleSheet(f"""
-            QFrame {{
-                background: {bg_color};
-                border-radius: 12px;
-                border: 1px solid {color}30;
-            }}
-        """)
+        card.setStyleSheet("")
         card.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         
         # Add shadow
@@ -1227,31 +1161,31 @@ class CalculationPage(QWidget):
         
         # Emoji
         emoji_label = QLabel(emoji)
-        emoji_label.setStyleSheet("font-size: 24px; background: transparent;")
+        emoji_label.setStyleSheet("")
         emoji_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(emoji_label)
         
         # Title
         title_label = QLabel(title)
-        title_label.setStyleSheet(f"font-size: 10px; color: #6B7280; font-weight: 500; background: transparent;")
+        title_label.setStyleSheet("")
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(title_label)
         
         # Value
         value_label = QLabel(value)
-        value_label.setStyleSheet(f"font-size: 28px; font-weight: bold; color: {color}; background: transparent;")
+        value_label.setStyleSheet("")
         value_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(value_label)
         
         # Unit
         unit_label = QLabel(unit)
-        unit_label.setStyleSheet("font-size: 10px; color: #9CA3AF; background: transparent;")
+        unit_label.setStyleSheet("")
         unit_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(unit_label)
         
         # Subtitle
         sub_label = QLabel(subtitle)
-        sub_label.setStyleSheet(f"font-size: 9px; color: {color}; background: transparent;")
+        sub_label.setStyleSheet("")
         sub_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(sub_label)
         
@@ -1313,24 +1247,26 @@ class CalculationPage(QWidget):
         if score >= 90:
             status_text = "EXCELLENT"
             status_emoji = "🌟"
-            header_gradient = ("stop:0 #065F46", "stop:1 #10B981")
+            theme = STATUS_THEMES["healthy"]
         elif score >= 70:
             status_text = "GOOD"
             status_emoji = "✅"
-            header_gradient = ("stop:0 #1E40AF", "stop:1 #3B82F6")
+            theme = STATUS_THEMES["moderate"]
         elif score >= 50:
             status_text = "FAIR"
             status_emoji = "⚠️"
-            header_gradient = ("stop:0 #B45309", "stop:1 #F59E0B")
+            theme = STATUS_THEMES["warning"]
         else:
             status_text = "POOR"
             status_emoji = "❌"
-            header_gradient = ("stop:0 #B91C1C", "stop:1 #EF4444")
+            theme = STATUS_THEMES["critical"]
+
+        header_gradient = theme["gradient"]
         
         # Create scrollable container
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
-        scroll.setStyleSheet("QScrollArea { border: none; background: #F8FAFC; }")
+        scroll.setStyleSheet("")
         
         container = QWidget()
         main_layout = QVBoxLayout(container)
@@ -1341,50 +1277,36 @@ class CalculationPage(QWidget):
         # HERO HEADER - Quality Score (Compact -20%)
         # ═══════════════════════════════════════════════════════════════════
         header = QFrame()
-        header.setStyleSheet(f"""
-            QFrame {{
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                    {header_gradient[0]}, {header_gradient[1]});
-                border-radius: 12px;
-                padding: 16px 20px;
-            }}
-        """)
+        header.setStyleSheet("")
         header_layout = QVBoxLayout(header)
         header_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header_layout.setSpacing(2)
         
         # Title
         title = QLabel(f"📋 DATA QUALITY ASSESSMENT")
-        title.setStyleSheet("color: white; font-size: 12px; font-weight: bold; letter-spacing: 1px; background: transparent;")
+        title.setStyleSheet("")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header_layout.addWidget(title)
         
         # Score display (reduced from 56px to 44px)
         score_display = QLabel(f"{score}")
-        score_display.setStyleSheet("color: white; font-size: 44px; font-weight: bold; background: transparent;")
+        score_display.setStyleSheet("")
         score_display.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header_layout.addWidget(score_display)
         
         score_label = QLabel("QUALITY SCORE")
-        score_label.setStyleSheet("color: rgba(255,255,255,0.8); font-size: 9px; letter-spacing: 1px; background: transparent;")
+        score_label.setStyleSheet("")
         score_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header_layout.addWidget(score_label)
         
         # Status badge (compact)
         badge = QLabel(f"{status_emoji} {status_text}")
-        badge.setStyleSheet(f"""
-            color: #1F2937;
-            background-color: rgba(255, 255, 255, 0.95);
-            padding: 4px 12px;
-            border-radius: 10px;
-            font-size: 11px;
-            font-weight: bold;
-        """)
+        badge.setStyleSheet("")
         badge.setAlignment(Qt.AlignmentFlag.AlignCenter)
         badge.setFixedWidth(130)
         
         badge_container = QWidget()
-        badge_container.setStyleSheet("background: transparent;")
+        badge_container.setStyleSheet("")
         badge_layout = QHBoxLayout(badge_container)
         badge_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         badge_layout.addWidget(badge)
@@ -1447,42 +1369,36 @@ class CalculationPage(QWidget):
         # ═══════════════════════════════════════════════════════════════════
         if missing_fields or estimated_fields or warnings:
             issues_frame = QFrame()
-            issues_frame.setStyleSheet("""
-                QFrame {
-                    background: white;
-                    border-radius: 12px;
-                    border: 1px solid #E5E7EB;
-                }
-            """)
+            issues_frame.setStyleSheet("")
             issues_layout = QVBoxLayout(issues_frame)
             issues_layout.setContentsMargins(16, 16, 16, 16)
             issues_layout.setSpacing(8)
             
             issues_title = QLabel("🔍 Issues Found")
-            issues_title.setStyleSheet("font-size: 14px; font-weight: bold; color: #1F2937; background: transparent;")
+            issues_title.setStyleSheet("")
             issues_layout.addWidget(issues_title)
             
             # Missing fields
             for field in missing_fields[:5]:
                 item = QLabel(f"  ❌ Missing: {field}")
-                item.setStyleSheet("color: #EF4444; font-size: 11px; background: transparent;")
+                item.setStyleSheet("")
                 issues_layout.addWidget(item)
             
             if len(missing_fields) > 5:
                 more = QLabel(f"  ... and {len(missing_fields) - 5} more missing fields")
-                more.setStyleSheet("color: #9CA3AF; font-size: 10px; font-style: italic; background: transparent;")
+                more.setStyleSheet("")
                 issues_layout.addWidget(more)
             
             # Estimated fields
             for field in estimated_fields[:3]:
                 item = QLabel(f"  ⚡ Estimated: {field}")
-                item.setStyleSheet("color: #F59E0B; font-size: 11px; background: transparent;")
+                item.setStyleSheet("")
                 issues_layout.addWidget(item)
             
             # Warnings
             for warning in warnings[:3]:
                 item = QLabel(f"  ⚠️ {warning}")
-                item.setStyleSheet("color: #6B7280; font-size: 11px; background: transparent;")
+                item.setStyleSheet("")
                 item.setWordWrap(True)
                 issues_layout.addWidget(item)
             
@@ -1490,19 +1406,13 @@ class CalculationPage(QWidget):
         else:
             # All good message
             good_frame = QFrame()
-            good_frame.setStyleSheet("""
-                QFrame {
-                    background: #ECFDF5;
-                    border-radius: 12px;
-                    border: 1px solid #10B981;
-                }
-            """)
+            good_frame.setStyleSheet("")
             good_layout = QVBoxLayout(good_frame)
             good_layout.setContentsMargins(20, 20, 20, 20)
             good_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
             
             good_label = QLabel("✅ All data quality checks passed!\nNo issues detected with the input data.")
-            good_label.setStyleSheet("color: #065F46; font-size: 14px; font-weight: bold; background: transparent;")
+            good_label.setStyleSheet("")
             good_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
             good_layout.addWidget(good_label)
             
@@ -1514,13 +1424,7 @@ class CalculationPage(QWidget):
         footer = QLabel("""
         💡 <b>Scoring:</b> -30 pts for missing data | -15 pts for estimates | -10 pts for simulations | -5 pts per warning
         """)
-        footer.setStyleSheet("""
-            color: #6B7280; 
-            font-size: 11px; 
-            padding: 12px 16px; 
-            background: #F9FAFB;
-            border-radius: 8px;
-        """)
+        footer.setStyleSheet("")
         footer.setWordWrap(True)
         main_layout.addWidget(footer)
         
@@ -1543,17 +1447,11 @@ class CalculationPage(QWidget):
         Returns:
             QFrame: Styled status card
         """
-        color = "#10B981" if is_good else "#EF4444"
-        bg_color = "#ECFDF5" if is_good else "#FEF2F2"
+        color = PALETTE["success"] if is_good else PALETTE["danger"]
+        bg_color = PALETTE["success_bg"] if is_good else PALETTE["danger_bg"]
         
         card = QFrame()
-        card.setStyleSheet(f"""
-            QFrame {{
-                background: {bg_color};
-                border-radius: 12px;
-                border: 1px solid {color}30;
-            }}
-        """)
+        card.setStyleSheet("")
         card.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         
         shadow = QGraphicsDropShadowEffect()
@@ -1570,26 +1468,26 @@ class CalculationPage(QWidget):
         
         # Icon
         icon_label = QLabel(icon)
-        icon_label.setStyleSheet("font-size: 20px; background: transparent;")
+        icon_label.setStyleSheet("")
         icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(icon_label)
         
         # Title
         title_label = QLabel(title)
-        title_label.setStyleSheet("font-size: 10px; color: #6B7280; background: transparent;")
+        title_label.setStyleSheet("")
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(title_label)
         
         # Status
         status_label = QLabel(status)
-        status_label.setStyleSheet(f"font-size: 18px; font-weight: bold; color: {color}; background: transparent;")
+        status_label.setStyleSheet("")
         status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(status_label)
         
         # Count (if applicable)
         if count > 0:
             count_label = QLabel(f"({count} items)")
-            count_label.setStyleSheet("font-size: 9px; color: #9CA3AF; background: transparent;")
+            count_label.setStyleSheet("")
             count_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
             layout.addWidget(count_label)
         
@@ -1630,7 +1528,7 @@ class CalculationPage(QWidget):
         except Exception as e:
             logger.error(f"Days of operation calculation failed: {e}")
             error_label = QLabel(f"❌ Error calculating runway: {e}")
-            error_label.setStyleSheet("color: #EF4444; padding: 20px; font-size: 14px;")
+            error_label.setStyleSheet("")
             tab.layout().addWidget(error_label)
             return
         
@@ -1652,30 +1550,29 @@ class CalculationPage(QWidget):
         days = combined_days
         
         if days >= 180:
-            status_color = "#10B981"  # Emerald
             status_text = "HEALTHY"
             status_emoji = "🟢"
-            header_gradient = ("stop:0 #065F46", "stop:1 #10B981")
+            theme = STATUS_THEMES["healthy"]
         elif days >= 90:
-            status_color = "#3B82F6"  # Blue
             status_text = "MODERATE"
             status_emoji = "🔵"
-            header_gradient = ("stop:0 #1E40AF", "stop:1 #3B82F6")
+            theme = STATUS_THEMES["moderate"]
         elif days >= 30:
-            status_color = "#F59E0B"  # Amber
             status_text = "WARNING"
             status_emoji = "🟡"
-            header_gradient = ("stop:0 #B45309", "stop:1 #F59E0B")
+            theme = STATUS_THEMES["warning"]
         else:
-            status_color = "#EF4444"  # Red
             status_text = "CRITICAL"
             status_emoji = "🔴"
-            header_gradient = ("stop:0 #B91C1C", "stop:1 #EF4444")
+            theme = STATUS_THEMES["critical"]
+
+        status_color = theme["color"]
+        header_gradient = theme["gradient"]
         
         # Create scrollable container
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
-        scroll.setStyleSheet("QScrollArea { border: none; background: #F8FAFC; }")
+        scroll.setStyleSheet("")
         
         container = QWidget()
         main_layout = QVBoxLayout(container)
@@ -1686,33 +1583,26 @@ class CalculationPage(QWidget):
         # HERO HEADER - System Runway (User-friendly display)
         # ═══════════════════════════════════════════════════════════════════
         header = QFrame()
-        header.setStyleSheet(f"""
-            QFrame {{
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                    {header_gradient[0]}, {header_gradient[1]});
-                border-radius: 12px;
-                padding: 12px 16px;
-            }}
-        """)
+        header.setStyleSheet("")
         header_layout = QVBoxLayout(header)
         header_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header_layout.setSpacing(2)
         
         # Title - simple and clear
         title = QLabel(f"💧 HOW LONG WILL OUR WATER LAST?")
-        title.setStyleSheet("color: white; font-size: 12px; font-weight: bold; letter-spacing: 1px; background: transparent;")
+        title.setStyleSheet("")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header_layout.addWidget(title)
         
         # Big days display
         days_display = QLabel(f"{days}")
-        days_display.setStyleSheet("color: white; font-size: 44px; font-weight: bold; background: transparent;")
+        days_display.setStyleSheet("")
         days_display.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header_layout.addWidget(days_display)
         
         # Plain English explanation
         days_label = QLabel("DAYS OF WATER REMAINING AT CURRENT USAGE")
-        days_label.setStyleSheet("color: rgba(255,255,255,0.9); font-size: 10px; letter-spacing: 0.5px; background: transparent;")
+        days_label.setStyleSheet("")
         days_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header_layout.addWidget(days_label)
         
@@ -1723,24 +1613,17 @@ class CalculationPage(QWidget):
         
         # Status badge
         badge = QLabel(f"{status_emoji} {status_text}")
-        badge.setStyleSheet(f"""
-            color: #1F2937;
-            background-color: rgba(255, 255, 255, 0.95);
-            padding: 4px 12px;
-            border-radius: 10px;
-            font-size: 11px;
-            font-weight: bold;
-        """)
+        badge.setStyleSheet("")
         status_row.addWidget(badge)
         
         # Show monthly usage for context instead of confusing secondary number
         monthly_usage = daily_consumption * 30
         usage_info = QLabel(f"📊 Using {monthly_usage/1000:,.0f}k m³/month")
-        usage_info.setStyleSheet("color: white; font-size: 10px; background: transparent;")
+        usage_info.setStyleSheet("")
         status_row.addWidget(usage_info)
         
         status_container = QWidget()
-        status_container.setStyleSheet("background: transparent;")
+        status_container.setStyleSheet("")
         status_container.setLayout(status_row)
         header_layout.addWidget(status_container)
         
@@ -1759,8 +1642,8 @@ class CalculationPage(QWidget):
             value=f"{runway.usable_storage_m3/1000:,.0f}",
             unit="thousand m³",
             subtitle=f"(We keep 10% as safety buffer)",
-            color="#3B82F6",
-            bg_color="#EFF6FF"
+            color=PALETTE["info"],
+            bg_color=PALETTE["surface"]
         )
         totals_row.addWidget(storage_card)
         
@@ -1771,8 +1654,8 @@ class CalculationPage(QWidget):
             value=f"{daily_consumption:,.0f}",
             unit="m³ per day",
             subtitle="How much we use daily",
-            color="#059669",
-            bg_color="#ECFDF5"
+            color=PALETTE["success"],
+            bg_color=PALETTE["surface"]
         )
         totals_row.addWidget(consumption_card)
         
@@ -1784,8 +1667,8 @@ class CalculationPage(QWidget):
             value=f"{env_losses/1000:,.1f}",
             unit="thousand m³/month",
             subtitle="Evaporation + ground seepage",
-            color="#F59E0B",
-            bg_color="#FFFBEB"
+            color=PALETTE["warning"],
+            bg_color=PALETTE["surface"]
         )
         totals_row.addWidget(env_card)
         
@@ -1796,8 +1679,8 @@ class CalculationPage(QWidget):
             value=f"{runway.recycled_water_m3/1000:,.1f}",
             unit="thousand m³/month",
             subtitle="Reused instead of wasted",
-            color="#10B981",
-            bg_color="#ECFDF5"
+            color=PALETTE["success"],
+            bg_color=PALETTE["surface"]
         )
         totals_row.addWidget(recycled_card)
         
@@ -1813,23 +1696,17 @@ class CalculationPage(QWidget):
         
         # Bar Chart - Runway by Facility
         bar_frame = QFrame()
-        bar_frame.setStyleSheet("""
-            QFrame {
-                background: white;
-                border-radius: 12px;
-                border: 1px solid #E5E7EB;
-            }
-        """)
+        bar_frame.setStyleSheet("")
         bar_layout = QVBoxLayout(bar_frame)
         bar_layout.setContentsMargins(16, 16, 16, 16)
         
         bar_title = QLabel("📊 Runway by Facility (Days)")
-        bar_title.setStyleSheet("font-size: 13px; font-weight: bold; color: #1F2937; background: transparent;")
+        bar_title.setStyleSheet("")
         bar_layout.addWidget(bar_title)
         
         # Create bar chart
         bar_set = QBarSet("Days Remaining")
-        bar_set.setColor(QColor("#3B82F6"))
+        bar_set.setColor(QColor(PALETTE["accent"]))
         categories = []
         
         for f in runway.facilities[:8]:  # Limit to 8 for readability
@@ -1862,30 +1739,33 @@ class CalculationPage(QWidget):
         bar_view = QChartView(bar_chart)
         bar_view.setRenderHint(QPainter.RenderHint.Antialiasing)
         bar_view.setMinimumHeight(200)
-        bar_view.setStyleSheet("background: transparent;")
+        bar_view.setStyleSheet("")
         bar_layout.addWidget(bar_view)
         
         charts_row.addWidget(bar_frame, stretch=3)
         
         # Pie Chart - Storage Distribution
         pie_frame = QFrame()
-        pie_frame.setStyleSheet("""
-            QFrame {
-                background: white;
-                border-radius: 12px;
-                border: 1px solid #E5E7EB;
-            }
-        """)
+        pie_frame.setStyleSheet("")
         pie_layout = QVBoxLayout(pie_frame)
         pie_layout.setContentsMargins(16, 16, 16, 16)
         
         pie_title = QLabel("🥧 Storage Distribution")
-        pie_title.setStyleSheet("font-size: 13px; font-weight: bold; color: #1F2937; background: transparent;")
+        pie_title.setStyleSheet("")
         pie_layout.addWidget(pie_title)
         
         # Create pie chart with percentage labels (on slices AND legend)
         pie_series = QPieSeries()
-        colors = ["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#EC4899", "#06B6D4", "#84CC16"]
+        colors = [
+            PALETTE["accent"],
+            PALETTE["info"],
+            PALETTE["success"],
+            PALETTE["warning"],
+            "#0ea5e9",
+            "#14b8a6",
+            "#64748b",
+            "#94a3b8",
+        ]
         
         # Calculate total for percentage
         total_volume = sum(f.current_volume_m3 for f in runway.facilities[:6])
@@ -1911,7 +1791,7 @@ class CalculationPage(QWidget):
         pie_view = QChartView(pie_chart)
         pie_view.setRenderHint(QPainter.RenderHint.Antialiasing)
         pie_view.setMinimumHeight(200)
-        pie_view.setStyleSheet("background: transparent;")
+        pie_view.setStyleSheet("")
         pie_layout.addWidget(pie_view)
         
         charts_row.addWidget(pie_frame, stretch=2)
@@ -1924,19 +1804,13 @@ class CalculationPage(QWidget):
         # FACILITY STATUS CARDS (Compact - 50% reduced)
         # ═══════════════════════════════════════════════════════════════════
         facilities_frame = QFrame()
-        facilities_frame.setStyleSheet("""
-            QFrame {
-                background: white;
-                border-radius: 10px;
-                border: 1px solid #E5E7EB;
-            }
-        """)
+        facilities_frame.setStyleSheet("")
         facilities_layout = QVBoxLayout(facilities_frame)
         facilities_layout.setContentsMargins(10, 8, 10, 8)
         facilities_layout.setSpacing(4)
         
         facilities_title = QLabel("🏭 Facility Status Details")
-        facilities_title.setStyleSheet("font-size: 11px; font-weight: bold; color: #1F2937; background: transparent;")
+        facilities_title.setStyleSheet("")
         facilities_layout.addWidget(facilities_title)
         
         # Facility grid - compact spacing (reduced 50%)
@@ -1947,27 +1821,17 @@ class CalculationPage(QWidget):
         for i, f in enumerate(runway.facilities[:12]):  # Max 12 facilities
             # Determine color based on days
             if f.days_remaining_conservative >= 180:
-                f_color = "#10B981"
-                f_bg = "#ECFDF5"
+                f_color = PALETTE["success"]
             elif f.days_remaining_conservative >= 90:
-                f_color = "#3B82F6"
-                f_bg = "#EFF6FF"
+                f_color = PALETTE["info"]
             elif f.days_remaining_conservative >= 30:
-                f_color = "#F59E0B"
-                f_bg = "#FFFBEB"
+                f_color = PALETTE["warning"]
             else:
-                f_color = "#EF4444"
-                f_bg = "#FEF2F2"
+                f_color = PALETTE["danger"]
+            f_bg = PALETTE["surface"]
             
             f_card = QFrame()
-            f_card.setStyleSheet(f"""
-                QFrame {{
-                    background: {f_bg};
-                    border-radius: 6px;
-                    border: 1px solid {f_color}40;
-                    min-height: 50px;
-                }}
-            """)
+            f_card.setStyleSheet("")
             f_card.setMinimumHeight(55)
             f_layout = QVBoxLayout(f_card)
             f_layout.setContentsMargins(6, 4, 6, 4)
@@ -1975,30 +1839,23 @@ class CalculationPage(QWidget):
             
             # Facility code (compact)
             code_label = QLabel(f.facility_code)
-            code_label.setStyleSheet(f"font-size: 9px; font-weight: bold; color: {f_color}; background: transparent;")
+            code_label.setStyleSheet("")
             f_layout.addWidget(code_label)
             
             # Days remaining (reduced from 20px to 13px)
             days_label = QLabel(f"{f.days_remaining_conservative}d")
-            days_label.setStyleSheet(f"font-size: 13px; font-weight: bold; color: #1F2937; background: transparent;")
+            days_label.setStyleSheet("")
             f_layout.addWidget(days_label)
             
             # Volume - single line compact
             vol_label = QLabel(f"{f.current_volume_m3/1000:,.0f}k ({f.utilization_pct:.0f}%)")
-            vol_label.setStyleSheet("font-size: 8px; color: #6B7280; background: transparent;")
+            vol_label.setStyleSheet("")
             f_layout.addWidget(vol_label)
             
             # Utilization bar (thinner)
             util_bar = QFrame()
             util_bar.setFixedHeight(3)
-            util_bar.setStyleSheet(f"""
-                QFrame {{
-                    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                        stop:0 {f_color}, stop:{f.utilization_pct/100} {f_color},
-                        stop:{f.utilization_pct/100 + 0.001} #E5E7EB, stop:1 #E5E7EB);
-                    border-radius: 3px;
-                }}
-            """)
+            util_bar.setStyleSheet("")
             f_layout.addWidget(util_bar)
             
             row = i // 4
@@ -2015,13 +1872,7 @@ class CalculationPage(QWidget):
         🌍 <b>Environmental Factors (Burgersfort Region):</b> 
         Evaporation 75-180 mm/month | Rainfall 5-110 mm/month | Min reserve: 10% capacity
         """)
-        footer.setStyleSheet("""
-            color: #6B7280; 
-            font-size: 11px; 
-            padding: 12px 16px; 
-            background: #F9FAFB;
-            border-radius: 8px;
-        """)
+        footer.setStyleSheet("")
         footer.setWordWrap(True)
         main_layout.addWidget(footer)
         
@@ -2029,4 +1880,6 @@ class CalculationPage(QWidget):
         
         scroll.setWidget(container)
         tab.layout().addWidget(scroll)
+
+
 

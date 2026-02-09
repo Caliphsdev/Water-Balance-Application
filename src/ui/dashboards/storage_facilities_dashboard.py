@@ -241,6 +241,8 @@ class StorageFacilitiesPage(QWidget):
             # Configure columns
             table_widget.horizontalHeader().setStretchLastSection(True)
             table_widget.horizontalHeader().setDefaultSectionSize(120)
+            table_widget.setAlternatingRowColors(True)
+            table_widget.setStyleSheet("")
             
             # Connect header clicks to sorting (automatic with proxy + model)
             # User clicks "Capacity" header → sort() method called → display refreshes
@@ -927,3 +929,4 @@ class StorageFacilitiesPage(QWidget):
                 parent=self,
             )
             dialog.exec()
+

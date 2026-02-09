@@ -102,6 +102,9 @@ class ExcelManager:
     # ---------------------------------------------------------------------
     # User-Configured Paths (Persistence)
     # ---------------------------------------------------------------------
+    def _has_meter_readings_path(self) -> bool:
+        return bool(self._config.get("data_sources.legacy_excel_path"))
+
     def set_meter_readings_path(self, new_path: str) -> None:
         """Persist user-selected Meter Readings Excel path.
 
@@ -136,6 +139,8 @@ class ExcelManager:
         Returns:
             Tuple of (exists, resolved_path).
         """
+        if not self._has_meter_readings_path():
+            return False, Path("")
         path = self.get_meter_readings_path()
         return path.exists(), path
 
@@ -195,6 +200,8 @@ class ExcelManager:
     # ---------------------------------------------------------------------
     def meter_readings_exists(self) -> bool:
         """Check if Meter Readings Excel exists on disk."""
+        if not self._has_meter_readings_path():
+            return False
         return self.get_meter_readings_path().exists()
 
     def flow_diagram_exists(self) -> bool:
@@ -231,6 +238,10 @@ class ExcelManager:
         Returns:
             DataFrame with normalized columns and Date column.
         """
+        if not self._has_meter_readings_path():
+            logger.warning("Meter Readings Excel path not configured")
+            return pd.DataFrame()
+
         cfg = MeterReadingsConfig(file_path=self.get_meter_readings_path())
         file_path = cfg.file_path
 

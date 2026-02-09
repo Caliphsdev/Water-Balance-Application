@@ -1,5 +1,5 @@
 #define AppName "Water Balance Dashboard"
-#define AppVersion "1.0.7"
+#define AppVersion "1.0.8"
 #define AppPublisher "Two Rivers Platinum"
 #define AppExeName "WaterBalanceDashboard.exe"
 #define AppId "{{B6D7890D-9D39-4F3D-9F4D-9C0C3F7A2D11}}"

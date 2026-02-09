@@ -15,6 +15,7 @@ from PySide6.QtWidgets import QWidget
 from PySide6.QtCore import Qt, Signal, QTimer
 from PySide6.QtGui import QGuiApplication, QFont
 from ui.dashboards.generated_ui_dashboard import Ui_Form
+from ui.theme import PALETTE
 from services.dashboard_service import get_dashboard_service
 
 logger = logging.getLogger(__name__)
@@ -86,7 +87,7 @@ class DashboardPage(QWidget):
         self.ui.value_recirculation.setText("--")
         self.ui.value_balance_error.setText("--")
         self.ui.value_status.setText("--")
-        self.ui.value_status.setStyleSheet("color: #64748b; font-weight: bold;")
+        self.ui.value_status.setStyleSheet("")
         if hasattr(self.ui, "label_balance_status"):
             self.ui.label_balance_status.setText("Balance Status | --")
     
@@ -168,13 +169,13 @@ class DashboardPage(QWidget):
                     card_layout.addWidget(inner_widget, 0, Qt.AlignmentFlag.AlignCenter)
         
         # Improve card appearance with subtle padding
-        card_css = """
-        QFrame {
-            border: 1px solid #D0D0D0;
+        card_css = f"""
+        QFrame {{
+            border: 1px solid {PALETTE['border']};
             border-radius: 6px;
-            background-color: #FAFAFA;
+            background-color: {PALETTE['surface_alt']};
             margin: 4px;
-        }
+        }}
         """
         
         # Apply improved styling to all cards
@@ -192,7 +193,7 @@ class DashboardPage(QWidget):
                     # Add margin if not already present
                     if current_style.endswith('}'):
                         new_style = current_style[:-1] + '\nmargin: 4px;\n}'
-                        card_widget.setStyleSheet(new_style)
+                        card_widget.setStyleSheet("")
 
     def _apply_dynamic_font_scaling(self) -> None:
         """Scale all dashboard fonts based on current window size (RESPONSIVE FONTS).
@@ -394,29 +395,29 @@ class DashboardPage(QWidget):
             if 'status' not in data:
                 if error_val < 5.0:
                     status_text = "Excellent"
-                    status_color = "#22AA22"  # Green
+                    status_color = PALETTE["success"]
                 elif error_val < 10.0:
                     status_text = "Good"
-                    status_color = "#F39C12"  # Orange
+                    status_color = PALETTE["warning"]
                 else:
                     status_text = "Warning"
-                    status_color = "#E74C3C"  # Red
+                    status_color = PALETTE["danger"]
                 
                 self.ui.value_status.setText(status_text)
                 # Color the status value with matching color
-                self.ui.value_status.setStyleSheet(f"color: {status_color}; font-weight: bold;")
+                self.ui.value_status.setStyleSheet("")
             else:
                 # Manual status override provided
                 self.ui.value_status.setText(data['status'])
                 # Determine color from status text
                 status_lower = data['status'].lower()
                 if 'excellent' in status_lower:
-                    status_color = "#22AA22"
+                    status_color = PALETTE["success"]
                 elif 'good' in status_lower:
-                    status_color = "#F39C12"
+                    status_color = PALETTE["warning"]
                 else:
-                    status_color = "#E74C3C"
-                self.ui.value_status.setStyleSheet(f"color: {status_color}; font-weight: bold;")
+                    status_color = PALETTE["danger"]
+                self.ui.value_status.setStyleSheet("")
     
     def _update_date_label(self, month: int, year: int):
         """Update the Balance Status date label (DYNAMIC DATE DISPLAY).
@@ -456,3 +457,4 @@ class DashboardPage(QWidget):
         
         # Signal parent to also refresh balance data from flow diagram
         self.refresh_requested.emit()
+

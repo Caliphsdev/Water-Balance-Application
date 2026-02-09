@@ -26,101 +26,7 @@ class Ui_Form(object):
         if not Form.objectName():
             Form.setObjectName(u"Form")
         Form.resize(1196, 800)
-        Form.setStyleSheet(u"QWidget#Form {\n"
-"    background-color: #F5F6F7;\n"
-"}\n"
-"\n"
-"QLabel#label_title {\n"
-"    font: bold 18pt;\n"
-"    color: rgb(44, 62, 80);\n"
-"}\n"
-"\n"
-"QLabel#label_subtitle {\n"
-"    font: 10pt;\n"
-"    color: rgb(127, 140, 141);\n"
-"}\n"
-"\n"
-"QLabel#label_status {\n"
-"    font: 9pt;\n"
-"    color: rgb(127, 140, 141);\n"
-"}\n"
-"\n"
-"QTabWidget::pane {\n"
-"    border: 1px solid #E0E0E0;\n"
-"    background-color: white;\n"
-"}\n"
-"\n"
-"QTabBar::tab {\n"
-"    background-color: rgb(214, 221, 232);\n"
-"    color: rgb(44, 62, 80);\n"
-"    padding: 8px 12px;\n"
-"    border-top-left-radius: 4px;\n"
-"    border-top-right-radius: 4px;\n"
-"    font: 9pt;\n"
-"}\n"
-"\n"
-"QTabBar::tab:selected {\n"
-"    background-color: rgb(52, 152, 219);\n"
-"    color: white;\n"
-"    font-weight: bold;\n"
-"}\n"
-"\n"
-"QTabBar::tab:hover {\n"
-"    background-color: rgb(93, 173, 226);\n"
-"}\n"
-"\n"
-"QPushButton#choose_folder_button, QPushButton#static_choose_folder, \n"
-"QPushButton#monitoring_choose_folder, QPushButton#pcd_choose_fol"
-                        "der,\n"
-"QPushButton#generate_button, QPushButton#static_generate, \n"
-"QPushButton#monitoring_generate, QPushButton#pcd_generate {\n"
-"    background-color: rgb(8, 201, 255);\n"
-"    color: white;\n"
-"    border: none;\n"
-"    border-radius: 4px;\n"
-"    font-weight: bold;\n"
-"    padding: 6px 12px;\n"
-"    min-height: 36px;\n"
-"    max-height: 36px;\n"
-"}\n"
-"\n"
-"QPushButton#choose_folder_button:hover, QPushButton#static_choose_folder:hover,\n"
-"QPushButton#monitoring_choose_folder:hover, QPushButton#pcd_choose_folder:hover,\n"
-"QPushButton#generate_button:hover, QPushButton#static_generate:hover,\n"
-"QPushButton#monitoring_generate:hover, QPushButton#pcd_generate:hover {\n"
-"    background-color: rgb(0, 175, 230);\n"
-"}\n"
-"\n"
-"QTableWidget {\n"
-"    background-color: white;\n"
-"    border: 1px solid #E0E0E0;\n"
-"    gridline-color: #E8E8E8;\n"
-"}\n"
-"\n"
-"QHeaderView::section {\n"
-"    background-color: rgb(197, 211, 230);\n"
-"    color: rgb(44, 62, 80);\n"
-"    font-weight: bold;\n"
-"    border: none;\n"
-""
-                        "    padding: 8px;\n"
-"}\n"
-"\n"
-"QLineEdit {\n"
-"    background-color: white;\n"
-"    border: 1px solid #E0E0E0;\n"
-"    border-radius: 4px;\n"
-"    padding: 6px;\n"
-"    font: 9pt;\n"
-"}\n"
-"\n"
-"QComboBox {\n"
-"    background-color: white;\n"
-"    border: 1px solid #E0E0E0;\n"
-"    border-radius: 4px;\n"
-"    padding: 4px;\n"
-"    font: 9pt;\n"
-"}")
+        Form.setStyleSheet("")
         self.verticalLayout = QVBoxLayout(Form)
         self.verticalLayout.setSpacing(6)
         self.verticalLayout.setObjectName(u"verticalLayout")
@@ -732,7 +638,7 @@ class Ui_Form(object):
         self.label_static_folder.setText(QCoreApplication.translate("Form", u"Folder with static borehole Excel files:", None))
         self.static_folder_path.setPlaceholderText(QCoreApplication.translate("Form", u"Choose a folder to auto-load and preview static Levels data", None))
         self.pushButton_6.setText(QCoreApplication.translate("Form", u"Choose Folder", None))
-        self.label_static_autoload.setStyleSheet(QCoreApplication.translate("Form", u"color: #666; font-size: 8pt; font-style: italic;", None))
+        self.label_static_autoload.setStyleSheet("")
         self.label_static_autoload.setText(QCoreApplication.translate("Form", u"Auto-loads: date + borehole headers (TRM x)", None))
         self.staticSubTabs.setTabText(self.staticSubTabs.indexOf(self.tab_static_upload), QCoreApplication.translate("Form", u"Upload & Preview", None))
         self.label_static_chart_type.setText(QCoreApplication.translate("Form", u"Chart Type:", None))
@@ -747,16 +653,16 @@ class Ui_Form(object):
         self.label_to_month.setText(QCoreApplication.translate("Form", u"Month:", None))
         self.pushButton_4.setText(QCoreApplication.translate("Form", u"Generate Chart", None))
         self.pushButton_5.setText(QCoreApplication.translate("Form", u"Save Chart", None))
-        self.static_chart_placeholder.setStyleSheet(QCoreApplication.translate("Form", u"color: rgb(153, 153, 153); font-size: 12pt;", None))
+        self.static_chart_placeholder.setStyleSheet("")
         self.static_chart_placeholder.setText(QCoreApplication.translate("Form", u"Load files then generate charts", None))
         self.staticSubTabs.setTabText(self.staticSubTabs.indexOf(self.tab_static_visualize), QCoreApplication.translate("Form", u"Visualize", None))
         self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.tab_borehole_static), QCoreApplication.translate("Form", u"\U0001f3d4\U0000fe0f Borehole Static Levels", None))
         self.label_monitoring_folder.setText(QCoreApplication.translate("Form", u"Folder with monitoring borehole Excel files:", None))
-        self.monitoring_status_label.setStyleSheet(QCoreApplication.translate("Form", u"color: #999; font: 10pt;", None))
+        self.monitoring_status_label.setStyleSheet("")
         self.monitoring_status_label.setText("")
         self.monitoring_folder_path.setPlaceholderText(QCoreApplication.translate("Form", u"Choose a folder to auto-load and preview monitoring data", None))
         self.pushButton_3.setText(QCoreApplication.translate("Form", u"Choose Folder", None))
-        self.label_monitoring_autoload.setStyleSheet(QCoreApplication.translate("Form", u"color: #666; font-size: 8pt; font-style: italic;", None))
+        self.label_monitoring_autoload.setStyleSheet("")
         self.label_monitoring_autoload.setText(QCoreApplication.translate("Form", u"Auto-loads: date + borehole + parameters", None))
         self.label_monitoring_aquifer.setText(QCoreApplication.translate("Form", u"Aquifer:", None))
         self.monitoring_aquifer_filter.setItemText(0, QCoreApplication.translate("Form", u"All", None))
@@ -777,14 +683,14 @@ class Ui_Form(object):
         self.date_monitoring_to.setDisplayFormat(QCoreApplication.translate("Form", u"yyyy-MM-dd", None))
         self.pushButton_2.setText(QCoreApplication.translate("Form", u"Generate Chart", None))
         self.pushButton.setText(QCoreApplication.translate("Form", u"Save Chart", None))
-        self.monitoring_chart_placeholder.setStyleSheet(QCoreApplication.translate("Form", u"color: rgb(153, 153, 153); font-size: 12pt;", None))
+        self.monitoring_chart_placeholder.setStyleSheet("")
         self.monitoring_chart_placeholder.setText(QCoreApplication.translate("Form", u"Load files then generate charts", None))
         self.monitoringSubTabs.setTabText(self.monitoringSubTabs.indexOf(self.tab_monitoring_visualize), QCoreApplication.translate("Form", u"Visualize", None))
         self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.tab_borehole_monitoring), QCoreApplication.translate("Form", u"\U0001f573\U0000fe0f Borehole Monitoring", None))
         self.label_pcd_folder.setText(QCoreApplication.translate("Form", u"Folder with PCD monitoring Excel files:", None))
         self.pcd_folder_path.setPlaceholderText(QCoreApplication.translate("Form", u"Choose a folder to auto-load and preview PCD monitoring data", None))
         self.pushButton_7.setText(QCoreApplication.translate("Form", u"Choose Folder", None))
-        self.label_pcd_autoload.setStyleSheet(QCoreApplication.translate("Form", u"color: #666; font-size: 8pt; font-style: italic;", None))
+        self.label_pcd_autoload.setStyleSheet("")
         self.label_pcd_autoload.setText(QCoreApplication.translate("Form", u"Auto-loads: date + monitoring point + parameters", None))
         self.label_pcd_point.setText(QCoreApplication.translate("Form", u"Monitoring Point:", None))
         self.pcd_point_filter.setItemText(0, QCoreApplication.translate("Form", u"All", None))
@@ -798,9 +704,11 @@ class Ui_Form(object):
         self.label_5.setText(QCoreApplication.translate("Form", u"Point:", None))
         self.pushButton_8.setText(QCoreApplication.translate("Form", u"Generate Chart", None))
         self.pushButton_9.setText(QCoreApplication.translate("Form", u"Save Chart", None))
-        self.pcd_chart_placeholder.setStyleSheet(QCoreApplication.translate("Form", u"color: rgb(153, 153, 153); font-size: 12pt;", None))
+        self.pcd_chart_placeholder.setStyleSheet("")
         self.pcd_chart_placeholder.setText(QCoreApplication.translate("Form", u"Load files then generate charts", None))
         self.pcdSubTabs.setTabText(self.pcdSubTabs.indexOf(self.tab_pcd_visualize), QCoreApplication.translate("Form", u"Visualize", None))
         self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.tab_pcd_monitoring), QCoreApplication.translate("Form", u"\U0001f3ed PCD Monitoring", None))
     # retranslateUi
+
+
 

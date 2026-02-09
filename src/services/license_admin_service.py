@@ -11,8 +11,11 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import os
+import mimetypes
 import threading
-from datetime import datetime, timezone
+import yaml
+from datetime import datetime, timezone, timedelta
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from core.config_manager import ConfigManager
@@ -45,6 +48,7 @@ class LicenseAdminService:
             service_key = (
                 os.environ.get("SUPABASE_SERVICE_KEY", "")
                 or self._config.get("supabase.service_key", "")
+                or self._read_admin_service_key()
             ).strip()
             if not url or not service_key:
                 raise SupabaseConnectionError(
@@ -52,6 +56,27 @@ class LicenseAdminService:
                     "Set supabase.service_key in config or SUPABASE_SERVICE_KEY env var."
                 )
             self._supabase = SupabaseClient(url=url, anon_key=service_key)
+
+    def _read_admin_service_key(self) -> str:
+        """Load admin service key from admin_config.yaml if present."""
+        candidates = []
+
+        user_dir = os.environ.get("WATERBALANCE_USER_DIR", "")
+        if user_dir:
+            candidates.append(Path(user_dir) / "config" / "admin_config.yaml")
+
+        candidates.append(Path(__file__).parent.parent.parent / "config" / "admin_config.yaml")
+
+        for path in candidates:
+            if not path.exists():
+                continue
+            try:
+                data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+                return (data.get("supabase", {}) or {}).get("service_key", "")
+            except Exception:
+                continue
+
+        return ""
 
     def list_licenses(self, limit: int = 500) -> List[Dict[str, Any]]:
         """Return latest licenses ordered by creation time (desc)."""
@@ -110,6 +135,52 @@ class LicenseAdminService:
         if not result:
             raise SupabaseAPIError("Failed to create notification")
         return result[0]
+
+    def upload_notification_asset(self, file_path: str) -> str:
+        """Upload an image asset for notifications and return public URL."""
+        self._ensure_supabase()
+        path = Path(file_path)
+        if not path.exists():
+            raise FileNotFoundError(f"Image not found: {file_path}")
+
+        bucket = os.environ.get("SUPABASE_STORAGE_BUCKET", "notification-assets")
+        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+        object_name = f"notifications/{timestamp}-{path.name}"
+        content_type, _ = mimetypes.guess_type(str(path))
+        content_type = content_type or "application/octet-stream"
+
+        data = path.read_bytes()
+        self._supabase.upload_storage_object(bucket, object_name, data, content_type)
+
+        return f"{self._supabase.url}/storage/v1/object/public/{bucket}/{object_name}"
+
+    def delete_notification_assets_older_than(self, days: int) -> int:
+        """Delete notification images older than the given number of days."""
+        self._ensure_supabase()
+        bucket = os.environ.get("SUPABASE_STORAGE_BUCKET", "notification-assets")
+        prefix = "notifications"
+
+        cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+        objects = self._supabase.list_storage_objects(bucket, prefix=prefix)
+        if not objects:
+            return 0
+
+        to_delete = []
+        for obj in objects:
+            created = obj.get("created_at")
+            if isinstance(created, str):
+                try:
+                    created = datetime.fromisoformat(created.replace("Z", "+00:00"))
+                except ValueError:
+                    created = None
+            if created and created < cutoff:
+                to_delete.append(obj.get("name"))
+
+        if not to_delete:
+            return 0
+
+        self._supabase.delete_storage_objects(bucket, to_delete)
+        return len(to_delete)
 
     def delete_notification(self, notification_id: str) -> None:
         """Delete a notification by id."""

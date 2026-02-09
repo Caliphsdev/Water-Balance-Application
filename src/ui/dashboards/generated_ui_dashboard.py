@@ -35,37 +35,7 @@ class Ui_Form(object):
         self.card_water_sources.setObjectName(u"card_water_sources")
         self.card_water_sources.setMinimumSize(QSize(180, 180))
         self.card_water_sources.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.card_water_sources.setStyleSheet(u"QFrame{\n"
-"	border: 2px solid #E0E0E0;\n"
-"	border-radius: 8px;\n"
-"	background-color: white;\n"
-"}\n"
-"\n"
-"QLabel#icon_water_sources{\n"
-"	border:none;\n"
-"}\n"
-"\n"
-"QLabel#value_water_sources{\n"
-"	color: rgb(13, 71, 161);\n"
-"	font-size: 28px;\n"
-"	font-weight: bold;\n"
-"	border:none;\n"
-"}\n"
-"\n"
-"QLabel#unit_water_sources{\n"
-"	color: rgb(102, 102, 102);\n"
-"	font-size: 12px;\n"
-"	border:none;\n"
-"}\n"
-"\n"
-"QLabel#title_water_sources{\n"
-"	color: rgb(51, 51, 51);\n"
-"	font-size: 14px;\n"
-"	font-weight: bold;\n"
-"	border:none;\n"
-"}\n"
-"\n"
-"")
+        self.card_water_sources.setStyleSheet("")
         self.card_water_sources.setFrameShape(QFrame.Shape.StyledPanel)
         self.card_water_sources.setFrameShadow(QFrame.Shadow.Raised)
         self.widget = QWidget(self.card_water_sources)
@@ -109,36 +79,7 @@ class Ui_Form(object):
         self.card_storage_facilities.setObjectName(u"card_storage_facilities")
         self.card_storage_facilities.setMinimumSize(QSize(180, 180))
         self.card_storage_facilities.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.card_storage_facilities.setStyleSheet(u"QFrame{\n"
-"	border: 2px solid #E0E0E0;\n"
-"	border-radius: 8px;\n"
-"	background-color: white;\n"
-"}\n"
-"\n"
-"QLabel#icon_storage_facilities{\n"
-"	border:none;\n"
-"}\n"
-"\n"
-"\n"
-"QLabel#value_storage_facilities{\n"
-"	color: rgb(13, 71, 161);\n"
-"	font-size: 28px;\n"
-"	font-weight: bold;\n"
-"	border:none;\n"
-"}\n"
-"\n"
-"QLabel#unit_storage_facilities{\n"
-"	color: rgb(102, 102, 102);\n"
-"	font-size: 12px;\n"
-"	border:none;\n"
-"}\n"
-"\n"
-"QLabel#title_storage_facilities{\n"
-"	color: rgb(51, 51, 51);\n"
-"	font-size: 14px;\n"
-"	font-weight: bold;\n"
-"	border:none;\n"
-"}")
+        self.card_storage_facilities.setStyleSheet("")
         self.card_storage_facilities.setFrameShape(QFrame.Shape.StyledPanel)
         self.card_storage_facilities.setFrameShadow(QFrame.Shadow.Raised)
         self.widget1 = QWidget(self.card_storage_facilities)
@@ -182,36 +123,7 @@ class Ui_Form(object):
         self.card_total_capacity.setObjectName(u"card_total_capacity")
         self.card_total_capacity.setMinimumSize(QSize(180, 180))
         self.card_total_capacity.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.card_total_capacity.setStyleSheet(u"\n"
-"QFrame{\n"
-"	border: 2px solid #E0E0E0;\n"
-"	border-radius: 8px;\n"
-"	background-color: white;\n"
-"}\n"
-"\n"
-"QLabel#icon_total_capacity{\n"
-"	border:none;\n"
-"}\n"
-"\n"
-"QLabel#value_total_capacity{\n"
-"	color: rgb(13, 71, 161);\n"
-"	font-size: 28px;\n"
-"	font-weight: bold;\n"
-"	border:none;\n"
-"}\n"
-"\n"
-"QLabel#unit_total_capacity{\n"
-"	color: rgb(102, 102, 102);\n"
-"	font-size: 12px;\n"
-"	border:none;\n"
-"}\n"
-"\n"
-"QLabel#title_total_capacity{\n"
-"	color: rgb(51, 51, 51);\n"
-"	font-size: 14px;\n"
-"	font-weight: bold;\n"
-"	border:none;\n"
-"}")
+        self.card_total_capacity.setStyleSheet("")
         self.card_total_capacity.setFrameShape(QFrame.Shape.StyledPanel)
         self.card_total_capacity.setFrameShadow(QFrame.Shadow.Raised)
         self.widget2 = QWidget(self.card_total_capacity)
@@ -255,37 +167,7 @@ class Ui_Form(object):
         self.card_current_volume.setObjectName(u"card_current_volume")
         self.card_current_volume.setMinimumSize(QSize(180, 180))
         self.card_current_volume.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.card_current_volume.setStyleSheet(u"\n"
-"QFrame{\n"
-"	border: 2px solid #E0E0E0;\n"
-"	border-radius: 8px;\n"
-"	background-color: white;\n"
-"}\n"
-"\n"
-"QLabel#icon_current_volume{\n"
-"	border:none;\n"
-"}\n"
-"\n"
-"\n"
-"QLabel#value_current_volume{\n"
-"	color: rgb(13, 71, 161);\n"
-"	font-size: 28px;\n"
-"	font-weight: bold;\n"
-"	border:none;\n"
-"}\n"
-"\n"
-"QLabel#unit_current_volume{\n"
-"	color: rgb(102, 102, 102);\n"
-"	font-size: 12px;\n"
-"	border:none;\n"
-"}\n"
-"\n"
-"QLabel#title_current_volume{\n"
-"	color: rgb(51, 51, 51);\n"
-"	font-size: 14px;\n"
-"	font-weight: bold;\n"
-"	border:none;\n"
-"}")
+        self.card_current_volume.setStyleSheet("")
         self.card_current_volume.setFrameShape(QFrame.Shape.StyledPanel)
         self.card_current_volume.setFrameShadow(QFrame.Shadow.Raised)
         self.widget3 = QWidget(self.card_current_volume)
@@ -329,37 +211,7 @@ class Ui_Form(object):
         self.card_utilization.setObjectName(u"card_utilization")
         self.card_utilization.setMinimumSize(QSize(180, 180))
         self.card_utilization.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.card_utilization.setStyleSheet(u"\n"
-"QFrame{\n"
-"	border: 2px solid #E0E0E0;\n"
-"	border-radius: 8px;\n"
-"	background-color: white;\n"
-"}\n"
-"\n"
-"QLabel#icon_utilization{\n"
-"	border:none;\n"
-"}\n"
-"\n"
-"\n"
-"QLabel#value_utilization{\n"
-"	color: rgb(255, 87, 34);\n"
-"	font-size: 28px;\n"
-"	font-weight: bold;\n"
-"	border:none;\n"
-"}\n"
-"\n"
-"QLabel#unit_utilization{\n"
-"	color: rgb(102, 102, 102);\n"
-"	font-size: 12px;\n"
-"	border:none;\n"
-"}\n"
-"\n"
-"QLabel#title_utilization{\n"
-"	color: rgb(51, 51, 51);\n"
-"	font-size: 14px;\n"
-"	font-weight: bold;\n"
-"	border:none;\n"
-"}")
+        self.card_utilization.setStyleSheet("")
         self.card_utilization.setFrameShape(QFrame.Shape.StyledPanel)
         self.card_utilization.setFrameShadow(QFrame.Shadow.Raised)
         self.widget4 = QWidget(self.card_utilization)
@@ -404,11 +256,7 @@ class Ui_Form(object):
 
         self.label_environmental_kpis = QLabel(Form)
         self.label_environmental_kpis.setObjectName(u"label_environmental_kpis")
-        self.label_environmental_kpis.setStyleSheet(u"QLabel{\n"
-"	font: 16px;\n"
-"	Font-weight: Bold;\n"
-"	color: Dark blue;\n"
-"}")
+        self.label_environmental_kpis.setStyleSheet("")
 
         self.verticalLayout.addWidget(self.label_environmental_kpis)
 
@@ -419,36 +267,7 @@ class Ui_Form(object):
         self.card_evapouration.setObjectName(u"card_evapouration")
         self.card_evapouration.setMinimumSize(QSize(280, 180))
         self.card_evapouration.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.card_evapouration.setStyleSheet(u"QFrame{\n"
-"	border: 2px solid #E0E0E0;\n"
-"	border-radius: 8px;\n"
-"	background-color: white;\n"
-"}\n"
-"\n"
-"QLabel#icon_rainfall{\n"
-"	border:none;\n"
-"}\n"
-"\n"
-"\n"
-"QLabel#value_rainfall{\n"
-"	color: rgb(13, 71, 161);\n"
-"	font-size: 28px;\n"
-"	font-weight: bold;\n"
-"	border:none;\n"
-"}\n"
-"\n"
-"QLabel#unit_rainfall{\n"
-"	color: rgb(102, 102, 102);\n"
-"	font-size: 12px;\n"
-"	border:none;\n"
-"}\n"
-"\n"
-"QLabel#title_rainfall{\n"
-"	color: rgb(51, 51, 51);\n"
-"	font-size: 14px;\n"
-"	font-weight: bold;\n"
-"	border:none;\n"
-"}")
+        self.card_evapouration.setStyleSheet("")
         self.card_evapouration.setFrameShape(QFrame.Shape.StyledPanel)
         self.card_evapouration.setFrameShadow(QFrame.Shadow.Raised)
         self.widget5 = QWidget(self.card_evapouration)
@@ -493,35 +312,7 @@ class Ui_Form(object):
         self.card_rainfall.setObjectName(u"card_rainfall")
         self.card_rainfall.setMinimumSize(QSize(280, 180))
         self.card_rainfall.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.card_rainfall.setStyleSheet(u"QFrame{\n"
-"	border: 2px solid #E0E0E0;\n"
-"	border-radius: 8px;\n"
-"	background-color: white;\n"
-"}\n"
-"\n"
-"QLabel#icon_evaporation{\n"
-"	border:none;\n"
-"}\n"
-"\n"
-"QLabel#value_evaporation{\n"
-"	color: rgb(13, 71, 161);\n"
-"	font-size: 28px;\n"
-"	font-weight: bold;\n"
-"	border:none;\n"
-"}\n"
-"\n"
-"QLabel#unit_evaporation{\n"
-"	color: rgb(102, 102, 102);\n"
-"	font-size: 12px;\n"
-"	border:none;\n"
-"}\n"
-"\n"
-"QLabel#title_evaporation{\n"
-"	color: rgb(51, 51, 51);\n"
-"	font-size: 14px;\n"
-"	font-weight: bold;\n"
-"	border:none;\n"
-"}")
+        self.card_rainfall.setStyleSheet("")
         self.card_rainfall.setFrameShape(QFrame.Shape.StyledPanel)
         self.card_rainfall.setFrameShadow(QFrame.Shadow.Raised)
         self.widget6 = QWidget(self.card_rainfall)
@@ -567,11 +358,7 @@ class Ui_Form(object):
 
         self.label_balance_status = QLabel(Form)
         self.label_balance_status.setObjectName(u"label_balance_status")
-        self.label_balance_status.setStyleSheet(u"QLabel#label_balance_status{\n"
-"	font: 16px;\n"
-"	font-weight:bold;\n"
-"	color:rgb(13, 71, 161);\n"
-"}")
+        self.label_balance_status.setStyleSheet("")
 
         self.verticalLayout.addWidget(self.label_balance_status)
 
@@ -582,35 +369,7 @@ class Ui_Form(object):
         self.card_total_inflows.setObjectName(u"card_total_inflows")
         self.card_total_inflows.setMinimumSize(QSize(180, 180))
         self.card_total_inflows.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.card_total_inflows.setStyleSheet(u"QFrame{\n"
-"	border: 2px solid #E0E0E0;\n"
-"	border-radius: 8px;\n"
-"	background-color: white;\n"
-"}\n"
-"\n"
-"QLabel#icon_total_inflows{\n"
-"	border:none;\n"
-"}\n"
-"\n"
-"QLabel#value_total_inflows{\n"
-"	color: rgb(13, 71, 161);\n"
-"	font-size: 28px;\n"
-"	font-weight: bold;\n"
-"	border:none;\n"
-"}\n"
-"\n"
-"QLabel#unit_total_inflows{\n"
-"	color: rgb(102, 102, 102);\n"
-"	font-size: 12px;\n"
-"	border:none;\n"
-"}\n"
-"\n"
-"QLabel#title_total_inflows{\n"
-"	color: rgb(51, 51, 51);\n"
-"	font-size: 14px;\n"
-"	font-weight: bold;\n"
-"	border:none;\n"
-"}")
+        self.card_total_inflows.setStyleSheet("")
         self.card_total_inflows.setFrameShape(QFrame.Shape.StyledPanel)
         self.card_total_inflows.setFrameShadow(QFrame.Shadow.Raised)
         self.widget7 = QWidget(self.card_total_inflows)
@@ -654,35 +413,7 @@ class Ui_Form(object):
         self.card_total_outflows.setObjectName(u"card_total_outflows")
         self.card_total_outflows.setMinimumSize(QSize(180, 180))
         self.card_total_outflows.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.card_total_outflows.setStyleSheet(u"QFrame{\n"
-"	border: 2px solid #E0E0E0;\n"
-"	border-radius: 8px;\n"
-"	background-color: white;\n"
-"}\n"
-"\n"
-"QLabel#icon_total_outflows{\n"
-"	border:none;\n"
-"}\n"
-"\n"
-"QLabel#value_total_outflows{\n"
-"	color: rgb(13, 71, 161);\n"
-"	font-size: 28px;\n"
-"	font-weight: bold;\n"
-"	border:none;\n"
-"}\n"
-"\n"
-"QLabel#unit_total_outflows{\n"
-"	color: rgb(102, 102, 102);\n"
-"	font-size: 12px;\n"
-"	border:none;\n"
-"}\n"
-"\n"
-"QLabel#title_total_outflows{\n"
-"	color: rgb(51, 51, 51);\n"
-"	font-size: 14px;\n"
-"	font-weight: bold;\n"
-"	border:none;\n"
-"}")
+        self.card_total_outflows.setStyleSheet("")
         self.card_total_outflows.setFrameShape(QFrame.Shape.StyledPanel)
         self.card_total_outflows.setFrameShadow(QFrame.Shadow.Raised)
         self.widget8 = QWidget(self.card_total_outflows)
@@ -726,35 +457,7 @@ class Ui_Form(object):
         self.card_recirculation.setObjectName(u"card_recirculation")
         self.card_recirculation.setMinimumSize(QSize(180, 180))
         self.card_recirculation.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.card_recirculation.setStyleSheet(u"QFrame{\n"
-"	border: 2px solid #E0E0E0;\n"
-"	border-radius: 8px;\n"
-"	background-color: white;\n"
-"}\n"
-"\n"
-"QLabel#icon_recirculation{\n"
-"	border:none;\n"
-"}\n"
-"\n"
-"QLabel#value_recirculation{\n"
-"	color: rgb(13, 71, 161);\n"
-"	font-size: 28px;\n"
-"	font-weight: bold;\n"
-"	border:none;\n"
-"}\n"
-"\n"
-"QLabel#unit_recirculation{\n"
-"	color: rgb(102, 102, 102);\n"
-"	font-size: 12px;\n"
-"	border:none;\n"
-"}\n"
-"\n"
-"QLabel#title_recirculation{\n"
-"	color: rgb(51, 51, 51);\n"
-"	font-size: 14px;\n"
-"	font-weight: bold;\n"
-"	border:none;\n"
-"}")
+        self.card_recirculation.setStyleSheet("")
         self.card_recirculation.setFrameShape(QFrame.Shape.StyledPanel)
         self.card_recirculation.setFrameShadow(QFrame.Shadow.Raised)
         self.widget9 = QWidget(self.card_recirculation)
@@ -798,35 +501,7 @@ class Ui_Form(object):
         self.card_balance_error.setObjectName(u"card_balance_error")
         self.card_balance_error.setMinimumSize(QSize(180, 180))
         self.card_balance_error.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.card_balance_error.setStyleSheet(u"QFrame{\n"
-"	border: 2px solid #E0E0E0;\n"
-"	border-radius: 8px;\n"
-"	background-color: white;\n"
-"}\n"
-"\n"
-"QLabel#icon_balance_error{\n"
-"	border:none;\n"
-"}\n"
-"\n"
-"QLabel#value_balance_error{\n"
-"	color: rgb(13, 71, 161);\n"
-"	font-size: 28px;\n"
-"	font-weight: bold;\n"
-"	border:none;\n"
-"}\n"
-"\n"
-"QLabel#unit_balance_error{\n"
-"	color: rgb(102, 102, 102);\n"
-"	font-size: 12px;\n"
-"	border:none;\n"
-"}\n"
-"\n"
-"QLabel#title_balance_error{\n"
-"	color: rgb(51, 51, 51);\n"
-"	font-size: 14px;\n"
-"	font-weight: bold;\n"
-"	border:none;\n"
-"}")
+        self.card_balance_error.setStyleSheet("")
         self.card_balance_error.setFrameShape(QFrame.Shape.StyledPanel)
         self.card_balance_error.setFrameShadow(QFrame.Shadow.Raised)
         self.widget10 = QWidget(self.card_balance_error)
@@ -870,35 +545,7 @@ class Ui_Form(object):
         self.card_status.setObjectName(u"card_status")
         self.card_status.setMinimumSize(QSize(180, 180))
         self.card_status.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.card_status.setStyleSheet(u"QFrame{\n"
-"	border: 2px solid #E0E0E0;\n"
-"	border-radius: 8px;\n"
-"	background-color: white;\n"
-"}\n"
-"\n"
-"QLabel#icon_status{\n"
-"	border:none;\n"
-"}\n"
-"\n"
-"QLabel#value_status{\n"
-"	color: green;\n"
-"	font-size: 16px;\n"
-"	font-weight: bold;\n"
-"	border:none;\n"
-"}\n"
-"\n"
-"QLabel#unit_status{\n"
-"	color: rgb(102, 102, 102);\n"
-"	font-size: 12px;\n"
-"	border:none;\n"
-"}\n"
-"\n"
-"QLabel#title_status{\n"
-"	color: rgb(51, 51, 51);\n"
-"	font-size: 14px;\n"
-"	font-weight: bold;\n"
-"	border:none;\n"
-"}")
+        self.card_status.setStyleSheet("")
         self.card_status.setFrameShape(QFrame.Shape.StyledPanel)
         self.card_status.setFrameShadow(QFrame.Shadow.Raised)
         self.widget11 = QWidget(self.card_status)
@@ -1000,4 +647,6 @@ class Ui_Form(object):
         self.unit_status.setText(QCoreApplication.translate("Form", u"Results", None))
         self.title_status.setText(QCoreApplication.translate("Form", u"Status", None))
     # retranslateUi
+
+
 

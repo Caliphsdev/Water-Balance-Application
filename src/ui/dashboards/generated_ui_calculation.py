@@ -287,3 +287,5 @@ class Ui_Form(object):
         self.label_3.setText(QCoreApplication.translate("Form", u"Calculate water balance using TRP formulas", None))
     # retranslateUi
 
+
+

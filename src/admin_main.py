@@ -71,7 +71,7 @@ def main() -> None:
     app.setOrganizationName("Two Rivers Platinum")
 
     window = LicenseManagerWindow()
-    window.show()
+    window.showMaximized()
 
     sys.exit(app.exec())
 

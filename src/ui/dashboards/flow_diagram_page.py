@@ -55,6 +55,7 @@ from services.excel_manager import get_excel_manager
 from services.recirculation_loader import get_recirculation_loader
 from core.app_logger import logger as app_logger
 from core.config_manager import get_resource_path
+from ui.theme import PALETTE
 
 # Flow Diagram dashboard-specific logger (logs/flow_diagram/ folder)
 logger = app_logger.get_dashboard_logger('flow_diagram')
@@ -1181,9 +1182,7 @@ class FlowDiagramPage(QWidget):
         if self.drawing_mode:
             # Enter drawing mode
             # GREEN button with clear visual indication
-            self.ui.Draw_button.setStyleSheet(
-                "background-color: #4CAF50; color: white; font-weight: bold; border: 3px solid #2E7D32;"
-            )
+            self.ui.Draw_button.setStyleSheet("")
             self.drawing_from_id = None
             self.drawing_segments = []
             
@@ -2592,11 +2591,11 @@ class FlowDiagramPage(QWidget):
             
             # Color code balance error
             if balance_error_pct < 5:
-                self.ui.balance_check_value.setStyleSheet("color: #22AA22; font-weight: bold;")  # Green
+                self.ui.balance_check_value.setStyleSheet("")
             elif balance_error_pct < 10:
-                self.ui.balance_check_value.setStyleSheet("color: #F39C12; font-weight: bold;")  # Orange
+                self.ui.balance_check_value.setStyleSheet("")
             else:
-                self.ui.balance_check_value.setStyleSheet("color: #E74C3C; font-weight: bold;")  # Red
+                self.ui.balance_check_value.setStyleSheet("")
             
             logger.debug(f"Balance check labels updated: Inflows={inflows:.0f}, Recirculation={recirculation:.0f}, Outflows={outflows:.0f}, Error={balance_error_pct:.1f}%")
             
@@ -2948,4 +2947,5 @@ class FlowDiagramPage(QWidget):
                 "Error",
                 f"An error occurred while opening Excel Setup:\n{e}"
             )
+
 

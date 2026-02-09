@@ -15884,3 +15884,157 @@
 2026-02-09 11:45:06 | WARNING  | _load_and_display_recirculation:664 | Configured components: ['NDCD 1-2 / NDSWD 1', 'STOCKPILE AREA', 'SPCD 1', 'MDCD 1-4\n(Group)', 'MDCD 5-6\n(Group)', 'OLD TAILINGS\nSTORAGE FACILITY', 'TRTD 1-2(RWDs)', 'NEW TAILINGS\nSTORAGE FACILITY', 'NT RWD 1&2', 'UG2PCD 1', 'MPSWD 1-2']
 2026-02-09 11:45:06 | WARNING  | _load_and_display_recirculation:665 | Check that Excel sheets and columns are populated with data for 2025/12
 2026-02-09 11:45:06 | INFO     | __init__:155 | Flow Diagram Page initialized
+2026-02-09 11:56:41 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-09 11:56:43 | INFO     | load_diagram:385 | Loaded diagram for UG2N
+2026-02-09 11:56:43 | INFO     | _render_diagram:577 | Rendered diagram: 126 nodes, 116 edges
+2026-02-09 11:56:43 | INFO     | _load_and_display_recirculation:646 | Found 11 recirculation configs to load
+2026-02-09 11:56:43 | WARNING  | _load_and_display_recirculation:663 | No recirculation volumes found for UG2N in Excel
+2026-02-09 11:56:43 | WARNING  | _load_and_display_recirculation:664 | Configured components: ['NDCD 1-2 / NDSWD 1', 'STOCKPILE AREA', 'SPCD 1', 'MDCD 1-4\n(Group)', 'MDCD 5-6\n(Group)', 'OLD TAILINGS\nSTORAGE FACILITY', 'TRTD 1-2(RWDs)', 'NEW TAILINGS\nSTORAGE FACILITY', 'NT RWD 1&2', 'UG2PCD 1', 'MPSWD 1-2']
+2026-02-09 11:56:43 | WARNING  | _load_and_display_recirculation:665 | Check that Excel sheets and columns are populated with data for 2025/12
+2026-02-09 11:56:43 | INFO     | __init__:155 | Flow Diagram Page initialized
+2026-02-09 12:02:05 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-09 12:02:08 | INFO     | load_diagram:385 | Loaded diagram for UG2N
+2026-02-09 12:02:08 | INFO     | _render_diagram:577 | Rendered diagram: 126 nodes, 116 edges
+2026-02-09 12:02:08 | INFO     | _load_and_display_recirculation:646 | Found 11 recirculation configs to load
+2026-02-09 12:02:08 | WARNING  | _load_and_display_recirculation:663 | No recirculation volumes found for UG2N in Excel
+2026-02-09 12:02:08 | WARNING  | _load_and_display_recirculation:664 | Configured components: ['NDCD 1-2 / NDSWD 1', 'STOCKPILE AREA', 'SPCD 1', 'MDCD 1-4\n(Group)', 'MDCD 5-6\n(Group)', 'OLD TAILINGS\nSTORAGE FACILITY', 'TRTD 1-2(RWDs)', 'NEW TAILINGS\nSTORAGE FACILITY', 'NT RWD 1&2', 'UG2PCD 1', 'MPSWD 1-2']
+2026-02-09 12:02:08 | WARNING  | _load_and_display_recirculation:665 | Check that Excel sheets and columns are populated with data for 2025/12
+2026-02-09 12:02:08 | INFO     | __init__:155 | Flow Diagram Page initialized
+2026-02-09 12:06:12 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-09 12:06:15 | INFO     | load_diagram:385 | Loaded diagram for UG2N
+2026-02-09 12:06:15 | INFO     | _render_diagram:577 | Rendered diagram: 126 nodes, 116 edges
+2026-02-09 12:06:15 | INFO     | _load_and_display_recirculation:646 | Found 11 recirculation configs to load
+2026-02-09 12:06:15 | WARNING  | _load_and_display_recirculation:663 | No recirculation volumes found for UG2N in Excel
+2026-02-09 12:06:15 | WARNING  | _load_and_display_recirculation:664 | Configured components: ['NDCD 1-2 / NDSWD 1', 'STOCKPILE AREA', 'SPCD 1', 'MDCD 1-4\n(Group)', 'MDCD 5-6\n(Group)', 'OLD TAILINGS\nSTORAGE FACILITY', 'TRTD 1-2(RWDs)', 'NEW TAILINGS\nSTORAGE FACILITY', 'NT RWD 1&2', 'UG2PCD 1', 'MPSWD 1-2']
+2026-02-09 12:06:15 | WARNING  | _load_and_display_recirculation:665 | Check that Excel sheets and columns are populated with data for 2025/12
+2026-02-09 12:06:15 | INFO     | __init__:155 | Flow Diagram Page initialized
+2026-02-09 12:09:17 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-09 12:09:30 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-09 12:12:43 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-09 12:12:46 | INFO     | load_diagram:385 | Loaded diagram for UG2N
+2026-02-09 12:12:46 | INFO     | _render_diagram:577 | Rendered diagram: 126 nodes, 116 edges
+2026-02-09 12:12:46 | INFO     | _load_and_display_recirculation:646 | Found 11 recirculation configs to load
+2026-02-09 12:12:46 | WARNING  | _load_and_display_recirculation:663 | No recirculation volumes found for UG2N in Excel
+2026-02-09 12:12:46 | WARNING  | _load_and_display_recirculation:664 | Configured components: ['NDCD 1-2 / NDSWD 1', 'STOCKPILE AREA', 'SPCD 1', 'MDCD 1-4\n(Group)', 'MDCD 5-6\n(Group)', 'OLD TAILINGS\nSTORAGE FACILITY', 'TRTD 1-2(RWDs)', 'NEW TAILINGS\nSTORAGE FACILITY', 'NT RWD 1&2', 'UG2PCD 1', 'MPSWD 1-2']
+2026-02-09 12:12:46 | WARNING  | _load_and_display_recirculation:665 | Check that Excel sheets and columns are populated with data for 2025/12
+2026-02-09 12:12:46 | INFO     | __init__:155 | Flow Diagram Page initialized
+2026-02-09 12:13:46 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-09 12:13:48 | INFO     | load_diagram:385 | Loaded diagram for UG2N
+2026-02-09 12:13:48 | INFO     | _render_diagram:577 | Rendered diagram: 126 nodes, 116 edges
+2026-02-09 12:13:48 | INFO     | _load_and_display_recirculation:646 | Found 11 recirculation configs to load
+2026-02-09 12:13:48 | WARNING  | _load_and_display_recirculation:663 | No recirculation volumes found for UG2N in Excel
+2026-02-09 12:13:48 | WARNING  | _load_and_display_recirculation:664 | Configured components: ['NDCD 1-2 / NDSWD 1', 'STOCKPILE AREA', 'SPCD 1', 'MDCD 1-4\n(Group)', 'MDCD 5-6\n(Group)', 'OLD TAILINGS\nSTORAGE FACILITY', 'TRTD 1-2(RWDs)', 'NEW TAILINGS\nSTORAGE FACILITY', 'NT RWD 1&2', 'UG2PCD 1', 'MPSWD 1-2']
+2026-02-09 12:13:48 | WARNING  | _load_and_display_recirculation:665 | Check that Excel sheets and columns are populated with data for 2025/12
+2026-02-09 12:13:48 | INFO     | __init__:155 | Flow Diagram Page initialized
+2026-02-09 12:16:11 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-09 12:16:14 | INFO     | load_diagram:385 | Loaded diagram for UG2N
+2026-02-09 12:16:14 | INFO     | _render_diagram:577 | Rendered diagram: 126 nodes, 116 edges
+2026-02-09 12:16:14 | INFO     | _load_and_display_recirculation:646 | Found 11 recirculation configs to load
+2026-02-09 12:16:14 | WARNING  | _load_and_display_recirculation:663 | No recirculation volumes found for UG2N in Excel
+2026-02-09 12:16:14 | WARNING  | _load_and_display_recirculation:664 | Configured components: ['NDCD 1-2 / NDSWD 1', 'STOCKPILE AREA', 'SPCD 1', 'MDCD 1-4\n(Group)', 'MDCD 5-6\n(Group)', 'OLD TAILINGS\nSTORAGE FACILITY', 'TRTD 1-2(RWDs)', 'NEW TAILINGS\nSTORAGE FACILITY', 'NT RWD 1&2', 'UG2PCD 1', 'MPSWD 1-2']
+2026-02-09 12:16:14 | WARNING  | _load_and_display_recirculation:665 | Check that Excel sheets and columns are populated with data for 2025/12
+2026-02-09 12:16:14 | INFO     | __init__:155 | Flow Diagram Page initialized
+2026-02-09 12:48:07 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-09 12:48:10 | INFO     | load_diagram:385 | Loaded diagram for UG2N
+2026-02-09 12:48:10 | INFO     | _render_diagram:577 | Rendered diagram: 126 nodes, 116 edges
+2026-02-09 12:48:10 | INFO     | _load_and_display_recirculation:646 | Found 11 recirculation configs to load
+2026-02-09 12:48:10 | WARNING  | _load_and_display_recirculation:663 | No recirculation volumes found for UG2N in Excel
+2026-02-09 12:48:10 | WARNING  | _load_and_display_recirculation:664 | Configured components: ['NDCD 1-2 / NDSWD 1', 'STOCKPILE AREA', 'SPCD 1', 'MDCD 1-4\n(Group)', 'MDCD 5-6\n(Group)', 'OLD TAILINGS\nSTORAGE FACILITY', 'TRTD 1-2(RWDs)', 'NEW TAILINGS\nSTORAGE FACILITY', 'NT RWD 1&2', 'UG2PCD 1', 'MPSWD 1-2']
+2026-02-09 12:48:10 | WARNING  | _load_and_display_recirculation:665 | Check that Excel sheets and columns are populated with data for 2025/12
+2026-02-09 12:48:10 | INFO     | __init__:155 | Flow Diagram Page initialized
+2026-02-09 13:25:55 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-09 13:25:58 | INFO     | load_diagram:385 | Loaded diagram for UG2N
+2026-02-09 13:25:58 | INFO     | _render_diagram:577 | Rendered diagram: 126 nodes, 116 edges
+2026-02-09 13:25:58 | INFO     | _load_and_display_recirculation:646 | Found 11 recirculation configs to load
+2026-02-09 13:25:58 | WARNING  | _load_and_display_recirculation:663 | No recirculation volumes found for UG2N in Excel
+2026-02-09 13:25:58 | WARNING  | _load_and_display_recirculation:664 | Configured components: ['NDCD 1-2 / NDSWD 1', 'STOCKPILE AREA', 'SPCD 1', 'MDCD 1-4\n(Group)', 'MDCD 5-6\n(Group)', 'OLD TAILINGS\nSTORAGE FACILITY', 'TRTD 1-2(RWDs)', 'NEW TAILINGS\nSTORAGE FACILITY', 'NT RWD 1&2', 'UG2PCD 1', 'MPSWD 1-2']
+2026-02-09 13:25:58 | WARNING  | _load_and_display_recirculation:665 | Check that Excel sheets and columns are populated with data for 2025/12
+2026-02-09 13:25:58 | INFO     | __init__:155 | Flow Diagram Page initialized
+2026-02-09 13:34:54 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-09 13:34:57 | INFO     | load_diagram:385 | Loaded diagram for UG2N
+2026-02-09 13:34:57 | INFO     | _render_diagram:577 | Rendered diagram: 126 nodes, 116 edges
+2026-02-09 13:34:57 | INFO     | _load_and_display_recirculation:646 | Found 11 recirculation configs to load
+2026-02-09 13:34:57 | WARNING  | _load_and_display_recirculation:663 | No recirculation volumes found for UG2N in Excel
+2026-02-09 13:34:57 | WARNING  | _load_and_display_recirculation:664 | Configured components: ['NDCD 1-2 / NDSWD 1', 'STOCKPILE AREA', 'SPCD 1', 'MDCD 1-4\n(Group)', 'MDCD 5-6\n(Group)', 'OLD TAILINGS\nSTORAGE FACILITY', 'TRTD 1-2(RWDs)', 'NEW TAILINGS\nSTORAGE FACILITY', 'NT RWD 1&2', 'UG2PCD 1', 'MPSWD 1-2']
+2026-02-09 13:34:57 | WARNING  | _load_and_display_recirculation:665 | Check that Excel sheets and columns are populated with data for 2025/12
+2026-02-09 13:34:57 | INFO     | __init__:155 | Flow Diagram Page initialized
+2026-02-09 13:35:33 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-09 13:35:36 | INFO     | load_diagram:385 | Loaded diagram for UG2N
+2026-02-09 13:35:36 | INFO     | _render_diagram:577 | Rendered diagram: 126 nodes, 116 edges
+2026-02-09 13:35:36 | INFO     | _load_and_display_recirculation:646 | Found 11 recirculation configs to load
+2026-02-09 13:35:36 | WARNING  | _load_and_display_recirculation:663 | No recirculation volumes found for UG2N in Excel
+2026-02-09 13:35:36 | WARNING  | _load_and_display_recirculation:664 | Configured components: ['NDCD 1-2 / NDSWD 1', 'STOCKPILE AREA', 'SPCD 1', 'MDCD 1-4\n(Group)', 'MDCD 5-6\n(Group)', 'OLD TAILINGS\nSTORAGE FACILITY', 'TRTD 1-2(RWDs)', 'NEW TAILINGS\nSTORAGE FACILITY', 'NT RWD 1&2', 'UG2PCD 1', 'MPSWD 1-2']
+2026-02-09 13:35:36 | WARNING  | _load_and_display_recirculation:665 | Check that Excel sheets and columns are populated with data for 2025/12
+2026-02-09 13:35:36 | INFO     | __init__:155 | Flow Diagram Page initialized
+2026-02-09 13:59:54 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-09 13:59:57 | INFO     | load_diagram:385 | Loaded diagram for UG2N
+2026-02-09 13:59:57 | INFO     | _render_diagram:577 | Rendered diagram: 126 nodes, 116 edges
+2026-02-09 13:59:57 | INFO     | _load_and_display_recirculation:646 | Found 11 recirculation configs to load
+2026-02-09 13:59:57 | WARNING  | _load_and_display_recirculation:663 | No recirculation volumes found for UG2N in Excel
+2026-02-09 13:59:57 | WARNING  | _load_and_display_recirculation:664 | Configured components: ['NDCD 1-2 / NDSWD 1', 'STOCKPILE AREA', 'SPCD 1', 'MDCD 1-4\n(Group)', 'MDCD 5-6\n(Group)', 'OLD TAILINGS\nSTORAGE FACILITY', 'TRTD 1-2(RWDs)', 'NEW TAILINGS\nSTORAGE FACILITY', 'NT RWD 1&2', 'UG2PCD 1', 'MPSWD 1-2']
+2026-02-09 13:59:57 | WARNING  | _load_and_display_recirculation:665 | Check that Excel sheets and columns are populated with data for 2025/12
+2026-02-09 13:59:57 | INFO     | __init__:155 | Flow Diagram Page initialized
+2026-02-09 14:11:44 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-09 14:11:47 | INFO     | load_diagram:385 | Loaded diagram for UG2N
+2026-02-09 14:11:47 | INFO     | _render_diagram:577 | Rendered diagram: 126 nodes, 116 edges
+2026-02-09 14:11:47 | INFO     | _load_and_display_recirculation:646 | Found 11 recirculation configs to load
+2026-02-09 14:11:47 | WARNING  | _load_and_display_recirculation:663 | No recirculation volumes found for UG2N in Excel
+2026-02-09 14:11:47 | WARNING  | _load_and_display_recirculation:664 | Configured components: ['NDCD 1-2 / NDSWD 1', 'STOCKPILE AREA', 'SPCD 1', 'MDCD 1-4\n(Group)', 'MDCD 5-6\n(Group)', 'OLD TAILINGS\nSTORAGE FACILITY', 'TRTD 1-2(RWDs)', 'NEW TAILINGS\nSTORAGE FACILITY', 'NT RWD 1&2', 'UG2PCD 1', 'MPSWD 1-2']
+2026-02-09 14:11:47 | WARNING  | _load_and_display_recirculation:665 | Check that Excel sheets and columns are populated with data for 2025/12
+2026-02-09 14:11:47 | INFO     | __init__:155 | Flow Diagram Page initialized
+2026-02-09 14:25:29 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-09 14:25:33 | INFO     | load_diagram:385 | Loaded diagram for UG2N
+2026-02-09 14:25:33 | INFO     | _render_diagram:577 | Rendered diagram: 126 nodes, 116 edges
+2026-02-09 14:25:33 | INFO     | _load_and_display_recirculation:646 | Found 11 recirculation configs to load
+2026-02-09 14:25:33 | WARNING  | _load_and_display_recirculation:663 | No recirculation volumes found for UG2N in Excel
+2026-02-09 14:25:33 | WARNING  | _load_and_display_recirculation:664 | Configured components: ['NDCD 1-2 / NDSWD 1', 'STOCKPILE AREA', 'SPCD 1', 'MDCD 1-4\n(Group)', 'MDCD 5-6\n(Group)', 'OLD TAILINGS\nSTORAGE FACILITY', 'TRTD 1-2(RWDs)', 'NEW TAILINGS\nSTORAGE FACILITY', 'NT RWD 1&2', 'UG2PCD 1', 'MPSWD 1-2']
+2026-02-09 14:25:33 | WARNING  | _load_and_display_recirculation:665 | Check that Excel sheets and columns are populated with data for 2025/12
+2026-02-09 14:25:33 | INFO     | __init__:155 | Flow Diagram Page initialized
+2026-02-09 14:56:12 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-09 14:56:16 | INFO     | load_diagram:385 | Loaded diagram for UG2N
+2026-02-09 14:56:16 | INFO     | _render_diagram:577 | Rendered diagram: 126 nodes, 116 edges
+2026-02-09 14:56:16 | INFO     | _load_and_display_recirculation:646 | Found 11 recirculation configs to load
+2026-02-09 14:56:16 | WARNING  | _load_and_display_recirculation:663 | No recirculation volumes found for UG2N in Excel
+2026-02-09 14:56:16 | WARNING  | _load_and_display_recirculation:664 | Configured components: ['NDCD 1-2 / NDSWD 1', 'STOCKPILE AREA', 'SPCD 1', 'MDCD 1-4\n(Group)', 'MDCD 5-6\n(Group)', 'OLD TAILINGS\nSTORAGE FACILITY', 'TRTD 1-2(RWDs)', 'NEW TAILINGS\nSTORAGE FACILITY', 'NT RWD 1&2', 'UG2PCD 1', 'MPSWD 1-2']
+2026-02-09 14:56:16 | WARNING  | _load_and_display_recirculation:665 | Check that Excel sheets and columns are populated with data for 2025/12
+2026-02-09 14:56:16 | INFO     | __init__:155 | Flow Diagram Page initialized
+2026-02-09 15:19:17 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-09 15:19:36 | INFO     | load_diagram:386 | Loaded diagram for UG2N
+2026-02-09 15:19:36 | INFO     | _render_diagram:578 | Rendered diagram: 126 nodes, 116 edges
+2026-02-09 15:19:36 | INFO     | _load_and_display_recirculation:647 | Found 11 recirculation configs to load
+2026-02-09 15:19:36 | WARNING  | _load_and_display_recirculation:664 | No recirculation volumes found for UG2N in Excel
+2026-02-09 15:19:36 | WARNING  | _load_and_display_recirculation:665 | Configured components: ['NDCD 1-2 / NDSWD 1', 'STOCKPILE AREA', 'SPCD 1', 'MDCD 1-4\n(Group)', 'MDCD 5-6\n(Group)', 'OLD TAILINGS\nSTORAGE FACILITY', 'TRTD 1-2(RWDs)', 'NEW TAILINGS\nSTORAGE FACILITY', 'NT RWD 1&2', 'UG2PCD 1', 'MPSWD 1-2']
+2026-02-09 15:19:36 | WARNING  | _load_and_display_recirculation:666 | Check that Excel sheets and columns are populated with data for 2025/12
+2026-02-09 15:19:36 | INFO     | __init__:156 | Flow Diagram Page initialized
+2026-02-09 15:24:00 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-09 15:24:04 | INFO     | load_diagram:386 | Loaded diagram for UG2N
+2026-02-09 15:24:04 | INFO     | _render_diagram:578 | Rendered diagram: 126 nodes, 116 edges
+2026-02-09 15:24:04 | INFO     | _load_and_display_recirculation:647 | Found 11 recirculation configs to load
+2026-02-09 15:24:04 | WARNING  | _load_and_display_recirculation:664 | No recirculation volumes found for UG2N in Excel
+2026-02-09 15:24:04 | WARNING  | _load_and_display_recirculation:665 | Configured components: ['NDCD 1-2 / NDSWD 1', 'STOCKPILE AREA', 'SPCD 1', 'MDCD 1-4\n(Group)', 'MDCD 5-6\n(Group)', 'OLD TAILINGS\nSTORAGE FACILITY', 'TRTD 1-2(RWDs)', 'NEW TAILINGS\nSTORAGE FACILITY', 'NT RWD 1&2', 'UG2PCD 1', 'MPSWD 1-2']
+2026-02-09 15:24:04 | WARNING  | _load_and_display_recirculation:666 | Check that Excel sheets and columns are populated with data for 2025/12
+2026-02-09 15:24:04 | INFO     | __init__:156 | Flow Diagram Page initialized
+2026-02-09 15:32:41 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-09 15:32:45 | INFO     | load_diagram:386 | Loaded diagram for UG2N
+2026-02-09 15:32:45 | INFO     | _render_diagram:578 | Rendered diagram: 126 nodes, 116 edges
+2026-02-09 15:32:45 | INFO     | _load_and_display_recirculation:647 | Found 11 recirculation configs to load
+2026-02-09 15:32:45 | WARNING  | _load_and_display_recirculation:664 | No recirculation volumes found for UG2N in Excel
+2026-02-09 15:32:45 | WARNING  | _load_and_display_recirculation:665 | Configured components: ['NDCD 1-2 / NDSWD 1', 'STOCKPILE AREA', 'SPCD 1', 'MDCD 1-4\n(Group)', 'MDCD 5-6\n(Group)', 'OLD TAILINGS\nSTORAGE FACILITY', 'TRTD 1-2(RWDs)', 'NEW TAILINGS\nSTORAGE FACILITY', 'NT RWD 1&2', 'UG2PCD 1', 'MPSWD 1-2']
+2026-02-09 15:32:45 | WARNING  | _load_and_display_recirculation:666 | Check that Excel sheets and columns are populated with data for 2025/12
+2026-02-09 15:32:45 | INFO     | __init__:156 | Flow Diagram Page initialized
+2026-02-09 15:37:07 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-09 15:37:13 | INFO     | load_diagram:386 | Loaded diagram for UG2N
+2026-02-09 15:37:13 | INFO     | _render_diagram:578 | Rendered diagram: 126 nodes, 116 edges
+2026-02-09 15:37:13 | INFO     | _load_and_display_recirculation:647 | Found 11 recirculation configs to load
+2026-02-09 15:37:13 | WARNING  | _load_and_display_recirculation:664 | No recirculation volumes found for UG2N in Excel
+2026-02-09 15:37:13 | WARNING  | _load_and_display_recirculation:665 | Configured components: ['NDCD 1-2 / NDSWD 1', 'STOCKPILE AREA', 'SPCD 1', 'MDCD 1-4\n(Group)', 'MDCD 5-6\n(Group)', 'OLD TAILINGS\nSTORAGE FACILITY', 'TRTD 1-2(RWDs)', 'NEW TAILINGS\nSTORAGE FACILITY', 'NT RWD 1&2', 'UG2PCD 1', 'MPSWD 1-2']
+2026-02-09 15:37:13 | WARNING  | _load_and_display_recirculation:666 | Check that Excel sheets and columns are populated with data for 2025/12
+2026-02-09 15:37:13 | INFO     | __init__:156 | Flow Diagram Page initialized
+2026-02-09 15:45:11 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-09 15:45:17 | INFO     | load_diagram:386 | Loaded diagram for UG2N
+2026-02-09 15:45:17 | INFO     | _render_diagram:578 | Rendered diagram: 126 nodes, 116 edges
+2026-02-09 15:45:17 | INFO     | _load_and_display_recirculation:647 | Found 11 recirculation configs to load
+2026-02-09 15:45:17 | WARNING  | _load_and_display_recirculation:664 | No recirculation volumes found for UG2N in Excel
+2026-02-09 15:45:17 | WARNING  | _load_and_display_recirculation:665 | Configured components: ['NDCD 1-2 / NDSWD 1', 'STOCKPILE AREA', 'SPCD 1', 'MDCD 1-4\n(Group)', 'MDCD 5-6\n(Group)', 'OLD TAILINGS\nSTORAGE FACILITY', 'TRTD 1-2(RWDs)', 'NEW TAILINGS\nSTORAGE FACILITY', 'NT RWD 1&2', 'UG2PCD 1', 'MPSWD 1-2']
+2026-02-09 15:45:17 | WARNING  | _load_and_display_recirculation:666 | Check that Excel sheets and columns are populated with data for 2025/12
+2026-02-09 15:45:17 | INFO     | __init__:156 | Flow Diagram Page initialized

@@ -17,10 +17,10 @@ from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
     QScrollArea, QFrame, QStackedWidget, QComboBox, QLineEdit,
     QTextEdit, QMessageBox, QGraphicsDropShadowEffect, QSizePolicy,
-    QProgressDialog, QApplication
+    QProgressDialog, QApplication, QTextBrowser
 )
 from PySide6.QtCore import Qt, QTimer, Signal, QPropertyAnimation, QEasingCurve, QUrl
-from PySide6.QtGui import QIcon, QFont, QColor, QDesktopServices
+from PySide6.QtGui import QIcon, QFont, QColor, QDesktopServices, QTextDocument
 
 from core.app_logger import logger
 
@@ -49,12 +49,7 @@ class NotificationDrawer(QFrame):
     def _setup_ui(self):
         """Build drawer UI."""
         self.setObjectName("notificationDrawer")
-        self.setStyleSheet("""
-            QFrame#notificationDrawer {
-                background-color: white;
-                border-left: 1px solid #d0d7de;
-            }
-        """)
+        self.setStyleSheet("")
         
         layout = QVBoxLayout(self)
         layout.setContentsMargins(24, 24, 24, 24)
@@ -66,7 +61,7 @@ class NotificationDrawer(QFrame):
         
         title = QLabel("Notification Details")
         title.setFont(QFont('Segoe UI Variable', 18, QFont.Weight.DemiBold))
-        title.setStyleSheet("color: #24292f;")
+        title.setStyleSheet("")
         header_layout.addWidget(title)
         
         header_layout.addStretch()
@@ -74,18 +69,7 @@ class NotificationDrawer(QFrame):
         close_btn = QPushButton("✕")
         close_btn.setFixedSize(32, 32)
         close_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        close_btn.setStyleSheet("""
-            QPushButton {
-                background-color: transparent;
-                border: none;
-                color: #57606a;
-                font-size: 18px;
-                border-radius: 16px;
-            }
-            QPushButton:hover {
-                background-color: #f6f8fa;
-            }
-        """)
+        close_btn.setStyleSheet("")
         close_btn.clicked.connect(self.closed.emit)
         header_layout.addWidget(close_btn)
         
@@ -94,7 +78,7 @@ class NotificationDrawer(QFrame):
         # Separator
         separator = QFrame()
         separator.setFrameShape(QFrame.Shape.HLine)
-        separator.setStyleSheet("background-color: #d0d7de;")
+        separator.setStyleSheet("")
         separator.setFixedHeight(1)
         layout.addWidget(separator)
         
@@ -102,22 +86,7 @@ class NotificationDrawer(QFrame):
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QFrame.Shape.NoFrame)
-        scroll.setStyleSheet("""
-            QScrollArea {
-                border: none;
-                background-color: white;
-            }
-            QScrollBar:vertical {
-                background-color: #f6f8fa;
-                width: 10px;
-                border-radius: 5px;
-            }
-            QScrollBar::handle:vertical {
-                background-color: #d0d7de;
-                border-radius: 5px;
-                min-height: 30px;
-            }
-        """)
+        scroll.setStyleSheet("")
         
         content_widget = QWidget()
         self.content_layout = QVBoxLayout(content_widget)
@@ -144,31 +113,25 @@ class NotificationDrawer(QFrame):
             self.title_label = QLabel()
             self.title_label.setFont(QFont('Segoe UI', 16, QFont.Weight.DemiBold))
             self.title_label.setWordWrap(True)
-            self.title_label.setStyleSheet("color: #24292f; margin-bottom: 12px;")
+            self.title_label.setStyleSheet("")
             self.content_layout.insertWidget(0, self.title_label)
 
             self.badge_label = QLabel()
             self.badge_label.setFont(QFont('Segoe UI', 10, QFont.Weight.DemiBold))
             self.badge_label.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-            self.badge_label.setStyleSheet("""
-                QLabel {
-                    background-color: #0969da;
-                    color: white;
-                    padding: 6px 14px;
-                    border-radius: 4px;
-                }
-            """)
+            self.badge_label.setStyleSheet("")
             self.content_layout.insertWidget(1, self.badge_label)
 
-            self.message_label = QLabel()
-            self.message_label.setFont(QFont('Segoe UI', 12))
-            self.message_label.setWordWrap(True)
-            self.message_label.setStyleSheet("color: #424242; line-height: 1.6; margin: 16px 0px;")
+            self.message_label = QTextBrowser()
+            self.message_label.setOpenExternalLinks(True)
+            self.message_label.setStyleSheet("")
+            self.message_label.setFrameShape(QFrame.Shape.NoFrame)
+            self.message_label.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
             self.content_layout.insertWidget(2, self.message_label)
 
             self.date_label = QLabel()
             self.date_label.setFont(QFont('Segoe UI', 11))
-            self.date_label.setStyleSheet("color: #6e7781; margin-top: 16px;")
+            self.date_label.setStyleSheet("")
             self.content_layout.insertWidget(3, self.date_label)
 
         # Title
@@ -177,26 +140,19 @@ class NotificationDrawer(QFrame):
         # Priority badge
         priority = notification_data.get('priority', 'info')
         priority_colors = {
-            'critical': '#cf222e',
+            'critical': '#dc2626',
             'high': '#fb8500',
             'info': '#0969da',
-            'low': '#1a7f37'
+            'low': '#16a34a'
         }
         badge_color = priority_colors.get(priority, priority_colors['info'])
         self.badge_label.setText(priority.upper())
-        self.badge_label.setStyleSheet(f"""
-            QLabel {{
-                background-color: {badge_color};
-                color: white;
-                padding: 6px 14px;
-                border-radius: 4px;
-            }}
-        """)
+        self.badge_label.setStyleSheet("")
 
         # Message
         message = notification_data.get('message') or notification_data.get('body', '')
         if message:
-            self.message_label.setText(message)
+            self.message_label.setHtml(message)
             self.message_label.show()
         else:
             self.message_label.hide()
@@ -256,12 +212,7 @@ class NotificationCard(QFrame):
         # Priority indicator (colored dot)
         icon = QLabel()
         icon.setFixedSize(12, 12)
-        icon.setStyleSheet(f"""
-            QLabel {{
-                background-color: {self._get_priority_color()};
-                border-radius: 6px;
-            }}
-        """)
+        icon.setStyleSheet("")
         layout.addWidget(icon, alignment=Qt.AlignmentFlag.AlignTop)
         
         # Content area
@@ -275,12 +226,12 @@ class NotificationCard(QFrame):
         content_layout.addWidget(title)
         
         # Message preview
-        message = self.notification_data.get('message', '')
+        message = self._plain_text(self.notification_data.get('message') or self.notification_data.get('body', ''))
         if message:
             preview = QLabel(message[:100] + ('...' if len(message) > 100 else ''))
             preview.setFont(QFont('Segoe UI', 10))
             preview.setWordWrap(True)
-            preview.setStyleSheet("color: #6e7781;")
+            preview.setStyleSheet("")
             content_layout.addWidget(preview)
         
         # Date
@@ -288,7 +239,7 @@ class NotificationCard(QFrame):
         if date:
             date_label = QLabel(self._format_date(date))
             date_label.setFont(QFont('Segoe UI', 9))
-            date_label.setStyleSheet("color: #8b949e;")
+            date_label.setStyleSheet("")
             content_layout.addWidget(date_label)
         
         layout.addLayout(content_layout, stretch=1)
@@ -314,38 +265,16 @@ class NotificationCard(QFrame):
         is_read = self.notification_data.get('is_read', False)
         bg_color = "#f6f8fa" if is_read else "#ffffff"
         
-        self.setStyleSheet(f"""
-            QFrame#notificationCard {{
-                background-color: {bg_color};
-                border: 1px solid #d0d7de;
-                border-radius: 8px;
-                padding: 0px;
-            }}
-            QFrame#notificationCard:hover {{
-                background-color: #f3f4f6;
-                border-color: #0969da;
-            }}
-            QPushButton#deleteButton {{
-                background-color: transparent;
-                border: none;
-                color: #57606a;
-                font-size: 16px;
-                border-radius: 14px;
-            }}
-            QPushButton#deleteButton:hover {{
-                background-color: #ffebe9;
-                color: #cf222e;
-            }}
-        """)
+        self.setStyleSheet("")
     
     def _get_priority_color(self) -> str:
         """Get color based on priority/type."""
         priority = self.notification_data.get('priority', 'info')
         colors = {
-            'critical': '#cf222e',
+            'critical': '#dc2626',
             'high': '#fb8500',
             'info': '#0969da',
-            'low': '#1a7f37'
+            'low': '#16a34a'
         }
         return colors.get(priority, colors['info'])
     
@@ -382,6 +311,14 @@ class NotificationCard(QFrame):
             self.clicked.emit(self.notification_data)
         super().mousePressEvent(event)
 
+    @staticmethod
+    def _plain_text(text: str) -> str:
+        if not text:
+            return ""
+        doc = QTextDocument()
+        doc.setHtml(text)
+        return doc.toPlainText()
+
 
 # (NOTIFICATION BADGE COMPONENT)
 
@@ -395,16 +332,7 @@ class NotificationBadge(QLabel):
         self.setFixedSize(20, 20)
         self.hide()  # Hidden by default
         
-        self.setStyleSheet("""
-            QLabel#notificationBadge {
-                background-color: #cf222e;
-                color: white;
-                font-size: 10px;
-                font-weight: bold;
-                border-radius: 10px;
-                padding: 2px;
-            }
-        """)
+        self.setStyleSheet("")
     
     def set_count(self, count: int):
         """Update badge count and visibility."""
@@ -438,25 +366,16 @@ class MessagesPage(QWidget):
         self._notifications = []
         self._unread_count = 0
         self._drawer_width = 440
+        self._notification_service = None
         self._setup_ui()
+        self._bind_notification_service()
         
         # Defer notification loading to avoid blocking startup
         QTimer.singleShot(100, self._load_notifications)
         
     def _setup_ui(self):
         """Build main UI with professional layout."""
-        self.setStyleSheet("""
-            QWidget#messagesPage {
-                background-color: #f6f8fa;
-            }
-            QToolTip {
-                background-color: #111827;
-                color: #f8fafc;
-                border: 1px solid #334155;
-                padding: 8px 10px;
-                border-radius: 6px;
-            }
-        """)
+        self.setStyleSheet("")
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(24, 24, 24, 24)
         main_layout.setSpacing(20)
@@ -471,7 +390,7 @@ class MessagesPage(QWidget):
         
         # Content stack
         self.content_stack = QStackedWidget()
-        self.content_stack.setStyleSheet("background-color: transparent;")
+        self.content_stack.setStyleSheet("")
         
         # Tab 0: Notifications
         self.notifications_tab = self._create_notifications_tab()
@@ -513,14 +432,15 @@ class MessagesPage(QWidget):
         
     def _open_drawer(self):
         """Animate drawer open (smooth width expansion)."""
+        target_width = self._get_drawer_width()
         self._drawer_animation.stop()
         self._drawer_max_animation.stop()
 
         self._drawer_animation.setStartValue(self.notification_drawer.minimumWidth())
-        self._drawer_animation.setEndValue(self._drawer_width)
+        self._drawer_animation.setEndValue(target_width)
 
         self._drawer_max_animation.setStartValue(self.notification_drawer.maximumWidth())
-        self._drawer_max_animation.setEndValue(self._drawer_width)
+        self._drawer_max_animation.setEndValue(target_width)
 
         self._drawer_animation.start()
         self._drawer_max_animation.start()
@@ -538,6 +458,19 @@ class MessagesPage(QWidget):
 
         self._drawer_animation.start()
         self._drawer_max_animation.start()
+
+    def _get_drawer_width(self) -> int:
+        """Calculate drawer width based on available space."""
+        page_width = max(self.width(), 1)
+        target = int(page_width * 0.38)
+        return max(360, min(560, target))
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        if self.notification_drawer.maximumWidth() > 0:
+            target = self._get_drawer_width()
+            self.notification_drawer.setMinimumWidth(target)
+            self.notification_drawer.setMaximumWidth(target)
         
     def _create_header(self) -> QWidget:
         """Create page header with badge (HEADER SECTION)."""
@@ -560,7 +493,7 @@ class MessagesPage(QWidget):
         # Title
         title = QLabel("Messages & Notifications")
         title.setFont(QFont('Segoe UI Variable', 24, QFont.Weight.DemiBold))
-        title.setStyleSheet("color: #24292f;")
+        title.setStyleSheet("")
         title_layout.addWidget(title)
         
         # Badge
@@ -593,25 +526,7 @@ class MessagesPage(QWidget):
             btn.setFont(QFont('Segoe UI', 12, QFont.Weight.Medium))
             btn.setCursor(Qt.CursorShape.PointingHandCursor)
             btn.setFixedHeight(40)
-            btn.setStyleSheet("""
-                QPushButton {
-                    background-color: transparent;
-                    border: none;
-                    border-bottom: 2px solid transparent;
-                    padding: 8px 16px;
-                    color: #57606a;
-                }
-                QPushButton:hover {
-                    color: #24292f;
-                    background-color: #f6f8fa;
-                    border-radius: 6px 6px 0px 0px;
-                }
-                QPushButton:checked {
-                    color: #0969da;
-                    border-bottom-color: #0969da;
-                    background-color: transparent;
-                }
-            """)
+            btn.setStyleSheet("")
             btn.clicked.connect(lambda checked, idx=index: self.content_stack.setCurrentIndex(idx))
             layout.addWidget(btn)
             self.tab_buttons.append(btn)
@@ -624,7 +539,7 @@ class MessagesPage(QWidget):
         # Add separator line
         separator = QFrame()
         separator.setFrameShape(QFrame.Shape.HLine)
-        separator.setStyleSheet("background-color: #d0d7de;")
+        separator.setStyleSheet("")
         separator.setFixedHeight(1)
         
         container = QWidget()
@@ -646,25 +561,7 @@ class MessagesPage(QWidget):
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QFrame.Shape.NoFrame)
-        scroll.setStyleSheet("""
-            QScrollArea {
-                border: none;
-                background-color: transparent;
-            }
-            QScrollBar:vertical {
-                background-color: #f6f8fa;
-                width: 12px;
-                border-radius: 6px;
-            }
-            QScrollBar::handle:vertical {
-                background-color: #d0d7de;
-                border-radius: 6px;
-                min-height: 30px;
-            }
-            QScrollBar::handle:vertical:hover {
-                background-color: #afb8c1;
-            }
-        """)
+        scroll.setStyleSheet("")
         
         # Container for notification cards
         self.notifications_container = QWidget()
@@ -677,13 +574,7 @@ class MessagesPage(QWidget):
         # Card container for list
         card = QFrame()
         card.setObjectName("notificationsCard")
-        card.setStyleSheet("""
-            QFrame#notificationsCard {
-                background-color: #ffffff;
-                border: 1px solid #d0d7de;
-                border-radius: 10px;
-            }
-        """)
+        card.setStyleSheet("")
         card_layout = QVBoxLayout(card)
         card_layout.setContentsMargins(16, 16, 16, 16)
         card_layout.setSpacing(0)
@@ -704,32 +595,18 @@ class MessagesPage(QWidget):
         self.update_toast_label.setVisible(False)
         self.update_toast_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
         self.update_toast_label.setFont(QFont('Segoe UI', 11, QFont.Weight.DemiBold))
-        self.update_toast_label.setStyleSheet("""
-            QLabel {
-                background-color: #1f2937;
-                color: #f9fafb;
-                padding: 8px 12px;
-                border-radius: 6px;
-            }
-        """)
+        self.update_toast_label.setStyleSheet("")
         layout.addWidget(self.update_toast_label)
 
         # Current version card
         version_card = QFrame()
         version_card.setObjectName("versionCard")
-        version_card.setStyleSheet("""
-            QFrame#versionCard {
-                background-color: #dafbe1;
-                border: 1px solid #4ac26b;
-                border-radius: 8px;
-                padding: 20px;
-            }
-        """)
+        version_card.setStyleSheet("")
         version_layout = QVBoxLayout(version_card)
         
         version_title = QLabel("✅ Current Version")
         version_title.setFont(QFont('Segoe UI', 14, QFont.Weight.DemiBold))
-        version_title.setStyleSheet("color: #1a7f37;")
+        version_title.setStyleSheet("")
         version_layout.addWidget(version_title)
         
         from core.config_manager import ConfigManager
@@ -738,7 +615,7 @@ class MessagesPage(QWidget):
         
         version_label = QLabel(f"Water Balance Dashboard v{current_version}")
         version_label.setFont(QFont('Segoe UI', 16))
-        version_label.setStyleSheet("color: #0d1117;")
+        version_label.setStyleSheet("")
         version_layout.addWidget(version_label)
         
         layout.addWidget(version_card)
@@ -754,24 +631,7 @@ class MessagesPage(QWidget):
             QSizePolicy.Policy.Fixed,
             QSizePolicy.Policy.Fixed,
         )
-        self.update_check_button.setStyleSheet("""
-            QPushButton {
-                background-color: #2563eb;
-                color: #ffffff;
-                border: 1px solid #1d4ed8;
-                border-radius: 6px;
-                padding: 6px 14px;
-                font-weight: 600;
-            }
-            QPushButton:hover {
-                background-color: #1d4ed8;
-            }
-            QPushButton:disabled {
-                background-color: #94a3b8;
-                border-color: #94a3b8;
-                color: #f1f5f9;
-            }
-        """)
+        self.update_check_button.setStyleSheet("")
         self.update_check_button.clicked.connect(self._on_check_updates_clicked)
         controls_layout.addWidget(self.update_check_button)
 
@@ -782,24 +642,7 @@ class MessagesPage(QWidget):
             QSizePolicy.Policy.Fixed,
             QSizePolicy.Policy.Fixed,
         )
-        self.update_download_button.setStyleSheet("""
-            QPushButton {
-                background-color: #16a34a;
-                color: #ffffff;
-                border: 1px solid #15803d;
-                border-radius: 6px;
-                padding: 6px 14px;
-                font-weight: 600;
-            }
-            QPushButton:hover {
-                background-color: #15803d;
-            }
-            QPushButton:disabled {
-                background-color: #94a3b8;
-                border-color: #94a3b8;
-                color: #f1f5f9;
-            }
-        """)
+        self.update_download_button.setStyleSheet("")
         self.update_download_button.setVisible(False)
         self.update_download_button.clicked.connect(self._open_update_download)
         controls_layout.addWidget(self.update_download_button)
@@ -811,14 +654,7 @@ class MessagesPage(QWidget):
         self.update_status_label = QLabel("🔍 No updates available")
         self.update_status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.update_status_label.setFont(QFont('Segoe UI', 13))
-        self.update_status_label.setStyleSheet("""
-            QLabel {
-                color: #6e7781;
-                padding: 60px 20px;
-                background-color: #f6f8fa;
-                border-radius: 8px;
-            }
-        """)
+        self.update_status_label.setStyleSheet("")
         self.update_status_label.setSizePolicy(
             QSizePolicy.Policy.Expanding,
             QSizePolicy.Policy.Expanding,
@@ -838,6 +674,23 @@ class MessagesPage(QWidget):
         self._update_check_timeout.timeout.connect(self._on_update_check_timeout)
         
         return tab
+
+    def _bind_notification_service(self) -> None:
+        """Bind notification service signals to UI updates."""
+        try:
+            from services.notification_service import get_notification_service
+            service = get_notification_service()
+            self._notification_service = service
+            service.notifications_updated.connect(self._on_notifications_updated)
+            service.unread_count_changed.connect(self._on_unread_count_changed)
+        except Exception as exc:
+            logger.warning("Notification service unavailable: %s", exc)
+
+    def _on_notifications_updated(self, _notifications) -> None:
+        QTimer.singleShot(0, self._load_notifications)
+
+    def _on_unread_count_changed(self, count: int) -> None:
+        self.header_badge.set_count(count)
 
     def _on_check_updates_clicked(self) -> None:
         """Run an on-demand update check and report results in the Updates tab."""
@@ -989,23 +842,9 @@ class MessagesPage(QWidget):
     def _show_update_toast(self, message: str, is_error: bool = False) -> None:
         """Show a transient toast-like notice in the Updates tab."""
         if is_error:
-            self.update_toast_label.setStyleSheet("""
-                QLabel {
-                    background-color: #b91c1c;
-                    color: #fff7ed;
-                    padding: 8px 12px;
-                    border-radius: 6px;
-                }
-            """)
+            self.update_toast_label.setStyleSheet("")
         else:
-            self.update_toast_label.setStyleSheet("""
-                QLabel {
-                    background-color: #1f2937;
-                    color: #f9fafb;
-                    padding: 8px 12px;
-                    border-radius: 6px;
-                }
-            """)
+            self.update_toast_label.setStyleSheet("")
 
         self.update_toast_label.setText(message)
         self.update_toast_label.setVisible(True)
@@ -1024,14 +863,7 @@ class MessagesPage(QWidget):
         # Form container card
         form_card = QFrame()
         form_card.setObjectName("formCard")
-        form_card.setStyleSheet("""
-            QFrame#formCard {
-                background-color: white;
-                border: 1px solid #d0d7de;
-                border-radius: 8px;
-                padding: 14px;
-            }
-        """)
+        form_card.setStyleSheet("")
         form_layout = QVBoxLayout(form_card)
         form_layout.setSpacing(10)
         
@@ -1044,20 +876,7 @@ class MessagesPage(QWidget):
         self.feedback_type.addItems(["🐛 Bug Report", "💡 Feature Request", "📝 General Feedback"])
         self.feedback_type.setFont(QFont('Segoe UI', 10))
         self.feedback_type.setFixedHeight(34)
-        self.feedback_type.setStyleSheet("""
-            QComboBox {
-                padding: 6px 10px;
-                border: 1px solid #d0d7de;
-                border-radius: 6px;
-                background-color: #f6f8fa;
-            }
-            QComboBox:hover {
-                border-color: #0969da;
-            }
-            QComboBox::drop-down {
-                border: none;
-            }
-        """)
+        self.feedback_type.setStyleSheet("")
         form_layout.addWidget(self.feedback_type)
 
         # Contact row
@@ -1071,49 +890,27 @@ class MessagesPage(QWidget):
         name_col = QVBoxLayout()
         name_label = QLabel("Name")
         name_label.setFont(QFont('Segoe UI', 8, QFont.Weight.DemiBold))
-        name_label.setStyleSheet("color: #475569;")
+        name_label.setStyleSheet("")
         name_col.addWidget(name_label)
 
         self.feedback_name = QLineEdit()
         self.feedback_name.setPlaceholderText("Your name or company")
         self.feedback_name.setFont(QFont('Segoe UI', 9))
         self.feedback_name.setFixedHeight(32)
-        self.feedback_name.setStyleSheet("""
-            QLineEdit {
-                padding: 6px 10px;
-                border: 1px solid #d0d7de;
-                border-radius: 6px;
-                background-color: #ffffff;
-            }
-            QLineEdit:focus {
-                border-color: #0969da;
-                outline: none;
-            }
-        """)
+        self.feedback_name.setStyleSheet("")
         name_col.addWidget(self.feedback_name)
 
         email_col = QVBoxLayout()
         email_label = QLabel("Email")
         email_label.setFont(QFont('Segoe UI', 8, QFont.Weight.DemiBold))
-        email_label.setStyleSheet("color: #475569;")
+        email_label.setStyleSheet("")
         email_col.addWidget(email_label)
 
         self.feedback_email = QLineEdit()
         self.feedback_email.setPlaceholderText("you@example.com")
         self.feedback_email.setFont(QFont('Segoe UI', 9))
         self.feedback_email.setFixedHeight(32)
-        self.feedback_email.setStyleSheet("""
-            QLineEdit {
-                padding: 6px 10px;
-                border: 1px solid #d0d7de;
-                border-radius: 6px;
-                background-color: #ffffff;
-            }
-            QLineEdit:focus {
-                border-color: #0969da;
-                outline: none;
-            }
-        """)
+        self.feedback_email.setStyleSheet("")
         email_col.addWidget(self.feedback_email)
 
         contact_row.addLayout(name_col, 1)
@@ -1129,18 +926,7 @@ class MessagesPage(QWidget):
         self.feedback_title.setPlaceholderText("Brief summary of your feedback...")
         self.feedback_title.setFont(QFont('Segoe UI', 9))
         self.feedback_title.setFixedHeight(32)
-        self.feedback_title.setStyleSheet("""
-            QLineEdit {
-                padding: 6px 10px;
-                border: 1px solid #d0d7de;
-                border-radius: 6px;
-                background-color: #ffffff;
-            }
-            QLineEdit:focus {
-                border-color: #0969da;
-                outline: none;
-            }
-        """)
+        self.feedback_title.setStyleSheet("")
         form_layout.addWidget(self.feedback_title)
 
         # Description
@@ -1156,17 +942,7 @@ class MessagesPage(QWidget):
         )
         self.feedback_body.setFont(QFont('Segoe UI', 9))
         self.feedback_body.setMinimumHeight(96)
-        self.feedback_body.setStyleSheet("""
-            QTextEdit {
-                padding: 12px;
-                border: 1px solid #d0d7de;
-                border-radius: 6px;
-                background-color: #ffffff;
-            }
-            QTextEdit:focus {
-                border-color: #0969da;
-            }
-        """)
+        self.feedback_body.setStyleSheet("")
         form_layout.addWidget(self.feedback_body, 1)
 
         # Submit button
@@ -1177,24 +953,7 @@ class MessagesPage(QWidget):
         self.submit_btn.setFont(QFont('Segoe UI', 9, QFont.Weight.DemiBold))
         self.submit_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.submit_btn.setFixedHeight(30)
-        self.submit_btn.setStyleSheet("""
-            QPushButton {
-                background-color: #1a7f37;
-                color: white;
-                border: none;
-                padding: 10px 24px;
-                border-radius: 6px;
-            }
-            QPushButton:hover {
-                background-color: #138636;
-            }
-            QPushButton:pressed {
-                background-color: #0f6d2e;
-            }
-            QPushButton:disabled {
-                background-color: #8c959f;
-            }
-        """)
+        self.submit_btn.setStyleSheet("")
         self.submit_btn.clicked.connect(self._submit_feedback)
         submit_row.addWidget(self.submit_btn)
         
@@ -1229,14 +988,7 @@ class MessagesPage(QWidget):
                 placeholder = QLabel("📭 No notifications yet")
                 placeholder.setAlignment(Qt.AlignmentFlag.AlignCenter)
                 placeholder.setFont(QFont('Segoe UI', 14))
-                placeholder.setStyleSheet("""
-                    QLabel {
-                        color: #6e7781;
-                        padding: 60px 20px;
-                        background-color: #f6f8fa;
-                        border-radius: 8px;
-                    }
-                """)
+                placeholder.setStyleSheet("")
                 self.notifications_layout.insertWidget(0, placeholder)
                 self._unread_count = 0
                 self.header_badge.set_count(0)
@@ -1262,7 +1014,7 @@ class MessagesPage(QWidget):
             logger.exception(f"Failed to load notifications: {e}")
             error_label = QLabel(f"⚠️ Error loading notifications: {str(e)}")
             error_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            error_label.setStyleSheet("color: #cf222e; padding: 20px;")
+            error_label.setStyleSheet("")
             self.notifications_layout.insertWidget(0, error_label)
     
     def _on_notification_deleted(self, notification_id: str):
@@ -1386,3 +1138,7 @@ class MessagesPage(QWidget):
 
         pattern = r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
         return bool(re.match(pattern, email))
+
+
+
+
