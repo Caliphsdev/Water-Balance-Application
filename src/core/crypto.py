@@ -45,13 +45,15 @@ def _load_private_key_config() -> str:
         return ''
 
 
+_NACL_IMPORT_ERROR = ""
 try:
     from nacl.signing import SigningKey, VerifyKey
     _HAS_NACL = True
-except Exception:
+except Exception as e:
     SigningKey = None
     VerifyKey = None
     _HAS_NACL = False
+    _NACL_IMPORT_ERROR = str(e)
 
 # Public key for license verification (embedded in app)
 # This is safe to distribute - it can only VERIFY signatures, not create them
@@ -177,7 +179,8 @@ def _get_signing_key() -> bytes:
             "Set WATERBALANCE_PRIVATE_KEY or license.private_key in config."
         )
     if not _HAS_NACL:
-        raise ValueError("PyNaCl is required for Ed25519 signing.")
+        detail = f" PyNaCl import error: {_NACL_IMPORT_ERROR}" if _NACL_IMPORT_ERROR else ""
+        raise ValueError(f"PyNaCl is required for Ed25519 signing.{detail}")
     key_bytes = _b64decode_key(PRIVATE_KEY_BASE64)
     if not key_bytes:
         raise ValueError("Invalid private key encoding.")
@@ -192,7 +195,8 @@ def _get_verification_key() -> bytes:
             "Set WATERBALANCE_PUBLIC_KEY or license.public_key in config."
         )
     if not _HAS_NACL:
-        raise ValueError("PyNaCl is required for Ed25519 verification.")
+        detail = f" PyNaCl import error: {_NACL_IMPORT_ERROR}" if _NACL_IMPORT_ERROR else ""
+        raise ValueError(f"PyNaCl is required for Ed25519 verification.{detail}")
     key_bytes = _b64decode_key(PUBLIC_KEY_BASE64)
     if not key_bytes:
         raise ValueError("Invalid public key encoding.")

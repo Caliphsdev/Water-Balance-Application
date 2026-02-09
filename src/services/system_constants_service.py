@@ -6,6 +6,8 @@ Used by Settings UI and calculation services.
 """
 
 import logging
+import sqlite3
+from pathlib import Path
 from typing import Dict, List, Optional
 
 from database.db_manager import DatabaseManager
@@ -162,3 +164,77 @@ class SystemConstantsService:
             raise ValueError(
                 f"Value for {constant.constant_key} above maximum ({constant.max_value})"
             )
+
+    def sync_from_packaged_db(self, packaged_db_path: Path, overwrite: bool = False) -> int:
+        """Sync system constants from a packaged database (IMPORT DEFAULTS).
+
+        Inserts missing constants from the packaged DB into the user DB.
+        By default, existing constants are preserved.
+
+        Args:
+            packaged_db_path: Path to packaged water_balance.db
+            overwrite: If True, update existing constants with packaged values
+
+        Returns:
+            Number of constants inserted or updated
+        """
+        if not packaged_db_path.exists():
+            return 0
+
+        try:
+            if packaged_db_path.resolve() == Path(self.db_manager.db_path).resolve():
+                return 0
+        except Exception:
+            # If resolve fails, fall back to best-effort sync.
+            pass
+
+        inserted_or_updated = 0
+        try:
+            source_conn = sqlite3.connect(str(packaged_db_path))
+            source_conn.row_factory = sqlite3.Row
+            rows = source_conn.execute(
+                """
+                SELECT constant_key, constant_value, unit, category, description,
+                       editable, min_value, max_value
+                FROM system_constants
+                ORDER BY category, constant_key
+                """
+            ).fetchall()
+        except sqlite3.Error as exc:
+            logger.warning("Failed to read packaged constants: %s", exc)
+            return 0
+        finally:
+            try:
+                source_conn.close()
+            except Exception:
+                pass
+
+        if not rows:
+            return 0
+
+        for row in rows:
+            constant = SystemConstant(
+                constant_key=row["constant_key"],
+                constant_value=row["constant_value"],
+                unit=row["unit"],
+                category=row["category"],
+                description=row["description"],
+                editable=row["editable"],
+                min_value=row["min_value"],
+                max_value=row["max_value"],
+            )
+            existing = self.repository.get_by_key(constant.constant_key)
+            if existing is None:
+                self.repository.create(constant)
+                inserted_or_updated += 1
+                continue
+
+            if overwrite:
+                updated = constant.copy(update={"id": existing.id})
+                self.repository.update(updated, updated_by="system")
+                inserted_or_updated += 1
+
+        if inserted_or_updated:
+            self.get_constant_map(refresh=True)
+
+        return inserted_or_updated

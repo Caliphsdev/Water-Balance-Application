@@ -20,6 +20,7 @@ from datetime import datetime, timezone, timedelta
 from typing import Optional, Tuple, Dict, Any
 
 from core.hwid import get_hwid, get_hwid_display
+from core.app_logger import logger as app_logger
 from core.crypto import (
     LicenseToken, 
     sign_token, 
@@ -34,7 +35,7 @@ from core.supabase_client import (
     SupabaseAPIError
 )
 
-logger = logging.getLogger(__name__)
+logger = app_logger
 
 
 # (CONSTANTS)
@@ -244,6 +245,18 @@ class LicenseService:
         except Exception as e:
             logger.error(f"Failed to delete license file: {e}")
             return False
+
+    def _should_delete_license_file(self, error: str) -> bool:
+        """
+        Decide whether to delete the license file after a validation error.
+        """
+        if not error:
+            return True
+        normalized = error.lower()
+        if "pynacl is required" in normalized:
+            logger.warning("Skipping license file deletion due to missing PyNaCl runtime.")
+            return False
+        return True
 
     # (CLOCK GUARD)
 
@@ -605,7 +618,7 @@ class LicenseService:
             )
         
         # Verify the saved token
-        is_valid, token, _ = verify_token_hwid(signed_token, self.hwid)
+        is_valid, token, error = verify_token_hwid(signed_token, self.hwid)
         if is_valid:
             self._current_token = token
             self._license_status = LicenseStatus(
@@ -615,6 +628,13 @@ class LicenseService:
                 days_remaining=token.days_until_expiry()
             )
             self._save_clock_guard(datetime.now(timezone.utc))
+        else:
+            if self._should_delete_license_file(error):
+                self._delete_license_file()
+            self._license_status = LicenseStatus(
+                LicenseStatus.INVALID,
+                message=f"Invalid license token: {error}",
+            )
         
         logger.info(f"License activated: tier={tier}")
         return self._license_status
@@ -649,7 +669,8 @@ class LicenseService:
         
         if not is_valid:
             logger.warning(f"License validation failed: {error}")
-            self._delete_license_file()
+            if self._should_delete_license_file(error):
+                self._delete_license_file()
             
             if "Hardware ID mismatch" in error:
                 self._license_status = LicenseStatus(

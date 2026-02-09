@@ -2,6 +2,10 @@
 from pathlib import Path
 import os
 
+from PyInstaller.utils.hooks import collect_dynamic_libs, collect_submodules
+import nacl
+import cffi
+
 # Get the project root - assume spec file is in scripts/packaging/
 # Use environment or construct path from spec location
 project_root = Path(__file__).parent.parent.parent if '__file__' in dir() else Path.cwd().parent.parent
@@ -13,12 +17,31 @@ icon_path = project_root / "src" / "ui" / "resources" / "icons" / "Water Balance
 
 block_cipher = None
 
+hiddenimports = collect_submodules("nacl")
+hiddenimports.append("_cffi_backend")
+binaries = collect_dynamic_libs("nacl")
+nacl_path = Path(nacl.__file__).parent
+sodium_pyd = nacl_path / "_sodium.pyd"
+if sodium_pyd.exists():
+    binaries.append((str(sodium_pyd), "nacl"))
+libsodium_dir = nacl_path / ".libs"
+if libsodium_dir.exists():
+    for candidate in libsodium_dir.glob("libsodium*.dll"):
+        binaries.append((str(candidate), "nacl"))
+for candidate in nacl_path.glob("libsodium*.dll"):
+    binaries.append((str(candidate), "nacl"))
+
+cffi_site = Path(cffi.__file__).parent.parent
+for candidate in cffi_site.glob("_cffi_backend*.pyd"):
+    binaries.append((str(candidate), "."))
+
 a = Analysis(
     [str(project_root / "src" / "main.py")],
     pathex=[str(project_root / "src")],
-    binaries=[],
+    binaries=binaries,
     datas=[
         (str(project_root / "config"), "config"),
+        (str(project_root / "data" / "water_balance.db"), "data"),
         (str(project_root / "data" / "balance_check_config.json"), "data"),
         (str(project_root / "data" / "balance_check_flow_categories.json"), "data"),
         (str(project_root / "data" / "column_aliases.json"), "data"),
@@ -29,7 +52,7 @@ a = Analysis(
         (str(project_root / "data" / "migrations"), "data/migrations"),
         (str(project_root / "data" / "sqlite_migrations"), "data/sqlite_migrations"),
     ],
-    hiddenimports=[],
+    hiddenimports=hiddenimports,
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -67,6 +90,6 @@ coll = COLLECT(
     a.datas,
     strip=False,
     upx=True,
-    upx_exclude=[],
+    upx_exclude=["_sodium.pyd", "libsodium*.dll", "_cffi_backend*.pyd"],
     name="WaterBalanceDashboard",
 )

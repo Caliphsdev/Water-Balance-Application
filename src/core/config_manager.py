@@ -44,6 +44,7 @@ class ConfigManager:
     
     _instance = None
     _config = None
+    _override_config = None
     
     def __new__(cls):
         if cls._instance is None:
@@ -110,6 +111,7 @@ class ConfigManager:
         except yaml.YAMLError as e:
             logger.error("Error parsing config file: %s", e)
             self._config = self._get_default_config()
+        self._override_config = self._load_override_config(Path(config_path))
         # Store config path for saving
         self._config_path = config_path
     
@@ -118,16 +120,11 @@ class ConfigManager:
         Get configuration value using dot notation
         Example: config.get('fonts.heading_large.size')
         """
-        keys = key_path.split('.')
-        value = self._config
-        
-        for key in keys:
-            if isinstance(value, dict) and key in value:
-                value = value[key]
-            else:
-                return default
-        
-        return value
+        sentinel = object()
+        override_value = self._get_from_config(self._override_config, key_path, sentinel)
+        if override_value is not sentinel:
+            return override_value
+        return self._get_from_config(self._config, key_path, default)
     
     def set(self, key_path: str, value: Any):
         """
@@ -214,6 +211,45 @@ class ConfigManager:
                 yaml.dump(self._config, f, default_flow_style=False)
         except Exception as e:
             logger.error("Error saving config: %s", e)
+
+    def _load_override_config(self, config_path: Path) -> Dict[str, Any]:
+        override_path = self._get_override_path(config_path)
+        if not override_path:
+            return {}
+        try:
+            data = yaml.safe_load(override_path.read_text(encoding="utf-8"))
+            return data or {}
+        except Exception:
+            return {}
+
+    def _get_override_path(self, config_path: Path) -> Path | None:
+        override_env = (
+            os.environ.get("WATERBALANCE_ADMIN_CONFIG")
+            or os.environ.get("WATERBALANCE_CONFIG_OVERRIDE")
+        )
+        if override_env:
+            return Path(override_env)
+
+        if config_path:
+            candidate = config_path.parent / "admin_config.yaml"
+            if candidate.exists():
+                return candidate
+        return None
+
+    def _get_from_config(self, config: Dict[str, Any], key_path: str, default: Any = None) -> Any:
+        if not config:
+            return default
+
+        keys = key_path.split('.')
+        value: Any = config
+
+        for key in keys:
+            if isinstance(value, dict) and key in value:
+                value = value[key]
+            else:
+                return default
+
+        return value
 
     # ============ User Session ============
     def get_current_user(self) -> str:

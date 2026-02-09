@@ -56,6 +56,10 @@ pyinstaller water_balance.spec
 
 Result: `dist/water_balance.exe`
 
+Notes:
+- PyNaCl uses CFFI; ensure `_cffi_backend` is bundled via the spec file for packaged builds.
+- The Windows installer should include the VC++ 2015-2022 x64 redistributable for PyNaCl/native deps.
+
 ---
 
 ### Database Operations

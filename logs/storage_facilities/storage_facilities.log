@@ -2982,3 +2982,6 @@
 2026-02-08 00:44:26 | DEBUG    | _cleanup_worker_signal:449 | [CLEANUP] Scheduling thread quit for next event loop
 2026-02-08 00:44:26 | DEBUG    | _perform_thread_quit:459 | [CLEANUP] Quitting thread...
 2026-02-08 00:44:26 | INFO     | _perform_thread_quit:463 | [CLEANUP] Thread quit successfully
+2026-02-08 17:49:43 | INFO     | get_dashboard_logger:583 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-08 18:04:28 | INFO     | get_dashboard_logger:583 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-08 18:07:52 | INFO     | get_dashboard_logger:583 | === STORAGE_FACILITIES Dashboard Logger Initialized ===

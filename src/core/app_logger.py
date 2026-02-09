@@ -13,6 +13,7 @@ import sys
 import time
 from queue import Queue, Empty
 from contextlib import contextmanager
+from typing import Optional
 from PySide6.QtCore import QThread, Signal, QObject
 
 from core.config_manager import ConfigManager

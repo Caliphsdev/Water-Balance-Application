@@ -89,6 +89,22 @@ def _run_sqlite_migrations() -> None:
         raise
 
 
+def _sync_packaged_constants() -> None:
+    """Sync packaged system constants into the user database."""
+    try:
+        from services.system_constants_service import SystemConstantsService
+
+        packaged_base = _find_packaged_base()
+        packaged_db = packaged_base / "data" / "water_balance.db"
+
+        service = SystemConstantsService()
+        inserted = service.sync_from_packaged_db(packaged_db, overwrite=False)
+        if inserted:
+            logger.info("Imported %s system constants from packaged DB", inserted)
+    except Exception as exc:
+        logger.warning("System constants sync skipped: %s", exc)
+
+
 user_base = _get_user_base()
 os.environ['WATERBALANCE_USER_DIR'] = str(user_base)
 
@@ -169,6 +185,7 @@ def main():
 
     # Apply SQLite migrations before app initialization
     _run_sqlite_migrations()
+    _sync_packaged_constants()
     
     app = QApplication(sys.argv)
     app.setApplicationName("Water Balance Dashboard")

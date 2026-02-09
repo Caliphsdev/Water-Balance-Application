@@ -35,14 +35,15 @@ from core.supabase_client import (
     SupabaseConnectionError
 )
 from services.license_service import get_license_service
+from core.config_manager import ConfigManager
 
 logger = logging.getLogger(__name__)
 
 
 # (CONSTANTS)
 
-# Current app version (should match package version)
-APP_VERSION = "1.0.0"
+# Current app version (fallback if config is unavailable)
+APP_VERSION = "0.0.0"
 
 # Update check interval in seconds (1 day)
 UPDATE_CHECK_INTERVAL = 86400
@@ -261,7 +262,8 @@ class UpdateService(QObject):
         
         self._data_dir = data_dir
         self._supabase = supabase_client
-        self._current_version = APP_VERSION
+        config = ConfigManager()
+        self._current_version = str(config.get("app.version", APP_VERSION))
         self._download_thread: Optional[QThread] = None
         self._download_worker: Optional[DownloadWorker] = None
         self._last_check: Optional[datetime] = None

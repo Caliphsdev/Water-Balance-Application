@@ -193,7 +193,7 @@ class NotificationDrawer(QFrame):
         """)
 
         # Message
-        message = notification_data.get('message', '')
+        message = notification_data.get('message') or notification_data.get('body', '')
         if message:
             self.message_label.setText(message)
             self.message_label.show()
@@ -742,19 +742,71 @@ class MessagesPage(QWidget):
         
         layout.addWidget(version_card)
 
+        build_info = QLabel(
+            f"Build info: v{current_version} | exe={sys.executable} | ui={__file__}"
+        )
+        build_info.setWordWrap(True)
+        build_info.setFont(QFont('Segoe UI', 9))
+        build_info.setStyleSheet("color: #6e7781;")
+        layout.addWidget(build_info)
+
         controls_layout = QHBoxLayout()
         controls_layout.setContentsMargins(0, 6, 0, 0)
         controls_layout.setSpacing(10)
 
         self.update_check_button = QPushButton("Check for updates")
         self.update_check_button.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.update_check_button.setFixedHeight(34)
+        self.update_check_button.setMinimumHeight(30)
+        self.update_check_button.setSizePolicy(
+            QSizePolicy.Policy.Fixed,
+            QSizePolicy.Policy.Fixed,
+        )
+        self.update_check_button.setStyleSheet("""
+            QPushButton {
+                background-color: #2563eb;
+                color: #ffffff;
+                border: 1px solid #1d4ed8;
+                border-radius: 6px;
+                padding: 6px 14px;
+                font-weight: 600;
+            }
+            QPushButton:hover {
+                background-color: #1d4ed8;
+            }
+            QPushButton:disabled {
+                background-color: #94a3b8;
+                border-color: #94a3b8;
+                color: #f1f5f9;
+            }
+        """)
         self.update_check_button.clicked.connect(self._on_check_updates_clicked)
         controls_layout.addWidget(self.update_check_button)
 
         self.update_download_button = QPushButton("Download update")
         self.update_download_button.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.update_download_button.setFixedHeight(34)
+        self.update_download_button.setMinimumHeight(30)
+        self.update_download_button.setSizePolicy(
+            QSizePolicy.Policy.Fixed,
+            QSizePolicy.Policy.Fixed,
+        )
+        self.update_download_button.setStyleSheet("""
+            QPushButton {
+                background-color: #16a34a;
+                color: #ffffff;
+                border: 1px solid #15803d;
+                border-radius: 6px;
+                padding: 6px 14px;
+                font-weight: 600;
+            }
+            QPushButton:hover {
+                background-color: #15803d;
+            }
+            QPushButton:disabled {
+                background-color: #94a3b8;
+                border-color: #94a3b8;
+                color: #f1f5f9;
+            }
+        """)
         self.update_download_button.setVisible(False)
         self.update_download_button.clicked.connect(self._open_update_download)
         controls_layout.addWidget(self.update_download_button)
@@ -774,12 +826,20 @@ class MessagesPage(QWidget):
                 border-radius: 8px;
             }
         """)
+        self.update_status_label.setSizePolicy(
+            QSizePolicy.Policy.Expanding,
+            QSizePolicy.Policy.Expanding,
+        )
         layout.addWidget(self.update_status_label, 1)
 
         self._pending_update_url = None
         self._update_toast_timer = QTimer(self)
         self._update_toast_timer.setSingleShot(True)
         self._update_toast_timer.timeout.connect(self.update_toast_label.hide)
+
+        self._update_check_timeout = QTimer(self)
+        self._update_check_timeout.setSingleShot(True)
+        self._update_check_timeout.timeout.connect(self._on_update_check_timeout)
         
         return tab
 
@@ -792,19 +852,23 @@ class MessagesPage(QWidget):
         if hasattr(self, "update_download_button"):
             self.update_download_button.setVisible(False)
         self._pending_update_url = None
+        if hasattr(self, "_update_check_timeout"):
+            self._update_check_timeout.start(30000)
 
         def _worker():
             try:
                 from services.update_service import get_update_service
                 update = get_update_service().check_for_updates(force=True)
-                QTimer.singleShot(0, lambda: self._on_update_check_finished(update))
+                QTimer.singleShot(0, self, lambda: self._on_update_check_finished(update))
             except Exception as exc:
-                QTimer.singleShot(0, lambda: self._on_update_check_error(str(exc)))
+                QTimer.singleShot(0, self, lambda: self._on_update_check_error(str(exc)))
 
         threading.Thread(target=_worker, daemon=True).start()
 
     def _on_update_check_finished(self, update_info) -> None:
         """Handle update check completion and refresh UI state."""
+        if hasattr(self, "_update_check_timeout"):
+            self._update_check_timeout.stop()
         if update_info:
             size_text = ""
             if update_info.file_size_mb:
@@ -817,14 +881,23 @@ class MessagesPage(QWidget):
             self._show_update_toast(f"Update available: v{update_info.version}")
         else:
             self.update_status_label.setText("🔍 No updates available")
+            self._show_update_toast("No updates available")
 
         self.update_check_button.setEnabled(True)
 
     def _on_update_check_error(self, error_message: str) -> None:
         """Handle update check errors and restore UI state."""
+        if hasattr(self, "_update_check_timeout"):
+            self._update_check_timeout.stop()
         logger.warning("Update check failed: %s", error_message)
         self.update_status_label.setText("Update check failed. Try again.")
         self._show_update_toast("Update check failed", is_error=True)
+        self.update_check_button.setEnabled(True)
+
+    def _on_update_check_timeout(self) -> None:
+        """Handle update checks that exceed the timeout window."""
+        self.update_status_label.setText("Update check timed out. Try again.")
+        self._show_update_toast("Update check timed out", is_error=True)
         self.update_check_button.setEnabled(True)
 
     def _open_update_download(self) -> None:

@@ -19,6 +19,7 @@ Thumbs.db
 logs/
 .vscode/tasks.json
 data/license.dat
+config/admin_config.yaml
 
 # Build artifacts
 build/
