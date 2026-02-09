@@ -21,11 +21,6 @@ from core.config_manager import ConfigManager
 logger = logging.getLogger(__name__)
 
 
-# (CONSTANTS)
-
-# Company email for feedback notifications
-FEEDBACK_EMAIL = "feedback@tworiversplatinum.com"  # Update with your actual email
-
 # Feedback types
 FEEDBACK_TYPES = {
     "bug": "🐛 Bug Report",
@@ -42,7 +37,6 @@ class FeedbackService:
     
     Features:
     - Submits to Supabase feature_requests table
-    - Sends email notification to company
     - Includes user context (HWID, license, version)
     """
     
@@ -50,6 +44,7 @@ class FeedbackService:
         """Initialize feedback service."""
         self._supabase = None
         self._config = ConfigManager()
+        self.last_error: Optional[str] = None
         
     def _ensure_supabase(self):
         """Ensure Supabase client is initialized."""
@@ -77,6 +72,7 @@ class FeedbackService:
             True if submission succeeded, False otherwise
         """
         try:
+            self.last_error = None
             self._ensure_supabase()
 
             # Normalize feedback type to schema
@@ -88,7 +84,8 @@ class FeedbackService:
             license_service = get_license_service()
             
             hwid = get_hwid()
-            license_key = license_service.get_license_key() or "Unknown"
+            license_info = license_service.get_license_info()
+            license_key = license_info.get("license_key") or "Unknown"
             app_version = self._config.get('app.version', '1.0.0')
             
             # Prepare feedback data
@@ -108,101 +105,35 @@ class FeedbackService:
             if customer_name:
                 feedback_data["customer_name"] = customer_name
             
-            # 1. Store in Supabase
-            result = self._supabase.insert("feature_requests", feedback_data)
+            # 1. Store in Supabase via RPC to avoid RLS insert failures
+            result = self._supabase.rpc(
+                "submit_feedback",
+                {
+                    "_type": feedback_data["type"],
+                    "_title": feedback_data["title"],
+                    "_description": feedback_data["description"],
+                    "_email": feedback_data.get("email"),
+                    "_customer_name": feedback_data.get("customer_name"),
+                    "_hwid": feedback_data.get("hwid"),
+                    "_license_key": feedback_data.get("license_key"),
+                    "_app_version": feedback_data.get("app_version"),
+                }
+            )
             
             if not result:
                 logger.error("Failed to insert feedback into Supabase")
+                self.last_error = "Feedback was not accepted by the server."
                 return False
             
             logger.info(f"Feedback stored in Supabase: {title}")
-            
-            # 2. Send email notification (disabled - set up later)
-            # TODO: Enable email notifications when ready
-            # self._send_email_notification(
-            #     feedback_type=feedback_type,
-            #     title=title,
-            #     description=description,
-            #     email=email,
-            #     hwid=hwid,
-            #     license_key=license_key,
-            #     app_version=app_version
-            # )
             
             return True
             
         except Exception as e:
             logger.exception(f"Error submitting feedback: {e}")
+            self.last_error = str(e)
             return False
     
-    def _send_email_notification(
-        self,
-        feedback_type: str,
-        title: str,
-        description: str,
-        email: Optional[str],
-        hwid: str,
-        license_key: str,
-        app_version: str
-    ) -> None:
-        """
-        Send email notification about new feedback.
-        
-        Uses Supabase Edge Function for email delivery.
-        Falls back gracefully if email fails.
-        """
-        try:
-            # Format email body
-            type_label = FEEDBACK_TYPES.get(feedback_type, "Feedback")
-            
-            email_body = f"""
-New {type_label} Received
-{'=' * 50}
-
-Title: {title}
-
-Type: {type_label}
-
-Description:
-{description}
-
-{'=' * 50}
-User Information:
-- App Version: {app_version}
-- License Key: {license_key}
-- Hardware ID: {hwid}
-"""
-            
-            if email:
-                email_body += f"- User Email: {email}\n"
-            
-            email_body += f"\n{'=' * 50}\n"
-            email_body += f"Submitted: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC\n"
-            
-            # Prepare email data for Supabase Edge Function
-            email_data = {
-                "to": FEEDBACK_EMAIL,
-                "subject": f"[Water Balance] {type_label}: {title}",
-                "body": email_body,
-                "from_app": "Water Balance Dashboard",
-                "app_version": app_version
-            }
-            
-            # Call Supabase Edge Function for email
-            # Note: You'll need to create this function in Supabase
-            # For now, we'll use the RPC method if available
-            try:
-                self._supabase._client.rpc('send_feedback_email', email_data).execute()
-                logger.info(f"Email notification sent for feedback: {title}")
-            except Exception as email_err:
-                # Email is optional - don't fail if it doesn't work
-                logger.warning(f"Email notification failed (non-critical): {email_err}")
-                
-        except Exception as e:
-            # Don't fail the whole submission if email fails
-            logger.warning(f"Failed to send email notification: {e}")
-
-
 # (SINGLETON)
 
 _service_instance: Optional[FeedbackService] = None

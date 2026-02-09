@@ -16,8 +16,11 @@ from __future__ import annotations
 
 import threading
 
-from PySide6.QtWidgets import QMainWindow, QVBoxLayout, QLabel, QPushButton, QHBoxLayout, QWidget, QMessageBox
-from PySide6.QtCore import Slot, QSize, QPropertyAnimation, QEasingCurve, QTimer, QUrl
+from PySide6.QtWidgets import (
+    QMainWindow, QVBoxLayout, QLabel, QPushButton, QHBoxLayout, QWidget,
+    QMessageBox, QProgressDialog, QApplication
+)
+from PySide6.QtCore import Slot, QSize, QPropertyAnimation, QEasingCurve, QTimer, QUrl, Qt
 from PySide6.QtGui import QIcon, QPixmap, QGuiApplication, QDesktopServices
 
 # Register compiled Qt resources (icons, images, fonts)
@@ -61,6 +64,7 @@ class MainWindow(QMainWindow):
         self.splash = splash
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        self._configure_header_elements()
         self._storage_facilities_page = None
         self._messages_page = None
         self._apply_window_sizing()
@@ -93,14 +97,14 @@ class MainWindow(QMainWindow):
                         QTimer.singleShot(5000, self._check_for_updates)
                     return
 
-                QTimer.singleShot(0, lambda: self._show_update_dialog(update))
+                QTimer.singleShot(0, self, lambda: self._show_update_dialog(update))
             except Exception as exc:
                 logger.warning("Update check failed: %s", exc)
 
         threading.Thread(target=_worker, daemon=True).start()
 
     def _show_update_dialog(self, update_info) -> None:
-        """Prompt the user to download the available update."""
+        """Prompt the user to download and install the available update."""
         title = "Update Available"
         details = [f"Version: {update_info.version}"]
         if update_info.file_size_mb:
@@ -114,12 +118,92 @@ class MainWindow(QMainWindow):
         box.setWindowTitle(title)
         box.setText("A new update is available.")
         box.setInformativeText(message)
-        download_button = box.addButton("Download", QMessageBox.ButtonRole.AcceptRole)
+        box.setMinimumWidth(420)
+        download_button = box.addButton("Download and install", QMessageBox.ButtonRole.AcceptRole)
         box.addButton("Later", QMessageBox.ButtonRole.RejectRole)
         box.exec()
 
         if box.clickedButton() == download_button:
-            QDesktopServices.openUrl(QUrl(update_info.download_url))
+            self._start_update_download(update_info)
+
+    def _start_update_download(self, update_info) -> None:
+        """Start downloading the update with progress feedback."""
+        from services.update_service import get_update_service
+
+        service = get_update_service()
+        self._install_prompt_shown = False
+
+        if getattr(self, "_update_download_dialog", None):
+            self._update_download_dialog.close()
+
+        self._update_download_dialog = QProgressDialog(
+            "Downloading update...",
+            "Cancel",
+            0,
+            100,
+            self
+        )
+        self._update_download_dialog.setWindowModality(Qt.WindowModality.WindowModal)
+        self._update_download_dialog.setMinimumDuration(0)
+        self._update_download_dialog.setValue(0)
+        self._update_download_dialog.canceled.connect(service.cancel_download)
+        self._update_download_dialog.show()
+
+        try:
+            service.update_progress.disconnect(self._on_update_download_progress)
+        except Exception:
+            pass
+        try:
+            service.update_failed.disconnect(self._on_update_download_failed)
+        except Exception:
+            pass
+
+        service.update_progress.connect(self._on_update_download_progress)
+        service.update_failed.connect(self._on_update_download_failed)
+        service.download_update(update_info)
+
+    def _on_update_download_progress(self, progress: int, message: str) -> None:
+        """Update the progress dialog and prompt for install when ready."""
+        if getattr(self, "_update_download_dialog", None):
+            self._update_download_dialog.setLabelText(message)
+            self._update_download_dialog.setValue(progress)
+
+        if "ready to install" in message.lower() and not getattr(self, "_install_prompt_shown", False):
+            self._install_prompt_shown = True
+            self._prompt_install_downloaded_update()
+
+    def _on_update_download_failed(self, error_message: str) -> None:
+        """Handle download failures."""
+        if getattr(self, "_update_download_dialog", None):
+            self._update_download_dialog.close()
+        QMessageBox.warning(self, "Update Download Failed", error_message)
+
+    def _prompt_install_downloaded_update(self) -> None:
+        """Prompt the user to install the downloaded update."""
+        from services.update_service import get_update_service
+
+        service = get_update_service()
+        pending = service.check_pending_update()
+        if not pending:
+            return
+
+        version = pending.get("version", "")
+        installer_path = pending.get("installer_path", "")
+
+        box = QMessageBox(self)
+        box.setIcon(QMessageBox.Icon.Information)
+        box.setWindowTitle("Update Ready")
+        box.setText(f"Update {version} is ready to install.")
+        box.setInformativeText("The app will close to complete the installation.")
+        install_button = box.addButton("Install now", QMessageBox.ButtonRole.AcceptRole)
+        box.addButton("Later", QMessageBox.ButtonRole.RejectRole)
+        box.exec()
+
+        if box.clickedButton() == install_button:
+            if service.install_update(installer_path):
+                app = QApplication.instance()
+                if app:
+                    app.quit()
 
     def _connect_navigation(self) -> None:
         """Wire sidebar buttons to stacked widget pages.
@@ -167,8 +251,25 @@ class MainWindow(QMainWindow):
         self.ui.pushButton_19.toggled.connect(self._toggle_sidebar)
         
         # Refresh button (in header) triggers current page refresh
-        if hasattr(self.ui, 'referesh_button'):
+        if hasattr(self.ui, 'referesh_button') and self.ui.referesh_button.isVisible():
             self.ui.referesh_button.clicked.connect(self._on_refresh_clicked)
+
+    def _configure_header_elements(self) -> None:
+        if hasattr(self.ui, "Header_Main"):
+            self.ui.Header_Main.setMinimumHeight(58)
+            self.ui.Header_Main.setMaximumHeight(58)
+        if hasattr(self.ui, "horizontalLayout_2"):
+            self.ui.horizontalLayout_2.setContentsMargins(10, 4, 10, 4)
+            self.ui.horizontalLayout_2.setSpacing(10)
+        if hasattr(self.ui, "verticalLayout_5"):
+            self.ui.verticalLayout_5.setContentsMargins(2, 2, 2, 2)
+            self.ui.verticalLayout_5.setSpacing(2)
+        if hasattr(self.ui, "Heade_Submain"):
+            self.ui.Heade_Submain.hide()
+        if hasattr(self.ui, "referesh_button"):
+            self.ui.referesh_button.hide()
+        if hasattr(self.ui, "label_4"):
+            self.ui.label_4.hide()
 
     def _setup_animations(self) -> None:
         """Create smooth width animations for sidebar transitions."""
@@ -321,16 +422,18 @@ class MainWindow(QMainWindow):
         
         try:
             statusbar = self.ui.statusbar
+            statusbar.setMinimumHeight(24)
+            statusbar.setMaximumHeight(24)
             
             # === LEFT SIDE: License Info ===
             license_widget = QWidget()
             license_layout = QHBoxLayout(license_widget)
-            license_layout.setContentsMargins(8, 2, 8, 2)
+            license_layout.setContentsMargins(4, 1, 4, 1)
             license_layout.setSpacing(6)
             
             # License key icon
             self.license_icon = QLabel()
-            license_pixmap = QIcon(":/icons/license-svgrepo-com.svg").pixmap(16, 16)
+            license_pixmap = QIcon(":/icons/license-svgrepo-com.svg").pixmap(14, 14)
             self.license_icon.setPixmap(license_pixmap)
             self.license_icon.setToolTip("License Status")
             license_layout.addWidget(self.license_icon)
@@ -340,8 +443,8 @@ class MainWindow(QMainWindow):
             self.license_label.setStyleSheet("""
                 QLabel {
                     color: #424242;
-                    font-size: 12px;
-                    padding: 2px 4px;
+                    font-size: 10px;
+                    padding: 1px 3px;
                 }
             """)
             license_layout.addWidget(self.license_label)
@@ -351,13 +454,13 @@ class MainWindow(QMainWindow):
             # === RIGHT SIDE (Permanent): Network Status ===
             network_widget = QWidget()
             network_layout = QHBoxLayout(network_widget)
-            network_layout.setContentsMargins(8, 2, 8, 2)
+            network_layout.setContentsMargins(4, 1, 4, 1)
             network_layout.setSpacing(4)
             
             # Network status icon
             self.network_icon = QLabel()
             # Set default icon (will be updated by network check)
-            default_pixmap = QIcon(":/icons/network-wireless-svgrepo-com.svg").pixmap(16, 16)
+            default_pixmap = QIcon(":/icons/network-wireless-svgrepo-com.svg").pixmap(14, 14)
             if not default_pixmap.isNull():
                 self.network_icon.setPixmap(default_pixmap)
             else:
@@ -370,7 +473,7 @@ class MainWindow(QMainWindow):
             self.network_label.setStyleSheet("""
                 QLabel {
                     color: #757575;
-                    font-size: 11px;
+                    font-size: 10px;
                 }
             """)
             network_layout.addWidget(self.network_label)
@@ -749,18 +852,13 @@ class MainWindow(QMainWindow):
         Called after flow diagram page is loaded and connected.
         """
         try:
-            # Get balance data from flow diagram if available
             dashboard_data = {}
-            
-            if hasattr(self.ui, 'flow_diagram') and hasattr(self.ui.flow_diagram, 'get_balance_summary'):
-                balance_data = self.ui.flow_diagram.get_balance_summary()
-                dashboard_data.update(balance_data)
             
             # Get environmental data (rainfall, evaporation) from database
             try:
                 env_service = get_environmental_data_service()
-                month = dashboard_data.get('month')
-                year = dashboard_data.get('year')
+                month = getattr(self.ui.dashboard, "current_month", None)
+                year = getattr(self.ui.dashboard, "current_year", None)
                 
                 if month and year:
                     # get_rainfall/get_evaporation return default 0.0 if not found

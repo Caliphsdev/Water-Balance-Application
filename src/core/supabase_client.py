@@ -177,6 +177,45 @@ class SupabaseClient:
         except Exception as e:
             logger.error(f"Supabase request failed: {e}")
             raise SupabaseError(f"Request failed: {e}")
+
+    def invoke_function(self, function_name: str, payload: Dict[str, Any]) -> Any:
+        """Invoke a Supabase Edge Function with a JSON payload."""
+        if not self.is_configured:
+            raise SupabaseConnectionError("Supabase not configured")
+
+        url = f"{self.url}/functions/v1/{function_name}"
+        headers = {
+            "apikey": self.anon_key,
+            "Authorization": f"Bearer {self.anon_key}",
+            "Content-Type": "application/json",
+        }
+        body = json.dumps(payload).encode("utf-8")
+
+        request = urllib.request.Request(
+            url,
+            data=body,
+            headers=headers,
+            method="POST"
+        )
+
+        try:
+            with urllib.request.urlopen(request, timeout=REQUEST_TIMEOUT) as response:
+                response_data = response.read().decode("utf-8")
+                return json.loads(response_data) if response_data else None
+        except urllib.error.HTTPError as e:
+            error_body = e.read().decode("utf-8") if e.fp else ""
+            logger.error(f"Supabase function error: {e.code} - {error_body}")
+            raise SupabaseAPIError(
+                f"Function error: {e.reason}",
+                status_code=e.code,
+                details=error_body
+            )
+        except urllib.error.URLError as e:
+            logger.error(f"Supabase function connection error: {e.reason}")
+            raise SupabaseConnectionError(f"Connection failed: {e.reason}")
+        except Exception as e:
+            logger.error(f"Supabase function request failed: {e}")
+            raise SupabaseError(f"Request failed: {e}")
     
     # (TABLE OPERATIONS)
     

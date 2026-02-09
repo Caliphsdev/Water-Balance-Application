@@ -18,6 +18,7 @@ from PySide6.QtWidgets import (
     QDialog,
     QFrame,
     QHBoxLayout,
+    QHeaderView,
     QLabel,
     QLineEdit,
     QMessageBox,
@@ -93,6 +94,11 @@ class FeedbackViewerDialog(QDialog):
                 color: #cbd5f5;
                 font-size: 11px;
             }
+            QFrame#filterCard {
+                background-color: #ffffff;
+                border: 1px solid #e2e8f0;
+                border-radius: 10px;
+            }
             QFrame#panelCard {
                 background-color: #ffffff;
                 border: 1px solid #e2e8f0;
@@ -104,6 +110,31 @@ class FeedbackViewerDialog(QDialog):
                 border-radius: 6px;
                 padding: 6px 10px;
                 font-size: 12px;
+            }
+            QLabel#filterLabel {
+                color: #475569;
+                font-size: 11px;
+                font-weight: 600;
+            }
+            QPushButton {
+                background-color: #0f172a;
+                color: #f8fafc;
+                border: none;
+                border-radius: 6px;
+                padding: 6px 14px;
+                font-size: 11px;
+                font-weight: 600;
+            }
+            QPushButton:hover {
+                background-color: #1e293b;
+            }
+            QPushButton#ghostButton {
+                background-color: transparent;
+                border: 1px solid #cbd5e1;
+                color: #334155;
+            }
+            QPushButton#ghostButton:hover {
+                background-color: #f1f5f9;
             }
             QTextEdit {
                 background-color: #ffffff;
@@ -150,23 +181,48 @@ class FeedbackViewerDialog(QDialog):
         header_layout.addStretch(1)
 
         self.refresh_button = QPushButton("Refresh")
+        self.refresh_button.setObjectName("ghostButton")
         header_layout.addWidget(self.refresh_button)
         layout.addWidget(header_card)
 
-        filter_row = QHBoxLayout()
+        filter_card = QFrame()
+        filter_card.setObjectName("filterCard")
+        filter_layout = QHBoxLayout(filter_card)
+        filter_layout.setContentsMargins(12, 10, 12, 10)
+        filter_layout.setSpacing(10)
+
+        search_col = QVBoxLayout()
+        search_label = QLabel("Search")
+        search_label.setObjectName("filterLabel")
+        search_col.addWidget(search_label)
         self.search_input = QLineEdit()
         self.search_input.setPlaceholderText("Search title, email, or license key")
-        filter_row.addWidget(self.search_input, 2)
+        search_col.addWidget(self.search_input)
+        filter_layout.addLayout(search_col, 3)
 
+        type_col = QVBoxLayout()
+        type_label = QLabel("Type")
+        type_label.setObjectName("filterLabel")
+        type_col.addWidget(type_label)
         self.type_filter = QComboBox()
         self.type_filter.addItems(["All", "bug", "feature", "general"])
-        filter_row.addWidget(self.type_filter, 1)
+        type_col.addWidget(self.type_filter)
+        filter_layout.addLayout(type_col, 1)
 
+        status_col = QVBoxLayout()
+        status_label = QLabel("Status")
+        status_label.setObjectName("filterLabel")
+        status_col.addWidget(status_label)
         self.status_filter = QComboBox()
         self.status_filter.addItems(["All", "open", "in_progress", "resolved", "closed", "wont_fix"])
-        filter_row.addWidget(self.status_filter, 1)
+        status_col.addWidget(self.status_filter)
+        filter_layout.addLayout(status_col, 1)
 
-        layout.addLayout(filter_row)
+        self.clear_filters_button = QPushButton("Clear")
+        self.clear_filters_button.setObjectName("ghostButton")
+        filter_layout.addWidget(self.clear_filters_button)
+
+        layout.addWidget(filter_card)
 
         splitter = QSplitter(Qt.Orientation.Horizontal)
 
@@ -183,6 +239,7 @@ class FeedbackViewerDialog(QDialog):
         self.table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.table.horizontalHeader().setStretchLastSection(True)
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         self.table.verticalHeader().setVisible(False)
         self.table.horizontalHeader().setDefaultAlignment(Qt.AlignmentFlag.AlignLeft)
         self.table.setSortingEnabled(False)
@@ -206,6 +263,10 @@ class FeedbackViewerDialog(QDialog):
         action_row = QHBoxLayout()
         action_row.setSpacing(8)
 
+        status_action_label = QLabel("Set status")
+        status_action_label.setObjectName("filterLabel")
+        action_row.addWidget(status_action_label)
+
         self.status_action = QComboBox()
         self.status_action.addItems(["open", "in_progress", "resolved", "closed", "wont_fix"])
         action_row.addWidget(self.status_action)
@@ -214,15 +275,19 @@ class FeedbackViewerDialog(QDialog):
         action_row.addWidget(self.apply_status_button)
 
         self.resolve_button = QPushButton("Mark Resolved")
+        self.resolve_button.setObjectName("ghostButton")
         action_row.addWidget(self.resolve_button)
 
         self.copy_email_button = QPushButton("Copy Email")
+        self.copy_email_button.setObjectName("ghostButton")
         action_row.addWidget(self.copy_email_button)
 
         self.copy_license_button = QPushButton("Copy License")
+        self.copy_license_button.setObjectName("ghostButton")
         action_row.addWidget(self.copy_license_button)
 
         self.copy_hwid_button = QPushButton("Copy HWID")
+        self.copy_hwid_button.setObjectName("ghostButton")
         action_row.addWidget(self.copy_hwid_button)
 
         action_row.addStretch(1)
@@ -243,6 +308,7 @@ class FeedbackViewerDialog(QDialog):
         splitter.addWidget(detail_panel)
         splitter.setStretchFactor(0, 3)
         splitter.setStretchFactor(1, 2)
+        splitter.setChildrenCollapsible(False)
 
         layout.addWidget(splitter, 1)
 
@@ -256,6 +322,7 @@ class FeedbackViewerDialog(QDialog):
         self.copy_email_button.clicked.connect(lambda: self._copy_selected("email"))
         self.copy_license_button.clicked.connect(lambda: self._copy_selected("license_key"))
         self.copy_hwid_button.clicked.connect(lambda: self._copy_selected("hwid"))
+        self.clear_filters_button.clicked.connect(self._reset_filters)
 
         self._refresh()
 
@@ -335,6 +402,11 @@ class FeedbackViewerDialog(QDialog):
 
         self._populate_table(rows)
 
+    def _reset_filters(self) -> None:
+        self.search_input.clear()
+        self.type_filter.setCurrentText("All")
+        self.status_filter.setCurrentText("All")
+
     def _populate_table(self, rows: List[Dict[str, Any]]) -> None:
         self.table.setRowCount(len(rows))
         for row_idx, row in enumerate(rows):
@@ -347,7 +419,6 @@ class FeedbackViewerDialog(QDialog):
                     item.setFont(font)
                     item.setData(Qt.ItemDataRole.UserRole, row.get("id"))
                 self.table.setItem(row_idx, col_idx, item)
-        self.table.resizeColumnsToContents()
 
     def _on_row_selected(self) -> None:
         selected = self.table.selectedItems()

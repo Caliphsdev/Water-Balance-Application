@@ -69,6 +69,9 @@ class DashboardPage(QWidget):
         
         # Apply dynamic font scaling based on screen size
         self._apply_dynamic_font_scaling()
+
+        # Clear balance status display so cached UI values do not show on startup
+        self._reset_balance_status_display()
         
         # Re-apply fonts when window is resized (connect to parent if available)
         if parent:
@@ -76,6 +79,16 @@ class DashboardPage(QWidget):
         
         # Load initial data from database (replaces placeholder values)
         self._load_initial_data()
+
+    def _reset_balance_status_display(self) -> None:
+        self.ui.value_total_inflows.setText("--")
+        self.ui.value_total_outflows.setText("--")
+        self.ui.value_recirculation.setText("--")
+        self.ui.value_balance_error.setText("--")
+        self.ui.value_status.setText("--")
+        self.ui.value_status.setStyleSheet("color: #64748b; font-weight: bold;")
+        if hasattr(self.ui, "label_balance_status"):
+            self.ui.label_balance_status.setText("Balance Status | --")
     
     def _load_initial_data(self):
         """Load initial KPI data from database (STARTUP DATA LOAD).

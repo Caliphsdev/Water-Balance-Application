@@ -14,9 +14,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QToolButton,
+    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
     QScrollArea, QFrame, QStackedWidget, QComboBox, QLineEdit,
-    QTextEdit, QMessageBox, QGraphicsDropShadowEffect, QSizePolicy
+    QTextEdit, QMessageBox, QGraphicsDropShadowEffect, QSizePolicy,
+    QProgressDialog, QApplication
 )
 from PySide6.QtCore import Qt, QTimer, Signal, QPropertyAnimation, QEasingCurve, QUrl
 from PySide6.QtGui import QIcon, QFont, QColor, QDesktopServices
@@ -742,14 +743,6 @@ class MessagesPage(QWidget):
         
         layout.addWidget(version_card)
 
-        build_info = QLabel(
-            f"Build info: v{current_version} | exe={sys.executable} | ui={__file__}"
-        )
-        build_info.setWordWrap(True)
-        build_info.setFont(QFont('Segoe UI', 9))
-        build_info.setStyleSheet("color: #6e7781;")
-        layout.addWidget(build_info)
-
         controls_layout = QHBoxLayout()
         controls_layout.setContentsMargins(0, 6, 0, 0)
         controls_layout.setSpacing(10)
@@ -833,6 +826,9 @@ class MessagesPage(QWidget):
         layout.addWidget(self.update_status_label, 1)
 
         self._pending_update_url = None
+        self._pending_update_info = None
+        self._download_dialog = None
+        self._install_prompt_shown = False
         self._update_toast_timer = QTimer(self)
         self._update_toast_timer.setSingleShot(True)
         self._update_toast_timer.timeout.connect(self.update_toast_label.hide)
@@ -876,12 +872,15 @@ class MessagesPage(QWidget):
             self.update_status_label.setText(
                 f"Update available: v{update_info.version}{size_text}"
             )
+            self._pending_update_info = update_info
             self._pending_update_url = update_info.download_url
             self.update_download_button.setVisible(True)
             self._show_update_toast(f"Update available: v{update_info.version}")
         else:
             self.update_status_label.setText("🔍 No updates available")
             self._show_update_toast("No updates available")
+            self._pending_update_info = None
+            self._pending_update_url = None
 
         self.update_check_button.setEnabled(True)
 
@@ -901,10 +900,91 @@ class MessagesPage(QWidget):
         self.update_check_button.setEnabled(True)
 
     def _open_update_download(self) -> None:
-        """Open the download link for the available update."""
-        if not self._pending_update_url:
+        """Download the available update and prompt to install."""
+        if self._pending_update_info:
+            self._start_update_download(self._pending_update_info)
             return
-        QDesktopServices.openUrl(QUrl(self._pending_update_url))
+        if self._pending_update_url:
+            QDesktopServices.openUrl(QUrl(self._pending_update_url))
+
+    def _start_update_download(self, update_info) -> None:
+        """Start downloading the update with progress feedback."""
+        from services.update_service import get_update_service
+
+        service = get_update_service()
+        self._install_prompt_shown = False
+
+        if self._download_dialog:
+            self._download_dialog.close()
+
+        self._download_dialog = QProgressDialog(
+            "Downloading update...",
+            "Cancel",
+            0,
+            100,
+            self
+        )
+        self._download_dialog.setWindowModality(Qt.WindowModality.WindowModal)
+        self._download_dialog.setMinimumDuration(0)
+        self._download_dialog.setValue(0)
+        self._download_dialog.canceled.connect(service.cancel_download)
+        self._download_dialog.show()
+
+        try:
+            service.update_progress.disconnect(self._on_update_download_progress)
+        except Exception:
+            pass
+        try:
+            service.update_failed.disconnect(self._on_update_download_failed)
+        except Exception:
+            pass
+
+        service.update_progress.connect(self._on_update_download_progress)
+        service.update_failed.connect(self._on_update_download_failed)
+        service.download_update(update_info)
+
+    def _on_update_download_progress(self, progress: int, message: str) -> None:
+        """Update the progress dialog and prompt for install when ready."""
+        if self._download_dialog:
+            self._download_dialog.setLabelText(message)
+            self._download_dialog.setValue(progress)
+
+        if "ready to install" in message.lower() and not self._install_prompt_shown:
+            self._install_prompt_shown = True
+            self._prompt_install_downloaded_update()
+
+    def _on_update_download_failed(self, error_message: str) -> None:
+        """Handle download failures."""
+        if self._download_dialog:
+            self._download_dialog.close()
+        QMessageBox.warning(self, "Update Download Failed", error_message)
+
+    def _prompt_install_downloaded_update(self) -> None:
+        """Prompt the user to install the downloaded update."""
+        from services.update_service import get_update_service
+
+        service = get_update_service()
+        pending = service.check_pending_update()
+        if not pending:
+            return
+
+        version = pending.get("version", "")
+        installer_path = pending.get("installer_path", "")
+
+        box = QMessageBox(self)
+        box.setIcon(QMessageBox.Icon.Information)
+        box.setWindowTitle("Update Ready")
+        box.setText(f"Update {version} is ready to install.")
+        box.setInformativeText("The app will close to complete the installation.")
+        install_button = box.addButton("Install now", QMessageBox.ButtonRole.AcceptRole)
+        box.addButton("Later", QMessageBox.ButtonRole.RejectRole)
+        box.exec()
+
+        if box.clickedButton() == install_button:
+            if service.install_update(installer_path):
+                app = QApplication.instance()
+                if app:
+                    app.quit()
 
     def _show_update_toast(self, message: str, is_error: bool = False) -> None:
         """Show a transient toast-like notice in the Updates tab."""
@@ -935,62 +1015,8 @@ class MessagesPage(QWidget):
         """Create feedback submission tab with professional form (FEEDBACK TAB)."""
         tab = QWidget()
         layout = QVBoxLayout(tab)
-        layout.setContentsMargins(0, 16, 0, 0)
-        layout.setSpacing(16)
-
-        header_card = QFrame()
-        header_card.setObjectName("feedbackHeader")
-        header_card.setStyleSheet("""
-            QFrame#feedbackHeader {
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                                            stop:0 #0f172a, stop:1 #1e293b);
-                border-radius: 10px;
-                padding: 10px 14px;
-            }
-        """)
-        header_layout = QHBoxLayout(header_card)
-        header_layout.setContentsMargins(14, 10, 14, 10)
-
-        header_stack = QVBoxLayout()
-        header_stack.setSpacing(4)
-        header_title = QLabel("Feedback")
-        header_title.setFont(QFont('Segoe UI Variable', 14, QFont.Weight.DemiBold))
-        header_title.setStyleSheet("color: #f8fafc;")
-        header_stack.addWidget(header_title)
-
-        header_subtitle = QLabel("Quick summary and details.")
-        header_subtitle.setFont(QFont('Segoe UI', 9))
-        header_subtitle.setStyleSheet("color: #cbd5f5;")
-        header_stack.addWidget(header_subtitle)
-        header_layout.addLayout(header_stack)
-        header_layout.addStretch()
-
-        header_note = QLabel("Response: 1-2 days")
-        header_note.setFont(QFont('Segoe UI', 8, QFont.Weight.DemiBold))
-        header_note.setStyleSheet(
-            "color: #e2e8f0; border: 1px solid #475569; padding: 4px 8px; border-radius: 6px;"
-        )
-        header_layout.addWidget(header_note)
-
-        help_button = QToolButton()
-        help_button.setText("?")
-        help_button.setToolTipDuration(8000)
-        help_button.setToolTip(
-            "<b>Feedback tips</b><br>"
-            "• What you expected<br>"
-            "• What actually happened<br>"
-            "• Steps to reproduce"
-        )
-        help_button.setStyleSheet(
-            "QToolButton {"
-            "color: #cbd5f5; background-color: transparent;"
-            "border: 1px solid #475569; border-radius: 10px; min-width: 20px;"
-            "}"
-            "QToolButton:hover { border-color: #93c5fd; color: #e2e8f0; }"
-        )
-        header_layout.addWidget(help_button)
-
-        layout.addWidget(header_card)
+        layout.setContentsMargins(0, 8, 0, 0)
+        layout.setSpacing(12)
 
         content_row = QHBoxLayout()
         content_row.setSpacing(16)
@@ -1017,10 +1043,10 @@ class MessagesPage(QWidget):
         self.feedback_type = QComboBox()
         self.feedback_type.addItems(["🐛 Bug Report", "💡 Feature Request", "📝 General Feedback"])
         self.feedback_type.setFont(QFont('Segoe UI', 10))
-        self.feedback_type.setFixedHeight(30)
+        self.feedback_type.setFixedHeight(34)
         self.feedback_type.setStyleSheet("""
             QComboBox {
-                padding: 8px 12px;
+                padding: 6px 10px;
                 border: 1px solid #d0d7de;
                 border-radius: 6px;
                 background-color: #f6f8fa;
@@ -1051,10 +1077,10 @@ class MessagesPage(QWidget):
         self.feedback_name = QLineEdit()
         self.feedback_name.setPlaceholderText("Your name or company")
         self.feedback_name.setFont(QFont('Segoe UI', 9))
-        self.feedback_name.setFixedHeight(28)
+        self.feedback_name.setFixedHeight(32)
         self.feedback_name.setStyleSheet("""
             QLineEdit {
-                padding: 8px 12px;
+                padding: 6px 10px;
                 border: 1px solid #d0d7de;
                 border-radius: 6px;
                 background-color: #ffffff;
@@ -1075,10 +1101,10 @@ class MessagesPage(QWidget):
         self.feedback_email = QLineEdit()
         self.feedback_email.setPlaceholderText("you@example.com")
         self.feedback_email.setFont(QFont('Segoe UI', 9))
-        self.feedback_email.setFixedHeight(28)
+        self.feedback_email.setFixedHeight(32)
         self.feedback_email.setStyleSheet("""
             QLineEdit {
-                padding: 8px 12px;
+                padding: 6px 10px;
                 border: 1px solid #d0d7de;
                 border-radius: 6px;
                 background-color: #ffffff;
@@ -1102,10 +1128,10 @@ class MessagesPage(QWidget):
         self.feedback_title = QLineEdit()
         self.feedback_title.setPlaceholderText("Brief summary of your feedback...")
         self.feedback_title.setFont(QFont('Segoe UI', 9))
-        self.feedback_title.setFixedHeight(28)
+        self.feedback_title.setFixedHeight(32)
         self.feedback_title.setStyleSheet("""
             QLineEdit {
-                padding: 8px 12px;
+                padding: 6px 10px;
                 border: 1px solid #d0d7de;
                 border-radius: 6px;
                 background-color: #ffffff;
@@ -1331,10 +1357,13 @@ class MessagesPage(QWidget):
                 self.feedback_name.clear()
                 self.feedback_email.clear()
             else:
+                error_message = service.last_error or (
+                    "Failed to submit feedback. Please check your internet connection and try again."
+                )
                 QMessageBox.warning(
                     self,
                     "Submission Failed",
-                    "Failed to submit feedback. Please check your internet connection and try again."
+                    error_message
                 )
                 
         except Exception as e:

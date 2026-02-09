@@ -23,9 +23,9 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt, Signal, Slot, QThread
 from PySide6.QtGui import QFont
 
-from core.supabase_client import get_supabase_client
 from core.hwid import get_hwid, get_hwid_display
 from services.license_service import get_license_service
+from services.feedback_service import get_feedback_service
 
 logger = logging.getLogger(__name__)
 
@@ -229,33 +229,18 @@ class SubmitWorker(QThread):
     def run(self):
         """Submit feedback in background."""
         try:
-            client = get_supabase_client()
-            if not client:
-                self.error.emit("Unable to connect to server")
-                return
-            
-            # Prepare data
-            data = {
-                "type": self.submission.type.value,
-                "title": self.submission.title,
-                "description": self.submission.description,
-                "hwid": self.submission.hwid,
-                "license_key": self.submission.license_key,
-                "app_version": self.submission.app_version,
-                "status": "open"
-            }
-            
-            if self.submission.email:
-                data["email"] = self.submission.email
-            
-            # Insert into feature_requests table
-            result = client.insert("feature_requests", data)
-            
-            if result:
+            service = get_feedback_service()
+            success = service.submit_feedback(
+                feedback_type=self.submission.type.value,
+                title=self.submission.title,
+                description=self.submission.description,
+                email=self.submission.email
+            )
+            if success:
                 logger.info(f"Feedback submitted successfully: {self.submission.title}")
                 self.success.emit()
             else:
-                self.error.emit("Failed to submit feedback")
+                self.error.emit(service.last_error or "Failed to submit feedback")
                 
         except Exception as e:
             logger.exception("Error submitting feedback")

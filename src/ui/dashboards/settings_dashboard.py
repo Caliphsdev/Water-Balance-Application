@@ -70,6 +70,9 @@ class SettingsPage(QWidget):
         # Make the Settings UI responsive (layouts instead of fixed geometry).
         self._configure_responsive_layouts()
 
+        # Constants are code-defined; allow value updates only.
+        self._lock_constants_structure()
+
         # Wire constants tab actions to database-backed service.
         self._wire_constants_tab()
         self._load_constants()
@@ -155,11 +158,8 @@ class SettingsPage(QWidget):
         self.ui.lineEdit_searchbox.returnPressed.connect(self._load_constants)
 
         self.ui.save_button.clicked.connect(self._save_selected_constant)
-        self.ui.add_button.clicked.connect(self._add_constant_dialog)
-        self.ui.delete_button.clicked.connect(self._delete_selected_constant)
         self.ui.details_button.clicked.connect(self._show_constant_details)
         self.ui.history_button.clicked.connect(self._show_constants_history)
-        self.ui.export_button.clicked.connect(self._export_constants_csv)
 
         self.ui.tableWidget_constant_table.setSelectionBehavior(
             QAbstractItemView.SelectionBehavior.SelectRows
@@ -170,6 +170,14 @@ class SettingsPage(QWidget):
         self.ui.tableWidget_constant_table.itemSelectionChanged.connect(
             self._on_constant_selected
         )
+
+    def _lock_constants_structure(self) -> None:
+        """Hide actions that change or export constant definitions."""
+        for button_name in ("add_button", "delete_button", "export_button"):
+            if hasattr(self.ui, button_name):
+                button = getattr(self.ui, button_name)
+                button.setVisible(False)
+                button.setEnabled(False)
 
     def _load_constants(self) -> None:
         """Load constants into the table with filtering and search.

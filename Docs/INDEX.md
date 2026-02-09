@@ -73,6 +73,14 @@ Docs/
 
 ---
 
+## ⚙️ Setup and Operations
+
+| Document | Purpose |
+|----------|---------|
+| [05-SETUP_AND_OPERATIONS/README.md](05-SETUP_AND_OPERATIONS/README.md) | Operations, builds, release workflow |
+
+---
+
 ## 📚 Reference
 
 | Document | Purpose |

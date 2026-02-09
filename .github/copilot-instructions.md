@@ -49,6 +49,50 @@ pytest tests/ -v                               # Run tests
 pyside6-rcc src/ui/resources/resources.qrc -o src/ui/resources/resources_rc.py  # Compile resources
 ```
 
+## Release Workflow (Windows)
+
+When shipping updates, always follow this order:
+
+1) Bump versions:
+- `config/app_config.yaml` → `app.version`
+- `scripts/packaging/water_balance.iss` → `#define AppVersion`
+
+2) Build app bundle:
+```powershell
+.\scripts\packaging\build_windows.ps1
+```
+
+3) Build installer:
+```powershell
+& "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" .\scripts\packaging\water_balance.iss
+```
+
+4) Compute hash + size:
+```powershell
+$path = "scripts\packaging\dist\installer\WaterBalanceDashboard-Setup.exe"
+Get-FileHash -Algorithm SHA256 $path
+(Get-Item $path).Length
+```
+
+5) Publish GitHub release:
+```powershell
+gh release create vX.Y.Z "scripts/packaging/dist/installer/WaterBalanceDashboard-Setup.exe" -t "vX.Y.Z" -n "<release notes>"
+```
+
+6) Insert Supabase row in `app_updates`:
+```sql
+insert into app_updates (version, min_tiers, download_url, release_notes, file_hash, file_size, is_mandatory)
+values (
+	'X.Y.Z',
+	ARRAY['developer'],
+	'https://github.com/Caliphsdev/Water-Balance-Application/releases/download/vX.Y.Z/WaterBalanceDashboard-Setup.exe',
+	'<release notes>',
+	'<SHA256>',
+	<file size bytes>,
+	false
+);
+```
+
 ## Conventions
 
 - **Controllers**: `{name}_dashboard.py` or `{name}_page.py`

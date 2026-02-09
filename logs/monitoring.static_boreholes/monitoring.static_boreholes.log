@@ -10785,3 +10785,213 @@ RuntimeError: Signal source has been deleted
 2026-02-08 18:09:05 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
 2026-02-08 18:09:05 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
 2026-02-08 18:09:05 | INFO     | run:277 | Directory loading complete
+2026-02-09 10:48:54 | INFO     | get_dashboard_logger:584 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-09 10:48:54 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-09 10:48:54 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-09 10:48:54 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-09 10:48:54 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-09 10:48:54 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-09 10:48:54 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-09 10:48:54 | INFO     | run:277 | Directory loading complete
+2026-02-09 10:48:54 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-09 10:48:54 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-09 10:48:54 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-09 10:48:54 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-09 10:48:54 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-09 10:48:54 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-09 10:48:54 | INFO     | run:277 | Directory loading complete
+2026-02-09 10:54:12 | INFO     | get_dashboard_logger:584 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-09 10:54:12 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-09 10:54:12 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-09 10:54:12 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-09 10:54:12 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-09 10:54:12 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-09 10:54:12 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-09 10:54:12 | INFO     | run:277 | Directory loading complete
+2026-02-09 10:54:12 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-09 10:54:12 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-09 10:54:12 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-09 10:54:12 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-09 10:54:12 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-09 10:54:12 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-09 10:54:12 | INFO     | run:277 | Directory loading complete
+2026-02-09 10:56:13 | INFO     | get_dashboard_logger:584 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-09 10:56:13 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-09 10:56:13 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-09 10:56:13 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-09 10:56:13 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-09 10:56:13 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-09 10:56:13 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-09 10:56:13 | INFO     | run:277 | Directory loading complete
+2026-02-09 10:56:13 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-09 10:56:13 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-09 10:56:13 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-09 10:56:13 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-09 10:56:13 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-09 10:56:13 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-09 10:56:13 | INFO     | run:277 | Directory loading complete
+2026-02-09 11:00:04 | INFO     | get_dashboard_logger:584 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-09 11:00:04 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-09 11:00:04 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-09 11:00:04 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-09 11:00:04 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-09 11:00:04 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-09 11:00:04 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-09 11:00:04 | INFO     | run:277 | Directory loading complete
+2026-02-09 11:00:04 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-09 11:00:04 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-09 11:00:04 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-09 11:00:04 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-09 11:00:04 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-09 11:00:04 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-09 11:00:04 | INFO     | run:277 | Directory loading complete
+2026-02-09 11:03:51 | INFO     | get_dashboard_logger:584 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-09 11:03:51 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-09 11:03:51 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-09 11:03:51 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-09 11:03:51 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-09 11:03:51 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-09 11:03:51 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-09 11:03:51 | INFO     | run:277 | Directory loading complete
+2026-02-09 11:03:51 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-09 11:03:51 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-09 11:03:51 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-09 11:03:51 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-09 11:03:51 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-09 11:03:51 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-09 11:03:51 | INFO     | run:277 | Directory loading complete
+2026-02-09 11:13:26 | INFO     | get_dashboard_logger:584 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-09 11:13:26 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-09 11:13:26 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-09 11:13:26 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-09 11:13:26 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-09 11:13:27 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-09 11:13:27 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-09 11:13:27 | INFO     | run:277 | Directory loading complete
+2026-02-09 11:13:27 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-09 11:13:27 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-09 11:13:27 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-09 11:13:27 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-09 11:13:27 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-09 11:13:27 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-09 11:13:27 | INFO     | run:277 | Directory loading complete
+2026-02-09 11:27:20 | INFO     | get_dashboard_logger:584 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-09 11:27:20 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-09 11:27:20 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-09 11:27:20 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-09 11:27:20 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-09 11:27:20 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-09 11:27:20 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-09 11:27:20 | INFO     | run:277 | Directory loading complete
+2026-02-09 11:27:20 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-09 11:27:20 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-09 11:27:20 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-09 11:27:20 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-09 11:27:20 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-09 11:27:20 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-09 11:27:20 | INFO     | run:277 | Directory loading complete
+2026-02-09 11:28:36 | INFO     | get_dashboard_logger:584 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-09 11:28:36 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-09 11:28:36 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-09 11:28:36 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-09 11:28:36 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-09 11:28:36 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-09 11:28:36 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-09 11:28:36 | INFO     | run:277 | Directory loading complete
+2026-02-09 11:28:36 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-09 11:28:36 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-09 11:28:36 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-09 11:28:36 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-09 11:28:36 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-09 11:28:36 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-09 11:28:36 | INFO     | run:277 | Directory loading complete
+2026-02-09 11:31:13 | INFO     | get_dashboard_logger:584 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-09 11:31:13 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-09 11:31:13 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-09 11:31:13 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-09 11:31:13 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-09 11:31:13 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-09 11:31:13 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-09 11:31:13 | INFO     | run:277 | Directory loading complete
+2026-02-09 11:31:14 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-09 11:31:14 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-09 11:31:14 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-09 11:31:14 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-09 11:31:14 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-09 11:31:14 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-09 11:31:14 | INFO     | run:277 | Directory loading complete
+2026-02-09 11:32:57 | INFO     | get_dashboard_logger:584 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-09 11:32:57 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-09 11:32:57 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-09 11:32:57 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-09 11:32:57 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-09 11:32:58 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-09 11:32:58 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-09 11:32:58 | INFO     | run:277 | Directory loading complete
+2026-02-09 11:32:58 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-09 11:32:58 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-09 11:32:58 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-09 11:32:58 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-09 11:32:58 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-09 11:32:58 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-09 11:32:58 | INFO     | run:277 | Directory loading complete
+2026-02-09 11:35:16 | INFO     | get_dashboard_logger:584 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-09 11:35:16 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-09 11:35:16 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-09 11:35:16 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-09 11:35:16 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-09 11:35:16 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-09 11:35:16 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-09 11:35:16 | INFO     | run:277 | Directory loading complete
+2026-02-09 11:35:16 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-09 11:35:16 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-09 11:35:16 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-09 11:35:16 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-09 11:35:16 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-09 11:35:16 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-09 11:35:16 | INFO     | run:277 | Directory loading complete
+2026-02-09 11:37:08 | INFO     | get_dashboard_logger:584 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-09 11:37:08 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-09 11:37:08 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-09 11:37:08 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-09 11:37:08 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-09 11:37:08 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-09 11:37:08 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-09 11:37:08 | INFO     | run:277 | Directory loading complete
+2026-02-09 11:37:08 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-09 11:37:08 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-09 11:37:08 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-09 11:37:08 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-09 11:37:08 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-09 11:37:08 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-09 11:37:08 | INFO     | run:277 | Directory loading complete
+2026-02-09 11:41:51 | INFO     | get_dashboard_logger:584 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-09 11:41:51 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-09 11:41:51 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-09 11:41:51 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-09 11:41:51 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-09 11:41:51 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-09 11:41:51 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-09 11:41:51 | INFO     | run:277 | Directory loading complete
+2026-02-09 11:41:51 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-09 11:41:51 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-09 11:41:51 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-09 11:41:51 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-09 11:41:51 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-09 11:41:51 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-09 11:41:51 | INFO     | run:277 | Directory loading complete
+2026-02-09 11:45:06 | INFO     | get_dashboard_logger:584 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-09 11:45:06 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-09 11:45:06 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-09 11:45:06 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-09 11:45:06 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-09 11:45:06 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-09 11:45:06 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-09 11:45:06 | INFO     | run:277 | Directory loading complete
+2026-02-09 11:45:06 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-09 11:45:06 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-09 11:45:06 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-09 11:45:06 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-09 11:45:06 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-09 11:45:06 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-09 11:45:06 | INFO     | run:277 | Directory loading complete

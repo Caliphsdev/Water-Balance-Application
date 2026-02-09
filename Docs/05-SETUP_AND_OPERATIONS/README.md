@@ -50,11 +50,11 @@ See [../00-GETTING_STARTED/QUICKSTART.md](../00-GETTING_STARTED/QUICKSTART.md) f
 ### Building an Executable
 
 ```powershell
-# Build with PyInstaller
-pyinstaller water_balance.spec
+# Build with PyInstaller (preferred: use the script)
+.\scripts\packaging\build_windows.ps1
 ```
 
-Result: `dist/water_balance.exe`
+Result: `dist/WaterBalanceDashboard/`
 
 Notes:
 - PyNaCl uses CFFI; ensure `_cffi_backend` is bundled via the spec file for packaged builds.
@@ -75,6 +75,77 @@ Copy-Item data\water_balance.db "data\water_balance.backup-$(Get-Date -Format 'y
 ```
 
 ---
+
+## 📦 Release Workflow (Windows)
+
+This is the end-to-end packaging and release workflow used for updates (PyInstaller + Inno Setup + GitHub + Supabase).
+
+### 1) Bump Versions
+
+Update both files to the new version:
+
+- [config/app_config.yaml](../../config/app_config.yaml): `app.version`
+- [scripts/packaging/water_balance.iss](../../scripts/packaging/water_balance.iss): `#define AppVersion`
+
+### 2) Build the App Bundle
+
+```powershell
+.\scripts\packaging\build_windows.ps1
+```
+
+Output:
+- `dist/WaterBalanceDashboard/`
+
+### 3) Build the Installer (Inno Setup)
+
+```powershell
+& "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" .\scripts\packaging\water_balance.iss
+```
+
+Output:
+- `scripts/packaging/dist/installer/WaterBalanceDashboard-Setup.exe`
+
+### 4) Compute Hash + Size
+
+```powershell
+$path = "scripts\packaging\dist\installer\WaterBalanceDashboard-Setup.exe"
+Get-FileHash -Algorithm SHA256 $path
+(Get-Item $path).Length
+```
+
+### 5) Publish GitHub Release
+
+```powershell
+gh release create vX.Y.Z "scripts/packaging/dist/installer/WaterBalanceDashboard-Setup.exe" -t "vX.Y.Z" -n "<release notes>"
+```
+
+Download URL pattern:
+```
+https://github.com/Caliphsdev/Water-Balance-Application/releases/download/vX.Y.Z/WaterBalanceDashboard-Setup.exe
+```
+
+### 6) Insert Supabase Row
+
+Use `app_updates` so the app can see the new update:
+
+```sql
+insert into app_updates (version, min_tiers, download_url, release_notes, file_hash, file_size, is_mandatory)
+values (
+  'X.Y.Z',
+  ARRAY['developer'],
+  'https://github.com/Caliphsdev/Water-Balance-Application/releases/download/vX.Y.Z/WaterBalanceDashboard-Setup.exe',
+  '<release notes>',
+  '<SHA256>',
+  <file size bytes>,
+  false
+);
+```
+
+Notes:
+- `min_tiers` controls which license tiers get the update.
+- `file_hash` must match the SHA256 hash from step 4.
+- `file_size` is the installer size in bytes from step 4.
+
 
 ## 🔧 Configuration
 
