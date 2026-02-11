@@ -20,9 +20,9 @@ Dialogs: StorageFacilityDialog for Add/Edit operations
 from __future__ import annotations
 
 from typing import Optional
-from PySide6.QtWidgets import QWidget, QMessageBox, QDialog
+from PySide6.QtWidgets import QWidget, QMessageBox, QDialog, QGraphicsDropShadowEffect
 from PySide6.QtCore import Qt, QSortFilterProxyModel, QThread, Signal, QObject
-from PySide6.QtGui import QShowEvent
+from PySide6.QtGui import QShowEvent, QColor
 import logging
 
 from .generated_ui_storage_facilities import Ui_Form
@@ -140,6 +140,7 @@ class StorageFacilitiesPage(QWidget):
         super().__init__(parent)
         self.ui = Ui_Form()
         self.ui.setupUi(self)
+        self._normalize_storage_page_layout()
 
         # Instance logger for background operations
         self._logger = app_logger.get_dashboard_logger('storage_facilities')
@@ -199,6 +200,67 @@ class StorageFacilitiesPage(QWidget):
         # Show loading indicator IMMEDIATELY before any async work
         # This gives instant visual feedback to the user
         self._show_loading_state()
+
+    def _normalize_storage_page_layout(self) -> None:
+        """Apply storage-specific object names and spacing to avoid theme collisions."""
+        # Namespace KPI cards so they don't match generic analytics selectors
+        if hasattr(self.ui, "frame_2"):
+            self.ui.frame_2.setObjectName("sf_card_total_capacity")
+        if hasattr(self.ui, "frame_3"):
+            self.ui.frame_3.setObjectName("sf_card_current_volume")
+        if hasattr(self.ui, "frame"):
+            self.ui.frame.setObjectName("sf_card_avg_utilization")
+        if hasattr(self.ui, "frame_4"):
+            self.ui.frame_4.setObjectName("sf_card_active_facilities")
+
+        # Namespace toolbar/overview containers for dedicated styling
+        if hasattr(self.ui, "frame_5"):
+            self.ui.frame_5.setObjectName("sf_toolbar_frame")
+        if hasattr(self.ui, "frame_6"):
+            self.ui.frame_6.setObjectName("sf_overview_frame")
+
+        # Improve spacing so title/subtitle are not flush with page edge
+        if hasattr(self.ui, "gridLayout"):
+            self.ui.gridLayout.setContentsMargins(14, 14, 12, 12)
+            self.ui.gridLayout.setHorizontalSpacing(8)
+            self.ui.gridLayout.setVerticalSpacing(10)
+        if hasattr(self.ui, "label_7"):
+            self.ui.label_7.setContentsMargins(4, 2, 0, 0)
+        if hasattr(self.ui, "label_6"):
+            self.ui.label_6.setContentsMargins(4, 0, 0, 6)
+
+        # Normalize toolbar action button sizes (Designer defaults are too tight).
+        if hasattr(self.ui, "add_facility_button"):
+            self.ui.add_facility_button.setMinimumWidth(124)
+            self.ui.add_facility_button.setMaximumWidth(150)
+            self.ui.add_facility_button.setMinimumHeight(36)
+        if hasattr(self.ui, "edit_facility_button"):
+            self.ui.edit_facility_button.setMinimumWidth(92)
+            self.ui.edit_facility_button.setMaximumWidth(110)
+            self.ui.edit_facility_button.setMinimumHeight(36)
+        if hasattr(self.ui, "delete_facility_button"):
+            self.ui.delete_facility_button.setMinimumWidth(92)
+            self.ui.delete_facility_button.setMaximumWidth(110)
+            self.ui.delete_facility_button.setMinimumHeight(36)
+        if hasattr(self.ui, "monthly_parameter_button"):
+            self.ui.monthly_parameter_button.setMinimumWidth(136)
+            self.ui.monthly_parameter_button.setMaximumWidth(168)
+            self.ui.monthly_parameter_button.setMinimumHeight(36)
+
+        # Raise KPI cards visually with subtle drop shadows.
+        for card_name in [
+            "frame_2",
+            "frame_3",
+            "frame",
+            "frame_4",
+        ]:
+            if hasattr(self.ui, card_name):
+                card = getattr(self.ui, card_name)
+                shadow = QGraphicsDropShadowEffect(card)
+                shadow.setBlurRadius(18)
+                shadow.setOffset(0, 4)
+                shadow.setColor(QColor(16, 32, 64, 45))
+                card.setGraphicsEffect(shadow)
 
     def _setup_table_model(self) -> None:
         """Initialize QTableView with lazy-loading model and proxy (SETUP LAZY LOADING).

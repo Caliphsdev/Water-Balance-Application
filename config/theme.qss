@@ -1,6 +1,6 @@
 /* Global theme base - Office/Operations Professional */
 QWidget {
-    font-family: "Segoe UI";
+    font-family: "Lato", "Segoe UI", sans-serif;
     font-size: 11px;
     color: #0b1a2a;
     background: transparent;
@@ -50,8 +50,13 @@ QDoubleSpinBox {
     background-color: #ffffff;
     border: 1px solid #c7d0da;
     border-radius: 6px;
-    padding: 6px 10px;
+    padding: 5px 8px;
     selection-background-color: #1f3a5f;
+}
+
+QComboBox {
+    padding-right: 24px;
+    min-height: 26px;
 }
 
 QLineEdit:focus,
@@ -68,7 +73,15 @@ QDoubleSpinBox:focus {
 
 QComboBox::drop-down {
     border: none;
-    width: 24px;
+    width: 20px;
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+}
+
+QComboBox::down-arrow {
+    image: url(:/icons/arrow-drop-down-fill.svg);
+    width: 12px;
+    height: 12px;
 }
 
 QComboBox QAbstractItemView {
@@ -172,15 +185,35 @@ QTabBar::tab:selected {
 QTableView,
 QTableWidget,
 QTreeView {
-    background: #ffffff;
+    background: #fbfcfe;
+    alternate-background-color: #f2f6fb;
     border: 1px solid #c7d0da;
     gridline-color: #e8edf2;
     selection-background-color: #e8edf2;
     selection-color: #0b1a2a;
 }
 
+QTableView::item,
+QTableWidget::item {
+    padding: 4px 6px;
+    border-bottom: 1px solid #e8edf2;
+}
+
+QTableView::item:alternate,
+QTableWidget::item:alternate {
+    background: qlineargradient(
+        x1: 0, y1: 0, x2: 1, y2: 0,
+        stop: 0 #f7f9fc,
+        stop: 1 #eef3f9
+    );
+}
+
 QHeaderView::section {
-    background: #e8edf2;
+    background: qlineargradient(
+        x1: 0, y1: 0, x2: 0, y2: 1,
+        stop: 0 #dbe3ec,
+        stop: 1 #cfd8e2
+    );
     border: 1px solid #c7d0da;
     padding: 6px 8px;
     font-weight: 600;
@@ -426,11 +459,142 @@ QFrame#frame_2 {
     border-radius: 10px;
 }
 
+/* Storage Facilities page */
+QFrame#sf_card_total_capacity,
+QFrame#sf_card_current_volume,
+QFrame#sf_card_avg_utilization,
+QFrame#sf_card_active_facilities {
+    background-color: #ffffff;
+    border: 1px solid #c7d0da;
+    border-left: 4px solid #1f3a5f;
+    border-radius: 10px;
+}
+
+QFrame#sf_toolbar_frame,
+QFrame#sf_overview_frame {
+    background-color: #ffffff;
+    border: 1px solid #c7d0da;
+    border-radius: 10px;
+}
+
+QLabel#title_total_capacity,
+QLabel#title_current_volume,
+QLabel#title_average_utilization,
+QLabel#title_active_facilities {
+    font-size: 11px;
+    font-weight: 600;
+    color: #1f2f43;
+}
+
+QLabel#label_7 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #0b1a2a;
+    padding-top: 2px;
+}
+
+QLabel#label_6 {
+    font-size: 12px;
+    color: #4f5e70;
+    padding-bottom: 4px;
+}
+
+QLabel#flow_page_title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #0b1a2a;
+}
+
+QLabel#flow_page_subtitle {
+    font-size: 11px;
+    color: #5b6775;
+}
+
+QLabel#flow_toolbar_section {
+    font-size: 12px;
+    font-weight: 600;
+    color: #1f2f43;
+    padding-right: 6px;
+}
+
+QFrame#flow_balance_panel {
+    background-color: #f7f9fc;
+    border: 1px solid #c7d0da;
+    border-radius: 12px;
+}
+
+QFrame#flow_balance_card_inflows,
+QFrame#flow_balance_card_recirculation,
+QFrame#flow_balance_card_outflows {
+    background-color: #ffffff;
+    border: 1px solid #d6dde6;
+    border-radius: 10px;
+}
+
+QLabel#flow_balance_metric_title {
+    color: #4f5e70;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+QLabel#flow_balance_metric_value {
+    color: #0b1a2a;
+    font-size: 17px;
+    font-weight: 700;
+    padding-top: 1px;
+}
+
+QLabel#flow_balance_metric_unit {
+    color: #5b6775;
+    font-size: 11px;
+    padding-top: 3px;
+}
+
+QFrame#flow_balance_badge {
+    background-color: #e8eef7;
+    border: 1px solid #c7d0da;
+    border-radius: 14px;
+}
+
+QLabel#flow_balance_badge_label {
+    color: #1f2f43;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+QLabel#flow_balance_badge_value {
+    color: #1f3a5f;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+QLabel#flow_balance_badge_unit {
+    color: #1f2f43;
+    font-size: 11px;
+}
+
+QLabel#value_total_capacity,
+QLabel#value_current_volume,
+QLabel#value_average_utilization,
+QLabel#value_active_facilities {
+    font-size: 22px;
+    font-weight: 700;
+    color: #0b1a2a;
+}
+
+QLabel#total_capacity_volume_unit,
+QLabel#current_volume_unit,
+QLabel#avg_utilization_unit {
+    font-size: 11px;
+    color: #5b6775;
+}
+
 QLabel#records_loaded_2,
 QLabel#sources_loaded_2,
 QLabel#auto_loads_label,
 QLabel#label_5 {
-    color: #5b6775;
+    color: #3f4d5e;
+    font-weight: 500;
 }
 
 QPushButton#pushButton,

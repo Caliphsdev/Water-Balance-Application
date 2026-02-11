@@ -109,6 +109,7 @@ class MonitoringPage(QWidget):
         super().__init__(parent)
         self.ui = Ui_Form()
         self.ui.setupUi(self)
+        self._style_visualization_action_buttons()
 
         # Initialize ExcelManager singleton for all Excel data access (centralized, cached)
         self._excel_manager = get_excel_manager()
@@ -160,7 +161,7 @@ class MonitoringPage(QWidget):
             self.ui.combo_year_from_monitoring = QComboBox()
             self.ui.combo_year_from_monitoring.addItems(years)
             self.ui.combo_year_from_monitoring.setCurrentText(str(current_year - 1))
-            self.ui.combo_year_from_monitoring.setMinimumWidth(70)
+            self.ui.combo_year_from_monitoring.setMinimumWidth(92)
             # Insert after "From:" label
             if hasattr(self.ui, 'horizontalLayout_monitoring_options'):
                 # Find index of label_monitoring_date_from and insert after it
@@ -174,7 +175,7 @@ class MonitoringPage(QWidget):
             self.ui.combo_month_from_monitoring = QComboBox()
             self.ui.combo_month_from_monitoring.addItems(months)
             self.ui.combo_month_from_monitoring.setCurrentIndex(0)
-            self.ui.combo_month_from_monitoring.setMinimumWidth(100)
+            self.ui.combo_month_from_monitoring.setMinimumWidth(108)
             # Insert after year combo
             if hasattr(self.ui, 'horizontalLayout_monitoring_options'):
                 layout = self.ui.horizontalLayout_monitoring_options
@@ -187,7 +188,7 @@ class MonitoringPage(QWidget):
             self.ui.combo_year_to_monitoring = QComboBox()
             self.ui.combo_year_to_monitoring.addItems(years)
             self.ui.combo_year_to_monitoring.setCurrentText(str(current_year))
-            self.ui.combo_year_to_monitoring.setMinimumWidth(70)
+            self.ui.combo_year_to_monitoring.setMinimumWidth(92)
             # Insert after "To:" label
             if hasattr(self.ui, 'horizontalLayout_monitoring_options'):
                 layout = self.ui.horizontalLayout_monitoring_options
@@ -200,7 +201,7 @@ class MonitoringPage(QWidget):
             self.ui.combo_month_to_monitoring = QComboBox()
             self.ui.combo_month_to_monitoring.addItems(months)
             self.ui.combo_month_to_monitoring.setCurrentIndex(11)  # December
-            self.ui.combo_month_to_monitoring.setMinimumWidth(100)
+            self.ui.combo_month_to_monitoring.setMinimumWidth(108)
             # Insert after year to combo
             if hasattr(self.ui, 'horizontalLayout_monitoring_options'):
                 layout = self.ui.horizontalLayout_monitoring_options
@@ -236,7 +237,7 @@ class MonitoringPage(QWidget):
             self.ui.combo_year_from_pcd = QComboBox()
             self.ui.combo_year_from_pcd.addItems(years)
             self.ui.combo_year_from_pcd.setCurrentText(str(current_year - 1))
-            self.ui.combo_year_from_pcd.setMinimumWidth(70)
+            self.ui.combo_year_from_pcd.setMinimumWidth(92)
             if hasattr(self.ui, 'horizontalLayout_pcd_options'):
                 layout = self.ui.horizontalLayout_pcd_options
                 # Add "From:" label first if not already in layout
@@ -255,7 +256,7 @@ class MonitoringPage(QWidget):
             self.ui.combo_month_from_pcd = QComboBox()
             self.ui.combo_month_from_pcd.addItems(months)
             self.ui.combo_month_from_pcd.setCurrentIndex(0)
-            self.ui.combo_month_from_pcd.setMinimumWidth(100)
+            self.ui.combo_month_from_pcd.setMinimumWidth(108)
             if hasattr(self.ui, 'horizontalLayout_pcd_options'):
                 layout = self.ui.horizontalLayout_pcd_options
                 for i in range(layout.count()):
@@ -267,7 +268,7 @@ class MonitoringPage(QWidget):
             self.ui.combo_year_to_pcd = QComboBox()
             self.ui.combo_year_to_pcd.addItems(years)
             self.ui.combo_year_to_pcd.setCurrentText(str(current_year))
-            self.ui.combo_year_to_pcd.setMinimumWidth(70)
+            self.ui.combo_year_to_pcd.setMinimumWidth(92)
             if hasattr(self.ui, 'horizontalLayout_pcd_options'):
                 layout = self.ui.horizontalLayout_pcd_options
                 # Add "To:" label first if not already in layout
@@ -286,7 +287,7 @@ class MonitoringPage(QWidget):
             self.ui.combo_month_to_pcd = QComboBox()
             self.ui.combo_month_to_pcd.addItems(months)
             self.ui.combo_month_to_pcd.setCurrentIndex(11)  # December
-            self.ui.combo_month_to_pcd.setMinimumWidth(100)
+            self.ui.combo_month_to_pcd.setMinimumWidth(108)
             if hasattr(self.ui, 'horizontalLayout_pcd_options'):
                 layout = self.ui.horizontalLayout_pcd_options
                 for i in range(layout.count()):
@@ -296,6 +297,7 @@ class MonitoringPage(QWidget):
         
         # Initialize static tab month/year combos (like Analytics dashboard)
         self._init_year_month_combos()
+        self._normalize_year_month_combo_widths()
         
         # Track selected boreholes for multi-select (like Analytics multi-source)
         self._selected_boreholes: list = []
@@ -370,10 +372,67 @@ class MonitoringPage(QWidget):
         # Add multi-select buttons for Monitoring and PCD tabs
         self._add_monitoring_multi_select_button()
         self._add_pcd_multi_select_button()
+        self._reflow_monitoring_options_layout()
         self._reflow_pcd_options_layout()
         
         # Auto-load previously saved directories on startup (user-friendly persistence)
         self._load_saved_directories()
+
+    def _style_visualization_action_buttons(self) -> None:
+        """Align Monitoring visualize action buttons with Analytics theme."""
+        generate_buttons = []
+        save_buttons = []
+
+        if hasattr(self.ui, "pushButton_4"):
+            generate_buttons.append(self.ui.pushButton_4)  # Static
+        if hasattr(self.ui, "pushButton_2"):
+            generate_buttons.append(self.ui.pushButton_2)  # Monitoring
+        if hasattr(self.ui, "pushButton_8"):
+            generate_buttons.append(self.ui.pushButton_8)  # PCD
+
+        if hasattr(self.ui, "pushButton_5"):
+            save_buttons.append(self.ui.pushButton_5)  # Static
+        if hasattr(self.ui, "pushButton"):
+            save_buttons.append(self.ui.pushButton)  # Monitoring
+        if hasattr(self.ui, "pushButton_9"):
+            save_buttons.append(self.ui.pushButton_9)  # PCD
+
+        generate_style = (
+            "background-color:#1f3a5f; color:#ffffff; border:1px solid #1f3a5f; "
+            "border-radius:8px; padding:6px 12px; font-weight:700;"
+        )
+        save_style = (
+            "background-color:#ffffff; color:#1f2f43; border:1px solid #c7d0da; "
+            "border-radius:8px; padding:6px 12px; font-weight:600;"
+        )
+
+        # Keep original object names used by the generated UI for stability.
+        if hasattr(self.ui, "pushButton_4"):
+            self.ui.pushButton_4.setObjectName("pushButton_4")
+        if hasattr(self.ui, "pushButton_2"):
+            self.ui.pushButton_2.setObjectName("pushButton_2")
+        if hasattr(self.ui, "pushButton_8"):
+            self.ui.pushButton_8.setObjectName("pushButton_8")
+        if hasattr(self.ui, "pushButton_5"):
+            self.ui.pushButton_5.setObjectName("pushButton_5")
+        if hasattr(self.ui, "pushButton"):
+            self.ui.pushButton.setObjectName("pushButton")
+        if hasattr(self.ui, "pushButton_9"):
+            self.ui.pushButton_9.setObjectName("pushButton_9")
+
+        for button in generate_buttons:
+            button.setText("Generate Chart")
+            button.setMinimumWidth(150)
+            button.setMinimumHeight(35)
+            button.setMaximumHeight(40)
+            button.setStyleSheet(generate_style)
+
+        for button in save_buttons:
+            button.setText("Save Chart")
+            button.setMinimumWidth(130)
+            button.setMinimumHeight(35)
+            button.setMaximumHeight(40)
+            button.setStyleSheet(save_style)
 
     # ==================== FILTER HANDLERS ====================
     
@@ -478,9 +537,10 @@ class MonitoringPage(QWidget):
             return
         
         from PySide6.QtWidgets import QPushButton
-        btn = QPushButton("🔽 Multi-Select Boreholes")
+        btn = QPushButton("Multi-Select Boreholes")
         btn.setToolTip("Select multiple boreholes to compare on chart")
         btn.clicked.connect(self._show_monitoring_multi_select_dialog)
+        self._monitoring_multi_select_button = btn
         
         # Insert before Generate button (usually at index -2 before Save button)
         layout = self.ui.horizontalLayout_monitoring_options
@@ -492,7 +552,7 @@ class MonitoringPage(QWidget):
             return
         
         from PySide6.QtWidgets import QPushButton
-        btn = QPushButton("🔽 Multi-Select Points")
+        btn = QPushButton("Multi-Select Points")
         btn.setToolTip("Select multiple monitoring points to compare on chart")
         btn.clicked.connect(self._show_pcd_multi_select_dialog)
         self._pcd_multi_select_button = btn
@@ -575,6 +635,114 @@ class MonitoringPage(QWidget):
 
         frame.setMinimumHeight(84)
         frame.setMaximumHeight(90)
+
+    def _reflow_monitoring_options_layout(self) -> None:
+        """Reflow Borehole Monitoring visualize controls to prevent overlap."""
+        if not hasattr(self.ui, "frame_monitoring_options"):
+            return
+
+        frame = self.ui.frame_monitoring_options
+        old_layout = frame.layout()
+        if old_layout is None:
+            return
+
+        widgets: list = []
+        while old_layout.count():
+            item = old_layout.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.setParent(frame)
+                widgets.append(widget)
+
+        old_layout.setContentsMargins(0, 0, 0, 0)
+        old_layout.setSpacing(0)
+
+        container = QWidget(frame)
+        container_layout = QVBoxLayout(container)
+        container_layout.setContentsMargins(8, 6, 8, 6)
+        container_layout.setSpacing(4)
+
+        top_row = QHBoxLayout()
+        top_row.setSpacing(8)
+
+        bottom_row = QHBoxLayout()
+        bottom_row.setSpacing(6)
+
+        for name in [
+            "label_monitoring_chart_type",
+            "monitoring_chart_type",
+            "label",
+            "comboBox_2",
+            "label_2",
+            "comboBox_4",
+            "label_3",
+            "comboBox_3",
+        ]:
+            if hasattr(self.ui, name):
+                top_row.addWidget(getattr(self.ui, name))
+
+        if hasattr(self, "_monitoring_multi_select_button"):
+            top_row.addWidget(self._monitoring_multi_select_button)
+
+        top_row.addStretch(1)
+
+        for name in [
+            "label_monitoring_date_from",
+            "combo_year_from_monitoring",
+            "combo_month_from_monitoring",
+            "label_monitoring_date_to",
+            "combo_year_to_monitoring",
+            "combo_month_to_monitoring",
+        ]:
+            if hasattr(self.ui, name):
+                bottom_row.addWidget(getattr(self.ui, name))
+
+        bottom_row.addSpacing(16)
+
+        if hasattr(self.ui, "pushButton_2"):
+            bottom_row.addWidget(self.ui.pushButton_2)
+        if hasattr(self.ui, "pushButton"):
+            bottom_row.addWidget(self.ui.pushButton)
+
+        bottom_row.addStretch(1)
+
+        # Keep date combos readable (prevent "2026" clipping to "2")
+        if hasattr(self.ui, "monitoring_chart_type"):
+            self.ui.monitoring_chart_type.setMinimumWidth(96)
+        if hasattr(self.ui, "comboBox_2"):
+            self.ui.comboBox_2.setMinimumWidth(150)
+        if hasattr(self.ui, "comboBox_4"):
+            self.ui.comboBox_4.setMinimumWidth(130)
+        if hasattr(self.ui, "comboBox_3"):
+            self.ui.comboBox_3.setMinimumWidth(116)
+            self.ui.comboBox_3.setSizeAdjustPolicy(
+                QComboBox.SizeAdjustPolicy.AdjustToContentsOnFirstShow
+            )
+
+        for name in [
+            "combo_year_from_monitoring",
+            "combo_year_to_monitoring",
+        ]:
+            if hasattr(self.ui, name):
+                combo = getattr(self.ui, name)
+                combo.setFixedWidth(92)
+        for name in [
+            "combo_month_from_monitoring",
+            "combo_month_to_monitoring",
+        ]:
+            if hasattr(self.ui, name):
+                combo = getattr(self.ui, name)
+                combo.setFixedWidth(108)
+
+        container_layout.addLayout(top_row)
+        container_layout.addLayout(bottom_row)
+        old_layout.addWidget(container)
+
+        for widget in widgets:
+            widget.setVisible(True)
+
+        frame.setMinimumHeight(88)
+        frame.setMaximumHeight(94)
     
     def _show_monitoring_multi_select_dialog(self) -> None:
         """Show dialog to select multiple boreholes for Monitoring chart."""
@@ -992,6 +1160,7 @@ class MonitoringPage(QWidget):
         self._static_table_model = QStandardItemModel(0, len(headers), self)
         self._static_table_model.setHorizontalHeaderLabels(headers)
         self.ui.tableView_2.setModel(self._static_table_model)
+        self.ui.tableView_2.setAlternatingRowColors(True)
         # Distribute columns evenly with Stretch
         self.ui.tableView_2.horizontalHeader().setStretchLastSection(False)
         self.ui.tableView_2.horizontalHeader().setSectionResizeMode(
@@ -1003,6 +1172,33 @@ class MonitoringPage(QWidget):
         self.ui.tableView_2.horizontalHeader().setSectionResizeMode(
             2, self.ui.tableView_2.horizontalHeader().ResizeMode.Stretch
         )
+
+    def _normalize_year_month_combo_widths(self) -> None:
+        """Apply consistent widths so combo text never clips."""
+        year_combo_names = [
+            "combo_year_from",
+            "combo_year_to",
+            "combo_year_from_monitoring",
+            "combo_year_to_monitoring",
+            "combo_year_from_pcd",
+            "combo_year_to_pcd",
+        ]
+        month_combo_names = [
+            "combo_month_from",
+            "combo_month_to",
+            "combo_month_from_monitoring",
+            "combo_month_to_monitoring",
+            "combo_month_from_pcd",
+            "combo_month_to_pcd",
+        ]
+        for name in year_combo_names:
+            if hasattr(self.ui, name):
+                combo = getattr(self.ui, name)
+                combo.setMinimumWidth(92)
+        for name in month_combo_names:
+            if hasattr(self.ui, name):
+                combo = getattr(self.ui, name)
+                combo.setMinimumWidth(108)
 
     def _setup_monitoring_table_model(self) -> None:
         """Initialize Borehole Monitoring QTableView model and column headers.
@@ -1030,6 +1226,7 @@ class MonitoringPage(QWidget):
         self._monitoring_table_model = QStandardItemModel(0, len(headers), self)
         self._monitoring_table_model.setHorizontalHeaderLabels(headers)
         self.ui.tableView.setModel(self._monitoring_table_model)
+        self.ui.tableView.setAlternatingRowColors(True)
         
         # Stretch across full width (user preference - was fine before)
         self.ui.tableView.horizontalHeader().setStretchLastSection(False)
@@ -1074,6 +1271,7 @@ class MonitoringPage(QWidget):
         self._pcd_table_model = QStandardItemModel(0, len(headers), self)
         self._pcd_table_model.setHorizontalHeaderLabels(headers)
         self.ui.tableView_3.setModel(self._pcd_table_model)
+        self.ui.tableView_3.setAlternatingRowColors(True)
         
         # Enable horizontal scrolling (CRITICAL for 25+ columns to prevent squashing)
         from PySide6.QtCore import Qt

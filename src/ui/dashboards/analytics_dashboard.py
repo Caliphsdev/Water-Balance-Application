@@ -38,7 +38,7 @@ from PySide6.QtWidgets import (
     QWidget,
     QFileDialog,
     QVBoxLayout,
-    QGridLayout,
+    QHBoxLayout,
     QMessageBox,
     QPushButton,
     QLabel,
@@ -49,7 +49,6 @@ from PySide6.QtWidgets import (
     QAbstractItemView,
     QApplication,
     QSizePolicy,
-    QSpacerItem,
 )
 
 # QtCharts is part of PySide6-Addons; import conditionally
@@ -290,6 +289,7 @@ class AnalyticsPage(QWidget):
         self._add_multi_select_button()
         # Tighten chart options spacing and align controls into a compact grid
         self._apply_compact_chart_options_layout()
+        self._enforce_action_button_visibility()
 
         # Expand the DataSource section when no file is loaded
         exists, _ = self._excel_manager.meter_readings_status()
@@ -423,76 +423,110 @@ class AnalyticsPage(QWidget):
         layout.insertWidget(insert_index, button)
 
     def _apply_compact_chart_options_layout(self) -> None:
-        """Reflow chart options into a compact two-row grid."""
+        """Reflow chart options into two compact rows with predictable spacing."""
         if not hasattr(self.ui, "verticalLayout_chart_options"):
             return
 
         options_layout = self.ui.verticalLayout_chart_options
-        options_layout.setContentsMargins(12, 10, 12, 10)
-        options_layout.setSpacing(8)
-
-        grid = QGridLayout()
-        grid.setObjectName("gridLayout_chart_options")
-        grid.setContentsMargins(0, 0, 0, 0)
-        grid.setHorizontalSpacing(10)
-        grid.setVerticalSpacing(8)
+        options_layout.setContentsMargins(12, 8, 12, 8)
+        options_layout.setSpacing(4)
 
         # Move widgets from the existing layouts into a 2-row grid.
         chart_type_layout = getattr(self.ui, "horizontalLayout_chart_type", None)
         date_range_layout = getattr(self.ui, "horizontalLayout_date_range", None)
 
-        # Chart type row
-        if chart_type_layout:
-            options_layout.removeItem(chart_type_layout)
-            widgets = []
-            for idx in range(chart_type_layout.count() - 1, -1, -1):
-                item = chart_type_layout.takeAt(idx)
+        widgets_by_name = {}
+        for layout in [chart_type_layout, date_range_layout]:
+            if not layout:
+                continue
+            options_layout.removeItem(layout)
+            for idx in range(layout.count() - 1, -1, -1):
+                item = layout.takeAt(idx)
                 if item and item.widget():
-                    widgets.insert(0, item.widget())
-            if widgets:
-                # Expected order:
-                # label_chart_type, charts_options, water_source_label,
-                # water_source_options, btn_multi_select_sources
-                row = 0
-                col = 0
-                for widget in widgets:
-                    if widget.objectName().startswith("horizontalSpacer"):
-                        continue
-                    grid.addWidget(widget, row, col)
-                    col += 1
-                grid.setColumnStretch(col, 1)
+                    widget = item.widget()
+                    widgets_by_name[widget.objectName()] = widget
 
-        # Date range row
-        if date_range_layout:
-            options_layout.removeItem(date_range_layout)
-            widgets = []
-            for idx in range(date_range_layout.count() - 1, -1, -1):
-                item = date_range_layout.takeAt(idx)
-                if item and item.widget():
-                    widgets.insert(0, item.widget())
-            if widgets:
-                row = 1
-                col = 0
-                for widget in widgets:
-                    if widget.objectName().startswith("horizontalSpacer"):
-                        continue
-                    grid.addWidget(widget, row, col)
-                    col += 1
-                grid.setColumnStretch(col, 1)
+        top_row = QHBoxLayout()
+        top_row.setContentsMargins(0, 0, 0, 0)
+        top_row.setSpacing(10)
+        for name in [
+            "label_chart_type",
+            "charts_options",
+            "water_source_label",
+            "water_source_options",
+            "btn_multi_select_sources",
+        ]:
+            widget = widgets_by_name.get(name)
+            if widget is not None:
+                top_row.addWidget(widget)
+        top_row.addStretch(1)
 
-        # Insert grid at the top of the chart options area.
-        options_layout.insertLayout(0, grid)
-
-        # Align buttons to the right and tighten spacing.
+        bottom_row = QHBoxLayout()
+        bottom_row.setContentsMargins(0, 0, 0, 0)
+        bottom_row.setSpacing(6)
+        for name in [
+            "date_range_label",
+            "label_from",
+            "year_from",
+            "month_label",
+            "month_from",
+        ]:
+            widget = widgets_by_name.get(name)
+            if widget is not None:
+                bottom_row.addWidget(widget)
+        bottom_row.addSpacing(12)
+        for name in [
+            "label_to_year",
+            "year_to",
+            "to_month_label",
+            "month_to",
+        ]:
+            widget = widgets_by_name.get(name)
+            if widget is not None:
+                bottom_row.addWidget(widget)
         buttons_layout = getattr(self.ui, "horizontalLayout_buttons", None)
         if buttons_layout:
-            buttons_layout.setSpacing(8)
-            # Remove existing spacer items.
+            options_layout.removeItem(buttons_layout)
+            action_widgets = []
             for idx in range(buttons_layout.count() - 1, -1, -1):
-                item = buttons_layout.itemAt(idx)
-                if item and item.spacerItem():
-                    buttons_layout.takeAt(idx)
-            buttons_layout.insertStretch(0, 1)
+                item = buttons_layout.takeAt(idx)
+                if item and item.widget():
+                    action_widgets.insert(0, item.widget())
+            if action_widgets:
+                bottom_row.addSpacing(20)
+                for button in action_widgets:
+                    bottom_row.addWidget(button)
+
+        bottom_row.addStretch(1)
+
+        options_layout.insertLayout(0, top_row)
+        options_layout.insertLayout(1, bottom_row)
+
+        # Keep date controls visually tight and predictable.
+        for combo in [self.ui.year_from, self.ui.month_from, self.ui.year_to, self.ui.month_to]:
+            combo.setFixedWidth(98)
+            combo.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+            combo.setMinimumHeight(34)
+        for combo in [self.ui.charts_options, self.ui.water_source_options]:
+            combo.setFixedWidth(140)
+            combo.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+            combo.setMinimumHeight(34)
+        self.ui.label_from.setText("From Year:")
+
+    def _enforce_action_button_visibility(self) -> None:
+        """Ensure action button text stays readable regardless of stylesheet clashes."""
+        self.ui.generate_chart.setText("Generate Chart")
+        self.ui.save_chart.setText("Save Chart")
+        self.ui.generate_chart.setMinimumWidth(150)
+        self.ui.save_chart.setMinimumWidth(130)
+        self.ui.generate_chart.setStyleSheet(
+            "background-color:#1f3a5f; color:#ffffff; border:1px solid #1f3a5f; "
+            "border-radius:8px; padding:6px 12px; font-weight:700;"
+        )
+        self.ui.save_chart.setStyleSheet(
+            "background-color:#ffffff; color:#1f2f43; border:1px solid #c7d0da; "
+            "border-radius:8px; padding:6px 12px; font-weight:600;"
+        )
 
     def _open_multi_select_dialog(self) -> None:
         """Open a modal dialog to select multiple sources.

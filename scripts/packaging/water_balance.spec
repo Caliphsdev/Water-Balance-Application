@@ -51,6 +51,7 @@ a = Analysis(
         (str(project_root / "data" / "diagrams"), "data/diagrams"),
         (str(project_root / "data" / "migrations"), "data/migrations"),
         (str(project_root / "data" / "sqlite_migrations"), "data/sqlite_migrations"),
+        (str(project_root / "assets" / "fonts"), "assets/fonts"),
     ],
     hiddenimports=hiddenimports,
     hookspath=[],

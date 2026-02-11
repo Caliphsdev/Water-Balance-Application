@@ -115,6 +115,7 @@ if getattr(sys, "frozen", False):
 # Now safe to import PySide6 and app modules
 from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import QTimer
+from PySide6.QtGui import QFontDatabase, QFont
 from ui.components.splash_screen import SplashScreen
 from ui.main_window import MainWindow
 from core.app_logger import logger
@@ -170,6 +171,35 @@ def start_background_services() -> None:
         logger.error(f"Failed to start background services: {e}")
 
 
+def _load_custom_fonts(app: QApplication) -> None:
+    """Load bundled fonts and set application-wide family fallback."""
+    font_paths = [
+        "assets/fonts/Lato-Regular.ttf",
+        "assets/fonts/Lato-Bold.ttf",
+    ]
+    loaded_families: set[str] = set()
+
+    for rel_path in font_paths:
+        font_path = get_resource_path(rel_path)
+        if not font_path.exists():
+            continue
+        font_id = QFontDatabase.addApplicationFont(str(font_path))
+        if font_id < 0:
+            continue
+        families = QFontDatabase.applicationFontFamilies(font_id)
+        loaded_families.update(families)
+
+    if "Lato" in loaded_families:
+        app.setFont(QFont("Lato"))
+        logger.info("Loaded custom app font: Lato")
+    elif loaded_families:
+        family = sorted(loaded_families)[0]
+        app.setFont(QFont(family))
+        logger.info("Loaded custom app font fallback: %s", family)
+    else:
+        logger.info("Custom font files not found; using system fonts")
+
+
 def main():
     """Bootstrap PySide6 Water Balance Application.
     
@@ -190,6 +220,7 @@ def main():
     app = QApplication(sys.argv)
     app.setApplicationName("Water Balance Dashboard")
     app.setOrganizationName("Two Rivers Platinum")
+    _load_custom_fonts(app)
 
     # Load global theme stylesheet if available
     try:

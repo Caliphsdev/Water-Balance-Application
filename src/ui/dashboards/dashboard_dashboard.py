@@ -11,9 +11,9 @@ Data Sources:
 """
 
 import logging
-from PySide6.QtWidgets import QWidget
+from PySide6.QtWidgets import QWidget, QGraphicsDropShadowEffect
 from PySide6.QtCore import Qt, Signal, QTimer
-from PySide6.QtGui import QGuiApplication, QFont
+from PySide6.QtGui import QGuiApplication, QFont, QColor
 from ui.dashboards.generated_ui_dashboard import Ui_Form
 from ui.theme import PALETTE
 from services.dashboard_service import get_dashboard_service
@@ -59,6 +59,7 @@ class DashboardPage(QWidget):
         
         # Improve layout spacing and styling (VISUAL ENHANCEMENT)
         self._apply_layout_improvements()
+        self._apply_card_shadows()
         
         # Relabel first card: "Water Sources" → "Storage Facilities" (USER REQUEST)
         # This consolidates the two redundant cards into one.
@@ -194,6 +195,31 @@ class DashboardPage(QWidget):
                     if current_style.endswith('}'):
                         new_style = current_style[:-1] + '\nmargin: 4px;\n}'
                         card_widget.setStyleSheet("")
+
+    def _apply_card_shadows(self) -> None:
+        """Add subtle elevation to dashboard KPI cards."""
+        card_names = [
+            'card_water_sources',
+            'card_storage_facilities',
+            'card_total_capacity',
+            'card_current_volume',
+            'card_utilization',
+            'card_rainfall',
+            'card_evapouration',
+            'card_total_inflows',
+            'card_total_outflows',
+            'card_recirculation',
+            'card_balance_error',
+            'card_status',
+        ]
+        for card_name in card_names:
+            if hasattr(self.ui, card_name):
+                card = getattr(self.ui, card_name)
+                shadow = QGraphicsDropShadowEffect(card)
+                shadow.setBlurRadius(18)
+                shadow.setOffset(0, 4)
+                shadow.setColor(QColor(16, 32, 64, 45))
+                card.setGraphicsEffect(shadow)
 
     def _apply_dynamic_font_scaling(self) -> None:
         """Scale all dashboard fonts based on current window size (RESPONSIVE FONTS).

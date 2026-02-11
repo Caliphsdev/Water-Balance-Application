@@ -29,7 +29,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from PySide6.QtWidgets import (
     QWidget, QGraphicsView, QGraphicsScene, QGraphicsPathItem, QGraphicsRectItem, QGraphicsTextItem,
-    QMessageBox, QComboBox, QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton
+    QMessageBox, QComboBox, QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFrame
 )
 from PySide6.QtCore import Qt, Signal, QSize, QPointF, QEvent
 from PySide6.QtGui import (
@@ -100,6 +100,8 @@ class FlowDiagramPage(QWidget):
         # Setup UI from .ui file
         self.ui = Ui_Form()
         self.ui.setupUi(self)
+        self._apply_toolbar_layout_refresh()
+        self._modernize_balance_footer()
         
         # Create graphics scene for drawing
         self.scene = QGraphicsScene()
@@ -154,6 +156,235 @@ class FlowDiagramPage(QWidget):
         self.load_diagram("UG2N")
         
         logger.info("Flow Diagram Page initialized")
+
+    def _modernize_balance_footer(self) -> None:
+        """Rebuild footer metrics into compact KPI cards + balance badge."""
+        if not hasattr(self.ui, "frame_2"):
+            return
+
+        footer = self.ui.frame_2
+        footer.setObjectName("flow_balance_panel")
+        footer.setMinimumHeight(132)
+
+        old_layout = footer.layout()
+        if old_layout is None:
+            return
+
+        def _clear_layout_tree(layout) -> None:
+            """Recursively detach widgets/layouts from a generated layout tree."""
+            while layout.count():
+                item = layout.takeAt(0)
+                child_widget = item.widget()
+                child_layout = item.layout()
+                if child_widget is not None:
+                    child_widget.setVisible(False)
+                    child_widget.setParent(footer)
+                elif child_layout is not None:
+                    _clear_layout_tree(child_layout)
+
+        # Clear generated spacer-heavy layout (including nested sub-layouts).
+        _clear_layout_tree(old_layout)
+
+        main_layout = QVBoxLayout()
+        main_layout.setContentsMargins(10, 8, 10, 8)
+        main_layout.setSpacing(8)
+
+        cards_row = QHBoxLayout()
+        cards_row.setSpacing(10)
+
+        def _build_metric_card(
+            title_text: str,
+            value_label: QLabel,
+            unit_label: QLabel,
+            card_name: str,
+        ) -> QFrame:
+            card = QFrame(footer)
+            card.setObjectName(card_name)
+            card.setMinimumHeight(78)
+            card_layout = QVBoxLayout(card)
+            card_layout.setContentsMargins(10, 8, 10, 8)
+            card_layout.setSpacing(4)
+
+            title = QLabel(title_text, card)
+            title.setObjectName("flow_balance_metric_title")
+            card_layout.addWidget(title, 0, Qt.AlignmentFlag.AlignLeft)
+
+            value_row = QHBoxLayout()
+            value_row.setSpacing(5)
+            value_label.setParent(card)
+            value_label.setVisible(True)
+            unit_label.setParent(card)
+            unit_label.setVisible(True)
+            value_label.setObjectName("flow_balance_metric_value")
+            unit_label.setObjectName("flow_balance_metric_unit")
+            value_label.setMinimumHeight(30)
+            value_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+            unit_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+            value_row.addWidget(value_label)
+            value_row.addWidget(unit_label)
+            value_row.addStretch(1)
+            card_layout.addLayout(value_row)
+            return card
+
+        inflows_card = _build_metric_card(
+            "Inflows Total",
+            self.ui.total_inflows_value,
+            self.ui.unit,
+            "flow_balance_card_inflows",
+        )
+        recirc_card = _build_metric_card(
+            "Recirculation",
+            self.ui.recirculation_value,
+            self.ui.unit_2,
+            "flow_balance_card_recirculation",
+        )
+        outflows_card = _build_metric_card(
+            "Outflows Total",
+            self.ui.total_outflows_value,
+            self.ui.unit_3,
+            "flow_balance_card_outflows",
+        )
+
+        cards_row.addWidget(inflows_card, 1)
+        cards_row.addWidget(recirc_card, 1)
+        cards_row.addWidget(outflows_card, 1)
+        main_layout.addLayout(cards_row)
+
+        badge_row = QHBoxLayout()
+        badge_row.setContentsMargins(0, 0, 0, 0)
+        badge_row.addStretch(1)
+
+        badge = QFrame(footer)
+        badge.setObjectName("flow_balance_badge")
+        badge_layout = QHBoxLayout(badge)
+        badge_layout.setContentsMargins(12, 6, 12, 6)
+        badge_layout.setSpacing(6)
+
+        self.ui.balance_check_label.setParent(badge)
+        self.ui.balance_check_label.setVisible(True)
+        self.ui.balance_check_label.setObjectName("flow_balance_badge_label")
+        self.ui.balance_check_label.setText("Balance Check")
+        self.ui.balance_check_value.setParent(badge)
+        self.ui.balance_check_value.setVisible(True)
+        self.ui.balance_check_value.setObjectName("flow_balance_badge_value")
+        self.ui.unit_4.setParent(badge)
+        self.ui.unit_4.setVisible(True)
+        self.ui.unit_4.setObjectName("flow_balance_badge_unit")
+
+        badge_layout.addWidget(self.ui.balance_check_label)
+        badge_layout.addWidget(self.ui.balance_check_value)
+        badge_layout.addWidget(self.ui.unit_4)
+        badge_row.addWidget(badge, 0, Qt.AlignmentFlag.AlignCenter)
+        badge_row.addStretch(1)
+        main_layout.addLayout(badge_row)
+
+        old_layout.addLayout(main_layout, 0, 0, 1, 1)
+        self._balance_badge = badge
+
+    def _apply_toolbar_layout_refresh(self) -> None:
+        """Refine header + toolbar grouping for clearer operations UX."""
+        # Page margins and section spacing
+        if hasattr(self.ui, "gridLayout"):
+            self.ui.gridLayout.setContentsMargins(10, 2, 12, 10)
+            self.ui.gridLayout.setVerticalSpacing(8)
+        if hasattr(self.ui, "frame"):
+            self.ui.frame.setMinimumHeight(186)
+
+        # Title row: align with global dashboard title/subtitle pattern.
+        if hasattr(self.ui, "horizontalLayout_2") and hasattr(self.ui, "label"):
+            title_layout = self.ui.horizontalLayout_2
+            title_label = self.ui.label
+            title_label.setText("Flow Diagram")
+            title_label.setObjectName("label_title")
+            title_label.setWordWrap(False)
+            title_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+
+            subtitle_label = QLabel("Manual flow line drawing", self.ui.frame)
+            subtitle_label.setObjectName("label_subtitle")
+            subtitle_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+
+            header_wrap = QWidget(self.ui.frame)
+            header_layout = QVBoxLayout(header_wrap)
+            header_layout.setContentsMargins(0, 0, 0, 0)
+            header_layout.setSpacing(2)
+            header_layout.addWidget(title_label)
+            header_layout.addWidget(subtitle_label)
+
+            while title_layout.count():
+                item = title_layout.takeAt(0)
+                widget = item.widget()
+                if widget is not None and widget is not title_label:
+                    widget.setParent(None)
+
+            title_layout.setContentsMargins(8, 0, 8, 6)
+            title_layout.setSpacing(0)
+            title_layout.addWidget(header_wrap, 0, Qt.AlignmentFlag.AlignLeft)
+            title_layout.addStretch(1)
+
+        # Row 1: Flows/Nodes groups
+        if hasattr(self.ui, "horizontalLayout"):
+            self.ui.horizontalLayout.setContentsMargins(8, 2, 8, 0)
+            self.ui.horizontalLayout.setSpacing(8)
+        if hasattr(self.ui, "label_2"):
+            self.ui.label_2.setText("Flows")
+            self.ui.label_2.setObjectName("flow_toolbar_section")
+        if hasattr(self.ui, "label_5"):
+            self.ui.label_5.setText("Nodes")
+            self.ui.label_5.setObjectName("flow_toolbar_section")
+        if hasattr(self.ui, "label_3"):
+            self.ui.label_3.setVisible(False)
+        if hasattr(self.ui, "label_4"):
+            self.ui.label_4.setVisible(False)
+
+        # Row 2: View + Save groups
+        if hasattr(self.ui, "horizontalLayout_3"):
+            row2 = self.ui.horizontalLayout_3
+            row2.setContentsMargins(8, 0, 8, 0)
+            row2.setSpacing(8)
+            for idx in range(row2.count() - 1, -1, -1):
+                item = row2.itemAt(idx)
+                if item and item.spacerItem():
+                    row2.takeAt(idx)
+            row2.addStretch(1)
+
+        # Row 3: Data & Validation controls
+        if hasattr(self.ui, "horizontalLayout_4"):
+            self.ui.horizontalLayout_4.setContentsMargins(8, 4, 8, 4)
+            self.ui.horizontalLayout_4.setSpacing(8)
+        if hasattr(self.ui, "label_6"):
+            self.ui.label_6.setVisible(False)
+        if hasattr(self.ui, "label_7"):
+            self.ui.label_7.setText("Data & Validation")
+            self.ui.label_7.setObjectName("flow_toolbar_section")
+        if hasattr(self.ui, "label_8"):
+            self.ui.label_8.setText("Year")
+        if hasattr(self.ui, "label_9"):
+            self.ui.label_9.setText("Month")
+
+        # Button hierarchy and consistency
+        if hasattr(self.ui, "load_excel_button"):
+            self.ui.load_excel_button.setText("Load Excel")
+            self.ui.load_excel_button.setMinimumWidth(112)
+            self.ui.load_excel_button.setStyleSheet(
+                "background-color:#1f3a5f; color:#ffffff; border:1px solid #1f3a5f; "
+                "border-radius:8px; padding:6px 12px; font-weight:700;"
+            )
+        for name in ["excel_setup_button", "balance_check_button", "save_diagram_button"]:
+            if hasattr(self.ui, name):
+                btn = getattr(self.ui, name)
+                btn.setMinimumWidth(112)
+
+        # Delete actions as danger buttons for clearer affordance
+        if hasattr(self.ui, "delete_folws_button"):
+            self.ui.delete_folws_button.setObjectName("dangerButton")
+        if hasattr(self.ui, "pushButton_6"):
+            self.ui.pushButton_6.setObjectName("dangerButton")
+
+        # Compact filter controls
+        if hasattr(self.ui, "comboBox_filter_year"):
+            self.ui.comboBox_filter_year.setMinimumWidth(100)
+        if hasattr(self.ui, "comboBox_filter_month"):
+            self.ui.comboBox_filter_month.setMinimumWidth(128)
 
     def _get_user_data_dir(self) -> Optional[Path]:
         """Return user data directory (or None in dev mode)."""
@@ -2591,11 +2822,29 @@ class FlowDiagramPage(QWidget):
             
             # Color code balance error
             if balance_error_pct < 5:
-                self.ui.balance_check_value.setStyleSheet("")
+                self.ui.balance_check_value.setStyleSheet(
+                    "color:#2e7d32; font-weight:700;"
+                )
+                if hasattr(self, "_balance_badge"):
+                    self._balance_badge.setStyleSheet(
+                        "background-color:#e7f4ea; border:1px solid #bfe2c6; border-radius:14px;"
+                    )
             elif balance_error_pct < 10:
-                self.ui.balance_check_value.setStyleSheet("")
+                self.ui.balance_check_value.setStyleSheet(
+                    "color:#b26a00; font-weight:700;"
+                )
+                if hasattr(self, "_balance_badge"):
+                    self._balance_badge.setStyleSheet(
+                        "background-color:#fff4e5; border:1px solid #f0d29d; border-radius:14px;"
+                    )
             else:
-                self.ui.balance_check_value.setStyleSheet("")
+                self.ui.balance_check_value.setStyleSheet(
+                    "color:#b3261e; font-weight:700;"
+                )
+                if hasattr(self, "_balance_badge"):
+                    self._balance_badge.setStyleSheet(
+                        "background-color:#fdeceb; border:1px solid #f3c5c1; border-radius:14px;"
+                    )
             
             logger.debug(f"Balance check labels updated: Inflows={inflows:.0f}, Recirculation={recirculation:.0f}, Outflows={outflows:.0f}, Error={balance_error_pct:.1f}%")
             
