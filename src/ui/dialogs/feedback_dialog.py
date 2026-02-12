@@ -20,8 +20,8 @@ from PySide6.QtWidgets import (
     QPushButton, QTextEdit, QLineEdit, QComboBox,
     QFrame, QMessageBox, QSizePolicy
 )
-from PySide6.QtCore import Qt, Signal, Slot, QThread
-from PySide6.QtGui import QFont
+from PySide6.QtCore import Qt, Signal, Slot, QThread, QSize
+from PySide6.QtGui import QFont, QIcon
 
 from core.hwid import get_hwid, get_hwid_display
 from services.license_service import get_license_service
@@ -384,6 +384,8 @@ class FeedbackDialog(QDialog):
         
         cancel_btn = QPushButton("Cancel")
         cancel_btn.setObjectName("secondaryButton")
+        cancel_btn.setIcon(QIcon(":/icons/cancel_icon.svg"))
+        cancel_btn.setIconSize(QSize(14, 14))
         cancel_btn.clicked.connect(self.reject)
         button_layout.addWidget(cancel_btn)
         

@@ -561,21 +561,21 @@ QLabel#flow_balance_metric_title {
 
 QLabel#flow_balance_metric_value {
     color: #0b1a2a;
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 700;
-    padding-top: 1px;
+    padding-top: 0px;
 }
 
 QLabel#flow_balance_metric_unit {
     color: #5b6775;
     font-size: 11px;
-    padding-top: 3px;
+    padding-top: 1px;
 }
 
 QFrame#flow_balance_badge {
     background-color: #e8eef7;
     border: 1px solid #c7d0da;
-    border-radius: 14px;
+    border-radius: 12px;
 }
 
 QLabel#flow_balance_badge_label {

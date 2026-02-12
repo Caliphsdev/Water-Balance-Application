@@ -34,7 +34,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt, Signal, QSize, QPointF, QEvent
 from PySide6.QtGui import (
     QPainter, QColor, QPen, QPainterPath, QTransform, QBrush, QFont,
-    QKeySequence, QShortcut
+    QKeySequence, QShortcut, QIcon
 )
 
 import json
@@ -166,7 +166,7 @@ class FlowDiagramPage(QWidget):
 
         footer = self.ui.frame_2
         footer.setObjectName("flow_balance_panel")
-        footer.setMinimumHeight(132)
+        footer.setMinimumHeight(108)
 
         old_layout = footer.layout()
         if old_layout is None:
@@ -188,11 +188,11 @@ class FlowDiagramPage(QWidget):
         _clear_layout_tree(old_layout)
 
         main_layout = QVBoxLayout()
-        main_layout.setContentsMargins(10, 8, 10, 8)
-        main_layout.setSpacing(8)
+        main_layout.setContentsMargins(8, 5, 8, 5)
+        main_layout.setSpacing(5)
 
         cards_row = QHBoxLayout()
-        cards_row.setSpacing(10)
+        cards_row.setSpacing(8)
 
         def _build_metric_card(
             title_text: str,
@@ -202,25 +202,25 @@ class FlowDiagramPage(QWidget):
         ) -> QFrame:
             card = QFrame(footer)
             card.setObjectName(card_name)
-            card.setMinimumHeight(78)
+            card.setMinimumHeight(64)
             card_layout = QVBoxLayout(card)
-            card_layout.setContentsMargins(10, 8, 10, 8)
-            card_layout.setSpacing(4)
+            card_layout.setContentsMargins(10, 6, 10, 6)
+            card_layout.setSpacing(2)
 
             title = QLabel(title_text, card)
             title.setObjectName("flow_balance_metric_title")
             card_layout.addWidget(title, 0, Qt.AlignmentFlag.AlignLeft)
 
             value_row = QHBoxLayout()
-            value_row.setSpacing(5)
+            value_row.setSpacing(4)
             value_label.setParent(card)
             value_label.setVisible(True)
             unit_label.setParent(card)
             unit_label.setVisible(True)
             value_label.setObjectName("flow_balance_metric_value")
             unit_label.setObjectName("flow_balance_metric_unit")
-            value_label.setMinimumHeight(34)
-            value_label.setMaximumHeight(40)
+            value_label.setMinimumHeight(26)
+            value_label.setMaximumHeight(30)
             value_label.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
             value_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
             unit_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
@@ -261,8 +261,8 @@ class FlowDiagramPage(QWidget):
         badge = QFrame(footer)
         badge.setObjectName("flow_balance_badge")
         badge_layout = QHBoxLayout(badge)
-        badge_layout.setContentsMargins(12, 6, 12, 6)
-        badge_layout.setSpacing(6)
+        badge_layout.setContentsMargins(10, 4, 10, 4)
+        badge_layout.setSpacing(5)
 
         self.ui.balance_check_label.setParent(badge)
         self.ui.balance_check_label.setVisible(True)
@@ -302,16 +302,31 @@ class FlowDiagramPage(QWidget):
             title_label.setObjectName("label_title")
             title_label.setWordWrap(False)
             title_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+            title_label.setMinimumHeight(34)
+            title_label.setMaximumHeight(16777215)
 
             subtitle_label = QLabel("Manual flow line drawing", self.ui.frame)
             subtitle_label.setObjectName("label_subtitle")
             subtitle_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
 
+            icon_label = QLabel(self.ui.frame)
+            icon_label.setPixmap(QIcon(":/icons/flow_diagram_color.svg").pixmap(24, 24))
+            icon_label.setFixedSize(24, 24)
+            icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+            title_row = QWidget(self.ui.frame)
+            title_row_layout = QHBoxLayout(title_row)
+            title_row_layout.setContentsMargins(0, 0, 0, 0)
+            title_row_layout.setSpacing(8)
+            title_row_layout.addWidget(icon_label, 0, Qt.AlignmentFlag.AlignVCenter)
+            title_row_layout.addWidget(title_label, 0, Qt.AlignmentFlag.AlignVCenter)
+            title_row_layout.addStretch(1)
+
             header_wrap = QWidget(self.ui.frame)
             header_layout = QVBoxLayout(header_wrap)
             header_layout.setContentsMargins(0, 0, 0, 0)
             header_layout.setSpacing(2)
-            header_layout.addWidget(title_label)
+            header_layout.addWidget(title_row)
             header_layout.addWidget(subtitle_label)
 
             while title_layout.count():
@@ -385,12 +400,64 @@ class FlowDiagramPage(QWidget):
             if hasattr(self.ui, name):
                 btn = getattr(self.ui, name)
                 btn.setMinimumWidth(112)
+                btn.setMinimumHeight(30)
+                btn.setMaximumHeight(30)
+
+        # Keep Save Diagram aligned with app-wide Save action pattern.
+        if hasattr(self.ui, "save_diagram_button"):
+            self.ui.save_diagram_button.setText("Save Diagram")
+            self.ui.save_diagram_button.setIcon(QIcon(":/icons/save_icon_black.svg"))
+            self.ui.save_diagram_button.setIconSize(QSize(16, 16))
+            self.ui.save_diagram_button.setStyleSheet(
+                "background-color:#ffffff; color:#1f2f43; border:1px solid #c7d0da; "
+                "border-radius:8px; padding:6px 12px; font-weight:600;"
+            )
+        if hasattr(self.ui, "zoom_in_button"):
+            self.ui.zoom_in_button.setMinimumHeight(30)
+            self.ui.zoom_in_button.setMaximumHeight(30)
+            self.ui.zoom_in_button.setIcon(QIcon(":/icons/zoomin.svg"))
+            self.ui.zoom_in_button.setIconSize(QSize(14, 14))
+        if hasattr(self.ui, "zoom_out_button"):
+            self.ui.zoom_out_button.setMinimumHeight(30)
+            self.ui.zoom_out_button.setMaximumHeight(30)
+            self.ui.zoom_out_button.setIcon(QIcon(":/icons/zoom_out.svg"))
+            self.ui.zoom_out_button.setIconSize(QSize(14, 14))
+        if hasattr(self.ui, "Draw_button"):
+            self.ui.Draw_button.setMinimumHeight(30)
+            self.ui.Draw_button.setMaximumHeight(30)
+            self.ui.Draw_button.setIcon(QIcon(":/icons/draw_icon.svg"))
+            self.ui.Draw_button.setIconSize(QSize(14, 14))
+        if hasattr(self.ui, "Add_button"):
+            self.ui.Add_button.setMinimumHeight(30)
+            self.ui.Add_button.setMaximumHeight(30)
+            self.ui.Add_button.setIcon(QIcon(":/icons/add_icon.svg"))
+            self.ui.Add_button.setIconSize(QSize(14, 14))
+        if hasattr(self.ui, "excel_setup_button"):
+            self.ui.excel_setup_button.setIcon(QIcon(":/icons/exce_setup.svg"))
+            self.ui.excel_setup_button.setIconSize(QSize(14, 14))
+        if hasattr(self.ui, "balance_check_button"):
+            self.ui.balance_check_button.setIcon(QIcon(":/icons/balance check.svg"))
+            self.ui.balance_check_button.setIconSize(QSize(14, 14))
+        if hasattr(self.ui, "lock_nodes_button"):
+            self.ui.lock_nodes_button.setMinimumHeight(30)
+            self.ui.lock_nodes_button.setMaximumHeight(30)
+            self._refresh_lock_button_state()
 
         # Delete actions as danger buttons for clearer affordance
+        if hasattr(self.ui, "edit_flows_button"):
+            self.ui.edit_flows_button.setIcon(QIcon(":/icons/edit.svg"))
+            self.ui.edit_flows_button.setIconSize(QSize(14, 14))
+        if hasattr(self.ui, "edit_nodes_button"):
+            self.ui.edit_nodes_button.setIcon(QIcon(":/icons/edit.svg"))
+            self.ui.edit_nodes_button.setIconSize(QSize(14, 14))
         if hasattr(self.ui, "delete_folws_button"):
             self.ui.delete_folws_button.setObjectName("dangerButton")
+            self.ui.delete_folws_button.setIcon(QIcon(":/icons/delete.svg"))
+            self.ui.delete_folws_button.setIconSize(QSize(14, 14))
         if hasattr(self.ui, "pushButton_6"):
             self.ui.pushButton_6.setObjectName("dangerButton")
+            self.ui.pushButton_6.setIcon(QIcon(":/icons/delete.svg"))
+            self.ui.pushButton_6.setIconSize(QSize(14, 14))
 
         # Compact filter controls
         if hasattr(self.ui, "comboBox_filter_year"):
@@ -413,6 +480,26 @@ class FlowDiagramPage(QWidget):
         badge.style().unpolish(badge)
         badge.style().polish(badge)
         badge.update()
+
+    def _refresh_lock_button_state(self) -> None:
+        """Refresh lock/unlock button icon/text from selected node state."""
+        if not hasattr(self.ui, "lock_nodes_button"):
+            return
+
+        btn = self.ui.lock_nodes_button
+        btn.setIconSize(QSize(14, 14))
+
+        selected_node_id = getattr(self, "selected_node_id", None)
+        node_items = getattr(self, "node_items", {})
+        node_item = node_items.get(selected_node_id) if selected_node_id else None
+        is_locked = bool(getattr(node_item, "is_locked", False))
+
+        if is_locked:
+            btn.setText("Unlock")
+            btn.setIcon(QIcon(":/icons/unlock.svg"))
+        else:
+            btn.setText("Lock")
+            btn.setIcon(QIcon(":/icons/lock.svg"))
 
     def _get_user_data_dir(self) -> Optional[Path]:
         """Return user data directory (or None in dev mode)."""
@@ -691,11 +778,15 @@ class FlowDiagramPage(QWidget):
         self.scene.clear()
         self.node_items: Dict[str, FlowNodeItem] = {}  # Track nodes by ID
         self.edge_items: List[FlowEdgeItem] = []         # Track all edges
+        self.selected_node_id = None
+        self.selected_edge_idx = None
+        self.selected_edge_item = None
         
         # Clear drawing state references to prevent accessing deleted Qt objects
         self._snap_edge_item = None
         self._snap_edge_idx = None
         self._preview_items = []  # Clear anchor preview items that were attached to scene
+        self._refresh_lock_button_state()
         
         nodes_data = self.diagram_data.get('nodes', [])
         edges_data = self.diagram_data.get('edges', [])
@@ -1014,6 +1105,7 @@ class FlowDiagramPage(QWidget):
         if node_item:
             node_item.set_selected(True)
             self.selected_node_id = node_id
+            self._refresh_lock_button_state()
             self.status_message.emit(f"Selected node: {node_id}", 2000)
     
     def _on_node_double_clicked(self, node_id: str):
@@ -1183,6 +1275,10 @@ class FlowDiagramPage(QWidget):
         edge_item.set_selected(True)
         self.selected_edge_idx = edge_idx
         self.selected_edge_item = edge_item
+        self.selected_node_id = None
+        for _, node_item in self.node_items.items():
+            node_item.set_selected(False)
+        self._refresh_lock_button_state()
 
         edge_data = self.diagram_data.get('edges', [])[edge_idx]
         volume = edge_data.get('volume', 0)
@@ -1389,6 +1485,7 @@ class FlowDiagramPage(QWidget):
             self.selected_node_id = None
             self.selected_edge_idx = None
             self.selected_edge_item = None
+            self._refresh_lock_button_state()
 
             self._refresh_scene_rect()
             self.diagram_changed.emit()
@@ -1427,6 +1524,7 @@ class FlowDiagramPage(QWidget):
                 break
         
         logger.info(f"Node {self.selected_node_id} {status}")
+        self._refresh_lock_button_state()
         self.status_message.emit(f"Component {status}", 2000)
     
     # ======================== Edge Operations ========================
@@ -1477,6 +1575,7 @@ class FlowDiagramPage(QWidget):
             # Disable drag mode and change cursor to crosshair for drawing
             self.ui.graphicsView.setDragMode(QGraphicsView.NoDrag)
             self.ui.graphicsView.viewport().setCursor(Qt.CrossCursor)
+            self.ui.graphicsView.setCursor(Qt.CrossCursor)
             
             # Clear status message and show drawing instructions
             self.status_message.emit(
@@ -1496,6 +1595,7 @@ class FlowDiagramPage(QWidget):
             # Restore normal drag mode and cursor
             self.ui.graphicsView.setDragMode(QGraphicsView.NoDrag)
             self.ui.graphicsView.viewport().setCursor(Qt.ArrowCursor)
+            self.ui.graphicsView.setCursor(Qt.ArrowCursor)
             
             # Clear drawing state
             self.drawing_segments = []

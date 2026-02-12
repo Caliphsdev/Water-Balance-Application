@@ -40,8 +40,9 @@ from PySide6.QtWidgets import (
     QFontComboBox,
     QToolButton,
 )
-from PySide6.QtGui import QFont, QTextCharFormat, QTextCursor, QTextListFormat
+from PySide6.QtGui import QFont, QTextCharFormat, QTextCursor, QTextListFormat, QIcon
 
+from core.config_manager import get_resource_path
 from services.license_admin_service import get_license_admin_service
 
 
@@ -104,6 +105,9 @@ class NotificationManagerDialog(QDialog):
         self.setWindowTitle("Notification Manager")
         self.setMinimumSize(1120, 640)
         self.resize(1180, 720)
+        icon_path = get_resource_path("src/ui/resources/icons/Water Balance.ico")
+        if icon_path.exists():
+            self.setWindowIcon(QIcon(str(icon_path)))
         self.setStyleSheet("""
             QDialog { background-color: #f4f6fb; }
             QFrame#panelCard {
@@ -131,10 +135,34 @@ class NotificationManagerDialog(QDialog):
                 border-radius: 6px;
                 padding: 6px 10px;
                 font-size: 12px;
+                color: #0f172a;
+            }
+            QComboBox QAbstractItemView {
+                color: #0f172a;
+                background-color: #ffffff;
+                selection-background-color: #e2e8f0;
+                selection-color: #0f172a;
             }
             QTextEdit#previewBox {
                 background-color: #f8fafc;
                 border: 1px dashed #cbd5e1;
+            }
+            QTextBrowser {
+                color: #0f172a;
+                background-color: #ffffff;
+            }
+            QTableWidget {
+                color: #0f172a;
+                background-color: #ffffff;
+                selection-background-color: #dbeafe;
+                selection-color: #0f172a;
+            }
+            QTableWidget::item {
+                color: #0f172a;
+            }
+            QTableWidget::item:selected {
+                color: #0f172a;
+                background-color: #dbeafe;
             }
             QHeaderView::section {
                 background-color: #f1f5f9;
@@ -142,13 +170,22 @@ class NotificationManagerDialog(QDialog):
                 border: 1px solid #e2e8f0;
                 font-size: 11px;
                 font-weight: 600;
+                color: #0f172a;
+            }
+            QTableCornerButton::section {
+                background-color: #f1f5f9;
+                border: 1px solid #e2e8f0;
+            }
+            QPushButton {
+                min-height: 30px;
+                border-radius: 6px;
+                padding: 0 12px;
+                font-size: 12px;
+                font-weight: 600;
             }
             QPushButton#primaryButton {
                 background-color: #2563eb;
                 color: #ffffff;
-                border-radius: 6px;
-                padding: 8px 14px;
-                font-weight: 600;
             }
             QPushButton#primaryButton:hover {
                 background-color: #1d4ed8;
@@ -156,9 +193,6 @@ class NotificationManagerDialog(QDialog):
             QPushButton#ghostButton {
                 background-color: #e2e8f0;
                 color: #0f172a;
-                border-radius: 6px;
-                padding: 6px 12px;
-                font-weight: 600;
             }
             QPushButton#ghostButton:hover {
                 background-color: #cbd5e1;
@@ -166,12 +200,20 @@ class NotificationManagerDialog(QDialog):
             QPushButton#dangerButton {
                 background-color: #fee2e2;
                 color: #991b1b;
-                border-radius: 6px;
-                padding: 6px 12px;
-                font-weight: 600;
             }
             QPushButton#dangerButton:hover {
                 background-color: #fecaca;
+            }
+            QToolButton {
+                min-height: 28px;
+                border: 1px solid #cbd5e1;
+                border-radius: 6px;
+                padding: 0 8px;
+                background-color: #ffffff;
+                color: #0f172a;
+            }
+            QToolButton:hover {
+                background-color: #f1f5f9;
             }
             QLabel#metaLabel {
                 color: #475569;

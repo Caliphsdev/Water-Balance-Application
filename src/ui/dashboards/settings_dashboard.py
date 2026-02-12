@@ -8,7 +8,8 @@ Purpose:
 """
 
 from datetime import datetime
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QSize
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QDialog,
@@ -197,6 +198,8 @@ class SettingsPage(QWidget):
         if hasattr(self.ui, "history_button"):
             self.ui.history_button.setObjectName("ghostButton")
             self.ui.history_button.setMinimumWidth(84)
+            self.ui.history_button.setIcon(QIcon(":/icons/history_icon.svg"))
+            self.ui.history_button.setIconSize(QSize(14, 14))
 
         # Quick edit bar cleanup (remove big designer spacers).
         if hasattr(self.ui, "horizontalLayout_3"):
@@ -243,6 +246,8 @@ class SettingsPage(QWidget):
             self.ui.details_button.setText("Details")
             self.ui.details_button.setObjectName("ghostButton")
             self.ui.details_button.setMinimumWidth(92)
+            self.ui.details_button.setIcon(QIcon(":/icons/details_icon.svg"))
+            self.ui.details_button.setIconSize(QSize(14, 14))
 
         # Environmental tab structure and controls
         if hasattr(self.ui, "frame_5"):
@@ -296,6 +301,8 @@ class SettingsPage(QWidget):
             self.ui.load_button_environment.setText("Reload")
             self.ui.load_button_environment.setObjectName("ghostButton")
             self.ui.load_button_environment.setMinimumWidth(96)
+            self.ui.load_button_environment.setIcon(QIcon(":/icons/reload_icon.svg"))
+            self.ui.load_button_environment.setIconSize(QSize(14, 14))
         if hasattr(self.ui, "select_year_label"):
             self.ui.select_year_label.setObjectName("settings_quick_label")
 
@@ -588,6 +595,8 @@ class SettingsPage(QWidget):
         buttons = QHBoxLayout()
         save_btn = QPushButton("Create")
         cancel_btn = QPushButton("Cancel")
+        cancel_btn.setIcon(QIcon(":/icons/cancel_icon.svg"))
+        cancel_btn.setIconSize(QSize(14, 14))
         buttons.addWidget(save_btn)
         buttons.addWidget(cancel_btn)
         layout.addLayout(buttons)

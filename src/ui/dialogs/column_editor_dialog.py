@@ -39,8 +39,8 @@ from PySide6.QtWidgets import (
     QFrame,
     QApplication,
 )
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QColor, QFont
+from PySide6.QtCore import Qt, QSize
+from PySide6.QtGui import QColor, QFont, QIcon
 from typing import List, Optional
 
 from services.excel_manager import get_excel_manager
@@ -190,6 +190,8 @@ class ColumnEditorDialog(QDialog):
         button_layout.addStretch()
 
         btn_cancel = QPushButton("Cancel")
+        btn_cancel.setIcon(QIcon(":/icons/cancel_icon.svg"))
+        btn_cancel.setIconSize(QSize(14, 14))
         btn_cancel.clicked.connect(self.reject)
         button_layout.addWidget(btn_cancel)
 
@@ -470,6 +472,8 @@ class AddColumnDialog(QDialog):
         button_layout.addStretch()
 
         btn_cancel = QPushButton("Cancel")
+        btn_cancel.setIcon(QIcon(":/icons/cancel_icon.svg"))
+        btn_cancel.setIconSize(QSize(14, 14))
         btn_cancel.clicked.connect(self.reject)
         button_layout.addWidget(btn_cancel)
 
@@ -521,6 +525,8 @@ class RenameColumnDialog(QDialog):
         button_layout.addStretch()
 
         btn_cancel = QPushButton("Cancel")
+        btn_cancel.setIcon(QIcon(":/icons/cancel_icon.svg"))
+        btn_cancel.setIconSize(QSize(14, 14))
         btn_cancel.clicked.connect(self.reject)
         button_layout.addWidget(btn_cancel)
 

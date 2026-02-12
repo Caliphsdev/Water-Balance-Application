@@ -164,7 +164,7 @@ class ConfigManager:
     
     def get_logo_path(self) -> str:
         """Return fixed bundled logo path (TRP)."""
-        path = get_resource_path('logo/Company Logo.png')
+        path = get_resource_path('logo/Company logo.png')
         return str(path) if path.exists() else ''
     
     def set_logo_path(self, path: str):

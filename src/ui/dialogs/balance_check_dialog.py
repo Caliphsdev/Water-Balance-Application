@@ -24,6 +24,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QFont
 from typing import Dict, List, Tuple
 import json
 
@@ -112,7 +113,15 @@ class BalanceCheckDialog(QDialog):
                 margin-top: 8px;
                 padding: 10px;
                 color: #173b68;
-                font-weight: 600;
+                font-weight: 700;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 10px;
+                padding: 0 4px;
+                color: #173b68;
+                font-size: 14px;
+                font-weight: 800;
             }
             QLabel#bc_closure_title {
                 color: #163a66;
@@ -451,22 +460,28 @@ class BalanceCheckDialog(QDialog):
         # Iterate through sheets in sorted order
         for sheet_name in sorted(sheet_groups.keys()):
             # Add GROUP HEADER ROW
-            header_item = QTableWidgetItem(f"📊 {sheet_name}")
-            header_item.setFont(self.ui.table_flows.font())
+            header_item = QTableWidgetItem(f"Sheet: {sheet_name}")
+            header_font = QFont(self.ui.table_flows.font())
+            header_font.setBold(True)
+            header_font.setPointSize(max(10, header_font.pointSize()))
+            header_item.setFont(header_font)
             self.ui.table_flows.setItem(table_row, 0, header_item)
             
             # Create items for all columns in header row (so we can style them)
             from PySide6.QtGui import QColor, QBrush
             brush = QBrush(QColor(240, 240, 240))
+            text_brush = QBrush(QColor(25, 55, 96))
             
             # Column 0 already has the header item
             header_item.setBackground(brush)
+            header_item.setForeground(text_brush)
             header_item.setFlags(header_item.flags() & ~Qt.ItemIsSelectable)
             
             # Create and style columns 1-3
             for col in range(1, 4):
                 col_item = QTableWidgetItem("")
                 col_item.setBackground(brush)
+                col_item.setForeground(text_brush)
                 col_item.setFlags(col_item.flags() & ~Qt.ItemIsSelectable)
                 self.ui.table_flows.setItem(table_row, col, col_item)
             

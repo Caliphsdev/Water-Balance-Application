@@ -26,7 +26,7 @@ from PySide6.QtWidgets import (
     QCheckBox, QLineEdit, QPushButton, QLabel, QComboBox, QMessageBox
 )
 from PySide6.QtCore import Qt, QSize
-from PySide6.QtGui import QFont
+from PySide6.QtGui import QFont, QIcon
 
 # Use centralized Excel manager (shared with flow volumes, analytics, etc.)
 from services.excel_manager import ExcelManager, get_excel_manager
@@ -227,6 +227,8 @@ class RecirculationManagerDialog(QDialog):
         button_layout.addWidget(save_btn)
         
         cancel_btn = QPushButton("Cancel")
+        cancel_btn.setIcon(QIcon(":/icons/cancel_icon.svg"))
+        cancel_btn.setIconSize(QSize(14, 14))
         cancel_btn.clicked.connect(self.reject)
         button_layout.addWidget(cancel_btn)
         

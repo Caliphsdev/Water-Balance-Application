@@ -284,7 +284,7 @@ class StorageFacilityService:
                 raise ValueError("Surface area must be non-negative")
             
             # Create Pydantic model (performs additional validation)
-            # NOTE: Status must be capitalized (Active, Inactive) for consistency with database schema
+            # DB schema expects lowercase values: active/inactive/decommissioned.
             facility = StorageFacility(
                 code=code,
                 name=name,
@@ -293,7 +293,7 @@ class StorageFacilityService:
                 surface_area_m2=surface_area_m2,
                 current_volume_m3=current_volume_m3,
                 is_lined=is_lined,
-                status='Active',  # New facilities are always active (CAPITALIZED for consistency)
+                status='active',  # New facilities are always active
                 notes=notes
             )
             
@@ -413,9 +413,8 @@ class StorageFacilityService:
             if is_lined is not ...:  # Ellipsis = not provided, so update if anything else (True/False/None)
                 facility.is_lined = is_lined
             if status is not None:
-                # Normalize status to capitalized format (Active, Inactive, Decommissioned)
-                # This ensures consistency with database schema expectations
-                facility.status = status.capitalize() if status else 'Active'
+                # Normalize to lowercase for DB constraint compatibility.
+                facility.status = status.strip().lower() if status else 'active'
             if notes is not None:
                 facility.notes = notes
             

@@ -19,8 +19,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Optional, Dict
 import os
-from PySide6.QtCore import Qt, QDateTime, QDate, QTimer, QSizeF, QRect
-from PySide6.QtGui import QStandardItem, QStandardItemModel, QPainter, QPdfWriter, QPageSize
+from PySide6.QtCore import Qt, QDateTime, QDate, QTimer, QSizeF, QRect, QSize
+from PySide6.QtGui import QStandardItem, QStandardItemModel, QPainter, QPdfWriter, QPageSize, QIcon
 from PySide6.QtWidgets import (
     QWidget,
     QFileDialog,
@@ -35,6 +35,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QLabel,
     QComboBox,
+    QSizePolicy,
 )
 
 import pandas as pd
@@ -109,7 +110,9 @@ class MonitoringPage(QWidget):
         super().__init__(parent)
         self.ui = Ui_Form()
         self.ui.setupUi(self)
+        self._apply_title_icon()
         self._style_visualization_action_buttons()
+        self._is_closing = False
 
         # Initialize ExcelManager singleton for all Excel data access (centralized, cached)
         self._excel_manager = get_excel_manager()
@@ -425,16 +428,54 @@ class MonitoringPage(QWidget):
         for button in generate_buttons:
             button.setText("Generate Chart")
             button.setMinimumWidth(150)
-            button.setMinimumHeight(29)
-            button.setMaximumHeight(31)
+            button.setMinimumHeight(30)
+            button.setMaximumHeight(30)
+            button.setIcon(QIcon(":/icons/chart_white.svg"))
+            button.setIconSize(QSize(14, 14))
             button.setStyleSheet(generate_style)
 
         for button in save_buttons:
             button.setText("Save Chart")
             button.setMinimumWidth(130)
-            button.setMinimumHeight(29)
-            button.setMaximumHeight(31)
+            button.setMinimumHeight(30)
+            button.setMaximumHeight(30)
+            button.setIcon(QIcon(":/icons/save_icon_black.svg"))
+            button.setIconSize(QSize(14, 14))
             button.setStyleSheet(save_style)
+
+    def _apply_title_icon(self) -> None:
+        """Render monitoring title with dedicated icon (no emoji)."""
+        if not hasattr(self.ui, "label_title") or not hasattr(self.ui, "verticalLayout"):
+            return
+
+        old_title_label = self.ui.label_title
+        title_label = QLabel("Monitoring Data Dashboard")
+        title_label.setObjectName("label_title")
+        title_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+        title_label.setMinimumHeight(34)
+        title_label.setMaximumHeight(16777215)
+        title_label.setWordWrap(False)
+        title_label.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
+
+        row = QWidget(self)
+        row_layout = QHBoxLayout(row)
+        row_layout.setContentsMargins(0, 0, 0, 0)
+        row_layout.setSpacing(8)
+
+        icon_label = QLabel(row)
+        icon_label.setPixmap(QIcon(":/icons/Monitoring Data_color.svg").pixmap(24, 24))
+        icon_label.setFixedSize(24, 24)
+        icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        row_layout.addWidget(icon_label, 0, Qt.AlignmentFlag.AlignVCenter)
+        row_layout.addWidget(title_label, 0, Qt.AlignmentFlag.AlignVCenter)
+        row_layout.addStretch(1)
+
+        self.ui.verticalLayout.replaceWidget(old_title_label, row)
+        old_title_label.hide()
+        old_title_label.setParent(None)
+        if hasattr(self.ui, "label_subtitle"):
+            self.ui.label_subtitle.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+            self.ui.label_subtitle.setContentsMargins(0, 0, 0, 2)
 
     # ==================== FILTER HANDLERS ====================
     
@@ -541,6 +582,8 @@ class MonitoringPage(QWidget):
         from PySide6.QtWidgets import QPushButton
         btn = QPushButton("Multi-Select Boreholes")
         btn.setToolTip("Select multiple boreholes to compare on chart")
+        btn.setIcon(QIcon(":/icons/multi_select_button.svg"))
+        btn.setIconSize(QSize(14, 14))
         btn.clicked.connect(self._show_monitoring_multi_select_dialog)
         self._monitoring_multi_select_button = btn
         
@@ -556,6 +599,8 @@ class MonitoringPage(QWidget):
         from PySide6.QtWidgets import QPushButton
         btn = QPushButton("Multi-Select Points")
         btn.setToolTip("Select multiple monitoring points to compare on chart")
+        btn.setIcon(QIcon(":/icons/multi_select_button.svg"))
+        btn.setIconSize(QSize(14, 14))
         btn.clicked.connect(self._show_pcd_multi_select_dialog)
         self._pcd_multi_select_button = btn
         
@@ -1055,12 +1100,20 @@ class MonitoringPage(QWidget):
         button = QPushButton("Multi-select")
         button.setObjectName("btn_multi_select_boreholes")
         button.setMinimumWidth(100)
+        button.setMinimumHeight(30)
+        button.setMaximumHeight(30)
+        button.setIcon(QIcon(":/icons/multi_select_button.svg"))
+        button.setIconSize(QSize(14, 14))
         button.clicked.connect(self._open_multi_select_dialog)
         
         # Clear selection button (reset to single dropdown mode)
         clear_button = QPushButton("Clear Selection")
         clear_button.setObjectName("btn_clear_selection")
         clear_button.setMinimumWidth(100)
+        clear_button.setMinimumHeight(30)
+        clear_button.setMaximumHeight(30)
+        clear_button.setIcon(QIcon(":/icons/clear.svg"))
+        clear_button.setIconSize(QSize(14, 14))
         clear_button.clicked.connect(self._clear_multi_select)
         
         # Insert buttons into the static options horizontal layout
@@ -1458,6 +1511,8 @@ class MonitoringPage(QWidget):
         Args:
             folder_path: Path to folder containing Excel files
         """
+        if self._is_closing:
+            return
         # Clear existing data
         self._static_table_model.setRowCount(0)
         self._static_data = None
@@ -1483,14 +1538,20 @@ class MonitoringPage(QWidget):
     
     def _on_static_progress(self, current: int, total: int, file_name: str) -> None:
         """Handle static borehole progress update (called from worker thread)."""
+        if self._is_closing:
+            return
         # Status label removed
     
     def _on_static_error(self, file_name: str, error_reason: str) -> None:
         """Handle static borehole load error (called from worker thread)."""
+        if self._is_closing:
+            return
         self._logger.warning(f"Failed to load {file_name}: {error_reason}")
     
     def _on_static_complete(self, data: pd.DataFrame, error_summary: dict) -> None:
         """Handle static borehole load completion (called from worker thread)."""
+        if self._is_closing:
+            return
         if data.empty:
             msg = error_summary.get("error") or error_summary.get("warning") or "No data loaded"
             QMessageBox.warning(self, "Load Failed", msg)
@@ -1699,6 +1760,8 @@ class MonitoringPage(QWidget):
         Args:
             folder_path: Path to folder containing Excel files
         """
+        if self._is_closing:
+            return
         # Clear existing data
         self._monitoring_table_model.setRowCount(0)
         self._monitoring_data = None
@@ -1728,6 +1791,8 @@ class MonitoringPage(QWidget):
         Args:
             stats: Dictionary with files_cached, files_parsed, total_files
         """
+        if self._is_closing:
+            return
         cached = stats.get('files_cached', 0)
         parsed = stats.get('files_parsed', 0)
         total = stats.get('total_files', 0)
@@ -1741,10 +1806,14 @@ class MonitoringPage(QWidget):
     
     def _on_monitoring_progress(self, current: int, total: int, file_name: str) -> None:
         """Handle monitoring borehole progress update (called from worker thread)."""
+        if self._is_closing:
+            return
         self.ui.monitoring_status_label.setText(f"Loading {file_name}... ({current}/{total})")
     
     def _on_monitoring_error(self, file_name: str, error_reason: str) -> None:
         """Handle monitoring borehole load error (called from worker thread)."""
+        if self._is_closing:
+            return
         self._logger.warning(f"Failed to load {file_name}: {error_reason}")
     
     def _on_monitoring_complete(self, data: pd.DataFrame, error_summary: dict) -> None:
@@ -1752,6 +1821,8 @@ class MonitoringPage(QWidget):
         
         Processes raw Excel data, normalizes columns, and displays in table.
         """
+        if self._is_closing:
+            return
         self._logger.info(f"_on_monitoring_complete: Received {len(data)} rows. Errors: {error_summary}")
         
         if data.empty:
@@ -1888,6 +1959,8 @@ class MonitoringPage(QWidget):
         Args:
             folder_path: Path to folder containing Excel files
         """
+        if self._is_closing:
+            return
         # Clear existing data
         self._pcd_table_model.setRowCount(0)
         self._pcd_data = None
@@ -1913,14 +1986,20 @@ class MonitoringPage(QWidget):
     
     def _on_pcd_progress(self, current: int, total: int, file_name: str) -> None:
         """Handle PCD monitoring progress update (called from worker thread)."""
+        if self._is_closing:
+            return
         # Status label removed
     
     def _on_pcd_error(self, file_name: str, error_reason: str) -> None:
         """Handle PCD monitoring load error (called from worker thread)."""
+        if self._is_closing:
+            return
         self._logger.warning(f"Failed to load {file_name}: {error_reason}")
     
     def _on_pcd_complete(self, data: pd.DataFrame, error_summary: dict) -> None:
         """Handle PCD monitoring load completion (called from worker thread)."""
+        if self._is_closing:
+            return
         self._logger.info(f"_on_pcd_complete CALLED with {len(data) if data is not None else 'None'} rows")
         
         if data.empty:
@@ -2024,6 +2103,8 @@ class MonitoringPage(QWidget):
             tab_name: Name of the tab (e.g., "Static Boreholes", "Borehole Monitoring")
             error_summary: Dict with 'errors' key containing {filename: error_reason} pairs
         """
+        if self._is_closing:
+            return
         errors = error_summary.get('errors', {})
         if not errors:
             return
@@ -2047,6 +2128,7 @@ class MonitoringPage(QWidget):
         This method is called by the main window during app exit to avoid
         background loaders attempting to update UI widgets after teardown.
         """
+        self._is_closing = True
         loaders = [
             ("static_boreholes", self._static_loader_thread),
             ("borehole_monitoring", self._monitoring_loader_thread),
@@ -2054,12 +2136,20 @@ class MonitoringPage(QWidget):
         ]
 
         for name, loader in loaders:
-            if loader and loader.isRunning():
-                # Request cancellation and wait briefly for shutdown
-                self._logger.info(f"Stopping {name} loader on exit")
-                loader.cancel()
-                loader.quit()
-                loader.wait(2000)
+            if not loader:
+                continue
+            self._logger.info(f"Stopping {name} loader on exit")
+            try:
+                if loader.isRunning():
+                    loader.cancel()
+                    loader.quit()
+                    stopped = loader.wait(5000)
+                    if not stopped and loader.isRunning():
+                        self._logger.warning(
+                            f"{name} loader did not stop in time; leaving graceful shutdown path"
+                        )
+            except Exception as exc:
+                self._logger.warning(f"Error while stopping {name} loader: {exc}")
 
     # ExcelManager now handles all Excel data access for monitoring and PCD tabs. This method is deprecated and removed.
 

@@ -331,19 +331,8 @@ class DirectoryLoaderThread(QThread):
         self.worker.cancel()
     
     def __del__(self) -> None:
-        """Ensure thread is properly stopped on destruction (SAFETY).
-        
-        This prevents "thread destroyed while running" warnings during shutdown.
+        """Avoid touching Qt objects during Python GC shutdown.
+
+        Thread shutdown is handled explicitly by page/main window lifecycle.
         """
-        try:
-            # Qt may delete the underlying C++ object before Python __del__ runs.
-            # Guard with isValid() to avoid RuntimeError on shutdown.
-            if not isValid(self):
-                return
-            if self.isRunning():
-                self.cancel()
-                self.quit()
-                self.wait(1000)  # Wait max 1 second for thread to finish
-        except RuntimeError:
-            # Underlying C++ object already deleted; safe to ignore on shutdown.
-            return
+        return

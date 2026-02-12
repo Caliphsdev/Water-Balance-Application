@@ -9,6 +9,11 @@ $ConfigPath = Join-Path $ProjectRoot "config\app_config.yaml"
 $IssPath = Join-Path $PSScriptRoot "water_balance.iss"
 $BuildScript = Join-Path $PSScriptRoot "build_windows.ps1"
 $InstallerPath = Join-Path $PSScriptRoot "dist\installer\WaterBalanceDashboard-Setup.exe"
+$PackagedConfigPath = Join-Path $ProjectRoot "dist\WaterBalanceDashboard\_internal\config\app_config.yaml"
+$Repo = $env:GITHUB_REPOSITORY
+if ([string]::IsNullOrWhiteSpace($Repo)) {
+    $Repo = "Caliphsdev/Water-Balance-Application"
+}
 
 $AllowedTiers = @("developer", "premium", "standard", "free_trial", "customer")
 
@@ -37,7 +42,7 @@ function Set-IssVersion {
     $content = Get-Content $Path
     $content = $content | ForEach-Object {
         if ($_ -match "^#define AppVersion") {
-            "#define AppVersion \"$Version\""
+            "#define AppVersion `"$Version`""
         } else {
             $_
         }
@@ -102,6 +107,17 @@ if ($mode -eq "full") {
 
     & $BuildScript
 
+    if (-not (Test-Path $PackagedConfigPath)) {
+        throw "Packaged config not found after build: $PackagedConfigPath"
+    }
+    $packagedVersion = Get-ConfigVersion -Path $PackagedConfigPath
+    if ([string]::IsNullOrWhiteSpace($packagedVersion)) {
+        throw "Could not read packaged app version from $PackagedConfigPath"
+    }
+    if ($packagedVersion -ne $version) {
+        throw "Packaged app version ($packagedVersion) does not match target version ($version)."
+    }
+
     $issCompiler = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
     if (-not (Test-Path $issCompiler)) {
         throw "Inno Setup compiler not found at $issCompiler"
@@ -114,7 +130,18 @@ $downloadUrl = "https://github.com/Caliphsdev/Water-Balance-Application/releases
 
 if ($mode -eq "full") {
     $tag = "v$version"
-    & gh release create $tag $InstallerPath -t $tag -n $releaseNotes
+    $releaseExists = $false
+    & gh release view $tag --repo $Repo | Out-Null
+    if ($LASTEXITCODE -eq 0) {
+        $releaseExists = $true
+    }
+
+    if ($releaseExists) {
+        & gh release upload $tag $InstallerPath --clobber --repo $Repo
+        & gh release edit $tag -t $tag -n $releaseNotes --repo $Repo
+    } else {
+        & gh release create $tag $InstallerPath -t $tag -n $releaseNotes --repo $Repo
+    }
 }
 
 $SupabaseUrl = $env:SUPABASE_URL
@@ -126,7 +153,7 @@ if ([string]::IsNullOrWhiteSpace($SupabaseUrl) -or [string]::IsNullOrWhiteSpace(
 
 $payload = [ordered]@{
     version = $version
-    min_tiers = $tiers
+    min_tiers = @($tiers)
     download_url = $downloadUrl
     release_notes = $releaseNotes
     file_hash = $metadata.Hash

@@ -656,7 +656,7 @@ class Ui_Form(object):
         self.static_chart_placeholder.setStyleSheet("")
         self.static_chart_placeholder.setText(QCoreApplication.translate("Form", u"Load files then generate charts", None))
         self.staticSubTabs.setTabText(self.staticSubTabs.indexOf(self.tab_static_visualize), QCoreApplication.translate("Form", u"Visualize", None))
-        self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.tab_borehole_static), QCoreApplication.translate("Form", u"\U0001f3d4\U0000fe0f Borehole Static Levels", None))
+        self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.tab_borehole_static), QCoreApplication.translate("Form", u"Borehole Static Levels", None))
         self.label_monitoring_folder.setText(QCoreApplication.translate("Form", u"Folder with monitoring borehole Excel files:", None))
         self.monitoring_status_label.setStyleSheet("")
         self.monitoring_status_label.setText("")
@@ -686,7 +686,7 @@ class Ui_Form(object):
         self.monitoring_chart_placeholder.setStyleSheet("")
         self.monitoring_chart_placeholder.setText(QCoreApplication.translate("Form", u"Load files then generate charts", None))
         self.monitoringSubTabs.setTabText(self.monitoringSubTabs.indexOf(self.tab_monitoring_visualize), QCoreApplication.translate("Form", u"Visualize", None))
-        self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.tab_borehole_monitoring), QCoreApplication.translate("Form", u"\U0001f573\U0000fe0f Borehole Monitoring", None))
+        self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.tab_borehole_monitoring), QCoreApplication.translate("Form", u"Borehole Monitoring", None))
         self.label_pcd_folder.setText(QCoreApplication.translate("Form", u"Folder with PCD monitoring Excel files:", None))
         self.pcd_folder_path.setPlaceholderText(QCoreApplication.translate("Form", u"Choose a folder to auto-load and preview PCD monitoring data", None))
         self.pushButton_7.setText(QCoreApplication.translate("Form", u"Choose Folder", None))
@@ -707,7 +707,7 @@ class Ui_Form(object):
         self.pcd_chart_placeholder.setStyleSheet("")
         self.pcd_chart_placeholder.setText(QCoreApplication.translate("Form", u"Load files then generate charts", None))
         self.pcdSubTabs.setTabText(self.pcdSubTabs.indexOf(self.tab_pcd_visualize), QCoreApplication.translate("Form", u"Visualize", None))
-        self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.tab_pcd_monitoring), QCoreApplication.translate("Form", u"\U0001f3ed PCD Monitoring", None))
+        self.mainTabWidget.setTabText(self.mainTabWidget.indexOf(self.tab_pcd_monitoring), QCoreApplication.translate("Form", u"PCD Monitoring", None))
     # retranslateUi
 
 

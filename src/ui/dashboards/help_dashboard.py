@@ -10,8 +10,8 @@ from __future__ import annotations
 
 from html import escape
 
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QTextCursor, QTextDocument
+from PySide6.QtCore import Qt, QSize
+from PySide6.QtGui import QIcon, QTextCursor, QTextDocument
 from PySide6.QtWidgets import (
     QComboBox,
     QFrame,
@@ -199,6 +199,18 @@ class HelpPage(QWidget):
         self._find_prev_btn = QPushButton("Prev", toolbar)
         self._find_next_btn = QPushButton("Next", toolbar)
         self._clear_search_btn = QPushButton("Clear", toolbar)
+        self._find_prev_btn.setIcon(QIcon(":/icons/previous_icon.svg"))
+        self._find_next_btn.setIcon(QIcon(":/icons/next_icon.svg"))
+        self._clear_search_btn.setIcon(QIcon(":/icons/clear.svg"))
+        self._find_prev_btn.setIconSize(QSize(14, 14))
+        self._find_next_btn.setIconSize(QSize(14, 14))
+        self._clear_search_btn.setIconSize(QSize(14, 14))
+        self._find_prev_btn.setMinimumHeight(30)
+        self._find_next_btn.setMinimumHeight(30)
+        self._clear_search_btn.setMinimumHeight(30)
+        self._find_prev_btn.setMaximumHeight(30)
+        self._find_next_btn.setMaximumHeight(30)
+        self._clear_search_btn.setMaximumHeight(30)
         row.addWidget(self._find_prev_btn)
         row.addWidget(self._find_next_btn)
         row.addWidget(self._clear_search_btn)

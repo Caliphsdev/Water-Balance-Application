@@ -21,7 +21,8 @@ Data flow:
 
 from typing import Optional
 from PySide6.QtWidgets import QDialog, QMessageBox
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QSize
+from PySide6.QtGui import QIcon
 
 from models.storage_facility import StorageFacility
 from services.storage_facility_service import StorageFacilityService
@@ -233,7 +234,8 @@ class StorageFacilityDialog(QDialog):
             'surface_area_m2': self.ui.spin_surface.value() or None,
             'current_volume_m3': self.ui.spin_volume.value(),
             'is_lined': is_lined,
-            'status': self.ui.combo_status.currentText().capitalize(),
+            # Persist lowercase to match DB check constraint and model defaults.
+            'status': self.ui.combo_status.currentText().strip().lower(),
             'notes': self.ui.input_notes.toPlainText().strip() or None
         }
 
@@ -269,6 +271,8 @@ class StorageFacilityDialog(QDialog):
 
         self.ui.btn_save.setMinimumHeight(34)
         self.ui.btn_cancel.setMinimumHeight(34)
+        self.ui.btn_cancel.setIcon(QIcon(":/icons/cancel_icon.svg"))
+        self.ui.btn_cancel.setIconSize(QSize(14, 14))
 
         self.setStyleSheet(
             """

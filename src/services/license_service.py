@@ -41,7 +41,7 @@ logger = app_logger
 # (CONSTANTS)
 
 # License token validity period (days) for offline use
-OFFLINE_TOKEN_VALIDITY_DAYS = 7
+OFFLINE_TOKEN_VALIDITY_DAYS = 2
 
 # How many days before expiry to refresh online
 REFRESH_INTERVAL_DAYS = 1

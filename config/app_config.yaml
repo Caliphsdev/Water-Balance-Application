@@ -1,6 +1,6 @@
 app:
   name: Water Balance System
-  version: 1.0.8
+  version: 1.0.13
 branding:
   company_name: Water Balance Management
   logo_path: C:\PROJECTS\Water-Balance-Application\logo\Logo Two rivers.png
@@ -43,7 +43,7 @@ data_sources:
   legacy_excel_path: ''
   outflow_codes_path: data\templates\OUTFLOW_CODES_TEMPLATE_CORRECTED.txt
   template_excel_path: data\Water_Balance_TimeSeries_Template.xlsx
-  timeseries_excel_path: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Water_Balance_TimeSeries_Template.xlsx
+  timeseries_excel_path: C:\Users\CALIPH~1\AppData\Local\Temp\tmpscp4ioo_\test_flows.xlsx
 database:
   path: data/water_balance.db
 environmental:
@@ -117,11 +117,11 @@ licensing:
 logging:
   level: INFO
 monitoring:
-  borehole_monitoring_directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring
-    Borehole
+  borehole_monitoring_directory: ''
+  pcd_directory: ''
   pcd_monitoring_directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution
     Control Dam
-  static_borehole_directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+  static_borehole_directory: ''
 session:
   current_user: admin
 storage:

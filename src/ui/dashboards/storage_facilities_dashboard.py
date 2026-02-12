@@ -20,9 +20,16 @@ Dialogs: StorageFacilityDialog for Add/Edit operations
 from __future__ import annotations
 
 from typing import Optional
-from PySide6.QtWidgets import QWidget, QMessageBox, QDialog, QGraphicsDropShadowEffect
-from PySide6.QtCore import Qt, QSortFilterProxyModel, QThread, Signal, QObject
-from PySide6.QtGui import QShowEvent, QColor
+from PySide6.QtWidgets import (
+    QWidget,
+    QMessageBox,
+    QDialog,
+    QGraphicsDropShadowEffect,
+    QLabel,
+    QHBoxLayout,
+)
+from PySide6.QtCore import Qt, QSortFilterProxyModel, QThread, Signal, QObject, QSize
+from PySide6.QtGui import QShowEvent, QColor, QIcon
 import logging
 
 from .generated_ui_storage_facilities import Ui_Form
@@ -141,6 +148,7 @@ class StorageFacilitiesPage(QWidget):
         self.ui = Ui_Form()
         self.ui.setupUi(self)
         self._normalize_storage_page_layout()
+        self._apply_title_icon()
 
         # Instance logger for background operations
         self._logger = app_logger.get_dashboard_logger('storage_facilities')
@@ -242,21 +250,29 @@ class StorageFacilitiesPage(QWidget):
             self.ui.add_facility_button.setMaximumWidth(150)
             self.ui.add_facility_button.setMinimumHeight(toolbar_btn_height)
             self.ui.add_facility_button.setMaximumHeight(toolbar_btn_height)
+            self.ui.add_facility_button.setIcon(QIcon(":/icons/add_icon.svg"))
+            self.ui.add_facility_button.setIconSize(QSize(14, 14))
         if hasattr(self.ui, "edit_facility_button"):
             self.ui.edit_facility_button.setMinimumWidth(92)
             self.ui.edit_facility_button.setMaximumWidth(110)
             self.ui.edit_facility_button.setMinimumHeight(toolbar_btn_height)
             self.ui.edit_facility_button.setMaximumHeight(toolbar_btn_height)
+            self.ui.edit_facility_button.setIcon(QIcon(":/icons/edit.svg"))
+            self.ui.edit_facility_button.setIconSize(QSize(14, 14))
         if hasattr(self.ui, "delete_facility_button"):
             self.ui.delete_facility_button.setMinimumWidth(92)
             self.ui.delete_facility_button.setMaximumWidth(110)
             self.ui.delete_facility_button.setMinimumHeight(toolbar_btn_height)
             self.ui.delete_facility_button.setMaximumHeight(toolbar_btn_height)
+            self.ui.delete_facility_button.setIcon(QIcon(":/icons/delete.svg"))
+            self.ui.delete_facility_button.setIconSize(QSize(14, 14))
         if hasattr(self.ui, "monthly_parameter_button"):
             self.ui.monthly_parameter_button.setMinimumWidth(136)
             self.ui.monthly_parameter_button.setMaximumWidth(168)
             self.ui.monthly_parameter_button.setMinimumHeight(toolbar_btn_height)
             self.ui.monthly_parameter_button.setMaximumHeight(toolbar_btn_height)
+            self.ui.monthly_parameter_button.setIcon(QIcon(":/icons/settings_2.svg"))
+            self.ui.monthly_parameter_button.setIconSize(QSize(14, 14))
 
         # Raise KPI cards visually with subtle drop shadows.
         for card_name in [
@@ -272,6 +288,42 @@ class StorageFacilitiesPage(QWidget):
                 shadow.setOffset(0, 4)
                 shadow.setColor(QColor(16, 32, 64, 45))
                 card.setGraphicsEffect(shadow)
+
+    def _apply_title_icon(self) -> None:
+        """Render storage title with dedicated icon and consistent spacing."""
+        if not hasattr(self.ui, "label_7"):
+            return
+
+        old_title_label = self.ui.label_7
+        title_label = QLabel("Storage Facilities")
+        title_label.setObjectName("label_title")
+        title_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+        title_label.setMinimumHeight(34)
+        title_label.setMaximumHeight(16777215)
+        title_label.setWordWrap(False)
+
+        row = QWidget(self)
+        row_layout = QHBoxLayout(row)
+        row_layout.setContentsMargins(0, 0, 0, 0)
+        row_layout.setSpacing(8)
+
+        icon_label = QLabel(row)
+        icon_label.setPixmap(QIcon(":/icons/Storage_facility_icon.svg").pixmap(24, 24))
+        icon_label.setFixedSize(24, 24)
+        icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        row_layout.addWidget(icon_label, 0, Qt.AlignmentFlag.AlignVCenter)
+        row_layout.addWidget(title_label, 0, Qt.AlignmentFlag.AlignVCenter)
+        row_layout.addStretch(1)
+
+        self.ui.gridLayout.replaceWidget(old_title_label, row)
+        old_title_label.hide()
+        old_title_label.setParent(None)
+        if hasattr(self.ui, "label_3"):
+            self.ui.label_3.hide()
+        if hasattr(self.ui, "label_6"):
+            self.ui.label_6.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+            self.ui.label_6.setContentsMargins(4, 0, 0, 6)
 
     def _setup_table_model(self) -> None:
         """Initialize QTableView with lazy-loading model and proxy (SETUP LAZY LOADING).
@@ -533,13 +585,11 @@ class StorageFacilitiesPage(QWidget):
             if thread_ref and thread_ref.isRunning():
                 self._logger.debug("[CLEANUP] Quitting thread...")
                 thread_ref.quit()
-                success = thread_ref.wait(2000)
+                success = thread_ref.wait(5000)
                 if success:
                     self._logger.info("[CLEANUP] Thread quit successfully")
                 else:
-                    self._logger.warning("[CLEANUP] Thread quit timeout - forcing termination")
-                    thread_ref.terminate()
-                    thread_ref.wait(1000)
+                    self._logger.warning("[CLEANUP] Thread quit timeout - continuing graceful shutdown")
         except Exception as e:
             self._logger.error(f"[CLEANUP] Error quitting thread: {e}", exc_info=True)
 
@@ -552,7 +602,11 @@ class StorageFacilitiesPage(QWidget):
         if self._load_thread and self._load_thread.isRunning():
             self._logger.info("Stopping storage facilities worker on exit")
             self._load_thread.quit()
-            self._load_thread.wait(2000)
+            stopped = self._load_thread.wait(5000)
+            if not stopped and self._load_thread.isRunning():
+                self._logger.warning(
+                    "Storage facilities worker did not stop in time; leaving graceful shutdown path"
+                )
 
     def _populate_table(self) -> None:
         """Populate table model with filtered facility data (LAZY LOADING).
@@ -709,7 +763,10 @@ class StorageFacilitiesPage(QWidget):
         Different from _update_summary_cards which shows all ACTIVE facilities.
         """
         # Get only ACTIVE facilities from filtered list
-        active_filtered = [f for f in self._filtered_facilities if f["status"] == "Active"]
+        active_filtered = [
+            f for f in self._filtered_facilities
+            if str(f.get("status", "")).lower() == "active"
+        ]
         
         total_capacity = sum(f["capacity"] for f in active_filtered)
         total_volume = sum(f["volume"] for f in active_filtered)

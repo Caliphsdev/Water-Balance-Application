@@ -19,7 +19,7 @@ from PySide6.QtWidgets import (
     QTextEdit, QMessageBox, QGraphicsDropShadowEffect, QSizePolicy,
     QProgressDialog, QApplication, QTextBrowser
 )
-from PySide6.QtCore import Qt, QTimer, Signal, QPropertyAnimation, QEasingCurve, QUrl
+from PySide6.QtCore import Qt, QTimer, Signal, QPropertyAnimation, QEasingCurve, QUrl, QSize
 from PySide6.QtGui import QIcon, QFont, QColor, QDesktopServices, QTextDocument
 
 from core.app_logger import logger
@@ -484,12 +484,18 @@ class MessagesPage(QWidget):
         title_container = QWidget()
         title_layout = QHBoxLayout(title_container)
         title_layout.setContentsMargins(0, 0, 0, 0)
-        title_layout.setSpacing(12)
+        title_layout.setSpacing(6)
         
         # Icon
         icon_label = QLabel()
-        icon_label.setPixmap(QIcon(":/icons/message.svg").pixmap(32, 32))
-        title_layout.addWidget(icon_label)
+        icon_label.setFixedSize(24, 24)
+        icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        icon_label.setPixmap(
+            QIcon(":/icons/Message_notifications_icon.svg")
+            .pixmap(20, 20)
+            .scaled(20, 20, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+        )
+        title_layout.addWidget(icon_label, 0, Qt.AlignmentFlag.AlignVCenter)
         
         # Title
         title = QLabel("Messages & Notifications")
@@ -527,9 +533,9 @@ class MessagesPage(QWidget):
         
         self.tab_buttons = []
         tabs = [
-            ("🔔 Notifications", 0),
-            ("📦 Updates", 1),
-            ("💬 Feedback", 2),
+            ("Notifications", 0),
+            ("Updates", 1),
+            ("Feedback", 2),
         ]
         
         for text, index in tabs:
@@ -653,6 +659,9 @@ class MessagesPage(QWidget):
         self.update_check_button.setObjectName("messagesPrimaryBtn")
         self.update_check_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.update_check_button.setMinimumHeight(30)
+        self.update_check_button.setMaximumHeight(30)
+        self.update_check_button.setIcon(QIcon(":/icons/update_icon.svg"))
+        self.update_check_button.setIconSize(QSize(14, 14))
         self.update_check_button.setSizePolicy(
             QSizePolicy.Policy.Fixed,
             QSizePolicy.Policy.Fixed,
@@ -678,6 +687,7 @@ class MessagesPage(QWidget):
         self.update_download_button.setObjectName("messagesGhostBtn")
         self.update_download_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.update_download_button.setMinimumHeight(30)
+        self.update_download_button.setMaximumHeight(30)
         self.update_download_button.setSizePolicy(
             QSizePolicy.Policy.Fixed,
             QSizePolicy.Policy.Fixed,
@@ -1000,11 +1010,14 @@ class MessagesPage(QWidget):
         submit_row = QHBoxLayout()
         submit_row.addStretch()
         
-        self.submit_btn = QPushButton("📤 Submit Feedback")
+        self.submit_btn = QPushButton("Submit Feedback")
         self.submit_btn.setObjectName("messagesPrimaryBtn")
         self.submit_btn.setFont(QFont('Segoe UI', 9, QFont.Weight.DemiBold))
         self.submit_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.submit_btn.setFixedHeight(30)
+        self.submit_btn.setMaximumHeight(30)
+        self.submit_btn.setIcon(QIcon(":/icons/feedback icon.svg"))
+        self.submit_btn.setIconSize(QSize(14, 14))
         self.submit_btn.setStyleSheet(
             "QPushButton {"
             "background-color: #1f3a5f;"
@@ -1197,7 +1210,7 @@ class MessagesPage(QWidget):
             )
         finally:
             self.submit_btn.setEnabled(True)
-            self.submit_btn.setText("📤 Submit Feedback")
+            self.submit_btn.setText("Submit Feedback")
             
     def refresh(self):
         """Refresh the messages page (PUBLIC REFRESH METHOD)."""

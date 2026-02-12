@@ -22,6 +22,7 @@ from unittest.mock import Mock, patch, MagicMock
 import sqlite3
 
 from PySide6.QtWidgets import QApplication
+from PySide6.QtCore import QThread
 from models.storage_facility import StorageFacility
 from services.storage_facility_service import StorageFacilityService
 from ui.dashboards.storage_facilities_dashboard import StorageFacilitiesPage
@@ -75,7 +76,7 @@ def db_connection():
             surface_area_m2 REAL,
             current_volume_m3 REAL DEFAULT 0,
             is_lined INTEGER,
-            status TEXT DEFAULT 'Active',
+            status TEXT DEFAULT 'active',
             notes TEXT
         )
     ''')
@@ -123,21 +124,25 @@ def test_facilities():
     db_manager = DatabaseManager.get_instance()
     conn = db_manager.get_connection()
     cursor = conn.cursor()
+
+    # Remove stale test rows from previous interrupted runs.
+    cursor.execute("DELETE FROM storage_facilities WHERE code LIKE 'TEST_%'")
+    conn.commit()
     
     # Insert test data with unique prefix to avoid conflicts
     test_data = [
-        ('TEST_TANK001', 'Test Tank A', 'Tank', 100.0, 50.0, None, 'Active'),
-        ('TEST_DAM001', 'Test Dam North', 'Dam', 500.0, 350.0, 1, 'Active'),
-        ('TEST_TSF001', 'Test Tailings A', 'TSF', 1000.0, 800.0, 0, 'Active'),
-        ('TEST_POND001', 'Test Evap Pond', 'Pond', 200.0, 100.0, None, 'Inactive'),
-        ('TEST_TSF002', 'Test Tailings B', 'TSF', 800.0, 600.0, 1, 'Active'),
+        ('TEST_TANK001', 'Test Tank A', 'Tank', 100.0, 50.0, None, 'active'),
+        ('TEST_DAM001', 'Test Dam North', 'Dam', 500.0, 350.0, 1, 'active'),
+        ('TEST_TSF001', 'Test Tailings A', 'TSF', 1000.0, 800.0, 0, 'active'),
+        ('TEST_POND001', 'Test Evap Pond', 'Pond', 200.0, 100.0, None, 'inactive'),
+        ('TEST_TSF002', 'Test Tailings B', 'TSF', 800.0, 600.0, 1, 'active'),
     ]
     
     inserted_ids = []
     try:
         for code, name, ftype, capacity, volume, lined, status in test_data:
             cursor.execute('''
-                INSERT INTO storage_facilities 
+                INSERT OR REPLACE INTO storage_facilities 
                 (code, name, facility_type, capacity_m3, current_volume_m3, is_lined, status)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
             ''', (code, name, ftype, capacity, volume, lined, status))
@@ -156,7 +161,7 @@ def test_facilities():
 
 
 @pytest.fixture
-def dashboard(qapp, service):
+def dashboard(qapp, service, test_facilities, qtbot):
     """Create StorageFacilitiesPage dashboard for testing (WIDGET CREATION).
     
     Mocks the UI and replaces service with test service.
@@ -165,7 +170,19 @@ def dashboard(qapp, service):
         MockService.return_value = service
         dashboard = StorageFacilitiesPage()
         dashboard.service = service  # Replace with test service
+        # Wait for async loader thread to populate facilities before assertions.
+        qtbot.waitUntil(
+            lambda: len(dashboard._facilities) >= len(test_facilities),
+            timeout=5000,
+        )
         yield dashboard
+        # Ensure background threads are fully stopped before widget teardown.
+        if hasattr(dashboard, "stop_background_tasks"):
+            dashboard.stop_background_tasks()
+        for thread in dashboard.findChildren(QThread):
+            if thread.isRunning():
+                thread.quit()
+                thread.wait(2000)
         dashboard.deleteLater()  # Cleanup
 
 
@@ -285,15 +302,15 @@ class TestDashboardFiltering:
     
     
     def test_filter_by_status_active(self, dashboard, test_facilities):
-        """Test filtering facilities by status = Active (FILTER FUNCTIONALITY).
+        """Test filtering facilities by status = active (FILTER FUNCTIONALITY).
         
-        Expected: Only Active facilities returned.
+        Expected: Only active facilities returned.
         """
-        active_facilities = [f for f in dashboard._facilities if f['status'] == 'Active']
+        active_facilities = [f for f in dashboard._facilities if f['status'] == 'active']
         
-        assert len(active_facilities) >= 4  # 4 Active in test data
+        assert len(active_facilities) >= 4  # 4 active in test data
         for f in active_facilities:
-            assert f['status'] == 'Active'
+            assert f['status'] == 'active'
     
     
     def test_search_by_code(self, dashboard, test_facilities):
@@ -334,7 +351,8 @@ class TestSummaryCards:
         
         Expected: Sum of all facility capacities.
         """
-        total_capacity = sum(f['capacity'] for f in dashboard._facilities)
+        test_rows = [f for f in dashboard._facilities if f["code"].startswith("TEST_")]
+        total_capacity = sum(f['capacity'] for f in test_rows)
         
         # Test data: 100 + 500 + 1000 + 200 + 800 = 2600
         assert total_capacity == 2600.0
@@ -345,7 +363,8 @@ class TestSummaryCards:
         
         Expected: Sum of all facility volumes.
         """
-        total_volume = sum(f['volume'] for f in dashboard._facilities)
+        test_rows = [f for f in dashboard._facilities if f["code"].startswith("TEST_")]
+        total_volume = sum(f['volume'] for f in test_rows)
         
         # Test data: 50 + 350 + 800 + 100 + 600 = 1900
         assert total_volume == 1900.0
@@ -356,8 +375,9 @@ class TestSummaryCards:
         
         Expected: total_volume / total_capacity * 100
         """
-        total_capacity = sum(f['capacity'] for f in dashboard._facilities)
-        total_volume = sum(f['volume'] for f in dashboard._facilities)
+        test_rows = [f for f in dashboard._facilities if f["code"].startswith("TEST_")]
+        total_capacity = sum(f['capacity'] for f in test_rows)
+        total_volume = sum(f['volume'] for f in test_rows)
         
         utilization = (total_volume / total_capacity * 100) if total_capacity > 0 else 0
         
@@ -368,9 +388,10 @@ class TestSummaryCards:
     def test_active_facilities_count(self, dashboard, test_facilities):
         """Test count of active facilities (KPI CALCULATION).
         
-        Expected: Number of facilities with status = Active.
+        Expected: Number of facilities with status = active.
         """
-        active_count = sum(1 for f in dashboard._facilities if f['status'] == 'Active')
+        test_rows = [f for f in dashboard._facilities if f["code"].startswith("TEST_")]
+        active_count = sum(1 for f in test_rows if f['status'] == 'active')
         
         assert active_count == 4
 
@@ -464,12 +485,12 @@ class TestFacilityCRUD:
                 # Update volume
                 real_service.update_facility(
                     facility_id=target.id,
-                    current_volume_m3=999.0
+                    current_volume_m3=99.0
                 )
                 
                 # Verify update
-                updated = real_service.get_facility(target.id)
-                assert updated.current_volume_m3 == 999.0
+                updated = real_service.get_facility(target.code)
+                assert updated.current_volume_m3 == 99.0
             finally:
                 # Restore original value
                 real_service.update_facility(
@@ -502,6 +523,8 @@ class TestFacilityCRUD:
         count_before = len(facilities_before)
         
         if facility_to_delete:
+            # Service requires inactive status before deletion.
+            real_service.update_facility(facility_id=facility_to_delete.id, status='inactive')
             # Delete it
             real_service.delete_facility(facility_to_delete.id)
             
@@ -560,8 +583,9 @@ class TestPerformance:
         
         Concern: Avoid recalculating if value hasn't changed.
         """
-        # Check that utilization is calculated correctly but efficiently
-        for facility in dashboard._filtered_facilities:
+        # Check test fixtures only (ignore ambient production rows in shared DB).
+        test_rows = [f for f in dashboard._filtered_facilities if f["code"].startswith("TEST_")]
+        for facility in test_rows:
             if facility['capacity'] > 0:
                 util = (facility['volume'] / facility['capacity']) * 100
                 assert 0 <= util <= 200, "Utilization should be 0-200%"
@@ -586,7 +610,7 @@ class TestErrorHandling:
             'type': 'Tank',
             'capacity': 0,  # Zero capacity
             'volume': 100,
-            'status': 'Active'
+            'status': 'active'
         }
         
         # Calculate utilization safely
@@ -609,7 +633,7 @@ class TestErrorHandling:
             'type': 'Tank',
             'capacity': 100,
             'volume': 150,  # Exceeds capacity
-            'status': 'Active'
+            'status': 'active'
         }
         
         # Check for overflow condition
@@ -632,7 +656,7 @@ class TestErrorHandling:
             'type': 'Tank',
             'capacity': 100,
             'volume': -50,  # Negative volume
-            'status': 'Active'
+            'status': 'active'
         }
         
         # Check for negative volume

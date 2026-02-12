@@ -223,7 +223,7 @@ class AboutPage(QWidget):
             self._person_card(
                 "Administrator",
                 "Ms Moloko Florence Morethe",
-                "+27 83 870 65 69",
+                "+27 78 094 2642",
                 "mfmorethe@transafreso.com",
             ),
             0,
@@ -308,6 +308,10 @@ class AboutPage(QWidget):
     @staticmethod
     def _load_company_logo() -> QPixmap:
         """Load company logo from known resource locations."""
+        resource_pixmap = QPixmap(":/icons/Company logo.png")
+        if not resource_pixmap.isNull():
+            return resource_pixmap
+
         candidates = [
             get_resource_path("src/ui/resources/icons/Company logo.png"),
             get_resource_path("ui/resources/icons/Company logo.png"),

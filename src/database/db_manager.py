@@ -41,6 +41,20 @@ class DatabaseManager:
     Writes are serialized (SQLite limitation, not a problem for this app).
     """
     
+    _instance: Optional["DatabaseManager"] = None
+
+    @classmethod
+    def get_instance(cls) -> "DatabaseManager":
+        """Return a shared DatabaseManager instance (backward compatible API)."""
+        if cls._instance is None:
+            cls._instance = cls()
+        return cls._instance
+
+    @classmethod
+    def reset_instance(cls) -> None:
+        """Reset shared instance (primarily useful for tests)."""
+        cls._instance = None
+
     def __init__(self, db_path: Optional[Path] = None):
         """Initialize database manager (CONSTRUCTOR).
         

@@ -13,7 +13,7 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple
 
 from PySide6.QtCore import Qt, QDateTime, QThread, Signal, QObject, QTimer
-from PySide6.QtGui import QFont
+from PySide6.QtGui import QFont, QIcon
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QApplication,
@@ -36,6 +36,7 @@ from PySide6.QtWidgets import (
 )
 
 from core.crypto import generate_license_key, generate_ed25519_keypair_base64, VALID_TIERS
+from core.config_manager import get_resource_path
 from services.license_admin_service import get_license_admin_service
 
 
@@ -93,7 +94,8 @@ QLineEdit:focus, QComboBox:focus, QDateTimeEdit:focus {
 
 QPushButton {
     border-radius: 6px;
-    padding: 8px 14px;
+    min-height: 30px;
+    padding: 0 14px;
     font-size: 12px;
     font-weight: 600;
 }
@@ -132,6 +134,16 @@ QTableWidget {
     gridline-color: #E5E7EB;
     selection-background-color: #DBEAFE;
     selection-color: #111827;
+    color: #0F172A;
+}
+
+QTableWidget::item {
+    color: #0F172A;
+}
+
+QTableWidget::item:selected {
+    color: #0F172A;
+    background-color: #DBEAFE;
 }
 
 QHeaderView::section {
@@ -140,6 +152,12 @@ QHeaderView::section {
     border: 1px solid #E2E8F0;
     font-size: 11px;
     font-weight: 600;
+    color: #0F172A;
+}
+
+QTableCornerButton::section {
+    background-color: #F1F5F9;
+    border: 1px solid #E2E8F0;
 }
 """
 
@@ -193,6 +211,9 @@ class LicenseManagerWindow(QMainWindow):
         self.setWindowTitle("Water Balance License Manager")
         self.setMinimumSize(1200, 720)
         self.setStyleSheet(LICENSE_MANAGER_STYLE)
+        icon_path = get_resource_path("src/ui/resources/icons/Water Balance.ico")
+        if icon_path.exists():
+            self.setWindowIcon(QIcon(str(icon_path)))
 
         central = QWidget()
         main_layout = QVBoxLayout(central)

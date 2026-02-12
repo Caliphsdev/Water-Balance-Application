@@ -27,13 +27,14 @@ from PySide6.QtCore import (
     QDateTime,
     QTime,
     QRect,
+    QSize,
     QSizeF,
     QThread,
     Signal,
     QObject,
     QTimer,
 )
-from PySide6.QtGui import QColor, QFont, QPainter, QPdfWriter, QPageSize, QCursor
+from PySide6.QtGui import QColor, QFont, QPainter, QPdfWriter, QPageSize, QCursor, QIcon
 from PySide6.QtWidgets import (
     QWidget,
     QFileDialog,
@@ -196,6 +197,7 @@ class AnalyticsPage(QWidget):
         super().__init__(parent)
         self.ui = Ui_Form()
         self.ui.setupUi(self)
+        self._apply_title_icon()
 
         # Dashboard-specific logger (logs/analytics/)
         self.logger = app_logger.get_dashboard_logger("analytics")
@@ -415,6 +417,8 @@ class AnalyticsPage(QWidget):
         button = QPushButton("Multi-select")
         button.setObjectName("btn_multi_select_sources")
         button.setMinimumWidth(120)
+        button.setIcon(QIcon(":/icons/multi_select_button.svg"))
+        button.setIconSize(QSize(14, 14))
         button.clicked.connect(self._open_multi_select_dialog)
 
         # Insert next to the water source combo (before spacer)
@@ -517,8 +521,50 @@ class AnalyticsPage(QWidget):
         """Ensure action button text stays readable regardless of stylesheet clashes."""
         self.ui.generate_chart.setText("Generate Chart")
         self.ui.save_chart.setText("Save Chart")
+
+    def _apply_title_icon(self) -> None:
+        """Render analytics title with dedicated icon (no emoji fallback)."""
+        if not hasattr(self.ui, "label_title") or not hasattr(self.ui, "verticalLayout"):
+            return
+
+        old_title_label = self.ui.label_title
+        title_label = QLabel("Analytics & Trends")
+        title_label.setObjectName("label_title")
+        title_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+        title_label.setMinimumHeight(34)
+        title_label.setMaximumHeight(16777215)
+        title_label.setWordWrap(False)
+        title_label.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
+
+        row = QWidget(self)
+        row_layout = QHBoxLayout(row)
+        row_layout.setContentsMargins(0, 0, 0, 0)
+        row_layout.setSpacing(8)
+
+        icon_label = QLabel(row)
+        icon_label.setPixmap(QIcon(":/icons/analytics-chart_analytics_title PAge.svg").pixmap(24, 24))
+        icon_label.setFixedSize(24, 24)
+        icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        row_layout.addWidget(icon_label, 0, Qt.AlignmentFlag.AlignVCenter)
+        row_layout.addWidget(title_label, 0, Qt.AlignmentFlag.AlignVCenter)
+        row_layout.addStretch(1)
+
+        self.ui.verticalLayout.replaceWidget(old_title_label, row)
+        old_title_label.hide()
+        old_title_label.setParent(None)
+        if hasattr(self.ui, "label_subtitle"):
+            self.ui.label_subtitle.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+            self.ui.label_subtitle.setContentsMargins(0, 0, 0, 2)
         self.ui.generate_chart.setMinimumWidth(150)
         self.ui.save_chart.setMinimumWidth(130)
+        self.ui.generate_chart.setMinimumHeight(30)
+        self.ui.generate_chart.setMaximumHeight(30)
+        self.ui.save_chart.setMinimumHeight(30)
+        self.ui.save_chart.setMaximumHeight(30)
+        self.ui.generate_chart.setIcon(QIcon(":/icons/chart_white.svg"))
+        self.ui.generate_chart.setIconSize(QSize(14, 14))
+        self.ui.save_chart.setIcon(QIcon(":/icons/save_icon_black.svg"))
+        self.ui.save_chart.setIconSize(QSize(14, 14))
         self.ui.generate_chart.setStyleSheet(
             "background-color:#1f3a5f; color:#ffffff; border:1px solid #1f3a5f; "
             "border-radius:8px; padding:6px 12px; font-weight:700;"
@@ -919,7 +965,11 @@ class AnalyticsPage(QWidget):
             # Best-effort shutdown; chart worker is short-lived.
             self.logger.info("Stopping analytics background worker on exit")
             self._chart_thread.quit()
-            self._chart_thread.wait(2000)
+            stopped = self._chart_thread.wait(5000)
+            if not stopped and self._chart_thread.isRunning():
+                self.logger.warning(
+                    "Analytics worker did not stop in time; leaving graceful shutdown path"
+                )
 
     def _set_chart_status(self, message: str, is_error: bool) -> None:
         """Update status label styling based on message severity.

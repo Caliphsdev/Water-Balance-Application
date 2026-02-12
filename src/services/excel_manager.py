@@ -475,9 +475,49 @@ class ExcelManager:
             return self._flow_df_cache[sheet_name]
 
         try:
-            # Flow Diagram Excel has headers in row 3 (skip rows 1-2)
-            # header=2 means use row 3 as column names (0-based indexing)
-            df = pd.read_excel(file_path, sheet_name=sheet_name, header=2, engine="openpyxl")
+            # Header layout varies across deployments/templates.
+            # Try the legacy default first (row 3), then detected header row, then row 1.
+            header_candidates = [2]
+            try:
+                from openpyxl import load_workbook
+
+                wb = load_workbook(file_path, read_only=True, data_only=True)
+                if sheet_name in wb.sheetnames:
+                    ws = wb[sheet_name]
+                    detected_header_row = max(1, self._detect_flow_header_row(ws))
+                    header_candidates.append(detected_header_row - 1)
+                wb.close()
+            except Exception as detect_exc:
+                logger.debug(
+                    f"Could not auto-detect flow header row for '{sheet_name}': {detect_exc}"
+                )
+
+            header_candidates.append(0)
+            # Preserve order while removing duplicates
+            unique_candidates = list(dict.fromkeys(header_candidates))
+
+            df = pd.DataFrame()
+            last_exc: Optional[Exception] = None
+            for header_idx in unique_candidates:
+                try:
+                    candidate_df = pd.read_excel(
+                        file_path,
+                        sheet_name=sheet_name,
+                        header=header_idx,
+                        engine="openpyxl",
+                    )
+                    candidate_df.columns = [str(col).strip() for col in candidate_df.columns]
+                    # Accept first candidate with at least one real header.
+                    if any(not c.lower().startswith("unnamed:") for c in candidate_df.columns):
+                        df = candidate_df
+                        break
+                except Exception as read_exc:
+                    last_exc = read_exc
+                    continue
+
+            if df.empty and last_exc is not None:
+                raise last_exc
+
             df.columns = [str(col).strip() for col in df.columns]
             df = self._normalize_time_columns(df)
             self._flow_df_cache[sheet_name] = df

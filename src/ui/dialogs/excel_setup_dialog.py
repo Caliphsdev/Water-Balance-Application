@@ -22,7 +22,8 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
 )
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QSize
+from PySide6.QtGui import QIcon
 from typing import Dict, Optional
 import json
 
@@ -130,6 +131,11 @@ class ExcelSetupDialog(QDialog):
         self.ui.btn_manage_columns.setMinimumHeight(32)
         self.ui.btn_save.setMinimumHeight(34)
         self.ui.btn_cancel.setMinimumHeight(34)
+        self.ui.btn_save.setMinimumWidth(148)
+        self.ui.btn_cancel.setMinimumWidth(148)
+        self.ui.btn_cancel.setText("Cancel")
+        self.ui.btn_cancel.setIcon(QIcon(":/icons/cancel_icon.svg"))
+        self.ui.btn_cancel.setIconSize(QSize(14, 14))
         self.ui.input_file_path.setMinimumHeight(32)
         self.ui.value_status.setMinimumHeight(32)
         self.ui.label_instruction.setStyleSheet("")
@@ -224,6 +230,17 @@ class ExcelSetupDialog(QDialog):
             }
             QPushButton#btn_save:hover {
                 background: #1a457d;
+            }
+            QPushButton#btn_cancel {
+                background: #f8fbff;
+                border: 1px solid #b7c7db;
+                color: #173b68;
+                font-weight: 600;
+                text-align: center;
+                padding-left: 10px;
+            }
+            QPushButton#btn_cancel:hover {
+                background: #eef4fb;
             }
             QPushButton#btn_auto_map_all {
                 background: #1f4f8f;

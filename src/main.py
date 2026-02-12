@@ -58,7 +58,13 @@ def _ensure_user_data(user_base: Path, packaged_base: Path) -> None:
     if data_dst.exists() and not any(data_dst.iterdir()):
         data_src = packaged_base / "data"
         if data_src.exists():
-            shutil.copytree(data_src, data_dst, dirs_exist_ok=True)
+            # Do not seed monitoring data so the Monitoring tab starts empty.
+            shutil.copytree(
+                data_src,
+                data_dst,
+                dirs_exist_ok=True,
+                ignore=shutil.ignore_patterns("monitoring"),
+            )
 
 
 def _clear_excel_cache(user_base: Path) -> None:
@@ -115,7 +121,7 @@ if getattr(sys, "frozen", False):
 # Now safe to import PySide6 and app modules
 from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import QTimer
-from PySide6.QtGui import QFontDatabase, QFont
+from PySide6.QtGui import QFontDatabase, QFont, QIcon
 from ui.components.splash_screen import SplashScreen
 from ui.main_window import MainWindow
 from core.app_logger import logger
@@ -220,6 +226,9 @@ def main():
     app = QApplication(sys.argv)
     app.setApplicationName("Water Balance Dashboard")
     app.setOrganizationName("Two Rivers Platinum")
+    icon_path = get_resource_path("src/ui/resources/icons/Water Balance.ico")
+    if icon_path.exists():
+        app.setWindowIcon(QIcon(str(icon_path)))
     _load_custom_fonts(app)
 
     # Load global theme stylesheet if available

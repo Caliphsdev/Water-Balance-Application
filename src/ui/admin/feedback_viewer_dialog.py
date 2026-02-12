@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from typing import Any, Dict, List, Optional
 
 from PySide6.QtCore import Qt, QThread, Signal, QObject, QTimer
-from PySide6.QtGui import QGuiApplication
+from PySide6.QtGui import QGuiApplication, QIcon
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QDialog,
@@ -31,6 +31,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
+from core.config_manager import get_resource_path
 from services.license_admin_service import get_license_admin_service
 
 
@@ -77,6 +78,9 @@ class FeedbackViewerDialog(QDialog):
 
         self.setWindowTitle("Feedback Viewer")
         self.setMinimumSize(980, 560)
+        icon_path = get_resource_path("src/ui/resources/icons/Water Balance.ico")
+        if icon_path.exists():
+            self.setWindowIcon(QIcon(str(icon_path)))
         self.setStyleSheet("""
             QDialog {
                 background-color: #f6f7fb;
@@ -110,6 +114,13 @@ class FeedbackViewerDialog(QDialog):
                 border-radius: 6px;
                 padding: 6px 10px;
                 font-size: 12px;
+                color: #0f172a;
+            }
+            QComboBox QAbstractItemView {
+                color: #0f172a;
+                background-color: #ffffff;
+                selection-background-color: #e2e8f0;
+                selection-color: #0f172a;
             }
             QLabel#filterLabel {
                 color: #475569;
@@ -121,7 +132,8 @@ class FeedbackViewerDialog(QDialog):
                 color: #f8fafc;
                 border: none;
                 border-radius: 6px;
-                padding: 6px 14px;
+                min-height: 30px;
+                padding: 0 14px;
                 font-size: 11px;
                 font-weight: 600;
             }
@@ -142,6 +154,7 @@ class FeedbackViewerDialog(QDialog):
                 border-radius: 8px;
                 padding: 10px;
                 font-size: 12px;
+                color: #0f172a;
             }
             QTableWidget {
                 background-color: #ffffff;
@@ -149,6 +162,15 @@ class FeedbackViewerDialog(QDialog):
                 border-radius: 8px;
                 gridline-color: #e2e8f0;
                 selection-background-color: #e0f2fe;
+                selection-color: #0f172a;
+                color: #0f172a;
+            }
+            QTableWidget::item {
+                color: #0f172a;
+            }
+            QTableWidget::item:selected {
+                color: #0f172a;
+                background-color: #e0f2fe;
             }
             QHeaderView::section {
                 background-color: #f1f5f9;
@@ -156,6 +178,11 @@ class FeedbackViewerDialog(QDialog):
                 border: 1px solid #e2e8f0;
                 font-size: 11px;
                 font-weight: 600;
+                color: #0f172a;
+            }
+            QTableCornerButton::section {
+                background-color: #f1f5f9;
+                border: 1px solid #e2e8f0;
             }
         """)
 

@@ -95,3 +95,4 @@ Traceback (most recent call last):
     self.content_stack.setCurrentIndex(index)
     ^^^^^^^^^^^^^^^^^^
 AttributeError: 'MessagesPage' object has no attribute 'content_stack'. Did you mean: 'contentsRect'?
+2026-02-12 16:30:30 | ERROR    | water_balance.errors | error:437 | ERROR: This is an error (console + file)

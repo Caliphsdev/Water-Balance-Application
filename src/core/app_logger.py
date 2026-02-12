@@ -130,6 +130,9 @@ class HybridRotatingHandler(RotatingFileHandler):
         super().__init__(filename, maxBytes=maxBytes, backupCount=backupCount)
         self.when = when
         self.last_rotation_date = datetime.now().date()
+        # Backoff for Windows file-lock rollover failures to prevent stderr spam.
+        self._rollover_block_until: Optional[datetime] = None
+        self._rollover_backoff_seconds: int = 30
         
         # Set rotation interval (in days)
         if when == 'midnight':
@@ -147,6 +150,10 @@ class HybridRotatingHandler(RotatingFileHandler):
         Returns:
             True if rotation needed
         """
+        # If a recent rollover attempt failed because file is locked, skip retry for a short window.
+        if self._rollover_block_until and datetime.now() < self._rollover_block_until:
+            return False
+
         # Check size-based rotation first (fast)
         if super().shouldRollover(record):
             return True
@@ -163,8 +170,27 @@ class HybridRotatingHandler(RotatingFileHandler):
     
     def doRollover(self):
         """Perform rollover with timestamped filename (HYBRID ROTATION)."""
-        # Call parent to do the actual rotation
-        super().doRollover()
+        # Call parent to do the actual rotation.
+        # If another process/session has this file handle open on Windows,
+        # skip this rollover attempt instead of raising noisy runtime errors.
+        try:
+            super().doRollover()
+            # Clear backoff after a successful rollover.
+            self._rollover_block_until = None
+        except PermissionError as exc:
+            self._rollover_block_until = datetime.now() + timedelta(seconds=self._rollover_backoff_seconds)
+            sys.stderr.write(
+                f"Log rollover delayed (file in use, retry in {self._rollover_backoff_seconds}s): "
+                f"{self.baseFilename} ({exc})\n"
+            )
+            return
+        except OSError as exc:
+            self._rollover_block_until = datetime.now() + timedelta(seconds=self._rollover_backoff_seconds)
+            sys.stderr.write(
+                f"Log rollover delayed (OS error, retry in {self._rollover_backoff_seconds}s): "
+                f"{self.baseFilename} ({exc})\n"
+            )
+            return
         
         # Rename backup file with date (water_balance.log.1 → water_balance.log.2026-01-30)
         try:
@@ -187,7 +213,9 @@ class HybridRotatingHandler(RotatingFileHandler):
                         pass  # Already named, skip
                 break
         except Exception as e:
-            self.handleError(None)
+            sys.stderr.write(
+                f"Log rollover post-processing error for {self.baseFilename}: {e}\n"
+            )
 
 
 class BackgroundLoggerWorker(QThread):

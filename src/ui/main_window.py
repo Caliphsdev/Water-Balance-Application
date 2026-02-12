@@ -46,7 +46,7 @@ from ui.dashboards.flow_diagram_page import FlowDiagramPage
 from ui.dashboards.settings_dashboard import SettingsPage
 from ui.dashboards.messages_dashboard import MessagesPage
 from core.app_logger import logger as app_logger
-from core.config_manager import ConfigManager
+from core.config_manager import ConfigManager, get_resource_path
 from services.environmental_data_service import get_environmental_data_service
 
 logger = app_logger
@@ -71,9 +71,11 @@ class MainWindow(QMainWindow):
 
     def __init__(self, splash=None, parent=None) -> None:
         super().__init__(parent)
+        self._is_closing = False
         self.splash = splash
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        self._apply_app_window_icon()
         self._disconnect_designer_sidebar_toggles()
         self._configure_header_elements()
         self._storage_facilities_page = None
@@ -93,22 +95,41 @@ class MainWindow(QMainWindow):
         # Enable resize event handling for responsive layout updates
         self.setWindowFlags(self.windowFlags())  # Ensure resize events are enabled
 
+    def _apply_app_window_icon(self) -> None:
+        """Apply branded app icon to main window (fallback-safe)."""
+        icon_path = get_resource_path("src/ui/resources/icons/Water Balance.ico")
+        if icon_path.exists():
+            self.setWindowIcon(QIcon(str(icon_path)))
+            return
+        # Fallback to Qt resource icon when filesystem icon is unavailable.
+        fallback = QIcon(":/icons/Company logo.png")
+        if not fallback.isNull():
+            self.setWindowIcon(fallback)
+
     def _check_for_updates(self) -> None:
         """Check for app updates in the background and prompt if available."""
+        if self._is_closing:
+            return
+
         def _worker():
             try:
+                if self._is_closing:
+                    return
                 from services.update_service import get_update_service
                 from services.license_service import get_license_service
 
                 service = get_update_service()
                 update = service.check_for_updates(force=True)
+                if self._is_closing:
+                    return
                 if not update:
                     status = get_license_service().get_status()
-                    if not status.is_valid or not status.tier:
+                    if (not self._is_closing) and (not status.is_valid or not status.tier):
                         QTimer.singleShot(5000, self._check_for_updates)
                     return
 
-                QTimer.singleShot(0, self, lambda: self._show_update_dialog(update))
+                if not self._is_closing:
+                    QTimer.singleShot(0, self, lambda: self._show_update_dialog(update))
             except Exception as exc:
                 logger.warning("Update check failed: %s", exc)
 
@@ -116,22 +137,30 @@ class MainWindow(QMainWindow):
 
     def _show_update_dialog(self, update_info) -> None:
         """Prompt the user to download and install the available update."""
+        if self._is_closing:
+            return
         title = "Update Available"
-        details = [f"Version: {update_info.version}"]
-        if update_info.file_size_mb:
-            details.append(f"Size: {update_info.file_size_mb} MB")
-        if update_info.release_notes:
-            details.append(f"Notes: {update_info.release_notes}")
+        version = str(getattr(update_info, "version", "") or "N/A")
+        size_mb = str(getattr(update_info, "file_size_mb", "") or "").strip()
+        notes = str(getattr(update_info, "release_notes", "") or "").strip()
+        notes_html = notes.replace("\n", "<br>") if notes else "No release notes provided."
 
-        message = "\n".join(details)
+        info_parts = [f"<b>Version:</b> {version}"]
+        if size_mb:
+            info_parts.append(f"<b>Size:</b> {size_mb} MB")
+        info_parts.append(f"<b>What's new:</b><br>{notes_html}")
+        message = "<br>".join(info_parts)
+
         box = QMessageBox(self)
         box.setIcon(QMessageBox.Icon.Information)
         box.setWindowTitle(title)
-        box.setText("A new update is available.")
+        self._style_update_message_box(box)
+        box.setText("<b>A new update is available.</b>")
         box.setInformativeText(message)
-        box.setMinimumWidth(420)
         download_button = box.addButton("Download and install", QMessageBox.ButtonRole.AcceptRole)
-        box.addButton("Later", QMessageBox.ButtonRole.RejectRole)
+        later_button = box.addButton("Later", QMessageBox.ButtonRole.RejectRole)
+        box.setDefaultButton(download_button)
+        box.setEscapeButton(later_button)
         box.exec()
 
         if box.clickedButton() == download_button:
@@ -139,6 +168,8 @@ class MainWindow(QMainWindow):
 
     def _start_update_download(self, update_info) -> None:
         """Start downloading the update with progress feedback."""
+        if self._is_closing:
+            return
         from services.update_service import get_update_service
 
         service = get_update_service()
@@ -154,9 +185,36 @@ class MainWindow(QMainWindow):
             100,
             self
         )
+        self._update_download_dialog.setWindowTitle("Downloading Update")
+        self._update_download_dialog.setWindowIcon(self.windowIcon())
         self._update_download_dialog.setWindowModality(Qt.WindowModality.WindowModal)
         self._update_download_dialog.setMinimumDuration(0)
         self._update_download_dialog.setValue(0)
+        self._update_download_dialog.setMinimumWidth(440)
+        self._update_download_dialog.setStyleSheet(
+            """
+            QProgressDialog QLabel {
+                min-width: 360px;
+                font-size: 13px;
+            }
+            QProgressBar {
+                min-height: 16px;
+                border: 1px solid #B8C4D3;
+                border-radius: 6px;
+                background: #EEF3FA;
+                text-align: center;
+            }
+            QProgressBar::chunk {
+                border-radius: 5px;
+                background: #1f4fa3;
+            }
+            QProgressDialog QPushButton {
+                min-width: 110px;
+                min-height: 30px;
+                padding: 4px 10px;
+            }
+            """
+        )
         self._update_download_dialog.canceled.connect(service.cancel_download)
         self._update_download_dialog.show()
 
@@ -175,6 +233,8 @@ class MainWindow(QMainWindow):
 
     def _on_update_download_progress(self, progress: int, message: str) -> None:
         """Update the progress dialog and prompt for install when ready."""
+        if self._is_closing:
+            return
         if getattr(self, "_update_download_dialog", None):
             self._update_download_dialog.setLabelText(message)
             self._update_download_dialog.setValue(progress)
@@ -185,12 +245,25 @@ class MainWindow(QMainWindow):
 
     def _on_update_download_failed(self, error_message: str) -> None:
         """Handle download failures."""
+        if self._is_closing:
+            return
         if getattr(self, "_update_download_dialog", None):
             self._update_download_dialog.close()
-        QMessageBox.warning(self, "Update Download Failed", error_message)
+        box = QMessageBox(self)
+        box.setIcon(QMessageBox.Icon.Warning)
+        box.setWindowTitle("Update Download Failed")
+        self._style_update_message_box(box)
+        box.setText("<b>The update could not be downloaded.</b>")
+        box.setInformativeText(error_message)
+        ok_button = box.addButton("OK", QMessageBox.ButtonRole.AcceptRole)
+        box.setDefaultButton(ok_button)
+        box.setEscapeButton(ok_button)
+        box.exec()
 
     def _prompt_install_downloaded_update(self) -> None:
         """Prompt the user to install the downloaded update."""
+        if self._is_closing:
+            return
         from services.update_service import get_update_service
 
         service = get_update_service()
@@ -204,10 +277,15 @@ class MainWindow(QMainWindow):
         box = QMessageBox(self)
         box.setIcon(QMessageBox.Icon.Information)
         box.setWindowTitle("Update Ready")
-        box.setText(f"Update {version} is ready to install.")
-        box.setInformativeText("The app will close to complete the installation.")
+        self._style_update_message_box(box)
+        box.setText(f"<b>Update {version} is ready to install.</b>")
+        box.setInformativeText(
+            "The app will close to complete installation and reopen from the updated version."
+        )
         install_button = box.addButton("Install now", QMessageBox.ButtonRole.AcceptRole)
-        box.addButton("Later", QMessageBox.ButtonRole.RejectRole)
+        later_button = box.addButton("Later", QMessageBox.ButtonRole.RejectRole)
+        box.setDefaultButton(install_button)
+        box.setEscapeButton(later_button)
         box.exec()
 
         if box.clickedButton() == install_button:
@@ -215,6 +293,26 @@ class MainWindow(QMainWindow):
                 app = QApplication.instance()
                 if app:
                     app.quit()
+
+    def _style_update_message_box(self, box: QMessageBox, min_width: int = 440) -> None:
+        """Apply consistent styling for update-related modal dialogs."""
+        box.setWindowIcon(self.windowIcon())
+        box.setTextFormat(Qt.TextFormat.RichText)
+        box.setMinimumWidth(min_width)
+        box.resize(min_width, box.sizeHint().height())
+        box.setStyleSheet(
+            """
+            QMessageBox QLabel {
+                min-width: 340px;
+                font-size: 13px;
+            }
+            QMessageBox QPushButton {
+                min-width: 110px;
+                min-height: 30px;
+                padding: 4px 10px;
+            }
+            """
+        )
 
     def _connect_navigation(self) -> None:
         """Wire sidebar buttons to stacked widget pages.
@@ -1045,35 +1143,98 @@ class MainWindow(QMainWindow):
         """Handle window close - always shut down the application.
 
         The close button (X) always closes the app completely.
-        
-        Close sequence:
-        1. Call stop_background_tasks() on each dashboard (requests cancellation)
-        2. Process events to allow threads to finish gracefully
-        3. Accept the close event and exit
-        """
-        from PySide6.QtWidgets import QApplication
-        
-        logger.info("Application close requested - shutting down...")
-        
-        # Full shutdown - stop background workers
-        pages = [
-            getattr(self.ui, "monitoring_data", None),
-            getattr(self.ui, "analytics_trends", None),
-            getattr(self.ui, "storge_facilitites", None),
-        ]
 
-        # Request all threads to stop
+        Close sequence:
+        1. Stop background services/timers.
+        2. Request all pages to stop background workers.
+        3. Drain thread-pool tasks briefly.
+        4. Accept close and continue shutdown.
+        """
+        from PySide6.QtCore import QThreadPool
+        from PySide6.QtWidgets import QApplication
+
+        logger.info("Application close requested - shutting down...")
+        self._is_closing = True
+
+        if hasattr(self, "_network_check_timer") and self._network_check_timer is not None:
+            try:
+                self._network_check_timer.stop()
+            except Exception as exc:
+                logger.debug(f"Unable to stop network check timer: {exc}")
+
+        if getattr(self, "_update_download_dialog", None):
+            try:
+                self._update_download_dialog.close()
+            except Exception:
+                pass
+
+        # Stop singleton background services first (timers/workers outside page ownership).
+        try:
+            from services.notification_service import get_notification_service
+            get_notification_service().stop_background_sync()
+            logger.info("Notification background sync stopped")
+        except Exception as exc:
+            logger.warning(f"Unable to stop notification background sync: {exc}")
+
+        try:
+            from services.update_service import get_update_service
+            get_update_service().cancel_download()
+            logger.info("Update download worker stop requested")
+        except Exception as exc:
+            logger.warning(f"Unable to stop update download worker: {exc}")
+
+        # Build a de-duplicated page list from stacked widget + known references.
+        pages = []
+        seen = set()
+
+        def _add_page(candidate) -> None:
+            if candidate is None:
+                return
+            key = id(candidate)
+            if key in seen:
+                return
+            seen.add(key)
+            pages.append(candidate)
+
+        if getattr(self.ui, "stackedWidget", None):
+            for idx in range(self.ui.stackedWidget.count()):
+                _add_page(self.ui.stackedWidget.widget(idx))
+
+        for attr in (
+            "_dashboard_page",
+            "_analytics_page",
+            "_monitoring_page",
+            "_storage_facilities_page",
+            "_settings_page",
+            "_help_page",
+            "_messages_page",
+            "_about_page",
+        ):
+            _add_page(getattr(self, attr, None))
+
+        # Request all page-owned workers to stop.
         for page in pages:
-            if page and hasattr(page, "stop_background_tasks"):
+            if hasattr(page, "stop_background_tasks"):
                 try:
                     page.stop_background_tasks()
-                except Exception as e:
-                    logger.warning(f"Error stopping tasks on page: {e}")
+                except Exception as exc:
+                    logger.warning(
+                        "Error stopping tasks on page %s: %s",
+                        page.__class__.__name__,
+                        exc,
+                    )
 
-        # Give threads time to finish gracefully
+        # Drain queued QRunnable work for a bounded interval.
+        try:
+            QThreadPool.globalInstance().waitForDone(2500)
+        except Exception as exc:
+            logger.warning(f"Error while draining global thread pool: {exc}")
+
+        # Give threads time to process queued quit/cancel signals.
         app = QApplication.instance()
         if app:
-            app.processEvents()
+            for _ in range(3):
+                app.processEvents()
 
         # Accept the close event to allow the application to shut down
         event.accept()

@@ -12,8 +12,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from PySide6.QtWidgets import QDialog, QColorDialog, QSpinBox, QLabel, QSizePolicy
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QColor
+from PySide6.QtCore import Qt, QSize
+from PySide6.QtGui import QColor, QIcon
 from typing import Dict, Optional
 
 from ui.dialogs.generated_ui_add_edit_node_dialog import Ui_AddEditNodeDialog
@@ -144,6 +144,8 @@ class AddEditNodeDialog(QDialog):
         self.ui.btn_ok.setText("Save")
         self.ui.btn_ok.setMinimumHeight(34)
         self.ui.btn_cancel.setMinimumHeight(34)
+        self.ui.btn_cancel.setIcon(QIcon(":/icons/cancel_icon.svg"))
+        self.ui.btn_cancel.setIconSize(QSize(14, 14))
 
         self.setStyleSheet(
             """

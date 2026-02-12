@@ -21,8 +21,8 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QSizePolicy,
 )
-from PySide6.QtGui import QColor
-from PySide6.QtCore import Qt
+from PySide6.QtGui import QColor, QIcon
+from PySide6.QtCore import Qt, QSize
 from typing import Dict, Optional
 
 from ui.dialogs.generated_ui_edit_flow_dialog import Ui_EditFlowDialog
@@ -106,6 +106,8 @@ class EditFlowDialog(QDialog):
         self.ui.value_to.setMinimumHeight(32)
         self.ui.btn_ok.setMinimumHeight(34)
         self.ui.btn_cancel.setMinimumHeight(34)
+        self.ui.btn_cancel.setIcon(QIcon(":/icons/cancel_icon.svg"))
+        self.ui.btn_cancel.setIconSize(QSize(14, 14))
         self.ui.btn_auto_map.setMinimumHeight(32)
 
         # Reduce unused whitespace below the form.

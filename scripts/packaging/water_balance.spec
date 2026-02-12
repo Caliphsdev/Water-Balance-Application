@@ -35,24 +35,30 @@ cffi_site = Path(cffi.__file__).parent.parent
 for candidate in cffi_site.glob("_cffi_backend*.pyd"):
     binaries.append((str(candidate), "."))
 
+datas = [
+    (str(project_root / "config"), "config"),
+    (str(project_root / "data" / "water_balance.db"), "data"),
+    (str(project_root / "data" / "balance_check_config.json"), "data"),
+    (str(project_root / "data" / "balance_check_flow_categories.json"), "data"),
+    (str(project_root / "data" / "column_aliases.json"), "data"),
+    (str(project_root / "data" / "flow_friendly_names.json"), "data"),
+    (str(project_root / "data" / "supabase_schema.sql"), "data"),
+    (str(project_root / "data" / "diagrams"), "data/diagrams"),
+    (str(project_root / "data" / "migrations"), "data/migrations"),
+    (str(project_root / "data" / "sqlite_migrations"), "data/sqlite_migrations"),
+    (str(project_root / "assets" / "fonts"), "assets/fonts"),
+    (str(project_root / "src" / "ui" / "resources" / "icons"), "src/ui/resources/icons"),
+]
+
+excel_links = project_root / "data" / "excel_flow_links.json"
+if excel_links.exists():
+    datas.append((str(excel_links), "data"))
+
 a = Analysis(
     [str(project_root / "src" / "main.py")],
     pathex=[str(project_root / "src")],
     binaries=binaries,
-    datas=[
-        (str(project_root / "config"), "config"),
-        (str(project_root / "data" / "water_balance.db"), "data"),
-        (str(project_root / "data" / "balance_check_config.json"), "data"),
-        (str(project_root / "data" / "balance_check_flow_categories.json"), "data"),
-        (str(project_root / "data" / "column_aliases.json"), "data"),
-        (str(project_root / "data" / "excel_flow_links.json"), "data"),
-        (str(project_root / "data" / "flow_friendly_names.json"), "data"),
-        (str(project_root / "data" / "supabase_schema.sql"), "data"),
-        (str(project_root / "data" / "diagrams"), "data/diagrams"),
-        (str(project_root / "data" / "migrations"), "data/migrations"),
-        (str(project_root / "data" / "sqlite_migrations"), "data/sqlite_migrations"),
-        (str(project_root / "assets" / "fonts"), "assets/fonts"),
-    ],
+    datas=datas,
     hiddenimports=hiddenimports,
     hookspath=[],
     hooksconfig={},

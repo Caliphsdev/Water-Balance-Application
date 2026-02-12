@@ -12,8 +12,10 @@ import shutil
 import yaml
 
 from PySide6.QtWidgets import QApplication
+from PySide6.QtGui import QIcon
 
 from ui.admin.license_manager_window import LicenseManagerWindow
+from core.config_manager import get_resource_path
 
 
 def _get_user_base() -> Path:
@@ -69,6 +71,9 @@ def main() -> None:
     app = QApplication(sys.argv)
     app.setApplicationName("Water Balance License Manager")
     app.setOrganizationName("Two Rivers Platinum")
+    icon_path = get_resource_path("src/ui/resources/icons/Water Balance.ico")
+    if icon_path.exists():
+        app.setWindowIcon(QIcon(str(icon_path)))
 
     window = LicenseManagerWindow()
     window.showMaximized()

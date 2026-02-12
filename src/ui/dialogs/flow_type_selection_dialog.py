@@ -11,7 +11,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from PySide6.QtWidgets import QDialog
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QSize
+from PySide6.QtGui import QIcon
 
 from ui.dialogs.generated_ui_flow_type_selection_dialog import Ui_FlowTypeSelectionDialog
 
@@ -52,6 +53,8 @@ class FlowTypeSelectionDialog(QDialog):
         self.ui.btn_ok.setText("Save")
         self.ui.btn_ok.setMinimumHeight(34)
         self.ui.btn_cancel.setMinimumHeight(34)
+        self.ui.btn_cancel.setIcon(QIcon(":/icons/cancel_icon.svg"))
+        self.ui.btn_cancel.setIconSize(QSize(14, 14))
         self.ui.label_instruction.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
 
         self.setStyleSheet(

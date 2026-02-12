@@ -18,10 +18,15 @@ from PySide6.QtWidgets import (
     QLineEdit, QPushButton, QFrame, QMessageBox,
     QApplication, QSizePolicy
 )
-from PySide6.QtCore import Qt, Signal, QThread, QObject, QTimer
+from PySide6.QtCore import Qt, Signal, QThread, QObject, QTimer, QSize
 from PySide6.QtGui import QFont, QIcon, QPixmap
 
 from services.license_service import get_license_service, LicenseStatus
+from core.config_manager import get_resource_path
+
+# Ensure :/icons/... resources are available even when this dialog is opened
+# before other modules that import resources_rc.
+import ui.resources.resources_rc  # noqa: F401
 
 logger = logging.getLogger(__name__)
 
@@ -296,6 +301,7 @@ class LicenseDialog(QDialog):
         self.setMinimumSize(560, 700)
         self.setModal(True)
         self.setStyleSheet(LICENSE_DIALOG_STYLE)
+        self._apply_window_icon()
         
         # Main layout with generous margins
         layout = QVBoxLayout(self)
@@ -317,7 +323,7 @@ class LicenseDialog(QDialog):
         icon_label.setObjectName("iconLabel")
         icon_label.setFixedSize(64, 64)
         icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        company_pixmap = QPixmap(":/icons/Company logo.png")
+        company_pixmap = self._load_company_logo()
         if not company_pixmap.isNull():
             icon_label.setPixmap(
                 company_pixmap.scaled(
@@ -468,6 +474,9 @@ class LicenseDialog(QDialog):
         
         self.exit_button = QPushButton("Exit Application" if not self.allow_cancel else "Cancel")
         self.exit_button.setObjectName("cancelButton")
+        if self.allow_cancel:
+            self.exit_button.setIcon(QIcon(":/icons/cancel_icon.svg"))
+            self.exit_button.setIconSize(QSize(14, 14))
         button_layout.addWidget(self.exit_button)
         
         button_layout.addStretch()
@@ -487,6 +496,27 @@ class LicenseDialog(QDialog):
         footer_layout.addWidget(help_label)
         
         layout.addLayout(footer_layout)
+
+    def _apply_window_icon(self) -> None:
+        """Set branded window icon for this dialog."""
+        icon_path = get_resource_path("src/ui/resources/icons/Water Balance.ico")
+        if icon_path.exists():
+            self.setWindowIcon(QIcon(str(icon_path)))
+            return
+        fallback = QIcon(":/icons/Water Balance.ico")
+        if not fallback.isNull():
+            self.setWindowIcon(fallback)
+
+    @staticmethod
+    def _load_company_logo() -> QPixmap:
+        """Load company logo from Qt resource first, then packaged file."""
+        pixmap = QPixmap(":/icons/Company logo.png")
+        if not pixmap.isNull():
+            return pixmap
+        logo_path = get_resource_path("src/ui/resources/icons/Company logo.png")
+        if logo_path.exists():
+            return QPixmap(str(logo_path))
+        return QPixmap()
     
     def _connect_signals(self):
         """Connect widget signals."""
@@ -650,6 +680,7 @@ class LicenseBlockedDialog(QDialog):
         self.setFixedSize(560, 340)
         self.setModal(True)
         self.setStyleSheet(LICENSE_DIALOG_STYLE)
+        self._apply_window_icon()
         
         # Prevent closing
         self.setWindowFlags(
@@ -736,6 +767,16 @@ class LicenseBlockedDialog(QDialog):
         button_layout.addWidget(activate_button)
         
         layout.addLayout(button_layout)
+
+    def _apply_window_icon(self) -> None:
+        """Set branded window icon for blocked-license dialog."""
+        icon_path = get_resource_path("src/ui/resources/icons/Water Balance.ico")
+        if icon_path.exists():
+            self.setWindowIcon(QIcon(str(icon_path)))
+            return
+        fallback = QIcon(":/icons/Water Balance.ico")
+        if not fallback.isNull():
+            self.setWindowIcon(fallback)
 
     def _get_reason_bullets(self) -> list[str]:
         """Return short, status-specific reasons to help users resolve license blocks."""
