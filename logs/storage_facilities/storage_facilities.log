@@ -5628,3 +5628,9 @@
 2026-02-12 18:43:04 | INFO     | _on_facilities_loaded:503 | [SIGNAL] Storage facilities ready: 13 items
 2026-02-12 18:43:04 | INFO     | _cleanup_worker_signal:564 | [CLEANUP] Worker signal received - starting cleanup
 2026-02-12 18:43:04 | INFO     | _perform_thread_quit:590 | [CLEANUP] Thread quit successfully
+2026-02-12 18:48:57 | INFO     | get_dashboard_logger:612 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-12 18:48:57 | INFO     | <module>:59 | Test message 1 from storage
+2026-02-12 18:48:58 | WARNING  | <module>:65 | Test warning from storage
+2026-02-12 18:51:33 | INFO     | get_dashboard_logger:612 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-12 18:51:33 | INFO     | <module>:59 | Test message 1 from storage
+2026-02-12 18:51:33 | WARNING  | <module>:65 | Test warning from storage

@@ -1,6 +1,6 @@
 # Water Balance Dashboard
 
-**Professional PySide6 water balance management application for Two Rivers Platinum Mine**
+**Professional PySide6 water balance management application for Trans Africa Resources**
 
 ![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)
 ![PySide6](https://img.shields.io/badge/PySide6-6.5+-green.svg)
@@ -16,6 +16,8 @@ A comprehensive water balance management system featuring:
 - **Real-time Dashboard** - KPI cards showing storage facilities, capacity, utilization
 - **Calculation Engine** - Water balance calculations with error tracking
 - **Data Integration** - Excel import/export, database storage
+- **Licensing + Updates** - License validation with update checks
+- **Notifications** - In-app message and notification center
 - **Professional UI** - Modern PySide6 interface with dark/light themes
 
 ---
@@ -69,6 +71,14 @@ python src/main.py
 - Recirculation monitoring
 - Balance error detection with status indicators
 
+### Monitoring and Notifications
+- Borehole and PCD monitoring dashboards
+- Message center with notification updates
+
+### Updates and Licensing
+- License validation on startup
+- Background update checks with download prompts
+
 ---
 
 ## 📁 Project Structure
@@ -120,6 +130,13 @@ See [Docs/INDEX.md](Docs/INDEX.md) for complete documentation including:
 
 ---
 
+## 🗂️ Data and Configuration
+
+- User data is stored in `%LOCALAPPDATA%\WaterBalanceDashboard` for packaged builds.
+- Local config lives in `config/app_config.yaml` and is copied to the user folder on first run.
+
+---
+
 ## 🛠️ Technology Stack
 
 | Component | Technology |
@@ -136,7 +153,7 @@ See [Docs/INDEX.md](Docs/INDEX.md) for complete documentation including:
 
 ## 📄 License
 
-Proprietary - Two Rivers Platinum Mine
+Proprietary - Trans Africa Resources
 
 ---
 

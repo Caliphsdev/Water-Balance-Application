@@ -5,7 +5,7 @@ These tests are pytest-native and avoid script-style side effects.
 
 from __future__ import annotations
 
-from PySide6.QtCore import QObject, QThread, Signal
+from PySide6.QtCore import QObject, QThread, Signal, Qt
 
 
 class _Worker(QObject):
@@ -32,10 +32,15 @@ def test_thread_lifecycle_cleanup(qtbot) -> None:
     worker.moveToThread(thread)
 
     thread.started.connect(worker.run)
-    worker.finished.connect(thread.quit)
+    # Ensure quit executes via event queue to avoid cross-thread timer warnings on Windows.
+    worker.finished.connect(thread.quit, Qt.ConnectionType.QueuedConnection)
 
     with qtbot.waitSignal(worker.finished, timeout=3000):
         thread.start()
+
+    if thread.isRunning():
+        with qtbot.waitSignal(thread.finished, timeout=3000):
+            thread.quit()
 
     assert thread.wait(3000) is True
     assert thread.isRunning() is False
