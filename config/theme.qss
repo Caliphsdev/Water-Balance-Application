@@ -50,13 +50,15 @@ QDoubleSpinBox {
     background-color: #ffffff;
     border: 1px solid #c7d0da;
     border-radius: 6px;
-    padding: 5px 8px;
+    padding: 3px 8px;
     selection-background-color: #1f3a5f;
 }
 
 QComboBox {
+    padding-top: 1px;
+    padding-bottom: 1px;
     padding-right: 24px;
-    min-height: 26px;
+    min-height: 18px;
 }
 
 QLineEdit:focus,
@@ -89,6 +91,63 @@ QComboBox QAbstractItemView {
     border: 1px solid #c7d0da;
     selection-background-color: #e8edf2;
     selection-color: #0b1a2a;
+}
+
+/* Global scrollbars: clean track/handle, no legacy dotted appearance */
+QScrollBar:vertical {
+    background: #eef2f5;
+    width: 12px;
+    margin: 0;
+    border: none;
+}
+
+QScrollBar::handle:vertical {
+    background: #b8c4d1;
+    min-height: 28px;
+    border-radius: 6px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background: #9eacbb;
+}
+
+QScrollBar:horizontal {
+    background: #eef2f5;
+    height: 12px;
+    margin: 0;
+    border: none;
+}
+
+QScrollBar::handle:horizontal {
+    background: #b8c4d1;
+    min-width: 28px;
+    border-radius: 6px;
+}
+
+QScrollBar::handle:horizontal:hover {
+    background: #9eacbb;
+}
+
+QScrollBar::add-line:vertical,
+QScrollBar::sub-line:vertical,
+QScrollBar::add-line:horizontal,
+QScrollBar::sub-line:horizontal {
+    border: none;
+    background: transparent;
+    width: 0;
+    height: 0;
+}
+
+QScrollBar::add-page:vertical,
+QScrollBar::sub-page:vertical,
+QScrollBar::add-page:horizontal,
+QScrollBar::sub-page:horizontal {
+    background: transparent;
+}
+
+QTableWidget::item:focus,
+QTableView::item:focus {
+    outline: none;
 }
 
 QPushButton {
@@ -306,43 +365,6 @@ QStatusBar {
 QScrollArea {
     background: transparent;
     border: none;
-}
-
-QScrollBar:vertical {
-    background: transparent;
-    width: 10px;
-    margin: 0px;
-}
-
-QScrollBar::handle:vertical {
-    background: #c7d0da;
-    border-radius: 5px;
-    min-height: 20px;
-}
-
-QScrollBar::handle:vertical:hover {
-    background: #8a97a6;
-}
-
-QScrollBar::add-line:vertical,
-QScrollBar::sub-line:vertical {
-    height: 0px;
-}
-
-QScrollBar:horizontal {
-    background: transparent;
-    height: 10px;
-    margin: 0px;
-}
-
-QScrollBar::handle:horizontal {
-    background: #c7d0da;
-    border-radius: 5px;
-    min-width: 20px;
-}
-
-QScrollBar::handle:horizontal:hover {
-    background: #8a97a6;
 }
 
 /* Dashboard cards (industrial steel) */
@@ -570,6 +592,804 @@ QLabel#flow_balance_badge_value {
 
 QLabel#flow_balance_badge_unit {
     color: #1f2f43;
+    font-size: 11px;
+}
+
+QLabel#flow_excel_state_badge {
+    padding: 4px 10px;
+    border-radius: 10px;
+    border: 1px solid #c7d0da;
+    background: #eef3f8;
+    color: #1f2f43;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+QLabel#flow_excel_state_badge[state="ready"] {
+    background: #e7f4ea;
+    border: 1px solid #bfe2c6;
+    color: #185d2c;
+}
+
+QLabel#flow_excel_state_badge[state="missing"] {
+    background: #fff7e6;
+    border: 1px solid #f7ddad;
+    color: #8a5800;
+}
+
+/* Calculation page refresh */
+QFrame#calc_page_header {
+    background: transparent;
+    border: none;
+}
+
+QFrame#calc_control_bar {
+    background-color: #ffffff;
+    border: 1px solid #c7d0da;
+    border-radius: 10px;
+}
+
+QLabel#calc_control_section {
+    color: #1f2f43;
+    font-weight: 600;
+}
+
+QTabWidget#calc_tab_widget::pane {
+    border: 1px solid #c7d0da;
+    border-radius: 10px;
+    background: #ffffff;
+    top: -1px;
+}
+
+QTabWidget#calc_tab_widget QTabBar::tab {
+    background: #eef3f8;
+    border: 1px solid #c7d0da;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    padding: 8px 12px;
+    margin-right: 4px;
+    min-width: 98px;
+}
+
+QTabWidget#calc_tab_widget QTabBar::tab:selected {
+    background: #ffffff;
+    border-bottom-color: #ffffff;
+    color: #1f2f43;
+    font-weight: 700;
+}
+
+QFrame#calc_balance_header {
+    background: #f5f8fc;
+    border: 1px solid #d7e0eb;
+    border-radius: 12px;
+}
+
+QLabel#calc_balance_title {
+    color: #1f2f43;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+QLabel#calc_balance_period {
+    color: #5b6775;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+QLabel#calc_status_badge,
+QLabel#calc_error_badge {
+    border-radius: 12px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+QLabel#calc_status_badge {
+    color: #185d2c;
+    background: #e7f4ea;
+    border: 1px solid #bfe2c6;
+}
+
+QLabel#calc_error_badge {
+    color: #6a1a14;
+    background: #fdeceb;
+    border: 1px solid #f3c5c1;
+}
+
+QFrame[calcCard="true"] {
+    background: #ffffff;
+    border: 1px solid #cfd8e2;
+    border-left: 4px solid #1f3a5f;
+    border-radius: 12px;
+}
+
+QLabel#calc_card_title {
+    color: #1f2f43;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+QLabel#calc_card_subtitle {
+    color: #5b6775;
+    font-size: 11px;
+}
+
+QFrame#calc_card_divider {
+    color: #d9e1ea;
+}
+
+QLabel#calc_card_item_name {
+    color: #334155;
+    font-size: 11px;
+}
+
+QLabel#calc_card_item_value {
+    color: #0b1a2a;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+QLabel#calc_card_total_name {
+    color: #1f2f43;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+QLabel#calc_card_total_value {
+    color: #0b1a2a;
+    font-size: 15px;
+    font-weight: 800;
+}
+
+QLabel#calc_card_breakdown_header {
+    color: #5b6775;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+QFrame#calc_equation_strip {
+    background: #f7f9fc;
+    border: 1px solid #d7e0eb;
+    border-radius: 12px;
+}
+
+QLabel#calc_equation_part {
+    min-width: 88px;
+    min-height: 58px;
+}
+
+QLabel#calc_quality_note {
+    color: #5b6775;
+    font-size: 11px;
+}
+
+/* Calculations - Data Quality tab */
+QFrame#calc_quality_header {
+    background: #f5f8fc;
+    border: 1px solid #d7e0eb;
+    border-radius: 12px;
+}
+
+QLabel#calc_quality_title {
+    color: #1f2f43;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+QLabel#calc_quality_score {
+    color: #0b1a2a;
+    font-size: 28px;
+    font-weight: 800;
+}
+
+QLabel#calc_quality_score_label {
+    color: #5b6775;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+QLabel#calc_quality_badge {
+    border-radius: 12px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    background: #eef3f8;
+    border: 1px solid #c7d0da;
+    color: #1f2f43;
+}
+
+QLabel#calc_quality_badge[qualityLevel="excellent"],
+QLabel#calc_quality_badge[qualityLevel="good"] {
+    background: #e7f4ea;
+    border: 1px solid #bfe2c6;
+    color: #185d2c;
+}
+
+QLabel#calc_quality_badge[qualityLevel="fair"] {
+    background: #fff7e6;
+    border: 1px solid #f7ddad;
+    color: #8a5800;
+}
+
+QLabel#calc_quality_badge[qualityLevel="poor"] {
+    background: #fdeceb;
+    border: 1px solid #f3c5c1;
+    color: #6a1a14;
+}
+
+QFrame#calc_quality_status_card {
+    background: #ffffff;
+    border: 1px solid #cfd8e2;
+    border-radius: 10px;
+}
+
+QFrame#calc_quality_status_card[qualityState="bad"] {
+    border-left: 4px solid #dc2626;
+}
+
+QFrame#calc_quality_status_card[qualityState="good"] {
+    border-left: 4px solid #16a34a;
+}
+
+QLabel#calc_quality_status_icon {
+    font-size: 14px;
+}
+
+QLabel#calc_quality_status_title {
+    color: #334155;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+QLabel#calc_quality_status_value {
+    color: #0b1a2a;
+    font-size: 16px;
+    font-weight: 800;
+}
+
+QLabel#calc_quality_status_count {
+    color: #5b6775;
+    font-size: 10px;
+}
+
+QFrame#calc_quality_issues,
+QFrame#calc_quality_scoring {
+    background: #ffffff;
+    border: 1px solid #d7e0eb;
+    border-radius: 10px;
+}
+
+QLabel#calc_quality_issues_title {
+    color: #1f2f43;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+QLabel#calc_quality_issue_item,
+QLabel#calc_quality_rule_item {
+    color: #334155;
+    font-size: 11px;
+}
+
+QLabel#calc_quality_issue_more {
+    color: #5b6775;
+    font-size: 10px;
+    font-style: italic;
+}
+
+QLabel#calc_quality_good {
+    color: #185d2c;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+QLabel#calc_quality_footer {
+    color: #5b6775;
+    font-size: 11px;
+}
+
+/* Calculations - shared section styles (Recycled + Days tabs) */
+QFrame#calc_metric_header,
+QFrame#calc_days_header {
+    background: #f5f8fc;
+    border: 1px solid #d7e0eb;
+    border-radius: 12px;
+}
+
+QLabel#calc_metric_header_title,
+QLabel#calc_days_title {
+    color: #1f2f43;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+QLabel#calc_metric_header_value,
+QLabel#calc_days_value {
+    color: #0b1a2a;
+    font-size: 30px;
+    font-weight: 800;
+}
+
+QLabel#calc_metric_header_period,
+QLabel#calc_days_subtitle {
+    color: #5b6775;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+QLabel#calc_metric_header_badge,
+QLabel#calc_days_badge {
+    border-radius: 12px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    background: #eef3f8;
+    border: 1px solid #c7d0da;
+    color: #1f2f43;
+}
+
+QLabel#calc_metric_header_badge[metricState="excellent"] {
+    background: #e7f4ea;
+    border: 1px solid #bfe2c6;
+    color: #185d2c;
+}
+
+QLabel#calc_metric_header_badge[metricState="good"] {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1d4ed8;
+}
+
+QLabel#calc_metric_header_badge[metricState="needs_improvement"] {
+    background: #fff7e6;
+    border: 1px solid #f7ddad;
+    color: #8a5800;
+}
+
+QLabel#calc_days_badge[runwayState="healthy"] {
+    background: #e7f4ea;
+    border: 1px solid #bfe2c6;
+    color: #185d2c;
+}
+
+QLabel#calc_days_badge[runwayState="moderate"] {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1d4ed8;
+}
+
+QLabel#calc_days_badge[runwayState="warning"] {
+    background: #fff7e6;
+    border: 1px solid #f7ddad;
+    color: #8a5800;
+}
+
+QLabel#calc_days_badge[runwayState="critical"] {
+    background: #fdeceb;
+    border: 1px solid #f3c5c1;
+    color: #6a1a14;
+}
+
+QLabel#calc_days_usage {
+    color: #5b6775;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+QFrame#calc_metric_card {
+    background: #ffffff;
+    border: 1px solid #cfd8e2;
+    border-radius: 10px;
+    border-left: 4px solid #94a3b8;
+}
+
+QFrame#calc_metric_card[metricTone="info"] {
+    border-left-color: #1f3a5f;
+}
+
+QFrame#calc_metric_card[metricTone="success"] {
+    border-left-color: #16a34a;
+}
+
+QFrame#calc_metric_card[metricTone="warning"] {
+    border-left-color: #d97706;
+}
+
+QFrame#calc_metric_card[metricTone="danger"] {
+    border-left-color: #dc2626;
+}
+
+QLabel#calc_metric_icon {
+    font-size: 14px;
+}
+
+QLabel#calc_metric_title {
+    color: #334155;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+QLabel#calc_metric_value {
+    color: #0b1a2a;
+    font-size: 20px;
+    font-weight: 800;
+}
+
+QLabel#calc_metric_unit,
+QLabel#calc_metric_subtitle {
+    color: #5b6775;
+    font-size: 10px;
+}
+
+QFrame#calc_chart_frame,
+QFrame#calc_facilities_frame {
+    background: #ffffff;
+    border: 1px solid #d7e0eb;
+    border-radius: 10px;
+}
+
+QLabel#calc_chart_title,
+QLabel#calc_facilities_title {
+    color: #1f2f43;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+QFrame#calc_facility_card {
+    background: #f8fafc;
+    border: 1px solid #d7e0eb;
+    border-radius: 8px;
+    border-left: 4px solid #94a3b8;
+}
+
+QFrame#calc_facility_card[runwayState="healthy"] {
+    border-left-color: #16a34a;
+}
+
+QFrame#calc_facility_card[runwayState="moderate"] {
+    border-left-color: #1d4ed8;
+}
+
+QFrame#calc_facility_card[runwayState="warning"] {
+    border-left-color: #d97706;
+}
+
+QFrame#calc_facility_card[runwayState="critical"] {
+    border-left-color: #dc2626;
+}
+
+QLabel#calc_facility_code {
+    color: #1f2f43;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+QLabel#calc_facility_days {
+    color: #0b1a2a;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+QLabel#calc_facility_volume {
+    color: #5b6775;
+    font-size: 10px;
+}
+
+QFrame#calc_facility_bar {
+    border-radius: 1px;
+    background: #cbd5e1;
+}
+
+QFrame#calc_facility_bar[runwayState="healthy"] {
+    background: #16a34a;
+}
+
+QFrame#calc_facility_bar[runwayState="moderate"] {
+    background: #1d4ed8;
+}
+
+QFrame#calc_facility_bar[runwayState="warning"] {
+    background: #d97706;
+}
+
+QFrame#calc_facility_bar[runwayState="critical"] {
+    background: #dc2626;
+}
+
+QLabel#calc_section_footer {
+    color: #5b6775;
+    font-size: 11px;
+}
+
+/* Balance Check dialog */
+QLabel#bc_closure_title {
+    color: #1f2f43;
+    font-weight: 700;
+}
+
+QLabel#bc_closure_value {
+    font-size: 22px;
+    font-weight: 800;
+}
+
+QGroupBox#bc_summary_group {
+    background: #ffffff;
+    border: 1px solid #c7d0da;
+    border-radius: 10px;
+    margin-top: 8px;
+}
+
+QGroupBox#bc_summary_group::title {
+    subcontrol-origin: margin;
+    left: 10px;
+    padding: 0 4px;
+    color: #334155;
+    font-weight: 700;
+}
+
+QFrame#bc_summary_card {
+    background: #f8fafc;
+    border: 1px solid #d7e0eb;
+    border-radius: 8px;
+    border-left: 4px solid #94a3b8;
+}
+
+QFrame#bc_summary_card[tone="inflow"] {
+    border-left-color: #1d4ed8;
+}
+
+QFrame#bc_summary_card[tone="outflow"] {
+    border-left-color: #d97706;
+}
+
+QFrame#bc_summary_card[tone="recirc"] {
+    border-left-color: #0f766e;
+}
+
+QFrame#bc_summary_card[tone="error"],
+QFrame#bc_summary_card[tone="error_bad"] {
+    border-left-color: #dc2626;
+}
+
+QFrame#bc_summary_card[tone="error_warn"] {
+    border-left-color: #d97706;
+}
+
+QFrame#bc_summary_card[tone="error_good"] {
+    border-left-color: #16a34a;
+}
+
+QLabel#bc_summary_title {
+    color: #5b6775;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+QLabel#bc_summary_value {
+    color: #0b1a2a;
+    font-size: 16px;
+    font-weight: 800;
+}
+
+QLabel#bc_summary_note {
+    color: #5b6775;
+    font-size: 11px;
+}
+
+/* Settings page */
+QFrame#settings_page_header {
+    background: transparent;
+    border: none;
+}
+
+QTabWidget#settings_tab_widget::pane {
+    border: 1px solid #c7d0da;
+    border-radius: 10px;
+    background: #ffffff;
+    top: -1px;
+}
+
+QTabWidget#settings_tab_widget QTabBar::tab {
+    background: #eef3f8;
+    border: 1px solid #c7d0da;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    padding: 7px 12px;
+    margin-right: 4px;
+    min-width: 94px;
+}
+
+QTabWidget#settings_tab_widget QTabBar::tab:selected {
+    background: #ffffff;
+    border-bottom-color: #ffffff;
+    color: #1f2f43;
+    font-weight: 700;
+}
+
+QFrame#settings_filter_bar,
+QFrame#settings_quick_edit_bar {
+    background: #ffffff;
+    border: 1px solid #c7d0da;
+    border-radius: 10px;
+}
+
+QFrame#settings_table_panel {
+    background: #ffffff;
+    border: 1px solid #c7d0da;
+    border-radius: 10px;
+}
+
+QFrame#settings_env_filter_bar,
+QFrame#settings_env_section_header {
+    background: #ffffff;
+    border: 1px solid #c7d0da;
+    border-radius: 10px;
+}
+
+QFrame#settings_env_panel {
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+        stop: 0 #ffffff, stop: 1 #f8fbff);
+    border: 1px solid #c7d0da;
+    border-radius: 10px;
+}
+
+QFrame#settings_env_panel_inner {
+    background: transparent;
+    border: none;
+}
+
+QDialog#settings_history_dialog {
+    background: #f2f5f8;
+}
+
+QTableWidget#settings_history_table {
+    background: #ffffff;
+    border: 1px solid #c7d0da;
+    border-radius: 8px;
+    gridline-color: #e8edf2;
+    alternate-background-color: #f7f9fc;
+}
+
+QLabel#settings_section_label {
+    color: #1f2f43;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+QLabel#settings_quick_label {
+    color: #445265;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+QLabel#settings_quick_constant {
+    color: #1f2f43;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* Messages dashboard */
+QWidget#messagesPage {
+    background: transparent;
+}
+
+QWidget#messagesTabShell {
+    background: transparent;
+}
+
+QPushButton#messagesTabButton {
+    background-color: #eef3f8;
+    border: 1px solid #c7d0da;
+    border-radius: 7px;
+    color: #223247;
+    font-weight: 600;
+    padding: 7px 14px;
+    min-width: 122px;
+}
+
+QPushButton#messagesTabButton:hover {
+    background-color: #e5ecf4;
+    border-color: #aeb9c7;
+}
+
+QPushButton#messagesTabButton[active="true"] {
+    background-color: #d9e7f7;
+    border-color: #6f8fb3;
+    color: #16365c;
+    font-weight: 700;
+}
+
+QPushButton#messagesPrimaryBtn {
+    background-color: #1f3a5f;
+    color: #ffffff;
+    font-weight: 700;
+    border: 1px solid #1f3a5f;
+    border-radius: 6px;
+    padding: 6px 12px;
+}
+
+QPushButton#messagesPrimaryBtn:hover {
+    background-color: #1a2f4c;
+    border-color: #1a2f4c;
+}
+
+QPushButton#messagesGhostBtn {
+    background-color: #e8edf2;
+    color: #0b1a2a;
+    font-weight: 600;
+    border: 1px solid #c7d0da;
+    border-radius: 6px;
+    padding: 6px 12px;
+}
+
+QPushButton#messagesGhostBtn:hover {
+    background-color: #dce3ea;
+}
+
+QLabel#notificationBadge {
+    background: #dc2626;
+    color: #ffffff;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+QFrame#notificationsCard,
+QFrame#versionCard,
+QFrame#formCard {
+    background: #ffffff;
+    border: 1px solid #c7d0da;
+    border-radius: 10px;
+}
+
+QFrame#notificationCard {
+    background: #fbfdff;
+    border: 1px solid #d8e0ea;
+    border-radius: 9px;
+}
+
+QFrame#notificationCard:hover {
+    border-color: #b4c1d0;
+    background: #f5f9fd;
+}
+
+QPushButton#deleteButton {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #b91c1c;
+    border-radius: 6px;
+    font-weight: 700;
+}
+
+QPushButton#deleteButton:hover {
+    background: #fee2e2;
+    border-color: #fca5a5;
+}
+
+QFrame#messagesEmptyState {
+    background: #f8fbff;
+    border: 1px dashed #c4d2e2;
+    border-radius: 10px;
+}
+
+QFrame#messagesEmptyState[kind="error"] {
+    background: #fff7f7;
+    border: 1px dashed #efb3b3;
+}
+
+QLabel#messagesEmptyIcon {
+    font-size: 18px;
+}
+
+QLabel#messagesEmptyTitle {
+    color: #213248;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+QLabel#messagesEmptyText {
+    color: #5b6775;
     font-size: 11px;
 }
 

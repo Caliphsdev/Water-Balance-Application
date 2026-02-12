@@ -506,11 +506,11 @@ class AnalyticsPage(QWidget):
         for combo in [self.ui.year_from, self.ui.month_from, self.ui.year_to, self.ui.month_to]:
             combo.setFixedWidth(98)
             combo.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-            combo.setMinimumHeight(34)
+            combo.setMinimumHeight(23)
         for combo in [self.ui.charts_options, self.ui.water_source_options]:
             combo.setFixedWidth(140)
             combo.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-            combo.setMinimumHeight(34)
+            combo.setMinimumHeight(23)
         self.ui.label_from.setText("From Year:")
 
     def _enforce_action_button_visibility(self) -> None:

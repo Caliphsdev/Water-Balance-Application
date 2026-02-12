@@ -16,7 +16,8 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Optional, List
 import sqlite3
-from PySide6.QtWidgets import QDialog, QMessageBox, QAbstractItemView
+from PySide6.QtWidgets import QDialog, QMessageBox, QAbstractItemView, QLabel
+from PySide6.QtCore import Qt
 
 from services.monthly_parameters_service import MonthlyParametersService
 from ui.models.monthly_parameters_history_model import MonthlyParametersHistoryModel
@@ -52,6 +53,7 @@ class MonthlyParametersDialog(QDialog):
         super().__init__(parent)
         self.ui = Ui_Dialog()
         self.ui.setupUi(self)
+        self._apply_dialog_polish()
 
         # Service layer (handles validation + DB access)
         self.service = MonthlyParametersService()
@@ -92,7 +94,9 @@ class MonthlyParametersDialog(QDialog):
             parent=self,
         )
         self._setup_history_view()
+        self._setup_empty_history_hint()
         self._history_model.refresh()
+        self._refresh_history_empty_state()
         self._update_action_states()
 
     def _set_default_period(self) -> None:
@@ -124,6 +128,23 @@ class MonthlyParametersDialog(QDialog):
         self.ui.table_history.selectionModel().selectionChanged.connect(
             lambda _selected, _deselected: self._on_history_selected()
         )
+        self._history_model.modelReset.connect(self._refresh_history_empty_state)
+        self._history_model.rowsInserted.connect(lambda *_: self._refresh_history_empty_state())
+        self._history_model.rowsRemoved.connect(lambda *_: self._refresh_history_empty_state())
+
+    def _setup_empty_history_hint(self) -> None:
+        """Add a clear empty-state message for history table."""
+        self._empty_history_label = QLabel("No monthly history records yet for this facility.")
+        self._empty_history_label.setObjectName("historyEmptyLabel")
+        self._empty_history_label.setAlignment(Qt.AlignCenter)
+        self.ui.verticalLayout_history.addWidget(self._empty_history_label)
+
+    def _refresh_history_empty_state(self) -> None:
+        """Show/hide empty-state hint based on current model row count."""
+        has_rows = self._history_model.rowCount() > 0
+        self.ui.table_history.setVisible(has_rows)
+        if hasattr(self, "_empty_history_label"):
+            self._empty_history_label.setVisible(not has_rows)
 
     def _get_selected_period(self) -> tuple[int, int]:
         """Get year and month from input controls (INPUT PARSING).
@@ -232,6 +253,7 @@ class MonthlyParametersDialog(QDialog):
                 f"Saved monthly parameters for {year}-{month:02d}."
             )
             self._history_model.refresh()
+            self._refresh_history_empty_state()
             self._selected_record_id = created.id
             self._update_action_states()
         except sqlite3.IntegrityError:
@@ -278,6 +300,7 @@ class MonthlyParametersDialog(QDialog):
                 f"Updated monthly parameters for {year}-{month:02d}."
             )
             self._history_model.refresh()
+            self._refresh_history_empty_state()
             self._update_action_states()
         except Exception as e:
             QMessageBox.critical(self, "Update Error", str(e))
@@ -306,6 +329,90 @@ class MonthlyParametersDialog(QDialog):
             QMessageBox.information(self, "Deleted", "Record deleted successfully")
             self._selected_record_id = None
             self._history_model.refresh()
+            self._refresh_history_empty_state()
             self._update_action_states()
         except Exception as e:
             QMessageBox.critical(self, "Delete Error", str(e))
+
+    def _apply_dialog_polish(self) -> None:
+        """Apply consistent style and control sizing across dialogs."""
+        self.ui.gridLayout_inputs.setHorizontalSpacing(14)
+        self.ui.gridLayout_inputs.setVerticalSpacing(10)
+
+        for widget_name in ("spin_year", "combo_month", "spin_inflows", "spin_outflows"):
+            if hasattr(self.ui, widget_name):
+                getattr(self.ui, widget_name).setMinimumHeight(31)
+        for spin_name in ("spin_inflows", "spin_outflows"):
+            spin = getattr(self.ui, spin_name)
+            spin.setButtonSymbols(spin.ButtonSymbols.UpDownArrows)
+            spin.setKeyboardTracking(False)
+        self.ui.btn_save.setMinimumHeight(34)
+        self.ui.btn_update.setMinimumHeight(34)
+        self.ui.btn_delete.setMinimumHeight(34)
+        self.ui.btn_close.setMinimumHeight(34)
+
+        self.setStyleSheet(
+            """
+            QDialog {
+                background: #f5f8fc;
+            }
+            QGroupBox {
+                border: 1px solid #c9d8ea;
+                border-radius: 10px;
+                margin-top: 8px;
+                padding: 10px;
+                color: #173b68;
+                font-weight: 600;
+            }
+            QLabel#historyEmptyLabel {
+                color: #4d6788;
+                font-size: 13px;
+                padding: 28px;
+                border: 1px dashed #c7d6e8;
+                border-radius: 8px;
+                background: #fbfdff;
+            }
+            QSpinBox, QDoubleSpinBox, QComboBox {
+                background: #ffffff;
+                border: 1px solid #b8c9dd;
+                border-radius: 6px;
+                padding: 4px 8px;
+                color: #0f2747;
+            }
+            QComboBox::drop-down {
+                border: none;
+                width: 20px;
+            }
+            QDoubleSpinBox::up-button, QDoubleSpinBox::down-button,
+            QSpinBox::up-button, QSpinBox::down-button {
+                width: 16px;
+                border: none;
+            }
+            QTableView {
+                background: #ffffff;
+                border: 1px solid #c8d8ea;
+                border-radius: 8px;
+                gridline-color: #d9e3f0;
+            }
+            QPushButton {
+                min-width: 84px;
+                border: 1px solid #b7c7db;
+                border-radius: 8px;
+                padding: 6px 12px;
+                background: #f8fbff;
+                color: #173b68;
+            }
+            QPushButton:hover {
+                background: #eef4fb;
+            }
+            QPushButton#btn_save {
+                background: #1f4f8f;
+                border: 1px solid #1f4f8f;
+                color: #ffffff;
+                font-weight: 700;
+            }
+            QPushButton#btn_save:hover {
+                background: #1a457d;
+            }
+            """
+        )

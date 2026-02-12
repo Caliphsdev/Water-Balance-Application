@@ -11,6 +11,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from PySide6.QtWidgets import QDialog
+from PySide6.QtCore import Qt
 
 from ui.dialogs.generated_ui_flow_type_selection_dialog import Ui_FlowTypeSelectionDialog
 
@@ -36,11 +37,74 @@ class FlowTypeSelectionDialog(QDialog):
         super().__init__(parent)
         self.ui = Ui_FlowTypeSelectionDialog()
         self.ui.setupUi(self)
+        self._apply_dialog_polish()
+        self._normalize_option_labels()
         
         # Set default selection
         self._set_default_type(default_type)
         
         self.setModal(True)
+
+    def _apply_dialog_polish(self) -> None:
+        """Apply consistent popup style for flow dialogs."""
+        self.setMinimumSize(460, 280)
+        self.resize(500, 300)
+        self.ui.btn_ok.setText("Save")
+        self.ui.btn_ok.setMinimumHeight(34)
+        self.ui.btn_cancel.setMinimumHeight(34)
+        self.ui.label_instruction.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+
+        self.setStyleSheet(
+            """
+            QDialog {
+                background: #f5f8fc;
+            }
+            QLabel#label_instruction {
+                color: #153e72;
+                font-size: 13px;
+                font-weight: 700;
+                margin-bottom: 8px;
+            }
+            QRadioButton {
+                spacing: 10px;
+                color: #122a4b;
+                font-size: 13px;
+                padding: 4px 0;
+            }
+            QRadioButton::indicator {
+                width: 16px;
+                height: 16px;
+            }
+            QPushButton {
+                min-width: 100px;
+                border: 1px solid #b7c7db;
+                border-radius: 8px;
+                padding: 6px 12px;
+                background: #f8fbff;
+                color: #173b68;
+            }
+            QPushButton:hover {
+                background: #eef4fb;
+            }
+            QPushButton#btn_ok {
+                background: #1f4f8f;
+                border: 1px solid #1f4f8f;
+                color: #ffffff;
+                font-weight: 700;
+            }
+            QPushButton#btn_ok:hover {
+                background: #1a457d;
+            }
+            """
+        )
+
+    def _normalize_option_labels(self) -> None:
+        """Use clear business-facing labels."""
+        self.ui.label_instruction.setText("Select water flow type for this line:")
+        self.ui.radio_clean.setText("Clean Water (Blue) - fresh water source")
+        self.ui.radio_dirty.setText("Dirty/Waste Water (Red) - wastewater or effluent")
+        self.ui.radio_evaporation.setText("Evaporation Loss (Black) - atmospheric loss")
+        self.ui.radio_recirculation.setText("Recirculation (Purple) - recycled return flow")
     
     def _set_default_type(self, flow_type: str):
         """

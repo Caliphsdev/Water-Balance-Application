@@ -78,6 +78,8 @@ class StorageFacilityDialog(QDialog):
         self.service = service
         self.mode = mode
         self.facility = facility
+        self._apply_dialog_polish()
+        self._normalize_status_options()
         
         # Set dialog title based on mode
         if mode == 'add':
@@ -177,7 +179,11 @@ class StorageFacilityDialog(QDialog):
             self.ui.spin_capacity.setValue(self.facility.capacity_m3)
             self.ui.spin_volume.setValue(self.facility.current_volume_m3)
             self.ui.spin_surface.setValue(self.facility.surface_area_m2 or 0)
-            self.ui.combo_status.setCurrentText(self.facility.status)
+            status_text = (self.facility.status or "Active").strip().capitalize()
+            if self.ui.combo_status.findText(status_text) >= 0:
+                self.ui.combo_status.setCurrentText(status_text)
+            else:
+                self.ui.combo_status.setCurrentIndex(0)
             self.ui.input_notes.setPlainText(self.facility.notes or "")
             
             # Apply auto-set logic: If Tank, set lined status to Not Applicable & disable
@@ -227,9 +233,93 @@ class StorageFacilityDialog(QDialog):
             'surface_area_m2': self.ui.spin_surface.value() or None,
             'current_volume_m3': self.ui.spin_volume.value(),
             'is_lined': is_lined,
-            'status': self.ui.combo_status.currentText(),
+            'status': self.ui.combo_status.currentText().capitalize(),
             'notes': self.ui.input_notes.toPlainText().strip() or None
         }
+
+    def _normalize_status_options(self) -> None:
+        """Use title-case statuses for cleaner UI labels."""
+        if hasattr(self.ui, "combo_status"):
+            self.ui.combo_status.clear()
+            self.ui.combo_status.addItems(["Active", "Inactive", "Decommissioned"])
+
+    def _apply_dialog_polish(self) -> None:
+        """Apply consistent dialog styling and fix spinbox appearance."""
+        self.setMinimumSize(560, 470)
+        self.resize(560, 500)
+
+        self.ui.formLayout_facility.setHorizontalSpacing(14)
+        self.ui.formLayout_facility.setVerticalSpacing(10)
+        self.ui.formLayout_facility.setLabelAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+
+        for widget_name in ("input_code", "input_name", "combo_type", "combo_status", "combo_lined"):
+            if hasattr(self.ui, widget_name):
+                getattr(self.ui, widget_name).setMinimumHeight(31)
+        if hasattr(self.ui, "input_notes"):
+            self.ui.input_notes.setMinimumHeight(90)
+            self.ui.input_notes.setMaximumHeight(110)
+
+        # Stabilize numeric controls so stepper area does not look clipped.
+        for spin_name in ("spin_capacity", "spin_volume", "spin_surface"):
+            if hasattr(self.ui, spin_name):
+                spin = getattr(self.ui, spin_name)
+                spin.setMinimumHeight(31)
+                spin.setButtonSymbols(spin.ButtonSymbols.UpDownArrows)
+                spin.setKeyboardTracking(False)
+
+        self.ui.btn_save.setMinimumHeight(34)
+        self.ui.btn_cancel.setMinimumHeight(34)
+
+        self.setStyleSheet(
+            """
+            QDialog {
+                background: #f5f8fc;
+            }
+            QGroupBox {
+                border: 1px solid #c9d8ea;
+                border-radius: 10px;
+                margin-top: 8px;
+                padding: 10px;
+                color: #173b68;
+                font-weight: 600;
+            }
+            QLineEdit, QComboBox, QPlainTextEdit, QDoubleSpinBox {
+                background: #ffffff;
+                border: 1px solid #b8c9dd;
+                border-radius: 6px;
+                padding: 4px 8px;
+                color: #0f2747;
+            }
+            QComboBox::drop-down {
+                border: none;
+                width: 20px;
+            }
+            QDoubleSpinBox::up-button, QDoubleSpinBox::down-button {
+                width: 16px;
+                border: none;
+            }
+            QPushButton {
+                min-width: 88px;
+                border: 1px solid #b7c7db;
+                border-radius: 8px;
+                padding: 6px 12px;
+                background: #f8fbff;
+                color: #173b68;
+            }
+            QPushButton:hover {
+                background: #eef4fb;
+            }
+            QPushButton#btn_save {
+                background: #1f4f8f;
+                border: 1px solid #1f4f8f;
+                color: #ffffff;
+                font-weight: 700;
+            }
+            QPushButton#btn_save:hover {
+                background: #1a457d;
+            }
+            """
+        )
     
     def _validate_form(self, data: dict) -> Optional[str]:
         """Validate form data before save (VALIDATION).

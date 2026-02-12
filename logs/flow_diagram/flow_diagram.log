@@ -16230,3 +16230,323 @@
 2026-02-11 15:29:07 | WARNING  | _load_and_display_recirculation:896 | Configured components: ['NDCD 1-2 / NDSWD 1', 'STOCKPILE AREA', 'SPCD 1', 'MDCD 1-4\n(Group)', 'MDCD 5-6\n(Group)', 'OLD TAILINGS\nSTORAGE FACILITY', 'TRTD 1-2(RWDs)', 'NEW TAILINGS\nSTORAGE FACILITY', 'NT RWD 1&2', 'UG2PCD 1', 'MPSWD 1-2']
 2026-02-11 15:29:07 | WARNING  | _load_and_display_recirculation:897 | Check that Excel sheets and columns are populated with data for 2028/12
 2026-02-11 15:29:07 | INFO     | __init__:158 | Flow Diagram Page initialized
+2026-02-11 21:43:29 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-11 21:43:32 | INFO     | load_diagram:617 | Loaded diagram for UG2N
+2026-02-11 21:43:32 | INFO     | _render_diagram:809 | Rendered diagram: 126 nodes, 116 edges
+2026-02-11 21:43:32 | INFO     | _load_and_display_recirculation:878 | Found 11 recirculation configs to load
+2026-02-11 21:43:32 | WARNING  | _load_and_display_recirculation:895 | No recirculation volumes found for UG2N in Excel
+2026-02-11 21:43:32 | WARNING  | _load_and_display_recirculation:896 | Configured components: ['NDCD 1-2 / NDSWD 1', 'STOCKPILE AREA', 'SPCD 1', 'MDCD 1-4\n(Group)', 'MDCD 5-6\n(Group)', 'OLD TAILINGS\nSTORAGE FACILITY', 'TRTD 1-2(RWDs)', 'NEW TAILINGS\nSTORAGE FACILITY', 'NT RWD 1&2', 'UG2PCD 1', 'MPSWD 1-2']
+2026-02-11 21:43:32 | WARNING  | _load_and_display_recirculation:897 | Check that Excel sheets and columns are populated with data for 2028/12
+2026-02-11 21:43:32 | INFO     | __init__:158 | Flow Diagram Page initialized
+2026-02-11 21:46:28 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-11 21:46:30 | INFO     | load_diagram:617 | Loaded diagram for UG2N
+2026-02-11 21:46:30 | INFO     | _render_diagram:809 | Rendered diagram: 126 nodes, 116 edges
+2026-02-11 21:46:30 | INFO     | _load_and_display_recirculation:878 | Found 11 recirculation configs to load
+2026-02-11 21:46:30 | WARNING  | _load_and_display_recirculation:895 | No recirculation volumes found for UG2N in Excel
+2026-02-11 21:46:30 | WARNING  | _load_and_display_recirculation:896 | Configured components: ['NDCD 1-2 / NDSWD 1', 'STOCKPILE AREA', 'SPCD 1', 'MDCD 1-4\n(Group)', 'MDCD 5-6\n(Group)', 'OLD TAILINGS\nSTORAGE FACILITY', 'TRTD 1-2(RWDs)', 'NEW TAILINGS\nSTORAGE FACILITY', 'NT RWD 1&2', 'UG2PCD 1', 'MPSWD 1-2']
+2026-02-11 21:46:30 | WARNING  | _load_and_display_recirculation:897 | Check that Excel sheets and columns are populated with data for 2028/12
+2026-02-11 21:46:30 | INFO     | __init__:158 | Flow Diagram Page initialized
+2026-02-11 21:49:16 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-11 21:49:19 | INFO     | load_diagram:617 | Loaded diagram for UG2N
+2026-02-11 21:49:19 | INFO     | _render_diagram:809 | Rendered diagram: 126 nodes, 116 edges
+2026-02-11 21:49:19 | INFO     | _load_and_display_recirculation:878 | Found 11 recirculation configs to load
+2026-02-11 21:49:19 | WARNING  | _load_and_display_recirculation:895 | No recirculation volumes found for UG2N in Excel
+2026-02-11 21:49:19 | WARNING  | _load_and_display_recirculation:896 | Configured components: ['NDCD 1-2 / NDSWD 1', 'STOCKPILE AREA', 'SPCD 1', 'MDCD 1-4\n(Group)', 'MDCD 5-6\n(Group)', 'OLD TAILINGS\nSTORAGE FACILITY', 'TRTD 1-2(RWDs)', 'NEW TAILINGS\nSTORAGE FACILITY', 'NT RWD 1&2', 'UG2PCD 1', 'MPSWD 1-2']
+2026-02-11 21:49:19 | WARNING  | _load_and_display_recirculation:897 | Check that Excel sheets and columns are populated with data for 2028/12
+2026-02-11 21:49:19 | INFO     | __init__:158 | Flow Diagram Page initialized
+2026-02-11 21:53:36 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-11 21:53:39 | INFO     | load_diagram:617 | Loaded diagram for UG2N
+2026-02-11 21:53:39 | INFO     | _render_diagram:809 | Rendered diagram: 126 nodes, 116 edges
+2026-02-11 21:53:39 | INFO     | _load_and_display_recirculation:878 | Found 11 recirculation configs to load
+2026-02-11 21:53:39 | WARNING  | _load_and_display_recirculation:895 | No recirculation volumes found for UG2N in Excel
+2026-02-11 21:53:39 | WARNING  | _load_and_display_recirculation:896 | Configured components: ['NDCD 1-2 / NDSWD 1', 'STOCKPILE AREA', 'SPCD 1', 'MDCD 1-4\n(Group)', 'MDCD 5-6\n(Group)', 'OLD TAILINGS\nSTORAGE FACILITY', 'TRTD 1-2(RWDs)', 'NEW TAILINGS\nSTORAGE FACILITY', 'NT RWD 1&2', 'UG2PCD 1', 'MPSWD 1-2']
+2026-02-11 21:53:39 | WARNING  | _load_and_display_recirculation:897 | Check that Excel sheets and columns are populated with data for 2028/12
+2026-02-11 21:53:39 | INFO     | __init__:158 | Flow Diagram Page initialized
+2026-02-11 21:54:42 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-11 21:54:44 | INFO     | load_diagram:617 | Loaded diagram for UG2N
+2026-02-11 21:54:44 | INFO     | _render_diagram:809 | Rendered diagram: 126 nodes, 116 edges
+2026-02-11 21:54:44 | INFO     | _load_and_display_recirculation:878 | Found 11 recirculation configs to load
+2026-02-11 21:54:44 | WARNING  | _load_and_display_recirculation:895 | No recirculation volumes found for UG2N in Excel
+2026-02-11 21:54:44 | WARNING  | _load_and_display_recirculation:896 | Configured components: ['NDCD 1-2 / NDSWD 1', 'STOCKPILE AREA', 'SPCD 1', 'MDCD 1-4\n(Group)', 'MDCD 5-6\n(Group)', 'OLD TAILINGS\nSTORAGE FACILITY', 'TRTD 1-2(RWDs)', 'NEW TAILINGS\nSTORAGE FACILITY', 'NT RWD 1&2', 'UG2PCD 1', 'MPSWD 1-2']
+2026-02-11 21:54:44 | WARNING  | _load_and_display_recirculation:897 | Check that Excel sheets and columns are populated with data for 2028/12
+2026-02-11 21:54:44 | INFO     | __init__:158 | Flow Diagram Page initialized
+2026-02-11 22:02:48 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-11 22:02:50 | INFO     | load_diagram:617 | Loaded diagram for UG2N
+2026-02-11 22:02:51 | INFO     | _render_diagram:809 | Rendered diagram: 126 nodes, 116 edges
+2026-02-11 22:02:51 | INFO     | _load_and_display_recirculation:878 | Found 11 recirculation configs to load
+2026-02-11 22:02:51 | WARNING  | _load_and_display_recirculation:895 | No recirculation volumes found for UG2N in Excel
+2026-02-11 22:02:51 | WARNING  | _load_and_display_recirculation:896 | Configured components: ['NDCD 1-2 / NDSWD 1', 'STOCKPILE AREA', 'SPCD 1', 'MDCD 1-4\n(Group)', 'MDCD 5-6\n(Group)', 'OLD TAILINGS\nSTORAGE FACILITY', 'TRTD 1-2(RWDs)', 'NEW TAILINGS\nSTORAGE FACILITY', 'NT RWD 1&2', 'UG2PCD 1', 'MPSWD 1-2']
+2026-02-11 22:02:51 | WARNING  | _load_and_display_recirculation:897 | Check that Excel sheets and columns are populated with data for 2028/12
+2026-02-11 22:02:51 | INFO     | __init__:158 | Flow Diagram Page initialized
+2026-02-11 22:11:55 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-11 22:11:57 | INFO     | load_diagram:619 | Loaded diagram for UG2N
+2026-02-11 22:11:57 | INFO     | _render_diagram:811 | Rendered diagram: 126 nodes, 116 edges
+2026-02-11 22:11:57 | INFO     | _load_and_display_recirculation:880 | Found 11 recirculation configs to load
+2026-02-11 22:11:57 | WARNING  | _load_and_display_recirculation:897 | No recirculation volumes found for UG2N in Excel
+2026-02-11 22:11:57 | WARNING  | _load_and_display_recirculation:898 | Configured components: ['NDCD 1-2 / NDSWD 1', 'STOCKPILE AREA', 'SPCD 1', 'MDCD 1-4\n(Group)', 'MDCD 5-6\n(Group)', 'OLD TAILINGS\nSTORAGE FACILITY', 'TRTD 1-2(RWDs)', 'NEW TAILINGS\nSTORAGE FACILITY', 'NT RWD 1&2', 'UG2PCD 1', 'MPSWD 1-2']
+2026-02-11 22:11:57 | WARNING  | _load_and_display_recirculation:899 | Check that Excel sheets and columns are populated with data for 2028/12
+2026-02-11 22:11:57 | INFO     | __init__:158 | Flow Diagram Page initialized
+2026-02-11 22:16:13 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-11 22:22:10 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-11 22:22:12 | INFO     | load_diagram:619 | Loaded diagram for UG2N
+2026-02-11 22:22:12 | INFO     | _render_diagram:811 | Rendered diagram: 126 nodes, 116 edges
+2026-02-11 22:22:12 | INFO     | _load_and_display_recirculation:880 | Found 11 recirculation configs to load
+2026-02-11 22:22:12 | WARNING  | _load_and_display_recirculation:897 | No recirculation volumes found for UG2N in Excel
+2026-02-11 22:22:12 | WARNING  | _load_and_display_recirculation:898 | Configured components: ['NDCD 1-2 / NDSWD 1', 'STOCKPILE AREA', 'SPCD 1', 'MDCD 1-4\n(Group)', 'MDCD 5-6\n(Group)', 'OLD TAILINGS\nSTORAGE FACILITY', 'TRTD 1-2(RWDs)', 'NEW TAILINGS\nSTORAGE FACILITY', 'NT RWD 1&2', 'UG2PCD 1', 'MPSWD 1-2']
+2026-02-11 22:22:12 | WARNING  | _load_and_display_recirculation:899 | Check that Excel sheets and columns are populated with data for 2028/12
+2026-02-11 22:22:12 | INFO     | __init__:158 | Flow Diagram Page initialized
+2026-02-11 22:30:38 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-11 22:30:41 | INFO     | load_diagram:619 | Loaded diagram for UG2N
+2026-02-11 22:30:41 | INFO     | _render_diagram:811 | Rendered diagram: 126 nodes, 116 edges
+2026-02-11 22:30:41 | INFO     | _load_and_display_recirculation:880 | Found 11 recirculation configs to load
+2026-02-11 22:30:41 | WARNING  | _load_and_display_recirculation:897 | No recirculation volumes found for UG2N in Excel
+2026-02-11 22:30:41 | WARNING  | _load_and_display_recirculation:898 | Configured components: ['NDCD 1-2 / NDSWD 1', 'STOCKPILE AREA', 'SPCD 1', 'MDCD 1-4\n(Group)', 'MDCD 5-6\n(Group)', 'OLD TAILINGS\nSTORAGE FACILITY', 'TRTD 1-2(RWDs)', 'NEW TAILINGS\nSTORAGE FACILITY', 'NT RWD 1&2', 'UG2PCD 1', 'MPSWD 1-2']
+2026-02-11 22:30:41 | WARNING  | _load_and_display_recirculation:899 | Check that Excel sheets and columns are populated with data for 2028/12
+2026-02-11 22:30:41 | INFO     | __init__:158 | Flow Diagram Page initialized
+2026-02-11 22:37:09 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-11 22:37:11 | INFO     | load_diagram:619 | Loaded diagram for UG2N
+2026-02-11 22:37:11 | INFO     | _render_diagram:811 | Rendered diagram: 126 nodes, 116 edges
+2026-02-11 22:37:11 | INFO     | _load_and_display_recirculation:880 | Found 11 recirculation configs to load
+2026-02-11 22:37:11 | WARNING  | _load_and_display_recirculation:897 | No recirculation volumes found for UG2N in Excel
+2026-02-11 22:37:11 | WARNING  | _load_and_display_recirculation:898 | Configured components: ['NDCD 1-2 / NDSWD 1', 'STOCKPILE AREA', 'SPCD 1', 'MDCD 1-4\n(Group)', 'MDCD 5-6\n(Group)', 'OLD TAILINGS\nSTORAGE FACILITY', 'TRTD 1-2(RWDs)', 'NEW TAILINGS\nSTORAGE FACILITY', 'NT RWD 1&2', 'UG2PCD 1', 'MPSWD 1-2']
+2026-02-11 22:37:11 | WARNING  | _load_and_display_recirculation:899 | Check that Excel sheets and columns are populated with data for 2028/12
+2026-02-11 22:37:11 | INFO     | __init__:158 | Flow Diagram Page initialized
+2026-02-11 22:38:36 | INFO     | _on_excel_setup_clicked:3185 | Excel Setup button clicked
+2026-02-11 22:38:47 | INFO     | _on_excel_setup_clicked:3192 | Excel Setup dialog closed
+2026-02-11 22:38:49 | INFO     | _on_balance_check_clicked:2967 | Balance Check button clicked
+2026-02-11 22:42:13 | INFO     | _on_balance_check_clicked:2977 | Balance Check dialog closed
+2026-02-11 22:46:49 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-11 22:46:51 | INFO     | load_diagram:619 | Loaded diagram for UG2N
+2026-02-11 22:46:51 | INFO     | _render_diagram:811 | Rendered diagram: 126 nodes, 116 edges
+2026-02-11 22:46:51 | INFO     | _load_and_display_recirculation:880 | Found 11 recirculation configs to load
+2026-02-11 22:46:51 | WARNING  | _load_and_display_recirculation:897 | No recirculation volumes found for UG2N in Excel
+2026-02-11 22:46:51 | WARNING  | _load_and_display_recirculation:898 | Configured components: ['NDCD 1-2 / NDSWD 1', 'STOCKPILE AREA', 'SPCD 1', 'MDCD 1-4\n(Group)', 'MDCD 5-6\n(Group)', 'OLD TAILINGS\nSTORAGE FACILITY', 'TRTD 1-2(RWDs)', 'NEW TAILINGS\nSTORAGE FACILITY', 'NT RWD 1&2', 'UG2PCD 1', 'MPSWD 1-2']
+2026-02-11 22:46:51 | WARNING  | _load_and_display_recirculation:899 | Check that Excel sheets and columns are populated with data for 2028/12
+2026-02-11 22:46:51 | INFO     | __init__:158 | Flow Diagram Page initialized
+2026-02-11 22:47:02 | INFO     | _on_balance_check_clicked:2967 | Balance Check button clicked
+2026-02-11 22:48:18 | INFO     | _on_balance_check_clicked:2977 | Balance Check dialog closed
+2026-02-11 22:49:19 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-11 22:49:21 | INFO     | load_diagram:619 | Loaded diagram for UG2N
+2026-02-11 22:49:21 | INFO     | _render_diagram:811 | Rendered diagram: 126 nodes, 116 edges
+2026-02-11 22:49:21 | INFO     | _load_and_display_recirculation:880 | Found 11 recirculation configs to load
+2026-02-11 22:49:21 | WARNING  | _load_and_display_recirculation:897 | No recirculation volumes found for UG2N in Excel
+2026-02-11 22:49:21 | WARNING  | _load_and_display_recirculation:898 | Configured components: ['NDCD 1-2 / NDSWD 1', 'STOCKPILE AREA', 'SPCD 1', 'MDCD 1-4\n(Group)', 'MDCD 5-6\n(Group)', 'OLD TAILINGS\nSTORAGE FACILITY', 'TRTD 1-2(RWDs)', 'NEW TAILINGS\nSTORAGE FACILITY', 'NT RWD 1&2', 'UG2PCD 1', 'MPSWD 1-2']
+2026-02-11 22:49:21 | WARNING  | _load_and_display_recirculation:899 | Check that Excel sheets and columns are populated with data for 2028/12
+2026-02-11 22:49:21 | INFO     | __init__:158 | Flow Diagram Page initialized
+2026-02-11 22:49:27 | INFO     | _on_balance_check_clicked:2967 | Balance Check button clicked
+2026-02-11 22:52:25 | INFO     | _on_balance_check_clicked:2977 | Balance Check dialog closed
+2026-02-11 22:54:20 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-11 22:54:23 | INFO     | load_diagram:619 | Loaded diagram for UG2N
+2026-02-11 22:54:23 | INFO     | _render_diagram:811 | Rendered diagram: 126 nodes, 116 edges
+2026-02-11 22:54:23 | INFO     | _load_and_display_recirculation:880 | Found 11 recirculation configs to load
+2026-02-11 22:54:23 | WARNING  | _load_and_display_recirculation:897 | No recirculation volumes found for UG2N in Excel
+2026-02-11 22:54:23 | WARNING  | _load_and_display_recirculation:898 | Configured components: ['NDCD 1-2 / NDSWD 1', 'STOCKPILE AREA', 'SPCD 1', 'MDCD 1-4\n(Group)', 'MDCD 5-6\n(Group)', 'OLD TAILINGS\nSTORAGE FACILITY', 'TRTD 1-2(RWDs)', 'NEW TAILINGS\nSTORAGE FACILITY', 'NT RWD 1&2', 'UG2PCD 1', 'MPSWD 1-2']
+2026-02-11 22:54:23 | WARNING  | _load_and_display_recirculation:899 | Check that Excel sheets and columns are populated with data for 2028/12
+2026-02-11 22:54:23 | INFO     | __init__:158 | Flow Diagram Page initialized
+2026-02-11 22:54:37 | INFO     | _on_balance_check_clicked:2967 | Balance Check button clicked
+2026-02-11 22:54:51 | INFO     | _on_balance_check_clicked:2977 | Balance Check dialog closed
+2026-02-11 22:55:15 | INFO     | _on_excel_setup_clicked:3185 | Excel Setup button clicked
+2026-02-11 22:55:17 | INFO     | _on_excel_setup_clicked:3192 | Excel Setup dialog closed
+2026-02-11 22:55:18 | INFO     | _on_balance_check_clicked:2967 | Balance Check button clicked
+2026-02-11 22:57:26 | INFO     | _on_balance_check_clicked:2977 | Balance Check dialog closed
+2026-02-11 22:59:32 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-11 22:59:34 | INFO     | load_diagram:622 | Loaded diagram for UG2N
+2026-02-11 22:59:34 | INFO     | _render_diagram:814 | Rendered diagram: 126 nodes, 116 edges
+2026-02-11 22:59:34 | INFO     | _load_and_display_recirculation:883 | Found 11 recirculation configs to load
+2026-02-11 22:59:34 | WARNING  | _load_and_display_recirculation:900 | No recirculation volumes found for UG2N in Excel
+2026-02-11 22:59:34 | WARNING  | _load_and_display_recirculation:901 | Configured components: ['NDCD 1-2 / NDSWD 1', 'STOCKPILE AREA', 'SPCD 1', 'MDCD 1-4\n(Group)', 'MDCD 5-6\n(Group)', 'OLD TAILINGS\nSTORAGE FACILITY', 'TRTD 1-2(RWDs)', 'NEW TAILINGS\nSTORAGE FACILITY', 'NT RWD 1&2', 'UG2PCD 1', 'MPSWD 1-2']
+2026-02-11 22:59:34 | WARNING  | _load_and_display_recirculation:902 | Check that Excel sheets and columns are populated with data for 2028/12
+2026-02-11 22:59:34 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-11 22:59:39 | INFO     | _on_balance_check_clicked:2993 | Balance Check button clicked
+2026-02-11 22:59:56 | INFO     | _on_balance_check_clicked:3003 | Balance Check dialog closed
+2026-02-11 23:00:01 | INFO     | _on_balance_check_clicked:2993 | Balance Check button clicked
+2026-02-11 23:00:21 | INFO     | _on_balance_check_clicked:3003 | Balance Check dialog closed
+2026-02-11 23:08:26 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-11 23:08:28 | INFO     | load_diagram:647 | Loaded diagram for UG2N
+2026-02-11 23:08:28 | INFO     | _render_diagram:852 | Rendered diagram: 126 nodes, 116 edges
+2026-02-11 23:08:28 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-11 23:08:50 | INFO     | _on_excel_setup_clicked:3260 | Excel Setup button clicked
+2026-02-11 23:08:54 | INFO     | _on_excel_setup_clicked:3267 | Excel Setup dialog closed
+2026-02-11 23:08:55 | INFO     | _on_balance_check_clicked:3038 | Balance Check button clicked
+2026-02-11 23:09:03 | INFO     | _on_balance_check_clicked:3048 | Balance Check dialog closed
+2026-02-11 23:12:48 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-11 23:12:50 | INFO     | load_diagram:647 | Loaded diagram for UG2N
+2026-02-11 23:12:50 | INFO     | _render_diagram:852 | Rendered diagram: 126 nodes, 116 edges
+2026-02-11 23:12:50 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-11 23:19:41 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-11 23:19:43 | INFO     | load_diagram:647 | Loaded diagram for UG2N
+2026-02-11 23:19:43 | INFO     | _render_diagram:852 | Rendered diagram: 126 nodes, 116 edges
+2026-02-11 23:19:43 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-11 23:23:06 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-11 23:23:08 | INFO     | load_diagram:647 | Loaded diagram for UG2N
+2026-02-11 23:23:08 | INFO     | _render_diagram:852 | Rendered diagram: 126 nodes, 116 edges
+2026-02-11 23:23:08 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-11 23:27:59 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-11 23:28:01 | INFO     | load_diagram:647 | Loaded diagram for UG2N
+2026-02-11 23:28:01 | INFO     | _render_diagram:852 | Rendered diagram: 126 nodes, 116 edges
+2026-02-11 23:28:01 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-11 23:33:09 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-11 23:33:11 | INFO     | load_diagram:647 | Loaded diagram for UG2N
+2026-02-11 23:33:11 | INFO     | _render_diagram:852 | Rendered diagram: 126 nodes, 116 edges
+2026-02-11 23:33:11 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-11 23:35:40 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-11 23:35:42 | INFO     | load_diagram:647 | Loaded diagram for UG2N
+2026-02-11 23:35:42 | INFO     | _render_diagram:852 | Rendered diagram: 126 nodes, 116 edges
+2026-02-11 23:35:42 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-11 23:39:34 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-11 23:39:36 | INFO     | load_diagram:647 | Loaded diagram for UG2N
+2026-02-11 23:39:36 | INFO     | _render_diagram:852 | Rendered diagram: 126 nodes, 116 edges
+2026-02-11 23:39:36 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-11 23:44:15 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-11 23:44:17 | INFO     | load_diagram:647 | Loaded diagram for UG2N
+2026-02-11 23:44:17 | INFO     | _render_diagram:852 | Rendered diagram: 126 nodes, 116 edges
+2026-02-11 23:44:17 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-11 23:49:43 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-11 23:49:45 | INFO     | load_diagram:647 | Loaded diagram for UG2N
+2026-02-11 23:49:45 | INFO     | _render_diagram:852 | Rendered diagram: 126 nodes, 116 edges
+2026-02-11 23:49:45 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-12 00:00:54 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-12 00:00:56 | INFO     | load_diagram:647 | Loaded diagram for UG2N
+2026-02-12 00:00:56 | INFO     | _render_diagram:852 | Rendered diagram: 126 nodes, 116 edges
+2026-02-12 00:00:56 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-12 00:09:27 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-12 00:09:29 | INFO     | load_diagram:647 | Loaded diagram for UG2N
+2026-02-12 00:09:29 | INFO     | _render_diagram:852 | Rendered diagram: 126 nodes, 116 edges
+2026-02-12 00:09:29 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-12 00:11:56 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-12 00:11:58 | INFO     | load_diagram:647 | Loaded diagram for UG2N
+2026-02-12 00:11:58 | INFO     | _render_diagram:852 | Rendered diagram: 126 nodes, 116 edges
+2026-02-12 00:11:58 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-12 00:15:31 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-12 00:15:33 | INFO     | load_diagram:647 | Loaded diagram for UG2N
+2026-02-12 00:15:33 | INFO     | _render_diagram:852 | Rendered diagram: 126 nodes, 116 edges
+2026-02-12 00:15:33 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-12 00:24:45 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-12 00:24:47 | INFO     | load_diagram:647 | Loaded diagram for UG2N
+2026-02-12 00:24:47 | INFO     | _render_diagram:852 | Rendered diagram: 126 nodes, 116 edges
+2026-02-12 00:24:47 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-12 00:28:48 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-12 00:28:51 | INFO     | load_diagram:647 | Loaded diagram for UG2N
+2026-02-12 00:28:51 | INFO     | _render_diagram:852 | Rendered diagram: 126 nodes, 116 edges
+2026-02-12 00:28:51 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-12 01:06:27 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-12 01:06:29 | INFO     | load_diagram:647 | Loaded diagram for UG2N
+2026-02-12 01:06:29 | INFO     | _render_diagram:852 | Rendered diagram: 126 nodes, 116 edges
+2026-02-12 01:06:29 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-12 01:15:31 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-12 01:15:33 | INFO     | load_diagram:647 | Loaded diagram for UG2N
+2026-02-12 01:15:33 | INFO     | _render_diagram:852 | Rendered diagram: 126 nodes, 116 edges
+2026-02-12 01:15:33 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-12 01:23:57 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-12 01:24:00 | INFO     | load_diagram:647 | Loaded diagram for UG2N
+2026-02-12 01:24:00 | INFO     | _render_diagram:852 | Rendered diagram: 126 nodes, 116 edges
+2026-02-12 01:24:00 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-12 01:36:27 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-12 01:36:29 | INFO     | load_diagram:647 | Loaded diagram for UG2N
+2026-02-12 01:36:29 | INFO     | _render_diagram:852 | Rendered diagram: 126 nodes, 116 edges
+2026-02-12 01:36:29 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-12 01:40:47 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-12 01:40:49 | INFO     | load_diagram:647 | Loaded diagram for UG2N
+2026-02-12 01:40:49 | INFO     | _render_diagram:852 | Rendered diagram: 126 nodes, 116 edges
+2026-02-12 01:40:49 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-12 01:44:16 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-12 01:44:18 | INFO     | load_diagram:647 | Loaded diagram for UG2N
+2026-02-12 01:44:18 | INFO     | _render_diagram:852 | Rendered diagram: 126 nodes, 116 edges
+2026-02-12 01:44:18 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-12 01:56:41 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-12 01:56:43 | INFO     | load_diagram:647 | Loaded diagram for UG2N
+2026-02-12 01:56:43 | INFO     | _render_diagram:852 | Rendered diagram: 126 nodes, 116 edges
+2026-02-12 01:56:43 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-12 02:12:25 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-12 02:12:27 | INFO     | load_diagram:647 | Loaded diagram for UG2N
+2026-02-12 02:12:27 | INFO     | _render_diagram:852 | Rendered diagram: 126 nodes, 116 edges
+2026-02-12 02:12:27 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-12 02:13:42 | INFO     | _on_draw_clicked:1490 | Entered drawing mode - waiting for source component click
+2026-02-12 02:13:51 | INFO     | _on_escape_pressed:459 | Drawing mode disabled by user (ESC shortcut)
+2026-02-12 02:13:51 | INFO     | _on_draw_clicked:1511 | Exited drawing mode
+2026-02-12 02:13:53 | INFO     | _on_edge_selected:1168 | Selected edge item details: edge_idx=4, from_id=bh_ndgwa, to_id=softening, data_obj_id=1811861958016
+2026-02-12 02:13:53 | INFO     | _on_edge_selected:1178 | Edge data object index in diagram_data: 4
+2026-02-12 02:15:02 | INFO     | _on_edge_selected:1168 | Selected edge item details: edge_idx=4, from_id=bh_ndgwa, to_id=softening, data_obj_id=1811861958016
+2026-02-12 02:15:02 | INFO     | _on_edge_selected:1178 | Edge data object index in diagram_data: 4
+2026-02-12 02:15:37 | INFO     | _on_excel_setup_clicked:3260 | Excel Setup button clicked
+2026-02-12 02:15:39 | INFO     | _on_excel_setup_clicked:3267 | Excel Setup dialog closed
+2026-02-12 02:15:49 | INFO     | _on_edge_selected:1168 | Selected edge item details: edge_idx=4, from_id=bh_ndgwa, to_id=softening, data_obj_id=1811861958016
+2026-02-12 02:15:49 | INFO     | _on_edge_selected:1178 | Edge data object index in diagram_data: 4
+2026-02-12 02:23:03 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-12 02:23:05 | INFO     | load_diagram:647 | Loaded diagram for UG2N
+2026-02-12 02:23:05 | INFO     | _render_diagram:852 | Rendered diagram: 126 nodes, 116 edges
+2026-02-12 02:23:05 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-12 02:25:54 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-12 02:25:56 | INFO     | load_diagram:647 | Loaded diagram for UG2N
+2026-02-12 02:25:56 | INFO     | _render_diagram:852 | Rendered diagram: 126 nodes, 116 edges
+2026-02-12 02:25:56 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-12 02:34:28 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-12 02:34:30 | INFO     | load_diagram:647 | Loaded diagram for UG2N
+2026-02-12 02:34:30 | INFO     | _render_diagram:852 | Rendered diagram: 126 nodes, 116 edges
+2026-02-12 02:34:30 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-12 02:35:01 | INFO     | _on_balance_check_clicked:3038 | Balance Check button clicked
+2026-02-12 02:35:40 | INFO     | _on_balance_check_clicked:3048 | Balance Check dialog closed
+2026-02-12 02:35:42 | INFO     | _on_excel_setup_clicked:3260 | Excel Setup button clicked
+2026-02-12 02:37:59 | INFO     | _on_excel_setup_clicked:3267 | Excel Setup dialog closed
+2026-02-12 02:43:24 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-12 02:43:26 | INFO     | load_diagram:647 | Loaded diagram for UG2N
+2026-02-12 02:43:26 | INFO     | _render_diagram:852 | Rendered diagram: 126 nodes, 116 edges
+2026-02-12 02:43:26 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-12 02:43:30 | INFO     | _on_excel_setup_clicked:3260 | Excel Setup button clicked
+2026-02-12 02:43:41 | INFO     | _on_excel_setup_clicked:3267 | Excel Setup dialog closed
+2026-02-12 02:43:43 | INFO     | _on_balance_check_clicked:3038 | Balance Check button clicked
+2026-02-12 02:43:47 | INFO     | _on_balance_check_clicked:3048 | Balance Check dialog closed
+2026-02-12 02:44:06 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-12 02:44:08 | INFO     | load_diagram:647 | Loaded diagram for UG2N
+2026-02-12 02:44:08 | INFO     | _render_diagram:852 | Rendered diagram: 126 nodes, 116 edges
+2026-02-12 02:44:08 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-12 02:44:11 | INFO     | _on_excel_setup_clicked:3260 | Excel Setup button clicked
+2026-02-12 02:44:18 | INFO     | _on_excel_setup_clicked:3267 | Excel Setup dialog closed
+2026-02-12 02:46:16 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-12 02:46:18 | INFO     | load_diagram:647 | Loaded diagram for UG2N
+2026-02-12 02:46:18 | INFO     | _render_diagram:852 | Rendered diagram: 126 nodes, 116 edges
+2026-02-12 02:46:18 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-12 02:46:27 | INFO     | _on_excel_setup_clicked:3260 | Excel Setup button clicked
+2026-02-12 02:46:30 | INFO     | _on_excel_setup_clicked:3267 | Excel Setup dialog closed
+2026-02-12 02:46:31 | INFO     | _on_balance_check_clicked:3038 | Balance Check button clicked
+2026-02-12 02:46:34 | INFO     | _on_balance_check_clicked:3048 | Balance Check dialog closed
+2026-02-12 02:51:54 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-12 02:51:56 | INFO     | load_diagram:647 | Loaded diagram for UG2N
+2026-02-12 02:51:56 | INFO     | _render_diagram:852 | Rendered diagram: 126 nodes, 116 edges
+2026-02-12 02:51:56 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-12 02:53:53 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-12 02:53:55 | INFO     | load_diagram:647 | Loaded diagram for UG2N
+2026-02-12 02:53:55 | INFO     | _render_diagram:852 | Rendered diagram: 126 nodes, 116 edges
+2026-02-12 02:53:55 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-12 02:56:51 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-12 02:56:53 | INFO     | load_diagram:647 | Loaded diagram for UG2N
+2026-02-12 02:56:54 | INFO     | _render_diagram:852 | Rendered diagram: 126 nodes, 116 edges
+2026-02-12 02:56:54 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-12 03:02:14 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-12 03:02:16 | INFO     | load_diagram:647 | Loaded diagram for UG2N
+2026-02-12 03:02:16 | INFO     | _render_diagram:852 | Rendered diagram: 126 nodes, 116 edges
+2026-02-12 03:02:16 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-12 03:03:28 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-12 03:03:30 | INFO     | load_diagram:647 | Loaded diagram for UG2N
+2026-02-12 03:03:30 | INFO     | _render_diagram:852 | Rendered diagram: 126 nodes, 116 edges
+2026-02-12 03:03:30 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-12 03:08:56 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-12 03:08:58 | INFO     | load_diagram:647 | Loaded diagram for UG2N
+2026-02-12 03:08:58 | INFO     | _render_diagram:852 | Rendered diagram: 126 nodes, 116 edges
+2026-02-12 03:08:58 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-12 03:09:10 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-12 03:09:12 | INFO     | load_diagram:647 | Loaded diagram for UG2N
+2026-02-12 03:09:13 | INFO     | _render_diagram:852 | Rendered diagram: 126 nodes, 116 edges
+2026-02-12 03:09:13 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-12 03:09:26 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-12 03:09:28 | INFO     | load_diagram:647 | Loaded diagram for UG2N
+2026-02-12 03:09:28 | INFO     | _render_diagram:852 | Rendered diagram: 126 nodes, 116 edges
+2026-02-12 03:09:28 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-12 03:09:40 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-12 03:09:42 | INFO     | load_diagram:647 | Loaded diagram for UG2N
+2026-02-12 03:09:42 | INFO     | _render_diagram:852 | Rendered diagram: 126 nodes, 116 edges
+2026-02-12 03:09:42 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-12 03:15:12 | INFO     | get_dashboard_logger:584 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-12 03:15:14 | INFO     | load_diagram:647 | Loaded diagram for UG2N
+2026-02-12 03:15:14 | INFO     | _render_diagram:852 | Rendered diagram: 126 nodes, 116 edges
+2026-02-12 03:15:14 | INFO     | __init__:160 | Flow Diagram Page initialized

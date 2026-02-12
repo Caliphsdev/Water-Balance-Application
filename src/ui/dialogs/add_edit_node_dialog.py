@@ -11,7 +11,8 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from PySide6.QtWidgets import QDialog, QColorDialog, QSpinBox, QLabel
+from PySide6.QtWidgets import QDialog, QColorDialog, QSpinBox, QLabel, QSizePolicy
+from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor
 from typing import Dict, Optional
 
@@ -54,6 +55,8 @@ class AddEditNodeDialog(QDialog):
 
         # Add font size control (not present in UI file)
         self._add_font_size_control()
+        self._insert_section_rows()
+        self._apply_layout_polish()
         self._populate_shape_options()
         
         # Setup
@@ -92,7 +95,109 @@ class AddEditNodeDialog(QDialog):
         self.spin_font_size = QSpinBox(self)
         self.spin_font_size.setRange(6, 20)
         self.spin_font_size.setValue(9)
+        self.spin_font_size.setAlignment(Qt.AlignCenter)
+        self.spin_font_size.setMinimumWidth(92)
+        self.spin_font_size.setMaximumWidth(120)
+        self.spin_font_size.setMinimumHeight(32)
+        self.spin_font_size.setButtonSymbols(QSpinBox.PlusMinus)
         self.ui.formLayout.insertRow(5, self.label_font_size, self.spin_font_size)
+
+    def _insert_section_rows(self):
+        """Insert visual section headers to improve scanability."""
+        behavior = QLabel("Behavior")
+        behavior.setObjectName("dialogSectionHeader")
+        appearance = QLabel("Appearance")
+        appearance.setObjectName("dialogSectionHeader")
+        identity = QLabel("Identity")
+        identity.setObjectName("dialogSectionHeader")
+
+        self.ui.formLayout.insertRow(6, behavior)
+        self.ui.formLayout.insertRow(3, appearance)
+        self.ui.formLayout.insertRow(0, identity)
+
+    def _apply_layout_polish(self):
+        """Apply spacing, sizing, and styles for a cleaner dialog layout."""
+        self.setMinimumSize(560, 420)
+        self.resize(560, 430)
+
+        self.ui.formLayout.setHorizontalSpacing(14)
+        self.ui.formLayout.setVerticalSpacing(10)
+        self.ui.formLayout.setLabelAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+
+        self.ui.label_label.setText("Label:")
+        self.ui.label_lock.setText("Lock Component:")
+        self.ui.checkbox_lock.setText("Prevent dragging")
+
+        # Normalize control heights for visual consistency.
+        for widget in (self.ui.input_id, self.ui.combo_type, self.ui.combo_shape):
+            widget.setMinimumHeight(32)
+        self.ui.input_label.setMinimumHeight(64)
+        self.ui.input_label.setMaximumHeight(72)
+        self.ui.btn_color_picker.setMinimumHeight(32)
+        self.ui.btn_color_picker.setMinimumWidth(110)
+        self.ui.label_color_preview.setFixedSize(64, 32)
+
+        # Reduce excessive bottom gap.
+        self.ui.verticalSpacer.changeSize(20, 8, QSizePolicy.Minimum, QSizePolicy.Fixed)
+
+        # Button hierarchy: primary OK, secondary Cancel.
+        self.ui.btn_ok.setText("Save")
+        self.ui.btn_ok.setMinimumHeight(34)
+        self.ui.btn_cancel.setMinimumHeight(34)
+
+        self.setStyleSheet(
+            """
+            QDialog {
+                background: #f5f8fc;
+            }
+            QLabel#dialogSectionHeader {
+                font-size: 12px;
+                font-weight: 700;
+                color: #1d4f91;
+                margin-top: 6px;
+                padding-top: 2px;
+            }
+            QLineEdit, QComboBox, QPlainTextEdit, QSpinBox {
+                background: #ffffff;
+                border: 1px solid #b8c9dd;
+                border-radius: 6px;
+                padding: 4px 8px;
+                color: #0f2747;
+            }
+            QComboBox::drop-down {
+                border: none;
+                width: 20px;
+            }
+            QSpinBox::up-button, QSpinBox::down-button {
+                width: 16px;
+                border: none;
+            }
+            QSpinBox::up-arrow, QSpinBox::down-arrow {
+                width: 8px;
+                height: 8px;
+            }
+            QPushButton {
+                min-width: 100px;
+                border: 1px solid #b7c7db;
+                border-radius: 8px;
+                padding: 6px 12px;
+                background: #f8fbff;
+                color: #173b68;
+            }
+            QPushButton:hover {
+                background: #eef4fb;
+            }
+            QPushButton#btn_ok {
+                background: #1f4f8f;
+                border: 1px solid #1f4f8f;
+                color: #ffffff;
+                font-weight: 700;
+            }
+            QPushButton#btn_ok:hover {
+                background: #1a457d;
+            }
+            """
+        )
 
     def _populate_shape_options(self):
         """Populate shape combo box with all supported shapes (SHAPE OPTIONS).
@@ -189,7 +294,7 @@ class AddEditNodeDialog(QDialog):
         color the component will be rendered with.
         """
         self.ui.label_color_preview.setStyleSheet(
-            f"background-color: {self.selected_color.name()}; border: 1px solid #333;"
+            f"background-color: {self.selected_color.name()}; border: 1px solid #556b84; border-radius: 4px;"
         )
     
     def get_node_data(self) -> Dict:

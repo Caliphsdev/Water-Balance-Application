@@ -20,7 +20,17 @@ from PySide6.QtWidgets import (
     QMainWindow, QVBoxLayout, QLabel, QPushButton, QHBoxLayout, QWidget,
     QMessageBox, QProgressDialog, QApplication
 )
-from PySide6.QtCore import Slot, QSize, QPropertyAnimation, QEasingCurve, QTimer, QUrl, Qt
+from PySide6.QtCore import (
+    Slot,
+    QSize,
+    QPropertyAnimation,
+    QEasingCurve,
+    QTimer,
+    QUrl,
+    Qt,
+    QParallelAnimationGroup,
+    QAbstractAnimation,
+)
 from PySide6.QtGui import QIcon, QPixmap, QGuiApplication, QDesktopServices
 
 # Register compiled Qt resources (icons, images, fonts)
@@ -64,6 +74,7 @@ class MainWindow(QMainWindow):
         self.splash = splash
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        self._disconnect_designer_sidebar_toggles()
         self._configure_header_elements()
         self._storage_facilities_page = None
         self._messages_page = None
@@ -258,6 +269,24 @@ class MainWindow(QMainWindow):
         if hasattr(self.ui, "Header_Main"):
             self.ui.Header_Main.setMinimumHeight(58)
             self.ui.Header_Main.setMaximumHeight(58)
+            self.ui.Header_Main.setStyleSheet(
+                """
+                QWidget#Header_Main {
+                    background-color: #124a9f;
+                    border-bottom: 1px solid #0f3f87;
+                }
+                QLabel#label_2 {
+                    color: #ffffff;
+                    font-size: 15px;
+                    font-weight: 700;
+                    letter-spacing: 0.2px;
+                }
+                QPushButton#pushButton_19 {
+                    border: none;
+                    background: transparent;
+                }
+                """
+            )
         if hasattr(self.ui, "horizontalLayout_2"):
             self.ui.horizontalLayout_2.setContentsMargins(10, 4, 10, 4)
             self.ui.horizontalLayout_2.setSpacing(10)
@@ -273,15 +302,20 @@ class MainWindow(QMainWindow):
 
     def _setup_animations(self) -> None:
         """Create smooth width animations for sidebar transitions."""
-        # Animation for icon-only sidebar
+        self._sidebar_compact_width = 60
+        self._sidebar_expanded_width = 220
+
         self.anim_icon_only = QPropertyAnimation(self.ui.icon_only, b"maximumWidth")
-        self.anim_icon_only.setDuration(200)
-        self.anim_icon_only.setEasingCurve(QEasingCurve.Type.InOutQuad)
-        
-        # Animation for icon+name sidebar
+        self.anim_icon_only.setDuration(230)
+        self.anim_icon_only.setEasingCurve(QEasingCurve.Type.OutCubic)
+
         self.anim_icon_name = QPropertyAnimation(self.ui.icon_name, b"maximumWidth")
-        self.anim_icon_name.setDuration(200)
-        self.anim_icon_name.setEasingCurve(QEasingCurve.Type.InOutQuad)
+        self.anim_icon_name.setDuration(230)
+        self.anim_icon_name.setEasingCurve(QEasingCurve.Type.OutCubic)
+
+        self._sidebar_anim_group = QParallelAnimationGroup(self)
+        self._sidebar_anim_group.addAnimation(self.anim_icon_only)
+        self._sidebar_anim_group.addAnimation(self.anim_icon_name)
 
     def _set_initial_state(self) -> None:
         """Set initial sidebar visibility (compact by default).
@@ -291,13 +325,13 @@ class MainWindow(QMainWindow):
         
         Uses fixed widths to prevent layout jumping during transitions.
         """
-        # Set fixed widths to prevent layout recalculation jumps
-        self.ui.icon_only.setMaximumWidth(60)
-        self.ui.icon_name.setMaximumWidth(220)
-        
-        # Start in compact mode
+        # Keep both panes in layout; width animations control visible state smoothly.
         self.ui.icon_only.setVisible(True)
-        self.ui.icon_name.setVisible(False)
+        self.ui.icon_name.setVisible(True)
+        self.ui.icon_only.setMinimumWidth(0)
+        self.ui.icon_name.setMinimumWidth(0)
+        self.ui.icon_only.setMaximumWidth(self._sidebar_compact_width)
+        self.ui.icon_name.setMaximumWidth(0)
         self.ui.pushButton_19.setChecked(False)
 
     def _apply_window_sizing(self) -> None:
@@ -422,45 +456,105 @@ class MainWindow(QMainWindow):
         
         try:
             statusbar = self.ui.statusbar
-            statusbar.setMinimumHeight(24)
-            statusbar.setMaximumHeight(24)
+            statusbar.setMinimumHeight(30)
+            statusbar.setMaximumHeight(30)
+            statusbar.setStyleSheet(
+                """
+                QStatusBar {
+                    background: #f7f9fc;
+                    border-top: 1px solid #cfddee;
+                    color: #27486b;
+                }
+                QStatusBar::item {
+                    border: none;
+                }
+                QWidget#statusLicenseWidget, QWidget#statusNetworkWidget {
+                    background: transparent;
+                }
+                QLabel#statusLicenseLabel {
+                    border-radius: 8px;
+                    padding: 1px 7px;
+                    font-size: 11px;
+                    font-weight: 500;
+                    border: 1px solid #bfd2e8;
+                    background: #e9f1fb;
+                    color: #173b68;
+                }
+                QLabel#statusLicenseLabel[statusTone="trial"] {
+                    border: 1px solid #f2d3a2;
+                    background: #fff6e8;
+                    color: #9a5b00;
+                }
+                QLabel#statusLicenseLabel[statusTone="invalid"] {
+                    border: 1px solid #efc3c0;
+                    background: #fff1f1;
+                    color: #b42318;
+                }
+                QLabel#statusNetworkLabel {
+                    font-size: 11px;
+                    font-weight: 600;
+                    color: #5b6f86;
+                    padding-right: 4px;
+                }
+                QLabel#statusNetworkLabel[statusTone="online"] {
+                    color: #1f7a44;
+                }
+                QLabel#statusNetworkLabel[statusTone="offline"] {
+                    color: #b42318;
+                }
+                QLabel#statusNetworkDot {
+                    font-size: 12px;
+                    padding: 0px 2px;
+                    color: #94a6bc;
+                }
+                QLabel#statusNetworkDot[statusTone="online"] {
+                    color: #24a148;
+                }
+                QLabel#statusNetworkDot[statusTone="offline"] {
+                    color: #d92d20;
+                }
+                """
+            )
             
             # === LEFT SIDE: License Info ===
             license_widget = QWidget()
+            license_widget.setObjectName("statusLicenseWidget")
             license_layout = QHBoxLayout(license_widget)
             license_layout.setContentsMargins(4, 1, 4, 1)
             license_layout.setSpacing(6)
             
             # License key icon
             self.license_icon = QLabel()
-            license_pixmap = QIcon(":/icons/license-svgrepo-com.svg").pixmap(14, 14)
+            license_pixmap = QIcon(":/icons/license-svgrepo-com.svg").pixmap(12, 12)
             self.license_icon.setPixmap(license_pixmap)
             self.license_icon.setToolTip("License Status")
             license_layout.addWidget(self.license_icon)
             
             # License type label
             self.license_label = QLabel("Loading...")
-            self.license_label.setStyleSheet("""
-                QLabel {
-                    color: #424242;
-                    font-size: 10px;
-                    padding: 1px 3px;
-                }
-            """)
+            self.license_label.setObjectName("statusLicenseLabel")
+            self.license_label.setProperty("statusTone", "valid")
             license_layout.addWidget(self.license_label)
             
             statusbar.addWidget(license_widget)
             
             # === RIGHT SIDE (Permanent): Network Status ===
             network_widget = QWidget()
+            network_widget.setObjectName("statusNetworkWidget")
             network_layout = QHBoxLayout(network_widget)
-            network_layout.setContentsMargins(4, 1, 4, 1)
+            network_layout.setContentsMargins(6, 2, 6, 2)
             network_layout.setSpacing(4)
+
+            # Network status dot
+            self.network_dot = QLabel("●")
+            self.network_dot.setObjectName("statusNetworkDot")
+            self.network_dot.setProperty("statusTone", "checking")
+            network_layout.addWidget(self.network_dot)
             
             # Network status icon
             self.network_icon = QLabel()
             # Set default icon (will be updated by network check)
-            default_pixmap = QIcon(":/icons/network-wireless-svgrepo-com.svg").pixmap(14, 14)
+            default_pixmap = QIcon(":/icons/network-wireless-svgrepo-com.svg").pixmap(12, 12)
             if not default_pixmap.isNull():
                 self.network_icon.setPixmap(default_pixmap)
             else:
@@ -470,12 +564,8 @@ class MainWindow(QMainWindow):
             
             # Network status label
             self.network_label = QLabel("Checking...")
-            self.network_label.setStyleSheet("""
-                QLabel {
-                    color: #757575;
-                    font-size: 10px;
-                }
-            """)
+            self.network_label.setObjectName("statusNetworkLabel")
+            self.network_label.setProperty("statusTone", "checking")
             network_layout.addWidget(self.network_label)
             
             statusbar.addPermanentWidget(network_widget)
@@ -493,6 +583,27 @@ class MainWindow(QMainWindow):
             
         except Exception as e:
             logger.error(f"Failed to setup status bar: {e}")
+
+    def _set_license_tone(self, tone: str) -> None:
+        """Apply status tone to license pill and refresh style."""
+        self.license_label.setProperty("statusTone", tone)
+        style = self.license_label.style()
+        style.unpolish(self.license_label)
+        style.polish(self.license_label)
+        self.license_label.update()
+
+    def _set_network_tone(self, tone: str) -> None:
+        """Apply status tone to network label/dot and refresh style."""
+        self.network_label.setProperty("statusTone", tone)
+        self.network_dot.setProperty("statusTone", tone)
+        label_style = self.network_label.style()
+        label_style.unpolish(self.network_label)
+        label_style.polish(self.network_label)
+        dot_style = self.network_dot.style()
+        dot_style.unpolish(self.network_dot)
+        dot_style.polish(self.network_dot)
+        self.network_label.update()
+        self.network_dot.update()
     
     def _update_license_status(self) -> None:
         """Update license status display in status bar (LICENSE STATUS)."""
@@ -505,42 +616,19 @@ class MainWindow(QMainWindow):
             if license_info and license_info.get('is_valid'):
                 tier = license_info.get('tier', 'unknown').upper()
                 status = license_info.get('status', 'active')
-                
-                # Color-code by tier
-                tier_colors = {
-                    'PROFESSIONAL': '#4CAF50',  # Green
-                    'ENTERPRISE': '#2196F3',     # Blue  
-                    'TRIAL': '#ff9800',          # Orange
-                    'BASIC': '#9e9e9e',          # Gray
-                }
-                color = tier_colors.get(tier, '#757575')
-                
+
                 self.license_label.setText(f"{tier} License")
-                self.license_label.setStyleSheet(f"""
-                    QLabel {{
-                        color: {color};
-                        font-size: 12px;
-                        font-weight: bold;
-                        padding: 2px 6px;
-                        background-color: {color}22;
-                        border-radius: 4px;
-                    }}
-                """)
+                self._set_license_tone("trial" if tier == "TRIAL" else "valid")
                 self.license_label.setToolTip(f"License: {tier}\nStatus: {status}")
             else:
                 self.license_label.setText("No License")
-                self.license_label.setStyleSheet("""
-                    QLabel {
-                        color: #f44336;
-                        font-size: 12px;
-                        padding: 2px 4px;
-                    }
-                """)
+                self._set_license_tone("invalid")
                 self.license_label.setToolTip("No valid license found")
                 
         except Exception as e:
             logger.warning(f"Failed to update license status: {e}")
             self.license_label.setText("License: Unknown")
+            self._set_license_tone("invalid")
     
     def _update_network_status(self) -> None:
         """Update network status display in status bar (NETWORK STATUS).
@@ -596,12 +684,7 @@ class MainWindow(QMainWindow):
                             logger.debug("Network icon fallback in use")
                         
                         self.network_label.setText("Online")
-                        self.network_label.setStyleSheet("""
-                            QLabel {
-                                color: #4CAF50;
-                                font-size: 11px;
-                            }
-                        """)
+                        self._set_network_tone("online")
                         self.network_icon.setToolTip("Connected to network")
                         logger.debug("Network status updated to Online")
                     else:
@@ -614,12 +697,7 @@ class MainWindow(QMainWindow):
                             self.network_icon.setText("🔴")
                         
                         self.network_label.setText("Offline")
-                        self.network_label.setStyleSheet("""
-                            QLabel {
-                                color: #f44336;
-                                font-size: 11px;
-                            }
-                        """)
+                        self._set_network_tone("offline")
                         self.network_icon.setToolTip("No network connection")
                 except Exception as ui_error:
                     logger.warning(f"Error updating network UI: {ui_error}")
@@ -632,6 +710,7 @@ class MainWindow(QMainWindow):
         except Exception as e:
             logger.warning(f"Failed to check network status: {e}")
             self.network_label.setText("Unknown")
+            self._set_network_tone("checking")
 
     def _set_default_page(self) -> None:
         """Set Dashboard page as the default startup page.
@@ -767,22 +846,23 @@ class MainWindow(QMainWindow):
     def _toggle_sidebar(self, expanded: bool) -> None:
         """Animate sidebar transitions smoothly.
         
-        Uses QPropertyAnimation on maximumWidth for fluid transitions.
+        Animates compact and expanded panes in parallel for fluid transitions.
         """
+        if self._sidebar_anim_group.state() == QAbstractAnimation.State.Running:
+            self._sidebar_anim_group.stop()
+
         if expanded:
-            # Animate to wide mode
-            self.ui.icon_only.setVisible(False)
-            self.ui.icon_name.setVisible(True)
-            self.anim_icon_name.setStartValue(0)
-            self.anim_icon_name.setEndValue(220)
-            self.anim_icon_name.start()
+            self.anim_icon_only.setStartValue(self.ui.icon_only.maximumWidth())
+            self.anim_icon_only.setEndValue(0)
+            self.anim_icon_name.setStartValue(self.ui.icon_name.maximumWidth())
+            self.anim_icon_name.setEndValue(self._sidebar_expanded_width)
         else:
-            # Animate to compact mode
-            self.ui.icon_name.setVisible(False)
-            self.ui.icon_only.setVisible(True)
-            self.anim_icon_only.setStartValue(0)
-            self.anim_icon_only.setEndValue(60)
-            self.anim_icon_only.start()
+            self.anim_icon_only.setStartValue(self.ui.icon_only.maximumWidth())
+            self.anim_icon_only.setEndValue(self._sidebar_compact_width)
+            self.anim_icon_name.setStartValue(self.ui.icon_name.maximumWidth())
+            self.anim_icon_name.setEndValue(0)
+
+        self._sidebar_anim_group.start()
 
     @Slot()
     def _show_page(self, page_widget) -> None:
@@ -1023,3 +1103,16 @@ class MainWindow(QMainWindow):
         
         # Don't minimize to tray - let the close button work normally
         super().changeEvent(event)
+    def _disconnect_designer_sidebar_toggles(self) -> None:
+        """Remove Designer's direct sidebar visibility bindings.
+
+        We manage sidebar state ourselves via width animations.
+        """
+        try:
+            self.ui.pushButton_19.toggled.disconnect(self.ui.icon_name.setVisible)
+        except Exception:
+            pass
+        try:
+            self.ui.pushButton_19.toggled.disconnect(self.ui.icon_only.setHidden)
+        except Exception:
+            pass

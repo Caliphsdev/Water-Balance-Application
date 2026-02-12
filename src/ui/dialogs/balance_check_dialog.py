@@ -12,13 +12,33 @@ import os
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from PySide6.QtWidgets import QDialog, QTableWidgetItem, QComboBox, QMessageBox
+from PySide6.QtWidgets import (
+    QDialog,
+    QTableWidgetItem,
+    QComboBox,
+    QMessageBox,
+    QVBoxLayout,
+    QHBoxLayout,
+    QLabel,
+    QFrame,
+    QWidget,
+)
 from PySide6.QtCore import Qt
 from typing import Dict, List, Tuple
 import json
 
 from ui.dialogs.generated_ui_balance_check_dialog import Ui_BalanceCheckDialog
 from core.config_manager import get_resource_path
+
+
+class NoWheelComboBox(QComboBox):
+    """ComboBox that ignores mouse wheel unless it has focus."""
+
+    def wheelEvent(self, event):
+        if self.hasFocus():
+            super().wheelEvent(event)
+        else:
+            event.ignore()
 
 
 class BalanceCheckDialog(QDialog):
@@ -57,6 +77,9 @@ class BalanceCheckDialog(QDialog):
         
         # Configure dialog size and responsiveness (LARGE & DYNAMIC)
         self._configure_dialog_size()
+        self._apply_dialog_polish()
+        self._modernize_header()
+        self._modernize_summary_section()
         
         # Setup
         self.ui.value_area.setText(area_code)
@@ -67,6 +90,202 @@ class BalanceCheckDialog(QDialog):
         self._calculate_balance()
         
         self.setModal(True)
+
+    def _apply_dialog_polish(self) -> None:
+        """Apply consistent styling and control sizing for balance popup."""
+        self.ui.btn_save_categories.setMinimumHeight(34)
+        self.ui.btn_close.setMinimumHeight(34)
+        self.ui.btn_save_categories.setText("Save Categories")
+        self.ui.table_flows.setAlternatingRowColors(True)
+        self.ui.table_flows.setSelectionBehavior(self.ui.table_flows.SelectionBehavior.SelectRows)
+        self.ui.table_flows.setSelectionMode(self.ui.table_flows.SelectionMode.SingleSelection)
+        self.ui.table_flows.verticalHeader().setVisible(False)
+
+        self.setStyleSheet(
+            """
+            QDialog {
+                background: #f5f8fc;
+            }
+            QGroupBox {
+                border: 1px solid #c9d8ea;
+                border-radius: 10px;
+                margin-top: 8px;
+                padding: 10px;
+                color: #173b68;
+                font-weight: 600;
+            }
+            QLabel#bc_closure_title {
+                color: #163a66;
+                font-weight: 700;
+            }
+            QLabel#bc_closure_value {
+                font-size: 31px;
+                font-weight: 800;
+            }
+            QTableWidget {
+                background: #ffffff;
+                border: 1px solid #c8d8ea;
+                border-radius: 8px;
+                alternate-background-color: #f8fbff;
+                gridline-color: #d9e3f0;
+            }
+            QHeaderView::section {
+                background: #e6eef8;
+                color: #173b68;
+                border: 1px solid #c8d8ea;
+                padding: 6px;
+                font-weight: 700;
+            }
+            QComboBox {
+                background: #ffffff;
+                border: 1px solid #b8c9dd;
+                border-radius: 6px;
+                padding: 4px 8px;
+                color: #0f2747;
+            }
+            QComboBox::drop-down {
+                border: none;
+                width: 20px;
+            }
+            QPushButton {
+                min-width: 100px;
+                border: 1px solid #b7c7db;
+                border-radius: 8px;
+                padding: 6px 12px;
+                background: #f8fbff;
+                color: #173b68;
+            }
+            QPushButton:hover {
+                background: #eef4fb;
+            }
+            QPushButton#btn_save_categories {
+                background: #1f4f8f;
+                border: 1px solid #1f4f8f;
+                color: #ffffff;
+                font-weight: 700;
+            }
+            QPushButton#btn_save_categories:hover {
+                background: #1a457d;
+            }
+            QFrame#bc_summary_card {
+                background: #ffffff;
+                border: 1px solid #cad9ea;
+                border-radius: 10px;
+            }
+            QLabel#bc_summary_title {
+                color: #35557d;
+                font-size: 12px;
+                font-weight: 600;
+            }
+            QLabel#bc_summary_value {
+                color: #0f2747;
+                font-size: 22px;
+                font-weight: 800;
+            }
+            QLabel#bc_summary_note {
+                color: #486286;
+                font-size: 12px;
+            }
+            """
+        )
+
+    def _modernize_header(self) -> None:
+        """Polish header row and remove redundant area label/value."""
+        for widget in (self.ui.label_area, self.ui.value_area):
+            self.ui.horizontalLayout_header.removeWidget(widget)
+            widget.hide()
+            widget.setParent(None)
+
+        self.ui.label_balance_title.setText("Balance Closure:")
+        self.ui.label_balance_title.setObjectName("bc_closure_title")
+        self.ui.value_balance.setObjectName("bc_closure_value")
+
+    def _modernize_summary_section(self) -> None:
+        """Replace form-style summary with compact KPI cards."""
+        group = self.ui.groupBox_summary
+        group.setObjectName("bc_summary_group")
+        group.setTitle("Balance Summary")
+        group.setMinimumHeight(168)
+
+        # Keep references to value labels (used by _calculate_balance updates).
+        value_labels = {
+            "inflows": self.ui.value_inflows,
+            "outflows": self.ui.value_outflows,
+            "recirculation": self.ui.value_recirculation,
+            "error": self.ui.value_error_pct,
+        }
+
+        # Clear generated form layout safely.
+        old_layout = group.layout()
+        if old_layout is not None:
+            while old_layout.count():
+                item = old_layout.takeAt(0)
+                w = item.widget()
+                if w is not None:
+                    w.setParent(None)
+                    # Drop old row-title labels; values are reused as card values.
+                    if w not in value_labels.values():
+                        w.deleteLater()
+            # Detach old layout from group before assigning a new one.
+            layout_holder = QWidget()
+            layout_holder.setLayout(old_layout)
+            layout_holder.deleteLater()
+
+        root = QVBoxLayout()
+        root.setContentsMargins(10, 10, 10, 10)
+        root.setSpacing(8)
+        group.setLayout(root)
+
+        cards_row = QHBoxLayout()
+        cards_row.setSpacing(10)
+
+        self._summary_cards = {}
+
+        def _card(card_key: str, title: str, value_widget: QLabel, tone: str) -> QFrame:
+            card = QFrame(group)
+            card.setObjectName("bc_summary_card")
+            card.setProperty("tone", tone)
+            card.setMinimumHeight(72)
+            layout = QVBoxLayout(card)
+            layout.setContentsMargins(10, 8, 10, 8)
+            layout.setSpacing(2)
+
+            title_lbl = QLabel(title, card)
+            title_lbl.setObjectName("bc_summary_title")
+            value_widget.setParent(card)
+            value_widget.setObjectName("bc_summary_value")
+            value_widget.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+
+            layout.addWidget(title_lbl)
+            layout.addWidget(value_widget)
+            self._summary_cards[card_key] = card
+            return card
+
+        cards_row.addWidget(_card("inflows", "Inflows", self.ui.value_inflows, "inflow"))
+        cards_row.addWidget(_card("outflows", "Outflows", self.ui.value_outflows, "outflow"))
+        cards_row.addWidget(_card("recirculation", "Recirculation", self.ui.value_recirculation, "recirc"))
+        cards_row.addWidget(_card("closure_error", "Closure Error", self.ui.value_error_pct, "error_bad"))
+
+        root.addLayout(cards_row)
+
+        note = QLabel("Target closure error: < 5%. Higher values indicate categorization/data issues.", group)
+        note.setObjectName("bc_summary_note")
+        note.setWordWrap(True)
+        root.addWidget(note)
+
+    def _set_error_card_tone(self, tone: str) -> None:
+        """Update closure error summary card border tone dynamically."""
+        if not hasattr(self, "_summary_cards"):
+            return
+        card = self._summary_cards.get("closure_error")
+        if card is None:
+            return
+        if card.property("tone") == tone:
+            return
+        card.setProperty("tone", tone)
+        card.style().unpolish(card)
+        card.style().polish(card)
+        card.update()
 
     def _get_categories_file(self) -> Path:
         """Resolve categories file path with user-dir preference."""
@@ -203,6 +422,8 @@ class BalanceCheckDialog(QDialog):
             node.get('id'): node for node in self.parent_page.diagram_data.get('nodes', [])
         }
         
+        use_live_volumes = bool(getattr(self.parent_page, "_excel_data_loaded_for_session", False))
+
         # Group edges and recirculation entries by sheet name
         sheet_groups = {}
         for row, edge in enumerate(edges):
@@ -256,7 +477,7 @@ class BalanceCheckDialog(QDialog):
                 if entry_type == "edge":
                     from_id = entry.get('from', '???')
                     to_id = entry.get('to', '???')
-                    volume_str = entry.get('volume', '0')
+                    volume_str = entry.get('volume', '0') if use_live_volumes else 0
                     
                     # Get Excel column name if available, otherwise use component ID (USER-FRIENDLY DISPLAY)
                     excel_mapping = entry.get('excel_mapping', {})
@@ -281,7 +502,7 @@ class BalanceCheckDialog(QDialog):
                     
                     # Use node-level recirculation volume if available
                     node_data = node_lookup.get(component_id, {})
-                    volume_str = node_data.get('recirculation_volume', 0)
+                    volume_str = node_data.get('recirculation_volume', 0) if use_live_volumes else 0
                 
                 self.edge_row_map[flow_key] = table_row
                 
@@ -295,8 +516,10 @@ class BalanceCheckDialog(QDialog):
                 self.ui.table_flows.setItem(table_row, 2, QTableWidgetItem(str(volume_str)))
                 
                 # Category dropdown (column 3)
-                category_combo = QComboBox()
+                category_combo = NoWheelComboBox()
                 category_combo.addItems(["Inflow", "Outflow", "Recirculation", "Ignore"])
+                category_combo.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+                category_combo.setMinimumHeight(28)
                 
                 idx = category_combo.findText(default_category)
                 if idx >= 0:
@@ -373,14 +596,25 @@ class BalanceCheckDialog(QDialog):
         self.ui.value_inflows.setText(f"{inflows:,.1f} m³")
         self.ui.value_outflows.setText(f"{outflows:,.1f} m³")
         self.ui.value_recirculation.setText(f"{recirculation:,.1f} m³")
-        self.ui.value_error_pct.setText(f"{balance_error_pct:.2f} %")
-        self.ui.value_balance.setText(f"{balance_error_pct:.2f} %")
-        
-        # Color code error status
+        closure_text = f"{balance_error_pct:.2f}%"
+        self.ui.value_error_pct.setText(closure_text)
+        self.ui.value_balance.setText(closure_text)
+
+        # Keep top and bottom closure status color consistent.
         if balance_error_pct < 5:
-            self.ui.value_error_pct.setStyleSheet("color: #22AA22; font-weight: bold;")  # Green
+            color = "#16a34a"  # good
+            error_tone = "error_good"
+        elif balance_error_pct < 10:
+            color = "#d97706"  # caution
+            error_tone = "error_warn"
         else:
-            self.ui.value_error_pct.setStyleSheet("color: #E74C3C; font-weight: bold;")  # Red
+            color = "#dc2626"  # bad
+            error_tone = "error_bad"
+
+        value_style = f"color: {color}; font-weight: 800;"
+        self.ui.value_error_pct.setStyleSheet(value_style)
+        self.ui.value_balance.setStyleSheet(value_style)
+        self._set_error_card_tone(error_tone)
     
     def _on_save_categories(self):
         """Save flow categorizations to JSON file.

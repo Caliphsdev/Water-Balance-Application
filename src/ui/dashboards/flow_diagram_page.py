@@ -29,7 +29,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from PySide6.QtWidgets import (
     QWidget, QGraphicsView, QGraphicsScene, QGraphicsPathItem, QGraphicsRectItem, QGraphicsTextItem,
-    QMessageBox, QComboBox, QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFrame
+    QMessageBox, QComboBox, QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFrame, QSizePolicy
 )
 from PySide6.QtCore import Qt, Signal, QSize, QPointF, QEvent
 from PySide6.QtGui import (
@@ -126,6 +126,8 @@ class FlowDiagramPage(QWidget):
         self.area_code = "UG2N"  # Default area (can be changed)
         self.diagram_path = None
         self.diagram_data = {}
+        # Session flag: avoid using persisted stale volumes until user explicitly loads Excel.
+        self._excel_data_loaded_for_session = False
         
         # Drawing mode state machine
         self.drawing_mode = False
@@ -217,7 +219,9 @@ class FlowDiagramPage(QWidget):
             unit_label.setVisible(True)
             value_label.setObjectName("flow_balance_metric_value")
             unit_label.setObjectName("flow_balance_metric_unit")
-            value_label.setMinimumHeight(30)
+            value_label.setMinimumHeight(34)
+            value_label.setMaximumHeight(40)
+            value_label.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
             value_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
             unit_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
             value_row.addWidget(value_label)
@@ -369,6 +373,14 @@ class FlowDiagramPage(QWidget):
                 "background-color:#1f3a5f; color:#ffffff; border:1px solid #1f3a5f; "
                 "border-radius:8px; padding:6px 12px; font-weight:700;"
             )
+            if hasattr(self.ui, "horizontalLayout_4"):
+                self._excel_state_badge = QLabel(self.ui.frame)
+                self._excel_state_badge.setObjectName("flow_excel_state_badge")
+                self._excel_state_badge.setMinimumWidth(182)
+                self.ui.horizontalLayout_4.insertWidget(
+                    self.ui.horizontalLayout_4.indexOf(self.ui.excel_setup_button),
+                    self._excel_state_badge
+                )
         for name in ["excel_setup_button", "balance_check_button", "save_diagram_button"]:
             if hasattr(self.ui, name):
                 btn = getattr(self.ui, name)
@@ -385,6 +397,22 @@ class FlowDiagramPage(QWidget):
             self.ui.comboBox_filter_year.setMinimumWidth(100)
         if hasattr(self.ui, "comboBox_filter_month"):
             self.ui.comboBox_filter_month.setMinimumWidth(128)
+        self._refresh_excel_state_badge()
+
+    def _refresh_excel_state_badge(self) -> None:
+        """Update inline Excel session state badge near Load Excel button."""
+        badge = getattr(self, "_excel_state_badge", None)
+        if badge is None:
+            return
+        if getattr(self, "_excel_data_loaded_for_session", False):
+            badge.setText("Excel loaded for session")
+            badge.setProperty("state", "ready")
+        else:
+            badge.setText("No Excel loaded for session")
+            badge.setProperty("state", "missing")
+        badge.style().unpolish(badge)
+        badge.style().polish(badge)
+        badge.update()
 
     def _get_user_data_dir(self) -> Optional[Path]:
         """Return user data directory (or None in dev mode)."""
@@ -600,6 +628,8 @@ class FlowDiagramPage(QWidget):
         """
         self.area_code = area_code
         self.diagram_path = self._ensure_user_data_copy(Path("diagrams") / "flow_diagram.json")
+        self._excel_data_loaded_for_session = False
+        self._refresh_excel_state_badge()
         
         try:
             with open(self.diagram_path, 'r') as f:
@@ -615,6 +645,7 @@ class FlowDiagramPage(QWidget):
                     self.diagram_path = self._ensure_user_data_copy(Path("diagrams") / "flow_diagram.json")
 
             logger.info(f"Loaded diagram for {area_code}")
+            self._clear_loaded_volumes_for_session()
             self._render_diagram()
             self._load_and_display_recirculation()
             # Update balance check labels on initial load
@@ -625,6 +656,18 @@ class FlowDiagramPage(QWidget):
         except json.JSONDecodeError as e:
             logger.error(f"Invalid JSON in diagram file: {e}")
             self.status_message.emit(f"Error: Invalid diagram file format", 5000)
+
+    def _clear_loaded_volumes_for_session(self) -> None:
+        """Clear persisted diagram volumes until Excel is loaded in current session."""
+        if not self.diagram_data:
+            return
+
+        for edge in self.diagram_data.get('edges', []):
+            edge['volume'] = 0.0
+
+        for node in self.diagram_data.get('nodes', []):
+            if 'recirculation_volume' in node:
+                node['recirculation_volume'] = 0.0
     
     def _render_diagram(self):
         """
@@ -869,6 +912,13 @@ class FlowDiagramPage(QWidget):
         4. Triggers badge rendering
         """
         try:
+            if not getattr(self, "_excel_data_loaded_for_session", False):
+                # Keep recirculation cleared until explicit Excel load in this session.
+                for node_item in self.node_items.values():
+                    node_item.node_data['recirculation_volume'] = 0.0
+                    node_item._setup_recirculation_badge()
+                return
+
             # Get recirculation config from current diagram
             recirc_config = self.diagram_data.get('recirculation', [])
             if not recirc_config:
@@ -2744,6 +2794,19 @@ class FlowDiagramPage(QWidget):
         - Balance Check dialog closes (if categories were saved)
         """
         try:
+            # If Excel has not been loaded in this session, keep balance footer cleared.
+            if not getattr(self, "_excel_data_loaded_for_session", False):
+                self.ui.total_inflows_value.setText("0")
+                self.ui.recirculation_value.setText("0")
+                self.ui.total_outflows_value.setText("0")
+                self.ui.balance_check_value.setText("0.0")
+                self.ui.balance_check_value.setStyleSheet("color:#5b6775; font-weight:700;")
+                if hasattr(self, "_balance_badge"):
+                    self._balance_badge.setStyleSheet(
+                        "background-color:#eef3f8; border:1px solid #c7d0da; border-radius:14px;"
+                    )
+                return
+
             # Load saved flow categorizations from JSON
             categories_file = self._ensure_user_data_copy(Path("balance_check_flow_categories.json"))
             flow_categories = {}
@@ -2872,6 +2935,16 @@ class FlowDiagramPage(QWidget):
         Used by main dashboard to display balance status cards.
         """
         try:
+            if not getattr(self, "_excel_data_loaded_for_session", False):
+                return {
+                    'total_inflows': 0.0,
+                    'total_outflows': 0.0,
+                    'recirculation': 0.0,
+                    'balance_error': 0.0,
+                    'month': self.ui.comboBox_filter_month.currentIndex() + 1,
+                    'year': int(self.ui.comboBox_filter_year.currentText()) if self.ui.comboBox_filter_year.currentText() else datetime.datetime.now().year
+                }
+
             # Load saved flow categorizations from JSON
             categories_file = self._ensure_user_data_copy(Path("balance_check_flow_categories.json"))
             flow_categories = {}
@@ -3139,12 +3212,16 @@ class FlowDiagramPage(QWidget):
             
             # Re-render diagram to show updated volumes
             if updated_count > 0:
+                self._excel_data_loaded_for_session = True
+                self._refresh_excel_state_badge()
                 # CRITICAL ORDER: First re-render diagram (creates node_items),
                 # THEN load recirculation data into those newly created nodes
                 self._render_diagram()
                 # Now load recirculation data for the selected month/year
                 self._load_and_display_recirculation()
             else:
+                self._excel_data_loaded_for_session = False
+                self._refresh_excel_state_badge()
                 # Even if no flows updated, still refresh diagram and recirculation
                 self._render_diagram()
                 self._load_and_display_recirculation()

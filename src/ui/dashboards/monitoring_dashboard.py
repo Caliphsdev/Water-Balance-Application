@@ -340,7 +340,7 @@ class MonitoringPage(QWidget):
         self.ui.pushButton_3.clicked.connect(self._on_monitoring_choose_folder)
         self.ui.pushButton_7.clicked.connect(self._on_pcd_choose_folder)
         
-        # Restore previously selected folders from config (auto-load on startup)
+        # Restore previously selected folders from config (paths only)
         self._restore_folder_paths()
 
         # Wire up generate buttons
@@ -375,8 +375,10 @@ class MonitoringPage(QWidget):
         self._reflow_monitoring_options_layout()
         self._reflow_pcd_options_layout()
         
-        # Auto-load previously saved directories on startup (user-friendly persistence)
-        self._load_saved_directories()
+        # Auto-load previously saved directories after event loop starts.
+        # This avoids blocking startup window paint.
+        self._startup_autoload_done = False
+        QTimer.singleShot(250, self._load_saved_directories)
 
     def _style_visualization_action_buttons(self) -> None:
         """Align Monitoring visualize action buttons with Analytics theme."""
@@ -399,11 +401,11 @@ class MonitoringPage(QWidget):
 
         generate_style = (
             "background-color:#1f3a5f; color:#ffffff; border:1px solid #1f3a5f; "
-            "border-radius:8px; padding:6px 12px; font-weight:700;"
+            "border-radius:8px; padding:4px 10px; font-weight:700;"
         )
         save_style = (
             "background-color:#ffffff; color:#1f2f43; border:1px solid #c7d0da; "
-            "border-radius:8px; padding:6px 12px; font-weight:600;"
+            "border-radius:8px; padding:4px 10px; font-weight:600;"
         )
 
         # Keep original object names used by the generated UI for stability.
@@ -423,15 +425,15 @@ class MonitoringPage(QWidget):
         for button in generate_buttons:
             button.setText("Generate Chart")
             button.setMinimumWidth(150)
-            button.setMinimumHeight(35)
-            button.setMaximumHeight(40)
+            button.setMinimumHeight(29)
+            button.setMaximumHeight(31)
             button.setStyleSheet(generate_style)
 
         for button in save_buttons:
             button.setText("Save Chart")
             button.setMinimumWidth(130)
-            button.setMinimumHeight(35)
-            button.setMaximumHeight(40)
+            button.setMinimumHeight(29)
+            button.setMaximumHeight(31)
             button.setStyleSheet(save_style)
 
     # ==================== FILTER HANDLERS ====================
@@ -994,17 +996,21 @@ class MonitoringPage(QWidget):
         This remembers the user's folder selections across app restarts,
         so they don't have to re-select folders every time.
         """
+        if getattr(self, "_startup_autoload_done", False):
+            return
+        self._startup_autoload_done = True
+
         # Load Static Levels directory
         static_dir = config.get('monitoring.static_borehole_directory')
         if static_dir and Path(static_dir).exists():
             self.ui.static_folder_path.setText(static_dir)
-            self._load_static_data(static_dir)
+            self._load_static_data_async(static_dir)
         
         # Load Borehole Monitoring directory
         monitoring_dir = config.get('monitoring.borehole_monitoring_directory')
         if monitoring_dir and Path(monitoring_dir).exists():
             self.ui.monitoring_folder_path.setText(monitoring_dir)
-            self._load_monitoring_data(monitoring_dir)
+            self._load_monitoring_data_async(monitoring_dir)
         
         # Load PCD Monitoring directory
         pcd_dir = config.get('monitoring.pcd_monitoring_directory')
@@ -1014,7 +1020,7 @@ class MonitoringPage(QWidget):
             if Path(pcd_dir).exists():
                 self.ui.pcd_folder_path.setText(pcd_dir)
                 self._logger.info(f"[_load_saved_directories] Calling _load_pcd_data({pcd_dir})")
-                self._load_pcd_data(pcd_dir)
+                self._load_pcd_data_async(pcd_dir)
             else:
                 self._logger.warning(f"[_load_saved_directories] PCD path does not exist: {pcd_dir}")
         else:
@@ -1421,14 +1427,12 @@ class MonitoringPage(QWidget):
     # ==================== BOREHOLE STATIC LEVELS ====================
     
     def _restore_folder_paths(self) -> None:
-        """Restore previously selected folder paths from config and auto-load data."""
+        """Restore previously selected folder paths from config (no loading)."""
         # Restore static boreholes folder
         static_folder = config.get('monitoring.static_borehole_directory')
         if static_folder and Path(static_folder).exists():
             self.ui.static_folder_path.setText(static_folder)
             self._static_folder_path = Path(static_folder)
-            # Defer auto-load until after __init__ completes (table models must be initialized first)
-            QTimer.singleShot(100, lambda: self._load_static_data_async(static_folder))
 
     def _on_static_choose_folder(self) -> None:
         """Open file dialog for static borehole Excel files."""

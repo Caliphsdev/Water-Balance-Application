@@ -184,6 +184,7 @@ class FlowNodeItem(QGraphicsRectItem, QObject):
         if not hasattr(self, "label_item"):
             self.label_item = QGraphicsTextItem(self)
         self.label_item.setPlainText(label_text)
+        self.label_item.setDefaultTextColor(self._get_contrasting_label_color())
         
         # Configure text appearance
         font_size = int(self.node_data.get('font_size', 9))
@@ -213,6 +214,26 @@ class FlowNodeItem(QGraphicsRectItem, QObject):
         text_y = (rect.height() - text_height) / 2  # Center vertically
         
         self.label_item.setPos(text_x, text_y)
+
+    def _get_contrasting_label_color(self) -> QColor:
+        """Return black/white label color with best contrast against node fill."""
+        fill_color = QColor(self.node_data.get('fill', '#FFFFFF'))
+        if not fill_color.isValid():
+            return QColor("#0b1a2a")
+
+        def _to_linear(channel: float) -> float:
+            c = channel / 255.0
+            return c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4
+
+        r = _to_linear(fill_color.red())
+        g = _to_linear(fill_color.green())
+        b = _to_linear(fill_color.blue())
+        luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+        # WCAG contrast against white/black.
+        contrast_white = (1.0 + 0.05) / (luminance + 0.05)
+        contrast_black = (luminance + 0.05) / 0.05
+        return QColor("#FFFFFF") if contrast_white >= contrast_black else QColor("#0b1a2a")
 
     def _setup_recirculation_badge(self):
         """Create rectangular draggable recirculation badge on component edge.

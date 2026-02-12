@@ -8,6 +8,7 @@ Purpose:
 """
 
 from datetime import datetime
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QDialog,
@@ -23,6 +24,7 @@ from PySide6.QtWidgets import (
     QTableWidgetItem,
     QVBoxLayout,
     QWidget,
+    QSpacerItem,
 )
 
 from models.system_constant import SystemConstant
@@ -69,6 +71,7 @@ class SettingsPage(QWidget):
 
         # Make the Settings UI responsive (layouts instead of fixed geometry).
         self._configure_responsive_layouts()
+        self._apply_visual_refresh()
 
         # Constants are code-defined; allow value updates only.
         self._lock_constants_structure()
@@ -95,6 +98,11 @@ class SettingsPage(QWidget):
 
         self._configure_constants_tab_layout()
 
+    def resizeEvent(self, event) -> None:
+        """Keep Settings content width responsive as the page resizes."""
+        super().resizeEvent(event)
+        self._apply_responsive_content_width()
+
     def _configure_constants_tab_layout(self) -> None:
         """Apply responsive layout rules to the Constants tab.
 
@@ -106,11 +114,12 @@ class SettingsPage(QWidget):
         # Add a layout only if the designer did not define one.
         if constants_tab.layout() is None:
             layout = QVBoxLayout(constants_tab)
-            layout.setContentsMargins(10, 10, 10, 10)
-            layout.setSpacing(10)
+            layout.setContentsMargins(8, 8, 8, 8)
+            layout.setSpacing(8)
             layout.addWidget(self.ui.frame_2)
-            layout.addWidget(self.ui.frame_3, 1)
+            layout.addWidget(self.ui.frame_3, 0)
             layout.addWidget(self.ui.frame_4)
+            layout.addStretch(1)
 
         # Keep bars compact while allowing the table frame to expand.
         self.ui.frame_2.setSizePolicy(
@@ -119,7 +128,7 @@ class SettingsPage(QWidget):
         )
         self.ui.frame_3.setSizePolicy(
             QSizePolicy.Policy.Expanding,
-            QSizePolicy.Policy.Expanding,
+            QSizePolicy.Policy.Preferred,
         )
         self.ui.frame_4.setSizePolicy(
             QSizePolicy.Policy.Expanding,
@@ -129,8 +138,8 @@ class SettingsPage(QWidget):
         # Ensure the table is governed by a layout (not fixed geometry).
         if self.ui.frame_3.layout() is None:
             frame_layout = QVBoxLayout(self.ui.frame_3)
-            frame_layout.setContentsMargins(10, 30, 10, 10)
-            frame_layout.setSpacing(8)
+            frame_layout.setContentsMargins(10, 10, 10, 10)
+            frame_layout.setSpacing(6)
             frame_layout.addWidget(self.ui.label_8)
             frame_layout.addWidget(self.ui.tableWidget_constant_table, 1)
 
@@ -146,6 +155,228 @@ class SettingsPage(QWidget):
         table.verticalHeader().setSectionResizeMode(
             QHeaderView.ResizeMode.ResizeToContents
         )
+
+    def _apply_visual_refresh(self) -> None:
+        """Apply polished visual hierarchy for Settings/Constants page."""
+        if hasattr(self.ui, "label"):
+            self.ui.label.setObjectName("label_title")
+        if hasattr(self.ui, "label_2"):
+            self.ui.label_2.setObjectName("label_subtitle")
+        if hasattr(self.ui, "frame"):
+            self.ui.frame.setObjectName("settings_page_header")
+            self.ui.frame.setMinimumHeight(102)
+            self.ui.frame.setMaximumHeight(114)
+        if hasattr(self.ui, "Settings"):
+            self.ui.Settings.setObjectName("settings_tab_widget")
+
+        # Constants tab structure
+        if hasattr(self.ui, "frame_2"):
+            self.ui.frame_2.setObjectName("settings_filter_bar")
+            self.ui.frame_2.setMinimumHeight(46)
+            self.ui.frame_2.setMaximumHeight(52)
+        if hasattr(self.ui, "frame_3"):
+            self.ui.frame_3.setObjectName("settings_table_panel")
+            self.ui.frame_3.setMinimumHeight(280)
+            self.ui.frame_3.setMaximumHeight(460)
+        if hasattr(self.ui, "frame_4"):
+            self.ui.frame_4.setObjectName("settings_quick_edit_bar")
+            self.ui.frame_4.setMinimumHeight(56)
+            self.ui.frame_4.setMaximumHeight(64)
+        if hasattr(self.ui, "label_8"):
+            self.ui.label_8.setObjectName("settings_section_label")
+            self.ui.label_8.setText("System Constants")
+
+        # Filter controls
+        if hasattr(self.ui, "comboBox_filter_constants"):
+            self.ui.comboBox_filter_constants.setMinimumWidth(118)
+            self.ui.comboBox_filter_constants.setMaximumWidth(140)
+        if hasattr(self.ui, "lineEdit_searchbox"):
+            self.ui.lineEdit_searchbox.setMinimumWidth(188)
+            self.ui.lineEdit_searchbox.setMaximumWidth(260)
+            self.ui.lineEdit_searchbox.setPlaceholderText("Key, category, unit or description")
+        if hasattr(self.ui, "history_button"):
+            self.ui.history_button.setObjectName("ghostButton")
+            self.ui.history_button.setMinimumWidth(84)
+
+        # Quick edit bar cleanup (remove big designer spacers).
+        if hasattr(self.ui, "horizontalLayout_3"):
+            row = self.ui.horizontalLayout_3
+            row.setSpacing(10)
+            row.setContentsMargins(10, 6, 10, 6)
+            for idx in range(row.count() - 1, -1, -1):
+                item = row.itemAt(idx)
+                if item and item.spacerItem():
+                    row.takeAt(idx)
+            row.addStretch(1)
+
+        if hasattr(self.ui, "label_9"):
+            self.ui.label_9.setObjectName("settings_quick_label")
+        if hasattr(self.ui, "label_10"):
+            self.ui.label_10.setObjectName("settings_quick_label")
+        if hasattr(self.ui, "selected_constant"):
+            self.ui.selected_constant.setObjectName("settings_quick_constant")
+            self.ui.selected_constant.setMinimumWidth(170)
+            self.ui.selected_constant.setMaximumWidth(240)
+        if hasattr(self.ui, "lineEdit_value"):
+            self.ui.lineEdit_value.setMinimumWidth(140)
+            self.ui.lineEdit_value.setMaximumWidth(170)
+        if hasattr(self.ui, "save_button"):
+            self.ui.save_button.setText("Save")
+            self.ui.save_button.setObjectName("primaryButton")
+            self.ui.save_button.setMinimumWidth(92)
+            # Force an explicit primary style for this control to avoid object-name style collisions.
+            self.ui.save_button.setStyleSheet(
+                "QPushButton {"
+                "background-color: #1f3a5f;"
+                "color: #ffffff;"
+                "font-weight: 700;"
+                "border: 1px solid #1f3a5f;"
+                "border-radius: 6px;"
+                "padding: 6px 12px;"
+                "}"
+                "QPushButton:hover {"
+                "background-color: #1a2f4c;"
+                "border-color: #1a2f4c;"
+                "}"
+            )
+        if hasattr(self.ui, "details_button"):
+            self.ui.details_button.setText("Details")
+            self.ui.details_button.setObjectName("ghostButton")
+            self.ui.details_button.setMinimumWidth(92)
+
+        # Environmental tab structure and controls
+        if hasattr(self.ui, "frame_5"):
+            self.ui.frame_5.setObjectName("settings_env_filter_bar")
+            self.ui.frame_5.setMinimumHeight(72)
+            self.ui.frame_5.setMaximumHeight(94)
+        if hasattr(self.ui, "frame_6"):
+            self.ui.frame_6.setObjectName("settings_env_section_header")
+            self.ui.frame_6.setMinimumHeight(44)
+            self.ui.frame_6.setMaximumHeight(52)
+        if hasattr(self.ui, "frame_7"):
+            self.ui.frame_7.setObjectName("settings_env_section_header")
+            self.ui.frame_7.setMinimumHeight(44)
+            self.ui.frame_7.setMaximumHeight(52)
+        if hasattr(self.ui, "Rainfall"):
+            self.ui.Rainfall.setObjectName("settings_env_panel")
+        if hasattr(self.ui, "Evaporation"):
+            self.ui.Evaporation.setObjectName("settings_env_panel")
+        if hasattr(self.ui, "Rainfall_2"):
+            self.ui.Rainfall_2.setObjectName("settings_env_panel_inner")
+
+        if hasattr(self.ui, "historical_data_label"):
+            self.ui.historical_data_label.setObjectName("settings_section_label")
+        if hasattr(self.ui, "rainfall_label"):
+            self.ui.rainfall_label.setObjectName("settings_section_label")
+        if hasattr(self.ui, "label_64"):
+            self.ui.label_64.setObjectName("settings_section_label")
+
+        if hasattr(self.ui, "comboBox_year_filter"):
+            self.ui.comboBox_year_filter.setMinimumWidth(110)
+            self.ui.comboBox_year_filter.setMaximumWidth(130)
+        if hasattr(self.ui, "save_button_environment"):
+            self.ui.save_button_environment.setText("Save")
+            self.ui.save_button_environment.setObjectName("primaryButton")
+            self.ui.save_button_environment.setMinimumWidth(96)
+            self.ui.save_button_environment.setStyleSheet(
+                "QPushButton {"
+                "background-color: #1f3a5f;"
+                "color: #ffffff;"
+                "font-weight: 700;"
+                "border: 1px solid #1f3a5f;"
+                "border-radius: 6px;"
+                "padding: 6px 12px;"
+                "}"
+                "QPushButton:hover {"
+                "background-color: #1a2f4c;"
+                "border-color: #1a2f4c;"
+                "}"
+            )
+        if hasattr(self.ui, "load_button_environment"):
+            self.ui.load_button_environment.setText("Reload")
+            self.ui.load_button_environment.setObjectName("ghostButton")
+            self.ui.load_button_environment.setMinimumWidth(96)
+        if hasattr(self.ui, "select_year_label"):
+            self.ui.select_year_label.setObjectName("settings_quick_label")
+
+        # Remove oversized designer spacers and keep one responsive stretch.
+        if hasattr(self.ui, "horizontalLayout_30"):
+            row = self.ui.horizontalLayout_30
+            row.setSpacing(10)
+            row.setContentsMargins(0, 0, 0, 0)
+            for idx in range(row.count() - 1, -1, -1):
+                item = row.itemAt(idx)
+                if item and item.spacerItem():
+                    row.takeAt(idx)
+            row.addStretch(1)
+        if hasattr(self.ui, "horizontalLayout_31"):
+            row = self.ui.horizontalLayout_31
+            row.setSpacing(8)
+            row.setContentsMargins(0, 0, 0, 0)
+            for idx in range(row.count() - 1, -1, -1):
+                item = row.itemAt(idx)
+                if item and item.spacerItem():
+                    row.takeAt(idx)
+            row.addStretch(1)
+        if hasattr(self.ui, "horizontalLayout_32"):
+            row = self.ui.horizontalLayout_32
+            row.setSpacing(8)
+            row.setContentsMargins(8, 6, 8, 6)
+            for idx in range(row.count() - 1, -1, -1):
+                item = row.itemAt(idx)
+                if item and item.spacerItem():
+                    row.takeAt(idx)
+
+        # Keep month value fields compact and consistent across both grids.
+        for edit in self.findChildren(QLineEdit):
+            name = edit.objectName() or ""
+            if "_rainfall" in name or "_evaporation" in name:
+                edit.setMinimumWidth(78)
+                edit.setMaximumWidth(96)
+
+        # Align month labels and unit suffixes so columns line up cleanly.
+        if hasattr(self.ui, "Rainfall") and hasattr(self.ui, "Rainfall_2"):
+            for panel in (self.ui.Rainfall, self.ui.Rainfall_2):
+                for lbl in panel.findChildren(QLabel):
+                    obj_name = lbl.objectName() or ""
+                    if (
+                        "rainfall_label" in obj_name
+                        or "evaporation_label" in obj_name
+                        or obj_name.startswith("label_")
+                    ) and lbl.text().strip().endswith(":"):
+                        lbl.setFixedWidth(34)
+                        lbl.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+                    if obj_name.startswith("unit"):
+                        lbl.setFixedWidth(22)
+                        lbl.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+
+        # Keep layout left-aligned and apply adaptive max width for wide screens.
+        for name in ("frame_2", "frame_3", "frame_4"):
+            widget = getattr(self.ui, name, None)
+            if widget and self.ui.Constants.layout() is not None:
+                self.ui.Constants.layout().setAlignment(widget, Qt.AlignmentFlag.AlignLeft)
+        for name in ("frame_5", "frame_6", "frame_7", "Rainfall", "Evaporation"):
+            widget = getattr(self.ui, name, None)
+            if widget and self.ui.Environmental.layout() is not None:
+                self.ui.Environmental.layout().setAlignment(widget, Qt.AlignmentFlag.AlignLeft)
+        self._apply_responsive_content_width()
+
+    def _apply_responsive_content_width(self) -> None:
+        """Set adaptive max width so content scales better across screen sizes."""
+        available = max(600, self.width() - 32)
+        target = int(available * 0.92)
+        target = min(1500, max(900, target))
+        target = min(target, available)
+
+        for name in (
+            "frame_2", "frame_3", "frame_4",
+            "frame_5", "frame_6", "frame_7",
+            "Rainfall", "Evaporation",
+        ):
+            widget = getattr(self.ui, name, None)
+            if widget:
+                widget.setMinimumWidth(target)
+                widget.setMaximumWidth(target)
 
     def _wire_constants_tab(self) -> None:
         """Connect Constants tab widgets to service actions.
@@ -454,17 +685,30 @@ class SettingsPage(QWidget):
         history = self.constants_service.list_history(limit=200)
 
         dialog = QDialog(self)
+        dialog.setObjectName("settings_history_dialog")
         dialog.setWindowTitle("Constants History")
-        dialog.resize(700, 400)
+        dialog.resize(760, 320)
+        dialog.setMinimumSize(700, 220)
 
         layout = QVBoxLayout(dialog)
+        layout.setContentsMargins(12, 12, 12, 12)
+        layout.setSpacing(8)
         table = QTableWidget(dialog)
+        table.setObjectName("settings_history_table")
         table.setColumnCount(5)
         table.setHorizontalHeaderLabels(
             ["Changed At", "Constant Key", "Old Value", "New Value", "Updated By"]
         )
         table.setRowCount(len(history))
-        table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
+        table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
+        table.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents)
+        table.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeMode.ResizeToContents)
+        table.horizontalHeader().setMinimumSectionSize(80)
+        table.setAlternatingRowColors(True)
+        table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
 
         for row_index, row in enumerate(history):
@@ -475,6 +719,17 @@ class SettingsPage(QWidget):
             table.setItem(row_index, 4, QTableWidgetItem(str(row.get("updated_by", ""))))
 
         layout.addWidget(table)
+        table.resizeRowsToContents()
+        table.setColumnWidth(0, max(table.columnWidth(0), 170))
+
+        # Keep dialog compact for small histories and expand only when needed.
+        visible_rows = min(max(table.rowCount(), 1), 8)
+        row_height = table.verticalHeader().defaultSectionSize()
+        rows_height = sum(table.rowHeight(i) for i in range(visible_rows))
+        header_height = table.horizontalHeader().height()
+        chrome_height = 92  # margins + dialog frame + small safety buffer
+        target_height = max(220, min(620, header_height + rows_height + row_height + chrome_height))
+        dialog.resize(760, target_height)
         dialog.exec()
 
     def _export_constants_csv(self) -> None:

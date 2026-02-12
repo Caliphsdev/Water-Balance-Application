@@ -113,6 +113,7 @@ class CalculationPage(QWidget):
         # Load the compiled UI file
         self.ui = Ui_Form()
         self.ui.setupUi(self)
+        self._apply_layout_refresh()
         
         # Get the calculation service singleton
         self._balance_service: BalanceService = None  # Lazy-loaded
@@ -130,6 +131,55 @@ class CalculationPage(QWidget):
         self._setup_tabs()
         
         logger.info("CalculationPage initialized")
+
+    def _apply_layout_refresh(self) -> None:
+        """Apply compact, consistent page structure without changing logic."""
+        if hasattr(self.ui, "gridLayout"):
+            self.ui.gridLayout.setContentsMargins(12, 10, 12, 10)
+            self.ui.gridLayout.setVerticalSpacing(8)
+
+        # Page title/subtitle consistency with other dashboards
+        if hasattr(self.ui, "label_2"):
+            self.ui.label_2.setObjectName("label_title")
+        if hasattr(self.ui, "label_3"):
+            self.ui.label_3.setObjectName("label_subtitle")
+        if hasattr(self.ui, "header_frame"):
+            self.ui.header_frame.setObjectName("calc_page_header")
+            self.ui.header_frame.setMinimumHeight(84)
+            self.ui.header_frame.setMaximumHeight(96)
+        if hasattr(self.ui, "verticalLayout"):
+            self.ui.verticalLayout.setContentsMargins(10, 6, 10, 6)
+            self.ui.verticalLayout.setSpacing(4)
+
+        # Compact control bar
+        if hasattr(self.ui, "frame"):
+            self.ui.frame.setObjectName("calc_control_bar")
+            self.ui.frame.setMinimumHeight(74)
+            self.ui.frame.setMaximumHeight(84)
+        if hasattr(self.ui, "verticalLayout_2"):
+            self.ui.verticalLayout_2.setContentsMargins(10, 8, 10, 8)
+            self.ui.verticalLayout_2.setSpacing(6)
+        if hasattr(self.ui, "label_5"):
+            self.ui.label_5.setObjectName("calc_control_section")
+        if hasattr(self.ui, "comboBox"):
+            self.ui.comboBox.setMinimumWidth(88)
+        if hasattr(self.ui, "comboBox_2"):
+            self.ui.comboBox_2.setMinimumWidth(88)
+        if hasattr(self.ui, "pushButton"):
+            self.ui.pushButton.setText("Calculate Balance")
+            self.ui.pushButton.setObjectName("primaryButton")
+            self.ui.pushButton.setMinimumHeight(29)
+            self.ui.pushButton.setMaximumHeight(31)
+            self.ui.pushButton.setMinimumWidth(148)
+            # Force readable style regardless of inherited/generated object-name rules.
+            self.ui.pushButton.setStyleSheet(
+                "background-color:#1f3a5f; color:#ffffff; border:1px solid #1f3a5f; "
+                "border-radius:8px; padding:4px 12px; font-weight:700;"
+            )
+
+        # Tabs polish
+        if hasattr(self.ui, "tabWidget"):
+            self.ui.tabWidget.setObjectName("calc_tab_widget")
     
     @property
     def balance_service(self) -> BalanceService:
@@ -560,24 +610,34 @@ class CalculationPage(QWidget):
         # HERO HEADER
         # ═══════════════════════════════════════════════════════════════════
         header = QFrame()
-        header.setStyleSheet("")
+        header.setObjectName("calc_balance_header")
         header_layout = QHBoxLayout(header)
+        header_layout.setContentsMargins(14, 10, 14, 10)
+        header_layout.setSpacing(10)
         
-        # Left: Period info
-        period_label = QLabel(f"📊 SYSTEM BALANCE\n{result.period.period_label.upper()}")
-        period_label.setStyleSheet("")
-        header_layout.addWidget(period_label)
+        # Left: structured title + period (cleaner than stacked single text block)
+        title_wrap = QWidget(header)
+        title_layout = QVBoxLayout(title_wrap)
+        title_layout.setContentsMargins(0, 0, 0, 0)
+        title_layout.setSpacing(2)
+        balance_title = QLabel("System Balance")
+        balance_title.setObjectName("calc_balance_title")
+        period_label = QLabel(result.period.period_label.upper())
+        period_label.setObjectName("calc_balance_period")
+        title_layout.addWidget(balance_title)
+        title_layout.addWidget(period_label)
+        header_layout.addWidget(title_wrap)
         
         header_layout.addStretch()
         
         # Right: Status badge
         status_badge = QLabel(f"  {status_text}  ")
-        status_badge.setStyleSheet("")
+        status_badge.setObjectName("calc_status_badge")
         header_layout.addWidget(status_badge)
         
         # Error badge
         error_badge = QLabel(f"  Error: {result.error_pct:.1f}%  ")
-        error_badge.setStyleSheet("")
+        error_badge.setObjectName("calc_error_badge")
         header_layout.addWidget(error_badge)
         
         main_layout.addWidget(header)
@@ -607,7 +667,8 @@ class CalculationPage(QWidget):
             ],
             total=result.inflows.total_m3,
             accent_color=PALETTE["accent"],
-            bg_gradient=("from surface to surface", PALETTE["surface"], PALETTE["surface"])
+            bg_gradient=("from surface to surface", PALETTE["surface"], PALETTE["surface"]),
+            card_object_name="calc_card_inflows",
         )
         cards_row.addWidget(inflows_card)
         
@@ -624,7 +685,8 @@ class CalculationPage(QWidget):
             ],
             total=result.outflows.total_m3,
             accent_color=PALETTE["warning"],
-            bg_gradient=("from surface to surface", PALETTE["surface"], PALETTE["surface"])
+            bg_gradient=("from surface to surface", PALETTE["surface"], PALETTE["surface"]),
+            card_object_name="calc_card_outflows",
         )
         cards_row.addWidget(outflows_card)
         
@@ -660,7 +722,8 @@ class CalculationPage(QWidget):
             total_label=f"{delta_icon} Delta (ΔS)",
             facility_breakdown=facility_breakdown,
             accent_color=PALETTE["success"],
-            bg_gradient=("from surface to surface", PALETTE["surface"], PALETTE["surface"])
+            bg_gradient=("from surface to surface", PALETTE["surface"], PALETTE["surface"]),
+            card_object_name="calc_card_storage",
         )
         cards_row.addWidget(storage_card)
         
@@ -670,8 +733,10 @@ class CalculationPage(QWidget):
         # CLOSURE EQUATION FOOTER
         # ═══════════════════════════════════════════════════════════════════
         footer = QFrame()
-        footer.setStyleSheet("")
+        footer.setObjectName("calc_equation_strip")
         footer_layout = QHBoxLayout(footer)
+        footer_layout.setContentsMargins(12, 10, 12, 10)
+        footer_layout.setSpacing(10)
         
         # Equation visualization
         eq_parts = [
@@ -687,18 +752,19 @@ class CalculationPage(QWidget):
         for value, label, color in eq_parts:
             part_widget = QLabel(
                 f"<div style='text-align:center;'>"
-                f"<span style='font-size:16px;font-weight:bold;color:{color};'>{value}</span><br/>"
-                f"<span style='font-size:10px;color:{PALETTE['muted']};'>{label}</span></div>"
+                f"<span style='font-size:18px;font-weight:700;line-height:1.2;color:{color};'>{value}</span><br/>"
+                f"<span style='font-size:11px;line-height:1.2;color:{PALETTE['muted']};'>{label}</span></div>"
             )
-            part_widget.setStyleSheet("")
+            part_widget.setObjectName("calc_equation_part")
             part_widget.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            part_widget.setMinimumHeight(58)
             footer_layout.addWidget(part_widget)
         
         main_layout.addWidget(footer)
         
         # Quality note
         note = QLabel("💡 <i>Error &lt; 5% indicates good data quality. Higher errors suggest measurement issues or missing data.</i>")
-        note.setStyleSheet("")
+        note.setObjectName("calc_quality_note")
         note.setWordWrap(True)
         main_layout.addWidget(note)
         
@@ -711,7 +777,8 @@ class CalculationPage(QWidget):
     
     def _create_balance_card(self, title: str, subtitle: str, items: list, 
                               total: float, accent_color: str, bg_gradient: tuple,
-                              total_label: str = "TOTAL", show_delta: bool = False) -> QFrame:
+                              total_label: str = "TOTAL", show_delta: bool = False,
+                              card_object_name: str = "calc_balance_card") -> QFrame:
         """Create a styled balance card with items and total (UI HELPER).
         
         Args:
@@ -728,7 +795,8 @@ class CalculationPage(QWidget):
             QFrame: Styled card widget
         """
         card = QFrame()
-        card.setStyleSheet("")
+        card.setObjectName(card_object_name)
+        card.setProperty("calcCard", True)
         card.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         
         # Add shadow effect
@@ -740,32 +808,33 @@ class CalculationPage(QWidget):
         card.setGraphicsEffect(shadow)
         
         layout = QVBoxLayout(card)
-        layout.setContentsMargins(16, 16, 16, 16)
-        layout.setSpacing(8)
+        layout.setContentsMargins(14, 14, 14, 14)
+        layout.setSpacing(6)
         
         # Title
         title_label = QLabel(title)
-        title_label.setStyleSheet("")
+        title_label.setObjectName("calc_card_title")
         layout.addWidget(title_label)
         
         # Subtitle
         sub_label = QLabel(subtitle)
-        sub_label.setStyleSheet("")
+        sub_label.setObjectName("calc_card_subtitle")
         layout.addWidget(sub_label)
         
         # Divider
         divider = QFrame()
         divider.setFrameShape(QFrame.Shape.HLine)
-        divider.setStyleSheet("")
+        divider.setObjectName("calc_card_divider")
         layout.addWidget(divider)
         
         # Items
         for name, value, color in items:
             item_row = QHBoxLayout()
+            item_row.setSpacing(6)
             item_name = QLabel(name)
-            item_name.setStyleSheet("")
+            item_name.setObjectName("calc_card_item_name")
             item_value = QLabel(f"{value:,.0f} m³")
-            item_value.setStyleSheet("")
+            item_value.setObjectName("calc_card_item_value")
             item_value.setAlignment(Qt.AlignmentFlag.AlignRight)
             item_row.addWidget(item_name)
             item_row.addWidget(item_value)
@@ -774,19 +843,19 @@ class CalculationPage(QWidget):
         # Total divider
         divider2 = QFrame()
         divider2.setFrameShape(QFrame.Shape.HLine)
-        divider2.setStyleSheet("")
+        divider2.setObjectName("calc_card_divider")
         layout.addWidget(divider2)
         
         # Total row
         total_row = QHBoxLayout()
         total_name = QLabel(total_label)
-        total_name.setStyleSheet("")
+        total_name.setObjectName("calc_card_total_name")
         
         if show_delta:
             total_val = QLabel(f"{total:+,.0f} m³")
         else:
             total_val = QLabel(f"{total:,.0f} m³")
-        total_val.setStyleSheet("")
+        total_val.setObjectName("calc_card_total_value")
         total_val.setAlignment(Qt.AlignmentFlag.AlignRight)
         total_row.addWidget(total_name)
         total_row.addWidget(total_val)
@@ -797,7 +866,8 @@ class CalculationPage(QWidget):
     def _create_storage_card(self, title: str, subtitle: str, items: list, 
                               total: float, total_label: str, 
                               facility_breakdown: list, accent_color: str, 
-                              bg_gradient: tuple) -> QFrame:
+                              bg_gradient: tuple,
+                              card_object_name: str = "calc_card_storage") -> QFrame:
         """Create storage card with facility breakdown section (UI HELPER).
         
         Similar to _create_balance_card but includes expandable facility breakdown
@@ -817,7 +887,8 @@ class CalculationPage(QWidget):
             QFrame: Styled storage card widget with breakdown
         """
         card = QFrame()
-        card.setStyleSheet("")
+        card.setObjectName(card_object_name)
+        card.setProperty("calcCard", True)
         card.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         
         # Add shadow effect
@@ -829,32 +900,33 @@ class CalculationPage(QWidget):
         card.setGraphicsEffect(shadow)
         
         layout = QVBoxLayout(card)
-        layout.setContentsMargins(16, 16, 16, 16)
-        layout.setSpacing(8)
+        layout.setContentsMargins(14, 14, 14, 14)
+        layout.setSpacing(6)
         
         # Title
         title_label = QLabel(title)
-        title_label.setStyleSheet("")
+        title_label.setObjectName("calc_card_title")
         layout.addWidget(title_label)
         
         # Subtitle
         sub_label = QLabel(subtitle)
-        sub_label.setStyleSheet("")
+        sub_label.setObjectName("calc_card_subtitle")
         layout.addWidget(sub_label)
         
         # Divider
         divider = QFrame()
         divider.setFrameShape(QFrame.Shape.HLine)
-        divider.setStyleSheet("")
+        divider.setObjectName("calc_card_divider")
         layout.addWidget(divider)
         
         # System totals (Opening/Closing)
         for name, value, color in items:
             item_row = QHBoxLayout()
+            item_row.setSpacing(6)
             item_name = QLabel(name)
-            item_name.setStyleSheet("")
+            item_name.setObjectName("calc_card_item_name")
             item_value = QLabel(f"{value:,.0f} m³")
-            item_value.setStyleSheet("")
+            item_value.setObjectName("calc_card_item_value")
             item_value.setAlignment(Qt.AlignmentFlag.AlignRight)
             item_row.addWidget(item_name)
             item_row.addWidget(item_value)
@@ -863,17 +935,17 @@ class CalculationPage(QWidget):
         # Total divider
         divider2 = QFrame()
         divider2.setFrameShape(QFrame.Shape.HLine)
-        divider2.setStyleSheet("")
+        divider2.setObjectName("calc_card_divider")
         layout.addWidget(divider2)
         
         # Total (Delta) row with large value
         total_row = QHBoxLayout()
         total_name = QLabel(total_label)
-        total_name.setStyleSheet("")
+        total_name.setObjectName("calc_card_total_name")
         
         delta_color = PALETTE["success"] if total >= 0 else PALETTE["danger"]
         total_val = QLabel(f"{total:+,.0f} m³")
-        total_val.setStyleSheet("")
+        total_val.setObjectName("calc_card_total_value")
         total_val.setAlignment(Qt.AlignmentFlag.AlignRight)
         total_row.addWidget(total_name)
         total_row.addWidget(total_val)
@@ -884,12 +956,12 @@ class CalculationPage(QWidget):
             # Small divider before breakdown
             divider3 = QFrame()
             divider3.setFrameShape(QFrame.Shape.HLine)
-            divider3.setStyleSheet("")
+            divider3.setObjectName("calc_card_divider")
             layout.addWidget(divider3)
             
             # Breakdown header
             breakdown_header = QLabel("📊 By Facility:")
-            breakdown_header.setStyleSheet("")
+            breakdown_header.setObjectName("calc_card_breakdown_header")
             layout.addWidget(breakdown_header)
             
             # Per-facility rows
@@ -899,11 +971,11 @@ class CalculationPage(QWidget):
                 
                 # Facility name with icon
                 fac_name = QLabel(f"  {fac['icon']} {fac['name']}")
-                fac_name.setStyleSheet("")
+                fac_name.setObjectName("calc_card_item_name")
                 
                 # Delta value with color
                 fac_delta = QLabel(f"{fac['delta']:+,.0f} m³")
-                fac_delta.setStyleSheet("")
+                fac_delta.setObjectName("calc_card_item_value")
                 fac_delta.setAlignment(Qt.AlignmentFlag.AlignRight)
                 
                 fac_row.addWidget(fac_name)
@@ -965,7 +1037,6 @@ class CalculationPage(QWidget):
         # Create scrollable container
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
-        scroll.setStyleSheet("")
         
         container = QWidget()
         main_layout = QVBoxLayout(container)
@@ -976,39 +1047,41 @@ class CalculationPage(QWidget):
         # HERO HEADER - Big efficiency gauge (Compact -20%)
         # ═══════════════════════════════════════════════════════════════════
         header = QFrame()
-        header.setStyleSheet("")
+        header.setObjectName("calc_metric_header")
         header_layout = QVBoxLayout(header)
         header_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        header_layout.setContentsMargins(10, 10, 10, 10)
         header_layout.setSpacing(4)
         
         # Title
-        title = QLabel(f"♻️ WATER RECYCLING EFFICIENCY")
-        title.setStyleSheet("")
+        title = QLabel("Water Recycling Efficiency")
+        title.setObjectName("calc_metric_header_title")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header_layout.addWidget(title)
         
         # Big percentage display (reduced from 48px to 38px)
         pct_display = QLabel(f"{recycled_pct:.1f}%")
-        pct_display.setStyleSheet("")
+        pct_display.setObjectName("calc_metric_header_value")
         pct_display.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header_layout.addWidget(pct_display)
         
         # Status badge (compact)
         badge = QLabel(f"{status_emoji} {status_text}")
-        badge.setStyleSheet("")
+        badge.setObjectName("calc_metric_header_badge")
+        badge.setProperty("metricState", status_text.lower().replace(" ", "_"))
         badge.setAlignment(Qt.AlignmentFlag.AlignCenter)
         badge.setFixedWidth(160)
         
         badge_container = QWidget()
-        badge_container.setStyleSheet("")
         badge_layout = QHBoxLayout(badge_container)
+        badge_layout.setContentsMargins(0, 0, 0, 0)
         badge_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         badge_layout.addWidget(badge)
         header_layout.addWidget(badge_container)
         
         # Period subtitle (compact)
         period = QLabel(f"{result.period.period_label}")
-        period.setStyleSheet("")
+        period.setObjectName("calc_metric_header_period")
         period.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header_layout.addWidget(period)
         
@@ -1066,31 +1139,37 @@ class CalculationPage(QWidget):
         # WATER SOURCE PIE CHART
         # ═══════════════════════════════════════════════════════════════════
         chart_frame = QFrame()
-        chart_frame.setStyleSheet("")
+        chart_frame.setObjectName("calc_chart_frame")
         chart_layout = QVBoxLayout(chart_frame)
         chart_layout.setContentsMargins(16, 16, 16, 16)
         
-        chart_title = QLabel("📊 Water Source Breakdown")
-        chart_title.setStyleSheet("")
+        chart_title = QLabel("Water Source Breakdown")
+        chart_title.setObjectName("calc_chart_title")
         chart_layout.addWidget(chart_title)
         
-        # Create pie chart
+        # Create pie chart (donut style) with edge-case handling for 0%/100%.
         series = QPieSeries()
-        series.append("Recycled Water", recycled_pct)
-        series.append("Fresh Water", 100 - recycled_pct)
-        
-        # Style slices
-        recycled_slice = series.slices()[0]
-        recycled_slice.setBrush(QColor(PALETTE["success"]))
-        recycled_slice.setLabelVisible(True)
-        recycled_slice.setLabel(f"Recycled: {recycled_pct:.1f}%")
-        recycled_slice.setExploded(True)
-        recycled_slice.setExplodeDistanceFactor(0.05)
-        
-        fresh_slice = series.slices()[1]
-        fresh_slice.setBrush(QColor(PALETTE["accent"]))
-        fresh_slice.setLabelVisible(True)
-        fresh_slice.setLabel(f"Fresh: {100-recycled_pct:.1f}%")
+        series.setHoleSize(0.52)
+        series.setPieSize(0.86)
+
+        fresh_pct = max(0.0, 100.0 - recycled_pct)
+        if recycled_pct <= 0.01:
+            fresh_slice = series.append("Fresh Water", 100.0)
+            fresh_slice.setBrush(QColor(PALETTE["accent"]))
+        elif fresh_pct <= 0.01:
+            recycled_slice = series.append("Recycled Water", 100.0)
+            recycled_slice.setBrush(QColor(PALETTE["success"]))
+        else:
+            recycled_slice = series.append("Recycled Water", recycled_pct)
+            fresh_slice = series.append("Fresh Water", fresh_pct)
+            recycled_slice.setBrush(QColor(PALETTE["success"]))
+            fresh_slice.setBrush(QColor(PALETTE["accent"]))
+
+        # Keep the visual clean: no callout labels on slices, rely on legend.
+        for slice in series.slices():
+            slice.setLabelVisible(False)
+            slice.setBorderColor(QColor("#ffffff"))
+            slice.setBorderWidth(1)
         
         chart = QChart()
         chart.addSeries(series)
@@ -1103,7 +1182,6 @@ class CalculationPage(QWidget):
         chart_view = QChartView(chart)
         chart_view.setRenderHint(QPainter.RenderHint.Antialiasing)
         chart_view.setMinimumHeight(250)
-        chart_view.setStyleSheet("")
         chart_layout.addWidget(chart_view)
         
         main_layout.addWidget(chart_frame)
@@ -1117,7 +1195,7 @@ class CalculationPage(QWidget):
         <span style="color:{PALETTE['warning']};">● 40-60%</span> Good, room for improvement | 
         <span style="color:{PALETTE['danger']};">● < 40%</span> Process optimization needed
         """)
-        footer.setStyleSheet("")
+        footer.setObjectName("calc_section_footer")
         footer.setWordWrap(True)
         main_layout.addWidget(footer)
         
@@ -1142,8 +1220,19 @@ class CalculationPage(QWidget):
         Returns:
             QFrame: Styled metric card widget
         """
+        tone = "neutral"
+        if color == PALETTE["success"]:
+            tone = "success"
+        elif color == PALETTE["warning"]:
+            tone = "warning"
+        elif color == PALETTE["danger"]:
+            tone = "danger"
+        elif color in (PALETTE["accent"], PALETTE["info"]):
+            tone = "info"
+
         card = QFrame()
-        card.setStyleSheet("")
+        card.setObjectName("calc_metric_card")
+        card.setProperty("metricTone", tone)
         card.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         
         # Add shadow
@@ -1156,36 +1245,36 @@ class CalculationPage(QWidget):
         
         layout = QVBoxLayout(card)
         layout.setContentsMargins(16, 16, 16, 16)
-        layout.setSpacing(4)
+        layout.setSpacing(3)
         layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
         # Emoji
         emoji_label = QLabel(emoji)
-        emoji_label.setStyleSheet("")
+        emoji_label.setObjectName("calc_metric_icon")
         emoji_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(emoji_label)
         
         # Title
         title_label = QLabel(title)
-        title_label.setStyleSheet("")
+        title_label.setObjectName("calc_metric_title")
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(title_label)
         
         # Value
         value_label = QLabel(value)
-        value_label.setStyleSheet("")
+        value_label.setObjectName("calc_metric_value")
         value_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(value_label)
         
         # Unit
         unit_label = QLabel(unit)
-        unit_label.setStyleSheet("")
+        unit_label.setObjectName("calc_metric_unit")
         unit_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(unit_label)
         
         # Subtitle
         sub_label = QLabel(subtitle)
-        sub_label.setStyleSheet("")
+        sub_label.setObjectName("calc_metric_subtitle")
         sub_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(sub_label)
         
@@ -1261,64 +1350,55 @@ class CalculationPage(QWidget):
             status_emoji = "❌"
             theme = STATUS_THEMES["critical"]
 
-        header_gradient = theme["gradient"]
-        
         # Create scrollable container
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
-        scroll.setStyleSheet("")
         
         container = QWidget()
         main_layout = QVBoxLayout(container)
         main_layout.setContentsMargins(20, 20, 20, 20)
         main_layout.setSpacing(16)
         
-        # ═══════════════════════════════════════════════════════════════════
-        # HERO HEADER - Quality Score (Compact -20%)
-        # ═══════════════════════════════════════════════════════════════════
+        # Quality score header
         header = QFrame()
-        header.setStyleSheet("")
+        header.setObjectName("calc_quality_header")
         header_layout = QVBoxLayout(header)
         header_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        header_layout.setSpacing(2)
+        header_layout.setContentsMargins(10, 10, 10, 10)
+        header_layout.setSpacing(3)
         
-        # Title
-        title = QLabel(f"📋 DATA QUALITY ASSESSMENT")
-        title.setStyleSheet("")
+        title = QLabel("Data Quality Assessment")
+        title.setObjectName("calc_quality_title")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header_layout.addWidget(title)
         
-        # Score display (reduced from 56px to 44px)
         score_display = QLabel(f"{score}")
-        score_display.setStyleSheet("")
+        score_display.setObjectName("calc_quality_score")
         score_display.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header_layout.addWidget(score_display)
         
-        score_label = QLabel("QUALITY SCORE")
-        score_label.setStyleSheet("")
+        score_label = QLabel("Quality Score")
+        score_label.setObjectName("calc_quality_score_label")
         score_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header_layout.addWidget(score_label)
         
-        # Status badge (compact)
         badge = QLabel(f"{status_emoji} {status_text}")
-        badge.setStyleSheet("")
+        badge.setObjectName("calc_quality_badge")
+        badge.setProperty("qualityLevel", status_text.lower())
         badge.setAlignment(Qt.AlignmentFlag.AlignCenter)
         badge.setFixedWidth(130)
         
         badge_container = QWidget()
-        badge_container.setStyleSheet("")
         badge_layout = QHBoxLayout(badge_container)
+        badge_layout.setContentsMargins(0, 0, 0, 0)
         badge_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         badge_layout.addWidget(badge)
         header_layout.addWidget(badge_container)
         
         main_layout.addWidget(header)
         
-        # ═══════════════════════════════════════════════════════════════════
-        # STATUS CARDS ROW
-        # ═══════════════════════════════════════════════════════════════════
         cards_row = QHBoxLayout()
-        cards_row.setSpacing(16)
+        cards_row.setSpacing(12)
         
         # Missing Data Card
         missing_card = self._create_status_card(
@@ -1364,67 +1444,81 @@ class CalculationPage(QWidget):
         cards_widget.setLayout(cards_row)
         main_layout.addWidget(cards_widget)
         
-        # ═══════════════════════════════════════════════════════════════════
-        # ISSUES LIST
-        # ═══════════════════════════════════════════════════════════════════
+        # Details section
         if missing_fields or estimated_fields or warnings:
+            details_row = QHBoxLayout()
+            details_row.setSpacing(12)
+
             issues_frame = QFrame()
-            issues_frame.setStyleSheet("")
+            issues_frame.setObjectName("calc_quality_issues")
             issues_layout = QVBoxLayout(issues_frame)
-            issues_layout.setContentsMargins(16, 16, 16, 16)
-            issues_layout.setSpacing(8)
+            issues_layout.setContentsMargins(14, 12, 14, 12)
+            issues_layout.setSpacing(6)
             
-            issues_title = QLabel("🔍 Issues Found")
-            issues_title.setStyleSheet("")
+            issues_title = QLabel("Issues Found")
+            issues_title.setObjectName("calc_quality_issues_title")
             issues_layout.addWidget(issues_title)
             
-            # Missing fields
             for field in missing_fields[:5]:
-                item = QLabel(f"  ❌ Missing: {field}")
-                item.setStyleSheet("")
+                item = QLabel(f"• Missing: {field}")
+                item.setObjectName("calc_quality_issue_item")
                 issues_layout.addWidget(item)
             
             if len(missing_fields) > 5:
-                more = QLabel(f"  ... and {len(missing_fields) - 5} more missing fields")
-                more.setStyleSheet("")
+                more = QLabel(f"... and {len(missing_fields) - 5} more missing fields")
+                more.setObjectName("calc_quality_issue_more")
                 issues_layout.addWidget(more)
             
-            # Estimated fields
             for field in estimated_fields[:3]:
-                item = QLabel(f"  ⚡ Estimated: {field}")
-                item.setStyleSheet("")
+                item = QLabel(f"• Estimated: {field}")
+                item.setObjectName("calc_quality_issue_item")
                 issues_layout.addWidget(item)
             
-            # Warnings
             for warning in warnings[:3]:
-                item = QLabel(f"  ⚠️ {warning}")
-                item.setStyleSheet("")
+                item = QLabel(f"• Warning: {warning}")
+                item.setObjectName("calc_quality_issue_item")
                 item.setWordWrap(True)
                 issues_layout.addWidget(item)
-            
-            main_layout.addWidget(issues_frame)
+
+            details_row.addWidget(issues_frame, 2)
+
+            scoring_frame = QFrame()
+            scoring_frame.setObjectName("calc_quality_scoring")
+            scoring_layout = QVBoxLayout(scoring_frame)
+            scoring_layout.setContentsMargins(14, 12, 14, 12)
+            scoring_layout.setSpacing(6)
+            scoring_title = QLabel("Scoring Rules")
+            scoring_title.setObjectName("calc_quality_issues_title")
+            scoring_layout.addWidget(scoring_title)
+            for line in [
+                "• Missing data: -30",
+                "• Estimated values: -15",
+                "• Simulated values: -10",
+                "• Warnings: -5 each (max -25)",
+            ]:
+                lbl = QLabel(line)
+                lbl.setObjectName("calc_quality_rule_item")
+                scoring_layout.addWidget(lbl)
+            scoring_layout.addStretch(1)
+            details_row.addWidget(scoring_frame, 1)
+
+            main_layout.addLayout(details_row)
         else:
-            # All good message
             good_frame = QFrame()
-            good_frame.setStyleSheet("")
+            good_frame.setObjectName("calc_quality_issues")
             good_layout = QVBoxLayout(good_frame)
-            good_layout.setContentsMargins(20, 20, 20, 20)
+            good_layout.setContentsMargins(18, 16, 18, 16)
             good_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
             
-            good_label = QLabel("✅ All data quality checks passed!\nNo issues detected with the input data.")
-            good_label.setStyleSheet("")
+            good_label = QLabel("All data quality checks passed.\nNo issues detected in the selected period.")
+            good_label.setObjectName("calc_quality_good")
             good_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
             good_layout.addWidget(good_label)
             
             main_layout.addWidget(good_frame)
         
-        # ═══════════════════════════════════════════════════════════════════
-        # RECOMMENDATIONS FOOTER
-        # ═══════════════════════════════════════════════════════════════════
-        footer = QLabel("""
-        💡 <b>Scoring:</b> -30 pts for missing data | -15 pts for estimates | -10 pts for simulations | -5 pts per warning
-        """)
-        footer.setStyleSheet("")
+        footer = QLabel("Tip: target score >= 90 for reliable monthly balance reporting.")
+        footer.setObjectName("calc_quality_footer")
         footer.setWordWrap(True)
         main_layout.addWidget(footer)
         
@@ -1447,11 +1541,9 @@ class CalculationPage(QWidget):
         Returns:
             QFrame: Styled status card
         """
-        color = PALETTE["success"] if is_good else PALETTE["danger"]
-        bg_color = PALETTE["success_bg"] if is_good else PALETTE["danger_bg"]
-        
         card = QFrame()
-        card.setStyleSheet("")
+        card.setObjectName("calc_quality_status_card")
+        card.setProperty("qualityState", "good" if is_good else "bad")
         card.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         
         shadow = QGraphicsDropShadowEffect()
@@ -1462,32 +1554,28 @@ class CalculationPage(QWidget):
         card.setGraphicsEffect(shadow)
         
         layout = QVBoxLayout(card)
-        layout.setContentsMargins(12, 12, 12, 12)
+        layout.setContentsMargins(12, 10, 12, 10)
         layout.setSpacing(4)
         layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
-        # Icon
         icon_label = QLabel(icon)
-        icon_label.setStyleSheet("")
+        icon_label.setObjectName("calc_quality_status_icon")
         icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(icon_label)
         
-        # Title
         title_label = QLabel(title)
-        title_label.setStyleSheet("")
+        title_label.setObjectName("calc_quality_status_title")
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(title_label)
         
-        # Status
         status_label = QLabel(status)
-        status_label.setStyleSheet("")
+        status_label.setObjectName("calc_quality_status_value")
         status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(status_label)
         
-        # Count (if applicable)
         if count > 0:
             count_label = QLabel(f"({count} items)")
-            count_label.setStyleSheet("")
+            count_label.setObjectName("calc_quality_status_count")
             count_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
             layout.addWidget(count_label)
         
@@ -1583,26 +1671,27 @@ class CalculationPage(QWidget):
         # HERO HEADER - System Runway (User-friendly display)
         # ═══════════════════════════════════════════════════════════════════
         header = QFrame()
-        header.setStyleSheet("")
+        header.setObjectName("calc_days_header")
         header_layout = QVBoxLayout(header)
         header_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        header_layout.setContentsMargins(10, 10, 10, 10)
         header_layout.setSpacing(2)
         
         # Title - simple and clear
-        title = QLabel(f"💧 HOW LONG WILL OUR WATER LAST?")
-        title.setStyleSheet("")
+        title = QLabel("How Long Will Our Water Last?")
+        title.setObjectName("calc_days_title")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header_layout.addWidget(title)
         
         # Big days display
         days_display = QLabel(f"{days}")
-        days_display.setStyleSheet("")
+        days_display.setObjectName("calc_days_value")
         days_display.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header_layout.addWidget(days_display)
         
         # Plain English explanation
         days_label = QLabel("DAYS OF WATER REMAINING AT CURRENT USAGE")
-        days_label.setStyleSheet("")
+        days_label.setObjectName("calc_days_subtitle")
         days_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header_layout.addWidget(days_label)
         
@@ -1613,17 +1702,17 @@ class CalculationPage(QWidget):
         
         # Status badge
         badge = QLabel(f"{status_emoji} {status_text}")
-        badge.setStyleSheet("")
+        badge.setObjectName("calc_days_badge")
+        badge.setProperty("runwayState", status_text.lower())
         status_row.addWidget(badge)
         
         # Show monthly usage for context instead of confusing secondary number
         monthly_usage = daily_consumption * 30
         usage_info = QLabel(f"📊 Using {monthly_usage/1000:,.0f}k m³/month")
-        usage_info.setStyleSheet("")
+        usage_info.setObjectName("calc_days_usage")
         status_row.addWidget(usage_info)
         
         status_container = QWidget()
-        status_container.setStyleSheet("")
         status_container.setLayout(status_row)
         header_layout.addWidget(status_container)
         
@@ -1696,12 +1785,12 @@ class CalculationPage(QWidget):
         
         # Bar Chart - Runway by Facility
         bar_frame = QFrame()
-        bar_frame.setStyleSheet("")
+        bar_frame.setObjectName("calc_chart_frame")
         bar_layout = QVBoxLayout(bar_frame)
         bar_layout.setContentsMargins(16, 16, 16, 16)
         
-        bar_title = QLabel("📊 Runway by Facility (Days)")
-        bar_title.setStyleSheet("")
+        bar_title = QLabel("Runway by Facility (Days)")
+        bar_title.setObjectName("calc_chart_title")
         bar_layout.addWidget(bar_title)
         
         # Create bar chart
@@ -1739,19 +1828,18 @@ class CalculationPage(QWidget):
         bar_view = QChartView(bar_chart)
         bar_view.setRenderHint(QPainter.RenderHint.Antialiasing)
         bar_view.setMinimumHeight(200)
-        bar_view.setStyleSheet("")
         bar_layout.addWidget(bar_view)
         
         charts_row.addWidget(bar_frame, stretch=3)
         
         # Pie Chart - Storage Distribution
         pie_frame = QFrame()
-        pie_frame.setStyleSheet("")
+        pie_frame.setObjectName("calc_chart_frame")
         pie_layout = QVBoxLayout(pie_frame)
         pie_layout.setContentsMargins(16, 16, 16, 16)
         
-        pie_title = QLabel("🥧 Storage Distribution")
-        pie_title.setStyleSheet("")
+        pie_title = QLabel("Storage Distribution")
+        pie_title.setObjectName("calc_chart_title")
         pie_layout.addWidget(pie_title)
         
         # Create pie chart with percentage labels (on slices AND legend)
@@ -1791,7 +1879,6 @@ class CalculationPage(QWidget):
         pie_view = QChartView(pie_chart)
         pie_view.setRenderHint(QPainter.RenderHint.Antialiasing)
         pie_view.setMinimumHeight(200)
-        pie_view.setStyleSheet("")
         pie_layout.addWidget(pie_view)
         
         charts_row.addWidget(pie_frame, stretch=2)
@@ -1804,13 +1891,13 @@ class CalculationPage(QWidget):
         # FACILITY STATUS CARDS (Compact - 50% reduced)
         # ═══════════════════════════════════════════════════════════════════
         facilities_frame = QFrame()
-        facilities_frame.setStyleSheet("")
+        facilities_frame.setObjectName("calc_facilities_frame")
         facilities_layout = QVBoxLayout(facilities_frame)
         facilities_layout.setContentsMargins(10, 8, 10, 8)
         facilities_layout.setSpacing(4)
         
-        facilities_title = QLabel("🏭 Facility Status Details")
-        facilities_title.setStyleSheet("")
+        facilities_title = QLabel("Facility Status Details")
+        facilities_title.setObjectName("calc_facilities_title")
         facilities_layout.addWidget(facilities_title)
         
         # Facility grid - compact spacing (reduced 50%)
@@ -1821,17 +1908,17 @@ class CalculationPage(QWidget):
         for i, f in enumerate(runway.facilities[:12]):  # Max 12 facilities
             # Determine color based on days
             if f.days_remaining_conservative >= 180:
-                f_color = PALETTE["success"]
+                f_state = "healthy"
             elif f.days_remaining_conservative >= 90:
-                f_color = PALETTE["info"]
+                f_state = "moderate"
             elif f.days_remaining_conservative >= 30:
-                f_color = PALETTE["warning"]
+                f_state = "warning"
             else:
-                f_color = PALETTE["danger"]
-            f_bg = PALETTE["surface"]
+                f_state = "critical"
             
             f_card = QFrame()
-            f_card.setStyleSheet("")
+            f_card.setObjectName("calc_facility_card")
+            f_card.setProperty("runwayState", f_state)
             f_card.setMinimumHeight(55)
             f_layout = QVBoxLayout(f_card)
             f_layout.setContentsMargins(6, 4, 6, 4)
@@ -1839,23 +1926,24 @@ class CalculationPage(QWidget):
             
             # Facility code (compact)
             code_label = QLabel(f.facility_code)
-            code_label.setStyleSheet("")
+            code_label.setObjectName("calc_facility_code")
             f_layout.addWidget(code_label)
             
             # Days remaining (reduced from 20px to 13px)
             days_label = QLabel(f"{f.days_remaining_conservative}d")
-            days_label.setStyleSheet("")
+            days_label.setObjectName("calc_facility_days")
             f_layout.addWidget(days_label)
             
             # Volume - single line compact
             vol_label = QLabel(f"{f.current_volume_m3/1000:,.0f}k ({f.utilization_pct:.0f}%)")
-            vol_label.setStyleSheet("")
+            vol_label.setObjectName("calc_facility_volume")
             f_layout.addWidget(vol_label)
             
             # Utilization bar (thinner)
             util_bar = QFrame()
             util_bar.setFixedHeight(3)
-            util_bar.setStyleSheet("")
+            util_bar.setObjectName("calc_facility_bar")
+            util_bar.setProperty("runwayState", f_state)
             f_layout.addWidget(util_bar)
             
             row = i // 4
@@ -1872,7 +1960,7 @@ class CalculationPage(QWidget):
         🌍 <b>Environmental Factors (Burgersfort Region):</b> 
         Evaporation 75-180 mm/month | Rainfall 5-110 mm/month | Min reserve: 10% capacity
         """)
-        footer.setStyleSheet("")
+        footer.setObjectName("calc_section_footer")
         footer.setWordWrap(True)
         main_layout.addWidget(footer)
         

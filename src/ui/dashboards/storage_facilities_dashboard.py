@@ -228,24 +228,35 @@ class StorageFacilitiesPage(QWidget):
             self.ui.label_7.setContentsMargins(4, 2, 0, 0)
         if hasattr(self.ui, "label_6"):
             self.ui.label_6.setContentsMargins(4, 0, 0, 6)
+        if hasattr(self.ui, "label_5"):
+            self.ui.label_5.setText(
+                "Utilization = current volume / capacity. "
+                "After each balance run, facility closing volume is stored and used as the next period opening volume. "
+                "Inter-facility transfers are tracked as records when captured."
+            )
 
-        # Normalize toolbar action button sizes (Designer defaults are too tight).
+        # Normalize toolbar action button sizes.
+        toolbar_btn_height = 30
         if hasattr(self.ui, "add_facility_button"):
             self.ui.add_facility_button.setMinimumWidth(124)
             self.ui.add_facility_button.setMaximumWidth(150)
-            self.ui.add_facility_button.setMinimumHeight(36)
+            self.ui.add_facility_button.setMinimumHeight(toolbar_btn_height)
+            self.ui.add_facility_button.setMaximumHeight(toolbar_btn_height)
         if hasattr(self.ui, "edit_facility_button"):
             self.ui.edit_facility_button.setMinimumWidth(92)
             self.ui.edit_facility_button.setMaximumWidth(110)
-            self.ui.edit_facility_button.setMinimumHeight(36)
+            self.ui.edit_facility_button.setMinimumHeight(toolbar_btn_height)
+            self.ui.edit_facility_button.setMaximumHeight(toolbar_btn_height)
         if hasattr(self.ui, "delete_facility_button"):
             self.ui.delete_facility_button.setMinimumWidth(92)
             self.ui.delete_facility_button.setMaximumWidth(110)
-            self.ui.delete_facility_button.setMinimumHeight(36)
+            self.ui.delete_facility_button.setMinimumHeight(toolbar_btn_height)
+            self.ui.delete_facility_button.setMaximumHeight(toolbar_btn_height)
         if hasattr(self.ui, "monthly_parameter_button"):
             self.ui.monthly_parameter_button.setMinimumWidth(136)
             self.ui.monthly_parameter_button.setMaximumWidth(168)
-            self.ui.monthly_parameter_button.setMinimumHeight(36)
+            self.ui.monthly_parameter_button.setMinimumHeight(toolbar_btn_height)
+            self.ui.monthly_parameter_button.setMaximumHeight(toolbar_btn_height)
 
         # Raise KPI cards visually with subtle drop shadows.
         for card_name in [

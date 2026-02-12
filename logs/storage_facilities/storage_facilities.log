@@ -3520,3 +3520,375 @@
 2026-02-11 15:23:12 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
 2026-02-11 15:25:15 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
 2026-02-11 15:29:03 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-11 21:43:29 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-11 21:46:28 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-11 21:47:00 | INFO     | __init__:147 | Storage Facilities dashboard initializing...
+2026-02-11 21:47:00 | INFO     | _setup_table_model:313 | Table initialized with lazy-loading model (QAbstractTableModel)
+2026-02-11 21:47:00 | INFO     | showEvent:739 | [SHOW] Page shown: is_worker_running=None, has_pending_worker=False, has_facilities=False
+2026-02-11 21:47:00 | INFO     | showEvent:749 | [SHOW] First-time load - starting async load
+2026-02-11 21:47:00 | INFO     | _load_facilities_async:355 | [LOAD] Starting async facility load
+2026-02-11 21:47:00 | INFO     | _load_facilities_async:376 | [LOAD] Thread started
+2026-02-11 21:47:00 | INFO     | run:104 | Loaded storage facilities
+2026-02-11 21:47:00 | INFO     | _on_facilities_loaded:431 | [SIGNAL] _on_facilities_loaded received with 2 items
+2026-02-11 21:47:00 | INFO     | _on_facilities_loaded:440 | [SIGNAL] Storage facilities ready: 2 items
+2026-02-11 21:47:00 | INFO     | _cleanup_worker_signal:501 | [CLEANUP] Worker signal received - starting cleanup
+2026-02-11 21:47:00 | INFO     | _perform_thread_quit:527 | [CLEANUP] Thread quit successfully
+2026-02-11 21:47:00 | INFO     | _load_facilities_async:355 | [LOAD] Starting async facility load
+2026-02-11 21:47:00 | INFO     | _load_facilities_async:376 | [LOAD] Thread started
+2026-02-11 21:47:00 | INFO     | run:104 | Loaded storage facilities
+2026-02-11 21:47:00 | INFO     | _on_facilities_loaded:431 | [SIGNAL] _on_facilities_loaded received with 2 items
+2026-02-11 21:47:00 | INFO     | _on_facilities_loaded:440 | [SIGNAL] Storage facilities ready: 2 items
+2026-02-11 21:47:00 | INFO     | _cleanup_worker_signal:501 | [CLEANUP] Worker signal received - starting cleanup
+2026-02-11 21:47:00 | INFO     | _perform_thread_quit:527 | [CLEANUP] Thread quit successfully
+2026-02-11 21:49:16 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-11 21:49:31 | INFO     | __init__:147 | Storage Facilities dashboard initializing...
+2026-02-11 21:49:31 | INFO     | _setup_table_model:313 | Table initialized with lazy-loading model (QAbstractTableModel)
+2026-02-11 21:49:31 | INFO     | showEvent:739 | [SHOW] Page shown: is_worker_running=None, has_pending_worker=False, has_facilities=False
+2026-02-11 21:49:31 | INFO     | showEvent:749 | [SHOW] First-time load - starting async load
+2026-02-11 21:49:31 | INFO     | _load_facilities_async:355 | [LOAD] Starting async facility load
+2026-02-11 21:49:31 | INFO     | _load_facilities_async:376 | [LOAD] Thread started
+2026-02-11 21:49:31 | INFO     | run:104 | Loaded storage facilities
+2026-02-11 21:49:31 | INFO     | _on_facilities_loaded:431 | [SIGNAL] _on_facilities_loaded received with 2 items
+2026-02-11 21:49:31 | INFO     | _on_facilities_loaded:440 | [SIGNAL] Storage facilities ready: 2 items
+2026-02-11 21:49:31 | INFO     | _cleanup_worker_signal:501 | [CLEANUP] Worker signal received - starting cleanup
+2026-02-11 21:49:31 | INFO     | _perform_thread_quit:527 | [CLEANUP] Thread quit successfully
+2026-02-11 21:49:31 | INFO     | _load_facilities_async:355 | [LOAD] Starting async facility load
+2026-02-11 21:49:31 | INFO     | _load_facilities_async:376 | [LOAD] Thread started
+2026-02-11 21:49:31 | INFO     | run:104 | Loaded storage facilities
+2026-02-11 21:49:31 | INFO     | _on_facilities_loaded:431 | [SIGNAL] _on_facilities_loaded received with 2 items
+2026-02-11 21:49:31 | INFO     | _on_facilities_loaded:440 | [SIGNAL] Storage facilities ready: 2 items
+2026-02-11 21:49:31 | INFO     | _cleanup_worker_signal:501 | [CLEANUP] Worker signal received - starting cleanup
+2026-02-11 21:49:31 | INFO     | _perform_thread_quit:527 | [CLEANUP] Thread quit successfully
+2026-02-11 21:50:10 | INFO     | showEvent:739 | [SHOW] Page shown: is_worker_running=None, has_pending_worker=False, has_facilities=True
+2026-02-11 21:50:10 | INFO     | showEvent:745 | [SHOW] Data exists - refreshing
+2026-02-11 21:50:10 | INFO     | _on_refresh:770 | [REFRESH] Refresh requested
+2026-02-11 21:50:10 | INFO     | _load_facilities_async:355 | [LOAD] Starting async facility load
+2026-02-11 21:50:10 | INFO     | _load_facilities_async:376 | [LOAD] Thread started
+2026-02-11 21:50:10 | INFO     | _on_refresh:789 | [REFRESH] Facilities data refresh started
+2026-02-11 21:50:10 | INFO     | run:104 | Loaded storage facilities
+2026-02-11 21:50:10 | INFO     | _on_facilities_loaded:431 | [SIGNAL] _on_facilities_loaded received with 2 items
+2026-02-11 21:50:10 | INFO     | _on_facilities_loaded:440 | [SIGNAL] Storage facilities ready: 2 items
+2026-02-11 21:50:10 | INFO     | _cleanup_worker_signal:501 | [CLEANUP] Worker signal received - starting cleanup
+2026-02-11 21:50:10 | INFO     | _perform_thread_quit:527 | [CLEANUP] Thread quit successfully
+2026-02-11 21:50:25 | INFO     | showEvent:739 | [SHOW] Page shown: is_worker_running=None, has_pending_worker=False, has_facilities=True
+2026-02-11 21:50:25 | INFO     | showEvent:745 | [SHOW] Data exists - refreshing
+2026-02-11 21:50:25 | INFO     | _on_refresh:770 | [REFRESH] Refresh requested
+2026-02-11 21:50:25 | INFO     | _load_facilities_async:355 | [LOAD] Starting async facility load
+2026-02-11 21:50:25 | INFO     | _load_facilities_async:376 | [LOAD] Thread started
+2026-02-11 21:50:25 | INFO     | _on_refresh:789 | [REFRESH] Facilities data refresh started
+2026-02-11 21:50:25 | INFO     | run:104 | Loaded storage facilities
+2026-02-11 21:50:25 | INFO     | _on_facilities_loaded:431 | [SIGNAL] _on_facilities_loaded received with 2 items
+2026-02-11 21:50:25 | INFO     | _on_facilities_loaded:440 | [SIGNAL] Storage facilities ready: 2 items
+2026-02-11 21:50:25 | INFO     | _cleanup_worker_signal:501 | [CLEANUP] Worker signal received - starting cleanup
+2026-02-11 21:50:25 | INFO     | _perform_thread_quit:527 | [CLEANUP] Thread quit successfully
+2026-02-11 21:53:36 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-11 21:54:42 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-11 21:55:03 | INFO     | __init__:147 | Storage Facilities dashboard initializing...
+2026-02-11 21:55:03 | INFO     | _setup_table_model:313 | Table initialized with lazy-loading model (QAbstractTableModel)
+2026-02-11 21:55:03 | INFO     | showEvent:739 | [SHOW] Page shown: is_worker_running=None, has_pending_worker=False, has_facilities=False
+2026-02-11 21:55:03 | INFO     | showEvent:749 | [SHOW] First-time load - starting async load
+2026-02-11 21:55:03 | INFO     | _load_facilities_async:355 | [LOAD] Starting async facility load
+2026-02-11 21:55:03 | INFO     | _load_facilities_async:376 | [LOAD] Thread started
+2026-02-11 21:55:03 | INFO     | run:104 | Loaded storage facilities
+2026-02-11 21:55:03 | INFO     | _on_facilities_loaded:431 | [SIGNAL] _on_facilities_loaded received with 2 items
+2026-02-11 21:55:03 | INFO     | _on_facilities_loaded:440 | [SIGNAL] Storage facilities ready: 2 items
+2026-02-11 21:55:03 | INFO     | _cleanup_worker_signal:501 | [CLEANUP] Worker signal received - starting cleanup
+2026-02-11 21:55:03 | INFO     | _perform_thread_quit:527 | [CLEANUP] Thread quit successfully
+2026-02-11 21:55:04 | INFO     | _load_facilities_async:355 | [LOAD] Starting async facility load
+2026-02-11 21:55:04 | INFO     | _load_facilities_async:376 | [LOAD] Thread started
+2026-02-11 21:55:04 | INFO     | run:104 | Loaded storage facilities
+2026-02-11 21:55:04 | INFO     | _on_facilities_loaded:431 | [SIGNAL] _on_facilities_loaded received with 2 items
+2026-02-11 21:55:04 | INFO     | _on_facilities_loaded:440 | [SIGNAL] Storage facilities ready: 2 items
+2026-02-11 21:55:04 | INFO     | _cleanup_worker_signal:501 | [CLEANUP] Worker signal received - starting cleanup
+2026-02-11 21:55:04 | INFO     | _perform_thread_quit:527 | [CLEANUP] Thread quit successfully
+2026-02-11 22:02:48 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-11 22:03:58 | INFO     | __init__:147 | Storage Facilities dashboard initializing...
+2026-02-11 22:03:58 | INFO     | _setup_table_model:313 | Table initialized with lazy-loading model (QAbstractTableModel)
+2026-02-11 22:03:58 | INFO     | showEvent:739 | [SHOW] Page shown: is_worker_running=None, has_pending_worker=False, has_facilities=False
+2026-02-11 22:03:58 | INFO     | showEvent:749 | [SHOW] First-time load - starting async load
+2026-02-11 22:03:58 | INFO     | _load_facilities_async:355 | [LOAD] Starting async facility load
+2026-02-11 22:03:58 | INFO     | _load_facilities_async:376 | [LOAD] Thread started
+2026-02-11 22:03:58 | INFO     | run:104 | Loaded storage facilities
+2026-02-11 22:03:58 | INFO     | _on_facilities_loaded:431 | [SIGNAL] _on_facilities_loaded received with 2 items
+2026-02-11 22:03:58 | INFO     | _on_facilities_loaded:440 | [SIGNAL] Storage facilities ready: 2 items
+2026-02-11 22:03:58 | INFO     | _cleanup_worker_signal:501 | [CLEANUP] Worker signal received - starting cleanup
+2026-02-11 22:03:58 | INFO     | _perform_thread_quit:527 | [CLEANUP] Thread quit successfully
+2026-02-11 22:03:58 | INFO     | _load_facilities_async:355 | [LOAD] Starting async facility load
+2026-02-11 22:03:58 | INFO     | _load_facilities_async:376 | [LOAD] Thread started
+2026-02-11 22:03:58 | INFO     | run:104 | Loaded storage facilities
+2026-02-11 22:03:58 | INFO     | _on_facilities_loaded:431 | [SIGNAL] _on_facilities_loaded received with 2 items
+2026-02-11 22:03:58 | INFO     | _on_facilities_loaded:440 | [SIGNAL] Storage facilities ready: 2 items
+2026-02-11 22:03:58 | INFO     | _cleanup_worker_signal:501 | [CLEANUP] Worker signal received - starting cleanup
+2026-02-11 22:03:58 | INFO     | _perform_thread_quit:527 | [CLEANUP] Thread quit successfully
+2026-02-11 22:11:55 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-11 22:12:08 | INFO     | __init__:147 | Storage Facilities dashboard initializing...
+2026-02-11 22:12:08 | INFO     | _setup_table_model:313 | Table initialized with lazy-loading model (QAbstractTableModel)
+2026-02-11 22:12:08 | INFO     | showEvent:739 | [SHOW] Page shown: is_worker_running=None, has_pending_worker=False, has_facilities=False
+2026-02-11 22:12:08 | INFO     | showEvent:749 | [SHOW] First-time load - starting async load
+2026-02-11 22:12:08 | INFO     | _load_facilities_async:355 | [LOAD] Starting async facility load
+2026-02-11 22:12:08 | INFO     | _load_facilities_async:376 | [LOAD] Thread started
+2026-02-11 22:12:08 | INFO     | run:104 | Loaded storage facilities
+2026-02-11 22:12:08 | INFO     | _on_facilities_loaded:431 | [SIGNAL] _on_facilities_loaded received with 2 items
+2026-02-11 22:12:08 | INFO     | _on_facilities_loaded:440 | [SIGNAL] Storage facilities ready: 2 items
+2026-02-11 22:12:08 | INFO     | _cleanup_worker_signal:501 | [CLEANUP] Worker signal received - starting cleanup
+2026-02-11 22:12:08 | INFO     | _perform_thread_quit:527 | [CLEANUP] Thread quit successfully
+2026-02-11 22:12:08 | INFO     | _load_facilities_async:355 | [LOAD] Starting async facility load
+2026-02-11 22:12:08 | INFO     | _load_facilities_async:376 | [LOAD] Thread started
+2026-02-11 22:12:08 | INFO     | run:104 | Loaded storage facilities
+2026-02-11 22:12:08 | INFO     | _on_facilities_loaded:431 | [SIGNAL] _on_facilities_loaded received with 2 items
+2026-02-11 22:12:08 | INFO     | _on_facilities_loaded:440 | [SIGNAL] Storage facilities ready: 2 items
+2026-02-11 22:12:08 | INFO     | _cleanup_worker_signal:501 | [CLEANUP] Worker signal received - starting cleanup
+2026-02-11 22:12:08 | INFO     | _perform_thread_quit:527 | [CLEANUP] Thread quit successfully
+2026-02-11 22:16:13 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-11 22:22:10 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-11 22:22:20 | INFO     | __init__:147 | Storage Facilities dashboard initializing...
+2026-02-11 22:22:20 | INFO     | _setup_table_model:313 | Table initialized with lazy-loading model (QAbstractTableModel)
+2026-02-11 22:22:20 | INFO     | showEvent:739 | [SHOW] Page shown: is_worker_running=None, has_pending_worker=False, has_facilities=False
+2026-02-11 22:22:20 | INFO     | showEvent:749 | [SHOW] First-time load - starting async load
+2026-02-11 22:22:20 | INFO     | _load_facilities_async:355 | [LOAD] Starting async facility load
+2026-02-11 22:22:20 | INFO     | _load_facilities_async:376 | [LOAD] Thread started
+2026-02-11 22:22:20 | INFO     | run:104 | Loaded storage facilities
+2026-02-11 22:22:20 | INFO     | _on_facilities_loaded:431 | [SIGNAL] _on_facilities_loaded received with 2 items
+2026-02-11 22:22:20 | INFO     | _on_facilities_loaded:440 | [SIGNAL] Storage facilities ready: 2 items
+2026-02-11 22:22:20 | INFO     | _cleanup_worker_signal:501 | [CLEANUP] Worker signal received - starting cleanup
+2026-02-11 22:22:20 | INFO     | _perform_thread_quit:527 | [CLEANUP] Thread quit successfully
+2026-02-11 22:22:20 | INFO     | _load_facilities_async:355 | [LOAD] Starting async facility load
+2026-02-11 22:22:20 | INFO     | _load_facilities_async:376 | [LOAD] Thread started
+2026-02-11 22:22:20 | INFO     | run:104 | Loaded storage facilities
+2026-02-11 22:22:20 | INFO     | _on_facilities_loaded:431 | [SIGNAL] _on_facilities_loaded received with 2 items
+2026-02-11 22:22:20 | INFO     | _on_facilities_loaded:440 | [SIGNAL] Storage facilities ready: 2 items
+2026-02-11 22:22:20 | INFO     | _cleanup_worker_signal:501 | [CLEANUP] Worker signal received - starting cleanup
+2026-02-11 22:22:20 | INFO     | _perform_thread_quit:527 | [CLEANUP] Thread quit successfully
+2026-02-11 22:30:38 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-11 22:37:09 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-11 22:46:49 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-11 22:49:19 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-11 22:54:20 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-11 22:59:32 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-11 23:08:26 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-11 23:12:48 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-11 23:19:41 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-11 23:23:06 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-11 23:27:59 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-11 23:28:15 | INFO     | __init__:147 | Storage Facilities dashboard initializing...
+2026-02-11 23:28:15 | INFO     | _setup_table_model:313 | Table initialized with lazy-loading model (QAbstractTableModel)
+2026-02-11 23:28:15 | INFO     | showEvent:739 | [SHOW] Page shown: is_worker_running=None, has_pending_worker=False, has_facilities=False
+2026-02-11 23:28:15 | INFO     | showEvent:749 | [SHOW] First-time load - starting async load
+2026-02-11 23:28:15 | INFO     | _load_facilities_async:355 | [LOAD] Starting async facility load
+2026-02-11 23:28:15 | INFO     | _load_facilities_async:376 | [LOAD] Thread started
+2026-02-11 23:28:15 | INFO     | run:104 | Loaded storage facilities
+2026-02-11 23:28:15 | INFO     | _on_facilities_loaded:431 | [SIGNAL] _on_facilities_loaded received with 2 items
+2026-02-11 23:28:15 | INFO     | _on_facilities_loaded:440 | [SIGNAL] Storage facilities ready: 2 items
+2026-02-11 23:28:15 | INFO     | _cleanup_worker_signal:501 | [CLEANUP] Worker signal received - starting cleanup
+2026-02-11 23:28:15 | INFO     | _perform_thread_quit:527 | [CLEANUP] Thread quit successfully
+2026-02-11 23:28:15 | INFO     | _load_facilities_async:355 | [LOAD] Starting async facility load
+2026-02-11 23:28:15 | INFO     | _load_facilities_async:376 | [LOAD] Thread started
+2026-02-11 23:28:15 | INFO     | run:104 | Loaded storage facilities
+2026-02-11 23:28:15 | INFO     | _on_facilities_loaded:431 | [SIGNAL] _on_facilities_loaded received with 2 items
+2026-02-11 23:28:15 | INFO     | _on_facilities_loaded:440 | [SIGNAL] Storage facilities ready: 2 items
+2026-02-11 23:28:15 | INFO     | _cleanup_worker_signal:501 | [CLEANUP] Worker signal received - starting cleanup
+2026-02-11 23:28:15 | INFO     | _perform_thread_quit:527 | [CLEANUP] Thread quit successfully
+2026-02-11 23:33:09 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-11 23:35:40 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-11 23:39:34 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-11 23:44:15 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-11 23:49:43 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-12 00:00:54 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-12 00:09:27 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-12 00:11:56 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-12 00:15:31 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-12 00:24:45 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-12 00:28:48 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-12 01:06:27 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-12 01:15:31 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-12 01:23:57 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-12 01:36:27 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-12 01:40:47 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-12 01:44:16 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-12 01:56:41 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-12 02:12:25 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-12 02:17:57 | INFO     | __init__:147 | Storage Facilities dashboard initializing...
+2026-02-12 02:17:57 | INFO     | _setup_table_model:313 | Table initialized with lazy-loading model (QAbstractTableModel)
+2026-02-12 02:17:57 | INFO     | showEvent:739 | [SHOW] Page shown: is_worker_running=None, has_pending_worker=False, has_facilities=False
+2026-02-12 02:17:57 | INFO     | showEvent:749 | [SHOW] First-time load - starting async load
+2026-02-12 02:17:57 | INFO     | _load_facilities_async:355 | [LOAD] Starting async facility load
+2026-02-12 02:17:57 | INFO     | _load_facilities_async:376 | [LOAD] Thread started
+2026-02-12 02:17:57 | INFO     | run:104 | Loaded storage facilities
+2026-02-12 02:17:57 | INFO     | _on_facilities_loaded:431 | [SIGNAL] _on_facilities_loaded received with 2 items
+2026-02-12 02:17:57 | INFO     | _on_facilities_loaded:440 | [SIGNAL] Storage facilities ready: 2 items
+2026-02-12 02:17:57 | INFO     | _cleanup_worker_signal:501 | [CLEANUP] Worker signal received - starting cleanup
+2026-02-12 02:17:57 | INFO     | _perform_thread_quit:527 | [CLEANUP] Thread quit successfully
+2026-02-12 02:17:57 | INFO     | _load_facilities_async:355 | [LOAD] Starting async facility load
+2026-02-12 02:17:57 | INFO     | _load_facilities_async:376 | [LOAD] Thread started
+2026-02-12 02:17:57 | INFO     | run:104 | Loaded storage facilities
+2026-02-12 02:17:57 | INFO     | _on_facilities_loaded:431 | [SIGNAL] _on_facilities_loaded received with 2 items
+2026-02-12 02:17:57 | INFO     | _on_facilities_loaded:440 | [SIGNAL] Storage facilities ready: 2 items
+2026-02-12 02:17:57 | INFO     | _cleanup_worker_signal:501 | [CLEANUP] Worker signal received - starting cleanup
+2026-02-12 02:17:57 | INFO     | _perform_thread_quit:527 | [CLEANUP] Thread quit successfully
+2026-02-12 02:23:03 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-12 02:24:24 | INFO     | __init__:147 | Storage Facilities dashboard initializing...
+2026-02-12 02:24:24 | INFO     | _setup_table_model:318 | Table initialized with lazy-loading model (QAbstractTableModel)
+2026-02-12 02:24:24 | INFO     | showEvent:744 | [SHOW] Page shown: is_worker_running=None, has_pending_worker=False, has_facilities=False
+2026-02-12 02:24:24 | INFO     | showEvent:754 | [SHOW] First-time load - starting async load
+2026-02-12 02:24:24 | INFO     | _load_facilities_async:360 | [LOAD] Starting async facility load
+2026-02-12 02:24:24 | INFO     | _load_facilities_async:381 | [LOAD] Thread started
+2026-02-12 02:24:24 | INFO     | run:104 | Loaded storage facilities
+2026-02-12 02:24:24 | INFO     | _on_facilities_loaded:436 | [SIGNAL] _on_facilities_loaded received with 2 items
+2026-02-12 02:24:24 | INFO     | _on_facilities_loaded:445 | [SIGNAL] Storage facilities ready: 2 items
+2026-02-12 02:24:24 | INFO     | _cleanup_worker_signal:506 | [CLEANUP] Worker signal received - starting cleanup
+2026-02-12 02:24:24 | INFO     | _perform_thread_quit:532 | [CLEANUP] Thread quit successfully
+2026-02-12 02:24:25 | INFO     | _load_facilities_async:360 | [LOAD] Starting async facility load
+2026-02-12 02:24:25 | INFO     | _load_facilities_async:381 | [LOAD] Thread started
+2026-02-12 02:24:25 | INFO     | run:104 | Loaded storage facilities
+2026-02-12 02:24:25 | INFO     | _on_facilities_loaded:436 | [SIGNAL] _on_facilities_loaded received with 2 items
+2026-02-12 02:24:25 | INFO     | _on_facilities_loaded:445 | [SIGNAL] Storage facilities ready: 2 items
+2026-02-12 02:24:25 | INFO     | _cleanup_worker_signal:506 | [CLEANUP] Worker signal received - starting cleanup
+2026-02-12 02:24:25 | INFO     | _perform_thread_quit:532 | [CLEANUP] Thread quit successfully
+2026-02-12 02:25:54 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-12 02:26:00 | INFO     | __init__:147 | Storage Facilities dashboard initializing...
+2026-02-12 02:26:00 | INFO     | _setup_table_model:324 | Table initialized with lazy-loading model (QAbstractTableModel)
+2026-02-12 02:26:00 | INFO     | showEvent:750 | [SHOW] Page shown: is_worker_running=None, has_pending_worker=False, has_facilities=False
+2026-02-12 02:26:00 | INFO     | showEvent:760 | [SHOW] First-time load - starting async load
+2026-02-12 02:26:00 | INFO     | _load_facilities_async:366 | [LOAD] Starting async facility load
+2026-02-12 02:26:00 | INFO     | _load_facilities_async:387 | [LOAD] Thread started
+2026-02-12 02:26:00 | INFO     | run:104 | Loaded storage facilities
+2026-02-12 02:26:00 | INFO     | _on_facilities_loaded:442 | [SIGNAL] _on_facilities_loaded received with 2 items
+2026-02-12 02:26:00 | INFO     | _on_facilities_loaded:451 | [SIGNAL] Storage facilities ready: 2 items
+2026-02-12 02:26:00 | INFO     | _cleanup_worker_signal:512 | [CLEANUP] Worker signal received - starting cleanup
+2026-02-12 02:26:00 | INFO     | _perform_thread_quit:538 | [CLEANUP] Thread quit successfully
+2026-02-12 02:26:00 | INFO     | _load_facilities_async:366 | [LOAD] Starting async facility load
+2026-02-12 02:26:00 | INFO     | _load_facilities_async:387 | [LOAD] Thread started
+2026-02-12 02:26:00 | INFO     | run:104 | Loaded storage facilities
+2026-02-12 02:26:00 | INFO     | _on_facilities_loaded:442 | [SIGNAL] _on_facilities_loaded received with 2 items
+2026-02-12 02:26:00 | INFO     | _on_facilities_loaded:451 | [SIGNAL] Storage facilities ready: 2 items
+2026-02-12 02:26:00 | INFO     | _cleanup_worker_signal:512 | [CLEANUP] Worker signal received - starting cleanup
+2026-02-12 02:26:00 | INFO     | _perform_thread_quit:538 | [CLEANUP] Thread quit successfully
+2026-02-12 02:34:28 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-12 02:34:35 | INFO     | __init__:147 | Storage Facilities dashboard initializing...
+2026-02-12 02:34:35 | INFO     | _setup_table_model:324 | Table initialized with lazy-loading model (QAbstractTableModel)
+2026-02-12 02:34:35 | INFO     | showEvent:750 | [SHOW] Page shown: is_worker_running=None, has_pending_worker=False, has_facilities=False
+2026-02-12 02:34:35 | INFO     | showEvent:760 | [SHOW] First-time load - starting async load
+2026-02-12 02:34:35 | INFO     | _load_facilities_async:366 | [LOAD] Starting async facility load
+2026-02-12 02:34:35 | INFO     | _load_facilities_async:387 | [LOAD] Thread started
+2026-02-12 02:34:35 | INFO     | run:104 | Loaded storage facilities
+2026-02-12 02:34:35 | INFO     | _on_facilities_loaded:442 | [SIGNAL] _on_facilities_loaded received with 2 items
+2026-02-12 02:34:35 | INFO     | _on_facilities_loaded:451 | [SIGNAL] Storage facilities ready: 2 items
+2026-02-12 02:34:35 | INFO     | _cleanup_worker_signal:512 | [CLEANUP] Worker signal received - starting cleanup
+2026-02-12 02:34:35 | INFO     | _perform_thread_quit:538 | [CLEANUP] Thread quit successfully
+2026-02-12 02:34:35 | INFO     | _load_facilities_async:366 | [LOAD] Starting async facility load
+2026-02-12 02:34:35 | INFO     | _load_facilities_async:387 | [LOAD] Thread started
+2026-02-12 02:34:35 | INFO     | run:104 | Loaded storage facilities
+2026-02-12 02:34:35 | INFO     | _on_facilities_loaded:442 | [SIGNAL] _on_facilities_loaded received with 2 items
+2026-02-12 02:34:35 | INFO     | _on_facilities_loaded:451 | [SIGNAL] Storage facilities ready: 2 items
+2026-02-12 02:34:35 | INFO     | _cleanup_worker_signal:512 | [CLEANUP] Worker signal received - starting cleanup
+2026-02-12 02:34:35 | INFO     | _perform_thread_quit:538 | [CLEANUP] Thread quit successfully
+2026-02-12 02:43:24 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-12 02:43:51 | INFO     | __init__:147 | Storage Facilities dashboard initializing...
+2026-02-12 02:43:51 | INFO     | _setup_table_model:324 | Table initialized with lazy-loading model (QAbstractTableModel)
+2026-02-12 02:43:51 | INFO     | showEvent:750 | [SHOW] Page shown: is_worker_running=None, has_pending_worker=False, has_facilities=False
+2026-02-12 02:43:51 | INFO     | showEvent:760 | [SHOW] First-time load - starting async load
+2026-02-12 02:43:51 | INFO     | _load_facilities_async:366 | [LOAD] Starting async facility load
+2026-02-12 02:43:51 | INFO     | _load_facilities_async:387 | [LOAD] Thread started
+2026-02-12 02:43:51 | INFO     | run:104 | Loaded storage facilities
+2026-02-12 02:43:51 | INFO     | _on_facilities_loaded:442 | [SIGNAL] _on_facilities_loaded received with 2 items
+2026-02-12 02:43:51 | INFO     | _on_facilities_loaded:451 | [SIGNAL] Storage facilities ready: 2 items
+2026-02-12 02:43:51 | INFO     | _cleanup_worker_signal:512 | [CLEANUP] Worker signal received - starting cleanup
+2026-02-12 02:43:51 | INFO     | _perform_thread_quit:538 | [CLEANUP] Thread quit successfully
+2026-02-12 02:43:51 | INFO     | _load_facilities_async:366 | [LOAD] Starting async facility load
+2026-02-12 02:43:51 | INFO     | _load_facilities_async:387 | [LOAD] Thread started
+2026-02-12 02:43:51 | INFO     | run:104 | Loaded storage facilities
+2026-02-12 02:43:51 | INFO     | _on_facilities_loaded:442 | [SIGNAL] _on_facilities_loaded received with 2 items
+2026-02-12 02:43:51 | INFO     | _on_facilities_loaded:451 | [SIGNAL] Storage facilities ready: 2 items
+2026-02-12 02:43:51 | INFO     | _cleanup_worker_signal:512 | [CLEANUP] Worker signal received - starting cleanup
+2026-02-12 02:43:51 | INFO     | _perform_thread_quit:538 | [CLEANUP] Thread quit successfully
+2026-02-12 02:44:05 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-12 02:46:16 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-12 02:51:54 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-12 02:53:53 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-12 02:56:26 | INFO     | __init__:147 | Storage Facilities dashboard initializing...
+2026-02-12 02:56:26 | INFO     | _setup_table_model:324 | Table initialized with lazy-loading model (QAbstractTableModel)
+2026-02-12 02:56:26 | INFO     | showEvent:750 | [SHOW] Page shown: is_worker_running=None, has_pending_worker=False, has_facilities=False
+2026-02-12 02:56:26 | INFO     | showEvent:760 | [SHOW] First-time load - starting async load
+2026-02-12 02:56:26 | INFO     | _load_facilities_async:366 | [LOAD] Starting async facility load
+2026-02-12 02:56:26 | INFO     | _load_facilities_async:387 | [LOAD] Thread started
+2026-02-12 02:56:26 | INFO     | run:104 | Loaded storage facilities
+2026-02-12 02:56:26 | INFO     | _on_facilities_loaded:442 | [SIGNAL] _on_facilities_loaded received with 2 items
+2026-02-12 02:56:26 | INFO     | _on_facilities_loaded:451 | [SIGNAL] Storage facilities ready: 2 items
+2026-02-12 02:56:26 | INFO     | _cleanup_worker_signal:512 | [CLEANUP] Worker signal received - starting cleanup
+2026-02-12 02:56:26 | INFO     | _perform_thread_quit:538 | [CLEANUP] Thread quit successfully
+2026-02-12 02:56:26 | INFO     | _load_facilities_async:366 | [LOAD] Starting async facility load
+2026-02-12 02:56:26 | INFO     | _load_facilities_async:387 | [LOAD] Thread started
+2026-02-12 02:56:26 | INFO     | run:104 | Loaded storage facilities
+2026-02-12 02:56:26 | INFO     | _on_facilities_loaded:442 | [SIGNAL] _on_facilities_loaded received with 2 items
+2026-02-12 02:56:26 | INFO     | _on_facilities_loaded:451 | [SIGNAL] Storage facilities ready: 2 items
+2026-02-12 02:56:26 | INFO     | _cleanup_worker_signal:512 | [CLEANUP] Worker signal received - starting cleanup
+2026-02-12 02:56:26 | INFO     | _perform_thread_quit:538 | [CLEANUP] Thread quit successfully
+2026-02-12 02:56:51 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-12 03:02:14 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-12 03:02:31 | INFO     | __init__:147 | Storage Facilities dashboard initializing...
+2026-02-12 03:02:31 | INFO     | _setup_table_model:324 | Table initialized with lazy-loading model (QAbstractTableModel)
+2026-02-12 03:02:31 | INFO     | showEvent:750 | [SHOW] Page shown: is_worker_running=None, has_pending_worker=False, has_facilities=False
+2026-02-12 03:02:31 | INFO     | showEvent:760 | [SHOW] First-time load - starting async load
+2026-02-12 03:02:31 | INFO     | _load_facilities_async:366 | [LOAD] Starting async facility load
+2026-02-12 03:02:31 | INFO     | _load_facilities_async:387 | [LOAD] Thread started
+2026-02-12 03:02:31 | INFO     | run:104 | Loaded storage facilities
+2026-02-12 03:02:31 | INFO     | _on_facilities_loaded:442 | [SIGNAL] _on_facilities_loaded received with 2 items
+2026-02-12 03:02:31 | INFO     | _on_facilities_loaded:451 | [SIGNAL] Storage facilities ready: 2 items
+2026-02-12 03:02:31 | INFO     | _cleanup_worker_signal:512 | [CLEANUP] Worker signal received - starting cleanup
+2026-02-12 03:02:31 | INFO     | _perform_thread_quit:538 | [CLEANUP] Thread quit successfully
+2026-02-12 03:02:31 | INFO     | _load_facilities_async:366 | [LOAD] Starting async facility load
+2026-02-12 03:02:31 | INFO     | _load_facilities_async:387 | [LOAD] Thread started
+2026-02-12 03:02:31 | INFO     | run:104 | Loaded storage facilities
+2026-02-12 03:02:31 | INFO     | _on_facilities_loaded:442 | [SIGNAL] _on_facilities_loaded received with 2 items
+2026-02-12 03:02:31 | INFO     | _on_facilities_loaded:451 | [SIGNAL] Storage facilities ready: 2 items
+2026-02-12 03:02:31 | INFO     | _cleanup_worker_signal:512 | [CLEANUP] Worker signal received - starting cleanup
+2026-02-12 03:02:31 | INFO     | _perform_thread_quit:538 | [CLEANUP] Thread quit successfully
+2026-02-12 03:02:39 | INFO     | showEvent:750 | [SHOW] Page shown: is_worker_running=None, has_pending_worker=False, has_facilities=True
+2026-02-12 03:02:39 | INFO     | showEvent:756 | [SHOW] Data exists - refreshing
+2026-02-12 03:02:39 | INFO     | _on_refresh:781 | [REFRESH] Refresh requested
+2026-02-12 03:02:39 | INFO     | _load_facilities_async:366 | [LOAD] Starting async facility load
+2026-02-12 03:02:39 | INFO     | _load_facilities_async:387 | [LOAD] Thread started
+2026-02-12 03:02:39 | INFO     | _on_refresh:800 | [REFRESH] Facilities data refresh started
+2026-02-12 03:02:39 | INFO     | run:104 | Loaded storage facilities
+2026-02-12 03:02:39 | INFO     | _on_facilities_loaded:442 | [SIGNAL] _on_facilities_loaded received with 2 items
+2026-02-12 03:02:39 | INFO     | _on_facilities_loaded:451 | [SIGNAL] Storage facilities ready: 2 items
+2026-02-12 03:02:39 | INFO     | _cleanup_worker_signal:512 | [CLEANUP] Worker signal received - starting cleanup
+2026-02-12 03:02:39 | INFO     | _perform_thread_quit:538 | [CLEANUP] Thread quit successfully
+2026-02-12 03:02:50 | INFO     | showEvent:750 | [SHOW] Page shown: is_worker_running=None, has_pending_worker=False, has_facilities=True
+2026-02-12 03:02:50 | INFO     | showEvent:756 | [SHOW] Data exists - refreshing
+2026-02-12 03:02:50 | INFO     | _on_refresh:781 | [REFRESH] Refresh requested
+2026-02-12 03:02:50 | INFO     | _load_facilities_async:366 | [LOAD] Starting async facility load
+2026-02-12 03:02:50 | INFO     | _load_facilities_async:387 | [LOAD] Thread started
+2026-02-12 03:02:50 | INFO     | _on_refresh:800 | [REFRESH] Facilities data refresh started
+2026-02-12 03:02:50 | INFO     | run:104 | Loaded storage facilities
+2026-02-12 03:02:50 | INFO     | _on_facilities_loaded:442 | [SIGNAL] _on_facilities_loaded received with 2 items
+2026-02-12 03:02:50 | INFO     | _on_facilities_loaded:451 | [SIGNAL] Storage facilities ready: 2 items
+2026-02-12 03:02:50 | INFO     | _cleanup_worker_signal:512 | [CLEANUP] Worker signal received - starting cleanup
+2026-02-12 03:02:50 | INFO     | _perform_thread_quit:538 | [CLEANUP] Thread quit successfully
+2026-02-12 03:03:28 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-12 03:08:56 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-12 03:09:10 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-12 03:09:26 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-12 03:09:40 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-12 03:15:12 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-12 03:15:32 | INFO     | __init__:147 | Storage Facilities dashboard initializing...
+2026-02-12 03:15:32 | INFO     | _setup_table_model:324 | Table initialized with lazy-loading model (QAbstractTableModel)
+2026-02-12 03:15:32 | INFO     | showEvent:750 | [SHOW] Page shown: is_worker_running=None, has_pending_worker=False, has_facilities=False
+2026-02-12 03:15:32 | INFO     | showEvent:760 | [SHOW] First-time load - starting async load
+2026-02-12 03:15:32 | INFO     | _load_facilities_async:366 | [LOAD] Starting async facility load
+2026-02-12 03:15:32 | INFO     | _load_facilities_async:387 | [LOAD] Thread started
+2026-02-12 03:15:32 | INFO     | run:104 | Loaded storage facilities
+2026-02-12 03:15:32 | INFO     | _on_facilities_loaded:442 | [SIGNAL] _on_facilities_loaded received with 2 items
+2026-02-12 03:15:32 | INFO     | _on_facilities_loaded:451 | [SIGNAL] Storage facilities ready: 2 items
+2026-02-12 03:15:32 | INFO     | _cleanup_worker_signal:512 | [CLEANUP] Worker signal received - starting cleanup
+2026-02-12 03:15:32 | INFO     | _perform_thread_quit:538 | [CLEANUP] Thread quit successfully
+2026-02-12 03:15:32 | INFO     | _load_facilities_async:366 | [LOAD] Starting async facility load
+2026-02-12 03:15:32 | INFO     | _load_facilities_async:387 | [LOAD] Thread started
+2026-02-12 03:15:32 | INFO     | run:104 | Loaded storage facilities
+2026-02-12 03:15:32 | INFO     | _on_facilities_loaded:442 | [SIGNAL] _on_facilities_loaded received with 2 items
+2026-02-12 03:15:32 | INFO     | _on_facilities_loaded:451 | [SIGNAL] Storage facilities ready: 2 items
+2026-02-12 03:15:32 | INFO     | _cleanup_worker_signal:512 | [CLEANUP] Worker signal received - starting cleanup
+2026-02-12 03:15:32 | INFO     | _perform_thread_quit:538 | [CLEANUP] Thread quit successfully
+2026-02-12 03:21:53 | INFO     | get_dashboard_logger:584 | === STORAGE_FACILITIES Dashboard Logger Initialized ===
+2026-02-12 03:21:53 | INFO     | <module>:59 | Test message 1 from storage
+2026-02-12 03:21:53 | WARNING  | <module>:65 | Test warning from storage

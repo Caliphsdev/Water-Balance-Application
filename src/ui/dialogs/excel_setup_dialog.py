@@ -20,6 +20,7 @@ from PySide6.QtWidgets import (
     QTableWidgetItem,
     QMessageBox,
     QHBoxLayout,
+    QLabel,
 )
 from PySide6.QtCore import Qt
 from typing import Dict, Optional
@@ -63,6 +64,7 @@ class ExcelSetupDialog(QDialog):
         super().__init__(parent)
         self.ui = Ui_ExcelSetupDialog()
         self.ui.setupUi(self)
+        self._apply_dialog_polish()
         
         # Clear any lingering placeholder texts that might have been set
         self.ui.input_file_path.clear()
@@ -80,6 +82,7 @@ class ExcelSetupDialog(QDialog):
         self._load_excel_mappings()
         self._connect_buttons()
         self._setup_preview_panel()
+        self._setup_empty_mapping_hint()
         
         # Load existing Excel path from config if it exists
         existing_path = self.excel_manager.get_flow_diagram_path()
@@ -88,17 +91,16 @@ class ExcelSetupDialog(QDialog):
             self.ui.input_file_path.setText(self.excel_path)
             flow_sheets = self.excel_manager.list_flow_sheets()
             if flow_sheets:
-                self.ui.value_status.setText(f"Loaded: {len(flow_sheets)} flow sheets")
-                self.ui.value_status.setStyleSheet("color: #22AA22;")
+                self._set_status_message(f"Configured: {len(flow_sheets)} flow sheets detected", "ok")
                 # Populate table now that Excel is already loaded
                 self._populate_mapping_table()
                 # Preview the first sheet
                 if hasattr(self, "_preview_widget"):
                     self._preview_widget.set_sheet(flow_sheets[0])
             else:
-                self.ui.value_status.setText("No Excel file configured")
+                self._set_status_message("No Flow sheets found in selected workbook", "warn")
         else:
-            self.ui.value_status.setText("No Excel file configured")
+            self._set_status_message("No Excel file configured", "warn")
         
         # Always show grid and alternating colors for better visibility
         self.ui.table_mapping.setShowGrid(True)
@@ -118,6 +120,182 @@ class ExcelSetupDialog(QDialog):
             (screen.width() - dialog_width) // 2,
             (screen.height() - dialog_height) // 2
         )
+
+    def _apply_dialog_polish(self) -> None:
+        """Apply consistent design system for Excel setup dialog."""
+        self.setMinimumSize(1100, 720)
+        self.ui.btn_browse.setMinimumHeight(32)
+        self.ui.btn_auto_map_all.setMinimumHeight(32)
+        self.ui.btn_clear_mapping.setMinimumHeight(32)
+        self.ui.btn_manage_columns.setMinimumHeight(32)
+        self.ui.btn_save.setMinimumHeight(34)
+        self.ui.btn_cancel.setMinimumHeight(34)
+        self.ui.input_file_path.setMinimumHeight(32)
+        self.ui.value_status.setMinimumHeight(32)
+        self.ui.label_instruction.setStyleSheet("")
+        self.ui.label_instruction.setText(
+            "Configure Excel source and map flow lines to workbook columns."
+        )
+
+        self.ui.table_mapping.verticalHeader().setVisible(False)
+        self.ui.table_mapping.setSelectionBehavior(self.ui.table_mapping.SelectionBehavior.SelectRows)
+        self.ui.table_mapping.setSelectionMode(self.ui.table_mapping.SelectionMode.SingleSelection)
+
+        self.setStyleSheet(
+            """
+            QDialog {
+                background: #f5f8fc;
+            }
+            QGroupBox {
+                border: 1px solid #c9d8ea;
+                border-radius: 10px;
+                margin-top: 8px;
+                padding: 10px;
+                color: #173b68;
+                font-weight: 600;
+            }
+            QLabel#label_instruction {
+                color: #153e72;
+                font-size: 13px;
+                font-weight: 700;
+                margin-bottom: 6px;
+            }
+            QLineEdit, QComboBox {
+                background: #ffffff;
+                border: 1px solid #b8c9dd;
+                border-radius: 6px;
+                padding: 4px 8px;
+                color: #0f2747;
+            }
+            QTableWidget {
+                background: #ffffff;
+                border: 1px solid #c8d8ea;
+                border-radius: 8px;
+                alternate-background-color: #f8fbff;
+                gridline-color: #d9e3f0;
+            }
+            QHeaderView::section {
+                background: #e6eef8;
+                color: #173b68;
+                border: 1px solid #c8d8ea;
+                padding: 6px;
+                font-weight: 700;
+            }
+            QLabel#value_status[statusTone="ok"] {
+                background: #ecfdf3;
+                color: #157347;
+                border: 1px solid #b7e4c7;
+                border-radius: 6px;
+                padding: 5px 8px;
+                font-weight: 700;
+            }
+            QLabel#value_status[statusTone="warn"] {
+                background: #fff4e6;
+                color: #b45309;
+                border: 1px solid #f5d0a9;
+                border-radius: 6px;
+                padding: 5px 8px;
+                font-weight: 700;
+            }
+            QLabel#mappingEmptyLabel {
+                color: #4d6788;
+                font-size: 13px;
+                padding: 22px;
+                border: 1px dashed #c7d6e8;
+                border-radius: 8px;
+                background: #fbfdff;
+            }
+            QPushButton {
+                min-width: 92px;
+                border: 1px solid #b7c7db;
+                border-radius: 8px;
+                padding: 6px 12px;
+                background: #f8fbff;
+                color: #173b68;
+            }
+            QPushButton:hover {
+                background: #eef4fb;
+            }
+            QPushButton#btn_save {
+                background: #1f4f8f;
+                border: 1px solid #1f4f8f;
+                color: #ffffff;
+                font-weight: 700;
+            }
+            QPushButton#btn_save:hover {
+                background: #1a457d;
+            }
+            QPushButton#btn_auto_map_all {
+                background: #1f4f8f;
+                border: 1px solid #1f4f8f;
+                color: #ffffff;
+                font-weight: 700;
+            }
+            QPushButton#btn_auto_map_all:hover {
+                background: #1a457d;
+            }
+            QPushButton#btn_manage_columns {
+                background: #f8fbff;
+                border: 1px solid #b7c7db;
+                color: #173b68;
+            }
+            QPushButton#btn_manage_columns:hover {
+                background: #eef4fb;
+            }
+            QPushButton#btn_clear_mapping {
+                background: #fff4f4;
+                border: 1px solid #f2b8b5;
+                color: #b42318;
+                font-weight: 600;
+            }
+            QPushButton#btn_clear_mapping:hover {
+                background: #ffe9e8;
+            }
+            QPushButton#btn_preview_add_row {
+                background: #f8fbff;
+                border: 1px solid #b7c7db;
+                color: #173b68;
+            }
+            QPushButton#btn_preview_add_row:hover {
+                background: #eef4fb;
+            }
+            QPushButton#btn_preview_save_changes {
+                background: #1f4f8f;
+                border: 1px solid #1f4f8f;
+                color: #ffffff;
+                font-weight: 700;
+            }
+            QPushButton#btn_preview_save_changes:hover {
+                background: #1a457d;
+            }
+            """
+        )
+
+    def _set_status_message(self, text: str, tone: str = "warn") -> None:
+        """Set status message with visual tone badge."""
+        self.ui.value_status.setText(text)
+        self.ui.value_status.setObjectName("value_status")
+        self.ui.value_status.setProperty("statusTone", tone)
+        style = self.ui.value_status.style()
+        style.unpolish(self.ui.value_status)
+        style.polish(self.ui.value_status)
+        self.ui.value_status.update()
+
+    def _setup_empty_mapping_hint(self) -> None:
+        """Create empty-state helper text under mapping area."""
+        self._mapping_empty_label = QLabel(
+            "No flow mappings to show. Load an Excel file and use Auto-Map or manual mapping."
+        )
+        self._mapping_empty_label.setObjectName("mappingEmptyLabel")
+        self._mapping_empty_label.setAlignment(Qt.AlignCenter)
+        self.ui.verticalLayout_table.insertWidget(1, self._mapping_empty_label)
+        self._update_mapping_empty_state()
+
+    def _update_mapping_empty_state(self) -> None:
+        """Show empty-state hint when table has no rows."""
+        has_rows = self.ui.table_mapping.rowCount() > 0
+        if hasattr(self, "_mapping_empty_label"):
+            self._mapping_empty_label.setVisible(not has_rows)
     
     def _connect_buttons(self):
         """Connect button signals (EVENT CONNECTIONS).
@@ -193,8 +371,7 @@ class ExcelSetupDialog(QDialog):
         # Validate flow sheets exist
         flow_sheets = self.excel_manager.list_flow_sheets()
         if flow_sheets:
-            self.ui.value_status.setText(f"Loaded: {len(flow_sheets)} flow sheets")
-            self.ui.value_status.setStyleSheet("color: #22AA22;")
+            self._set_status_message(f"Configured: {len(flow_sheets)} flow sheets detected", "ok")
             # Show the mapping table now that Excel is loaded
             self._populate_mapping_table()
             self.ui.groupBox_mapping.show()
@@ -202,8 +379,7 @@ class ExcelSetupDialog(QDialog):
             if hasattr(self, "_preview_widget"):
                 self._preview_widget.set_sheet(flow_sheets[0])
         else:
-            self.ui.value_status.setText("Error: No 'Flows_*' sheets found")
-            self.ui.value_status.setStyleSheet("color: #E74C3C;")
+            self._set_status_message("No 'Flows_*' sheets found in selected file", "warn")
 
     def _on_mapping_selection_changed(self):
         """Update preview when the mapping table selection changes."""
@@ -297,6 +473,7 @@ class ExcelSetupDialog(QDialog):
             status_item = QTableWidgetItem(status)
             status_item.setForeground(Qt.green if sheet and column else Qt.red)
             self.ui.table_mapping.setItem(row, 3, status_item)
+        self._update_mapping_empty_state()
     
     def _on_auto_map_all(self):
         """

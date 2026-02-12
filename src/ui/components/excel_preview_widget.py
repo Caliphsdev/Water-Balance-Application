@@ -70,6 +70,10 @@ class ExcelPreviewWidget(QWidget):
         self._btn_add_row = QPushButton("Add Row")
         self._btn_save = QPushButton("Save Changes")
         self._btn_save.setToolTip("Save edits back to Excel file (use cautiously!)")
+        self._btn_add_row.setObjectName("btn_preview_add_row")
+        self._btn_save.setObjectName("btn_preview_save_changes")
+        self._btn_add_row.setMinimumHeight(32)
+        self._btn_save.setMinimumHeight(32)
 
         button_layout = QHBoxLayout()
         button_layout.addWidget(self._btn_add_row)

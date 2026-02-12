@@ -3,9 +3,18 @@ Splash screen component for app initialization.
 
 Displays branding and progress while loading database, pages, and resources.
 """
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QProgressBar
-from PySide6.QtCore import Qt, QTimer
-from PySide6.QtGui import QPixmap, QFont
+from pathlib import Path
+
+from PySide6.QtWidgets import (
+    QWidget,
+    QVBoxLayout,
+    QLabel,
+    QProgressBar,
+    QFrame,
+    QGraphicsDropShadowEffect,
+)
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QPixmap, QColor
 
 
 class SplashScreen(QWidget):
@@ -24,95 +33,139 @@ class SplashScreen(QWidget):
     
     def _setup_ui(self):
         """Create splash screen layout with logo, title, and progress bar."""
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(30, 30, 30, 30)
-        layout.setSpacing(20)
-        
-        # Container for styling
-        container = QWidget()
-        container.setStyleSheet("""
-            QWidget {
-                background-color: white;
-                border-radius: 10px;
-                border: 2px solid #0D47A1;
-            }
-        """)
+        root_layout = QVBoxLayout(self)
+        root_layout.setContentsMargins(24, 24, 24, 24)
+        root_layout.setSpacing(0)
+
+        container = QFrame()
+        container.setObjectName("splashCard")
+        shadow = QGraphicsDropShadowEffect(self)
+        shadow.setBlurRadius(28)
+        shadow.setOffset(0, 10)
+        shadow.setColor(QColor(14, 42, 79, 55))
+        container.setGraphicsEffect(shadow)
+
         container_layout = QVBoxLayout(container)
-        container_layout.setContentsMargins(40, 40, 40, 40)
-        container_layout.setSpacing(20)
-        
-        # Logo (if available)
-        try:
-            logo_label = QLabel()
-            pixmap = QPixmap(":/icons/water_balance_logo.png")  # Try resource first
-            if pixmap.isNull():
-                pixmap = QPixmap("logo/Water Balance.ico")  # Fallback to file
-            if not pixmap.isNull():
-                scaled_pixmap = pixmap.scaled(128, 128, Qt.AspectRatioMode.KeepAspectRatio, 
-                                              Qt.TransformationMode.SmoothTransformation)
-                logo_label.setPixmap(scaled_pixmap)
-                logo_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                container_layout.addWidget(logo_label)
-        except:
-            pass  # Skip logo if not found
-        
-        # Application title
+        container_layout.setContentsMargins(34, 30, 34, 28)
+        container_layout.setSpacing(12)
+
+        self.setStyleSheet(
+            """
+            QFrame#splashCard {
+                background: #fdfefe;
+                border-radius: 14px;
+                border: 1px solid #c9d8ea;
+            }
+            QLabel#companyName {
+                color: #173b68;
+                font-size: 14px;
+                font-weight: 700;
+            }
+            QLabel#appTitle {
+                color: #103e7a;
+                font-size: 24px;
+                font-weight: 700;
+            }
+            QLabel#appVersion {
+                color: #476488;
+                font-size: 11px;
+                font-weight: 500;
+            }
+            QLabel#statusLabel {
+                color: #1f3556;
+                font-size: 12px;
+                font-weight: 600;
+            }
+            QLabel#statusHint {
+                color: #6f87a5;
+                font-size: 10px;
+                font-weight: 500;
+            }
+            QProgressBar {
+                background: #e6eef7;
+                border: 1px solid #d4e0ee;
+                border-radius: 6px;
+            }
+            QProgressBar::chunk {
+                background: #1f4f8f;
+                border-radius: 5px;
+            }
+            """
+        )
+
+        logo_label = QLabel()
+        logo_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        logo_label.setFixedHeight(64)
+        logo_pixmap = self._load_company_logo()
+        if not logo_pixmap.isNull():
+            logo_label.setPixmap(
+                logo_pixmap.scaled(
+                    210,
+                    58,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation,
+                )
+            )
+        else:
+            logo_label.setText("TransAfrica Resources")
+            logo_label.setObjectName("companyName")
+        container_layout.addWidget(logo_label)
+
         title_label = QLabel("Water Balance Dashboard")
-        title_font = QFont()
-        title_font.setPointSize(18)
-        title_font.setBold(True)
-        title_label.setFont(title_font)
+        title_label.setObjectName("appTitle")
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        title_label.setStyleSheet("color: #0D47A1; background: transparent; border: none;")
         container_layout.addWidget(title_label)
-        
-        # Subtitle with version
+
         from core.config_manager import ConfigManager
         config = ConfigManager()
         app_version = config.get('app.version', '1.0.1')
-        subtitle_text = f"PySide6 Edition - v{app_version}"
+        subtitle_text = f"Version {app_version}  |  TransAfrica Resources"
         subtitle_label = QLabel(subtitle_text)
-        subtitle_font = QFont()
-        subtitle_font.setPointSize(10)
-        subtitle_label.setFont(subtitle_font)
+        subtitle_label.setObjectName("appVersion")
         subtitle_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        subtitle_label.setStyleSheet("color: #666666; background: transparent; border: none;")
         container_layout.addWidget(subtitle_label)
-        
-        # Spacer
-        container_layout.addSpacing(20)
-        
-        # Status label
+
+        container_layout.addSpacing(12)
+
         self.status_label = QLabel("Initializing...")
-        status_font = QFont()
-        status_font.setPointSize(10)
-        self.status_label.setFont(status_font)
+        self.status_label.setObjectName("statusLabel")
         self.status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.status_label.setStyleSheet("color: #333333; background: transparent; border: none;")
         container_layout.addWidget(self.status_label)
-        
-        # Progress bar
+
+        self.status_hint_label = QLabel("Loading modules and validating configuration")
+        self.status_hint_label.setObjectName("statusHint")
+        self.status_hint_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        container_layout.addWidget(self.status_hint_label)
+
+        container_layout.addSpacing(6)
+
         self.progress_bar = QProgressBar()
         self.progress_bar.setMinimum(0)
         self.progress_bar.setMaximum(100)
         self.progress_bar.setValue(0)
         self.progress_bar.setTextVisible(False)
-        self.progress_bar.setFixedHeight(6)
-        self.progress_bar.setStyleSheet("""
-            QProgressBar {
-                background-color: #E0E0E0;
-                border-radius: 3px;
-                border: none;
-            }
-            QProgressBar::chunk {
-                background-color: #0D47A1;
-                border-radius: 3px;
-            }
-        """)
+        self.progress_bar.setFixedHeight(12)
         container_layout.addWidget(self.progress_bar)
-        
-        layout.addWidget(container)
-        self.setFixedSize(450, 400)
+
+        root_layout.addWidget(container)
+        self.setFixedSize(560, 420)
+
+    def _load_company_logo(self) -> QPixmap:
+        """Load company logo from resources or project file fallback."""
+        pixmap = QPixmap(":/icons/Company logo.png")
+        if not pixmap.isNull():
+            return pixmap
+
+        project_logo = (
+            Path(__file__).resolve().parents[1]
+            / "resources"
+            / "icons"
+            / "Company logo.png"
+        )
+        if project_logo.exists():
+            return QPixmap(str(project_logo))
+
+        return QPixmap()
     
     def _center_on_screen(self):
         """Center splash screen on primary screen."""
@@ -130,6 +183,7 @@ class SplashScreen(QWidget):
             progress: Progress percentage (0-100), None to keep current
         """
         self.status_label.setText(message)
+        self.status_hint_label.setText("Please wait while the dashboard starts...")
         if progress is not None:
             self.progress_bar.setValue(progress)
     

@@ -29,141 +29,118 @@ logger = logging.getLogger(__name__)
 # (STYLES)
 
 LICENSE_DIALOG_STYLE = """
-/* ============================================================================
-   License Activation Dialog - Commercial Grade Design
-   Based on Primer Design System (GitHub) + Carbon Design System (IBM)
-   ============================================================================ */
-
+/* Unified light business styling to match dashboard theme */
 QDialog#LicenseDialog {
-    background-color: #0D1117;
+    background-color: #f5f8fc;
 }
 
-/* --------------------------------------------------------------------------
-   HEADER SECTION - Hero area with branding
-   -------------------------------------------------------------------------- */
 QFrame#headerFrame {
-    background: qlineargradient(
-        x1: 0, y1: 0, x2: 1, y2: 1,
-        stop: 0 #161B22,
-        stop: 1 #0D1117
-    );
-    border: 1px solid #30363D;
+    background: #ffffff;
+    border: 1px solid #c9d8ea;
     border-radius: 12px;
 }
 
 QLabel#iconLabel {
-    font-size: 48px;
-    color: #58A6FF;
+    color: #1f4f8f;
 }
 
 QLabel#titleLabel {
-    font-size: 24px;
+    font-size: 22px;
     font-weight: 600;
-    color: #E6EDF3;
-    letter-spacing: -0.5px;
+    color: #173b68;
 }
 
 QLabel#subtitleLabel {
     font-size: 13px;
     font-weight: 400;
-    color: #8B949E;
-    line-height: 1.5;
+    color: #4d6788;
 }
 
-/* --------------------------------------------------------------------------
-   INPUT SECTION - License key entry
-   -------------------------------------------------------------------------- */
 QFrame#inputFrame {
-    background-color: #161B22;
-    border: 1px solid #30363D;
+    background-color: #ffffff;
+    border: 1px solid #c9d8ea;
     border-radius: 12px;
 }
 
 QLabel#fieldLabel {
     font-size: 12px;
     font-weight: 600;
-    color: #8B949E;
+    color: #4d6788;
     letter-spacing: 0.5px;
-    text-transform: uppercase;
     margin-bottom: 8px;
 }
 
 QLineEdit#licenseKeyInput {
-    background-color: #0D1117;
-    border: 2px solid #30363D;
+    background-color: #ffffff;
+    border: 2px solid #b8c9dd;
     border-radius: 8px;
-    padding: 14px 18px;
-    font-size: 18px;
+    padding: 12px 14px;
+    font-size: 16px;
     font-family: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
     font-weight: 500;
-    color: #E6EDF3;
-    letter-spacing: 3px;
-    selection-background-color: #388BFD;
+    color: #102a4a;
+    letter-spacing: 2px;
+    selection-background-color: #1f4f8f;
 }
 
 QLineEdit#textInput {
-    background-color: #0D1117;
-    border: 1px solid #30363D;
+    background-color: #ffffff;
+    border: 1px solid #b8c9dd;
     border-radius: 6px;
     padding: 10px 12px;
     font-size: 13px;
-    color: #E6EDF3;
+    color: #102a4a;
 }
 
 QLineEdit#textInput:focus {
-    border-color: #58A6FF;
-    background-color: #161B22;
+    border-color: #1f4f8f;
+    background-color: #fdfefe;
 }
 
 QLineEdit#licenseKeyInput:focus {
-    border-color: #58A6FF;
-    background-color: #161B22;
+    border-color: #1f4f8f;
+    background-color: #fdfefe;
 }
 
 QLineEdit#licenseKeyInput:hover {
-    border-color: #484F58;
+    border-color: #90a7c4;
 }
 
 QLineEdit#licenseKeyInput:disabled {
-    background-color: #21262D;
-    color: #484F58;
-    border-color: #21262D;
+    background-color: #eef2f7;
+    color: #7d8fa6;
+    border-color: #d3deeb;
 }
 
-/* Format hint below license input */
 QLabel#formatHint {
     font-size: 11px;
-    color: #6E7681;
+    color: #6b829f;
     font-style: italic;
     padding-left: 4px;
 }
 
-/* Machine ID display */
 QFrame#hwidFrame {
-    background-color: #0D1117;
-    border: 1px solid #21262D;
+    background-color: #f8fbff;
+    border: 1px solid #d0deed;
     border-radius: 6px;
 }
 
 QLabel#hwidLabel {
     font-size: 11px;
     font-family: 'JetBrains Mono', 'Cascadia Code', 'Consolas', monospace;
-    color: #6E7681;
+    color: #456283;
     letter-spacing: 0.5px;
 }
 
 QLabel#hwidCopyHint {
     font-size: 10px;
-    color: #484F58;
+    color: #6b829f;
     font-style: italic;
 }
 
-/* --------------------------------------------------------------------------
-   STATUS FEEDBACK - Visual feedback area
-   -------------------------------------------------------------------------- */
 QFrame#statusFrame {
-    background-color: #161B22;
-    border: 1px solid #30363D;
+    background-color: #ffffff;
+    border: 1px solid #c9d8ea;
     border-radius: 8px;
 }
 
@@ -174,102 +151,82 @@ QLabel#statusIcon {
 QLabel#statusLabel {
     font-size: 13px;
     font-weight: 500;
-    color: #8B949E;
+    color: #4d6788;
 }
 
-/* Status variants */
 QFrame#statusFrame[status="success"] {
-    background-color: rgba(35, 134, 54, 0.15);
-    border-color: #238636;
+    background-color: #ecfdf3;
+    border-color: #b7e4c7;
 }
 
 QFrame#statusFrame[status="error"] {
-    background-color: rgba(248, 81, 73, 0.15);
-    border-color: #F85149;
+    background-color: #fff1f1;
+    border-color: #efc3c0;
 }
 
 QFrame#statusFrame[status="warning"] {
-    background-color: rgba(210, 153, 34, 0.15);
-    border-color: #D29922;
+    background-color: #fff4e6;
+    border-color: #f5d0a9;
 }
 
 QFrame#statusFrame[status="info"] {
-    background-color: rgba(88, 166, 255, 0.1);
-    border-color: #58A6FF;
+    background-color: #eaf2ff;
+    border-color: #bfd2e8;
 }
 
-QLabel#statusLabel[status="success"] { color: #3FB950; }
-QLabel#statusLabel[status="error"] { color: #F85149; }
-QLabel#statusLabel[status="warning"] { color: #D29922; }
-QLabel#statusLabel[status="info"] { color: #58A6FF; }
+QLabel#statusLabel[status="success"] { color: #157347; }
+QLabel#statusLabel[status="error"] { color: #b42318; }
+QLabel#statusLabel[status="warning"] { color: #9a5b00; }
+QLabel#statusLabel[status="info"] { color: #1f4f8f; }
 
-/* --------------------------------------------------------------------------
-   BUTTONS - Primary and secondary actions
-   -------------------------------------------------------------------------- */
 QPushButton#activateButton {
-    background: qlineargradient(
-        x1: 0, y1: 0, x2: 0, y2: 1,
-        stop: 0 #238636,
-        stop: 1 #1A7F37
-    );
-    border: none;
+    background: #1f4f8f;
+    border: 1px solid #1f4f8f;
     border-radius: 8px;
-    padding: 14px 32px;
-    font-size: 15px;
+    padding: 10px 20px;
+    font-size: 14px;
     font-weight: 600;
     color: #FFFFFF;
-    min-width: 160px;
+    min-width: 140px;
 }
 
 QPushButton#activateButton:hover {
-    background: qlineargradient(
-        x1: 0, y1: 0, x2: 0, y2: 1,
-        stop: 0 #2EA043,
-        stop: 1 #238636
-    );
+    background: #1a457d;
 }
 
 QPushButton#activateButton:pressed {
-    background-color: #1A7F37;
+    background-color: #173b68;
 }
 
 QPushButton#activateButton:disabled {
-    background: #21262D;
-    color: #484F58;
+    background: #d7e2f0;
+    border-color: #d7e2f0;
+    color: #7d8fa6;
 }
 
 QPushButton#cancelButton {
-    background-color: transparent;
-    border: 1px solid #30363D;
+    background-color: #f8fbff;
+    border: 1px solid #b7c7db;
     border-radius: 8px;
-    padding: 14px 24px;
-    font-size: 14px;
+    padding: 10px 16px;
+    font-size: 13px;
     font-weight: 500;
-    color: #8B949E;
+    color: #173b68;
     min-width: 100px;
 }
 
 QPushButton#cancelButton:hover {
-    background-color: #21262D;
-    border-color: #8B949E;
-    color: #E6EDF3;
+    background-color: #eef4fb;
+    border-color: #9db4ce;
 }
 
 QPushButton#cancelButton:pressed {
-    background-color: #30363D;
+    background-color: #e3edf8;
 }
 
-/* --------------------------------------------------------------------------
-   HELP LINK - Support information
-   -------------------------------------------------------------------------- */
 QLabel#helpLink {
     font-size: 12px;
-    color: #58A6FF;
-}
-
-QLabel#helpLink:hover {
-    color: #79C0FF;
-    text-decoration: underline;
+    color: #4d6788;
 }
 """
 
@@ -336,7 +293,7 @@ class LicenseDialog(QDialog):
         """Set up the dialog UI with commercial-grade design."""
         self.setObjectName("LicenseDialog")
         self.setWindowTitle("Activate License")
-        self.setMinimumSize(560, 720)  # Allow resize to avoid overlap
+        self.setMinimumSize(560, 700)
         self.setModal(True)
         self.setStyleSheet(LICENSE_DIALOG_STYLE)
         
@@ -356,10 +313,21 @@ class LicenseDialog(QDialog):
         header_layout.setContentsMargins(24, 24, 24, 24)
         
         # App icon/logo
-        icon_label = QLabel("🔐")
+        icon_label = QLabel()
         icon_label.setObjectName("iconLabel")
         icon_label.setFixedSize(64, 64)
         icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        company_pixmap = QPixmap(":/icons/Company logo.png")
+        if not company_pixmap.isNull():
+            icon_label.setPixmap(
+                company_pixmap.scaled(
+                    64, 64,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation,
+                )
+            )
+        else:
+            icon_label.setText("🔐")
         header_layout.addWidget(icon_label)
         
         # Title and subtitle
@@ -370,7 +338,7 @@ class LicenseDialog(QDialog):
         title_label.setObjectName("titleLabel")
         text_layout.addWidget(title_label)
         
-        subtitle_label = QLabel("Activate Water Balance Dashboard to unlock all features")
+        subtitle_label = QLabel("Activate Water Balance Dashboard to continue using operational features.")
         subtitle_label.setObjectName("subtitleLabel")
         subtitle_label.setWordWrap(True)
         text_layout.addWidget(subtitle_label)
@@ -498,7 +466,7 @@ class LicenseDialog(QDialog):
         button_layout = QHBoxLayout()
         button_layout.setSpacing(12)
         
-        self.exit_button = QPushButton("Exit")
+        self.exit_button = QPushButton("Exit Application" if not self.allow_cancel else "Cancel")
         self.exit_button.setObjectName("cancelButton")
         button_layout.addWidget(self.exit_button)
         
@@ -513,7 +481,7 @@ class LicenseDialog(QDialog):
         footer_layout.addLayout(button_layout)
         
         # Help text
-        help_label = QLabel("Need help? Contact support@example.com")
+        help_label = QLabel("Need help? Contact caliphs@transafreso.com")
         help_label.setObjectName("helpLink")
         help_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         footer_layout.addWidget(help_label)
@@ -679,7 +647,7 @@ class LicenseBlockedDialog(QDialog):
         """Set up the dialog UI."""
         self.setObjectName("LicenseDialog")
         self.setWindowTitle("License Required")
-        self.setFixedSize(420, 280)
+        self.setFixedSize(560, 340)
         self.setModal(True)
         self.setStyleSheet(LICENSE_DIALOG_STYLE)
         
@@ -697,8 +665,8 @@ class LicenseBlockedDialog(QDialog):
         # Icon and title
         title_layout = QHBoxLayout()
         
-        icon_label = QLabel("⚠️")
-        icon_label.setStyleSheet("font-size: 32px;")
+        icon_label = QLabel("⚠")
+        icon_label.setStyleSheet("font-size: 30px; color: #b45309;")
         title_layout.addWidget(icon_label)
         
         title_text = QVBoxLayout()
@@ -734,9 +702,20 @@ class LicenseBlockedDialog(QDialog):
                 "Please enter a valid license key to continue."
             )
         
-        info.setStyleSheet("color: #8892a0; font-size: 12px;")
+        info.setStyleSheet("color: #4d6788; font-size: 12px;")
         info.setWordWrap(True)
         layout.addWidget(info)
+
+        # Why this happened (quick diagnostics for first-time/support flows)
+        why_label = QLabel("Why this happened")
+        why_label.setStyleSheet("color: #173b68; font-size: 13px; font-weight: 600;")
+        layout.addWidget(why_label)
+
+        reasons = self._get_reason_bullets()
+        reasons_text = QLabel("\n".join([f"- {item}" for item in reasons]))
+        reasons_text.setStyleSheet("color: #4d6788; font-size: 12px;")
+        reasons_text.setWordWrap(True)
+        layout.addWidget(reasons_text)
         
         layout.addStretch()
         
@@ -757,6 +736,35 @@ class LicenseBlockedDialog(QDialog):
         button_layout.addWidget(activate_button)
         
         layout.addLayout(button_layout)
+
+    def _get_reason_bullets(self) -> list[str]:
+        """Return short, status-specific reasons to help users resolve license blocks."""
+        if self.status.status == LicenseStatus.EXPIRED:
+            return [
+                "The offline activation token has reached its expiry date.",
+                "The app needs an online refresh or a new activation key.",
+                "Time/date mismatch on this machine can also trigger expiry validation.",
+            ]
+        if self.status.status == LicenseStatus.HWID_MISMATCH:
+            return [
+                "This key was activated on a different machine fingerprint (HWID).",
+                "License transfer or reissue is required before this device can use the key.",
+                "Use the displayed machine ID when contacting support.",
+            ]
+        if self.status.status == LicenseStatus.REVOKED:
+            return [
+                "This license key is marked as revoked by the licensing authority.",
+                "A replacement key is required to continue.",
+            ]
+        if self.status.status == LicenseStatus.INVALID:
+            return [
+                "The key format is valid but did not pass verification.",
+                "The key may be mistyped, expired, or not assigned to this product.",
+            ]
+        return [
+            "No active license is currently registered on this installation.",
+            "Activation is required before using operational features.",
+        ]
     
     def _get_title(self) -> str:
         """Get title based on status."""

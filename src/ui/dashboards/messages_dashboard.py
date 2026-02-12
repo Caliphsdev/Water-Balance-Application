@@ -377,8 +377,8 @@ class MessagesPage(QWidget):
         """Build main UI with professional layout."""
         self.setStyleSheet("")
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(24, 24, 24, 24)
-        main_layout.setSpacing(20)
+        main_layout.setContentsMargins(18, 18, 18, 18)
+        main_layout.setSpacing(14)
         
         # Header with badge
         header = self._create_header()
@@ -403,6 +403,7 @@ class MessagesPage(QWidget):
         # Tab 2: Feedback
         self.feedback_tab = self._create_feedback_tab()
         self.content_stack.addWidget(self.feedback_tab)
+        self._switch_tab(0)
         
         # Content row: stack + drawer
         content_row = QWidget()
@@ -492,6 +493,7 @@ class MessagesPage(QWidget):
         
         # Title
         title = QLabel("Messages & Notifications")
+        title.setObjectName("label_title")
         title.setFont(QFont('Segoe UI Variable', 24, QFont.Weight.DemiBold))
         title.setStyleSheet("")
         title_layout.addWidget(title)
@@ -500,7 +502,17 @@ class MessagesPage(QWidget):
         self.header_badge = NotificationBadge()
         title_layout.addWidget(self.header_badge, alignment=Qt.AlignmentFlag.AlignVCenter)
         
-        layout.addWidget(title_container)
+        text_col = QVBoxLayout()
+        text_col.setContentsMargins(0, 0, 0, 0)
+        text_col.setSpacing(2)
+        text_col.addWidget(title_container)
+        subtitle = QLabel("Track alerts, product updates, and user feedback in one workspace.")
+        subtitle.setObjectName("label_subtitle")
+        text_col.addWidget(subtitle)
+
+        text_host = QWidget()
+        text_host.setLayout(text_col)
+        layout.addWidget(text_host)
         layout.addStretch()
         
         return header
@@ -508,6 +520,7 @@ class MessagesPage(QWidget):
     def _create_tab_bar(self) -> QWidget:
         """Create professional tab navigation (TAB BAR SECTION)."""
         tab_bar = QWidget()
+        tab_bar.setObjectName("messagesTabBar")
         layout = QHBoxLayout(tab_bar)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(8)
@@ -521,18 +534,22 @@ class MessagesPage(QWidget):
         
         for text, index in tabs:
             btn = QPushButton(text)
-            btn.setCheckable(True)
-            btn.setAutoExclusive(True)
+            btn.setObjectName("messagesTabButton")
+            btn.setProperty("active", False)
             btn.setFont(QFont('Segoe UI', 12, QFont.Weight.Medium))
             btn.setCursor(Qt.CursorShape.PointingHandCursor)
             btn.setFixedHeight(40)
             btn.setStyleSheet("")
-            btn.clicked.connect(lambda checked, idx=index: self.content_stack.setCurrentIndex(idx))
+            btn.clicked.connect(lambda _checked=False, idx=index: self._switch_tab(idx))
             layout.addWidget(btn)
             self.tab_buttons.append(btn)
         
-        # Select first tab
-        self.tab_buttons[0].setChecked(True)
+        # Select first tab visual state (stack switch happens after stack exists).
+        if self.tab_buttons:
+            self.tab_buttons[0].setProperty("active", True)
+            self.tab_buttons[0].style().unpolish(self.tab_buttons[0])
+            self.tab_buttons[0].style().polish(self.tab_buttons[0])
+            self.tab_buttons[0].update()
         
         layout.addStretch()
         
@@ -543,6 +560,7 @@ class MessagesPage(QWidget):
         separator.setFixedHeight(1)
         
         container = QWidget()
+        container.setObjectName("messagesTabShell")
         container_layout = QVBoxLayout(container)
         container_layout.setContentsMargins(0, 0, 0, 0)
         container_layout.setSpacing(0)
@@ -589,7 +607,7 @@ class MessagesPage(QWidget):
         tab = QWidget()
         layout = QVBoxLayout(tab)
         layout.setContentsMargins(0, 12, 0, 0)
-        layout.setSpacing(10)
+        layout.setSpacing(12)
         
         self.update_toast_label = QLabel("Update found")
         self.update_toast_label.setVisible(False)
@@ -620,46 +638,79 @@ class MessagesPage(QWidget):
         
         layout.addWidget(version_card)
 
+        # Actions and status card (keeps top area intentional and avoids floating controls)
+        actions_card = QFrame()
+        actions_card.setObjectName("versionCard")
+        actions_layout = QVBoxLayout(actions_card)
+        actions_layout.setContentsMargins(14, 12, 14, 12)
+        actions_layout.setSpacing(10)
+
         controls_layout = QHBoxLayout()
-        controls_layout.setContentsMargins(0, 6, 0, 0)
+        controls_layout.setContentsMargins(0, 0, 0, 0)
         controls_layout.setSpacing(10)
 
         self.update_check_button = QPushButton("Check for updates")
+        self.update_check_button.setObjectName("messagesPrimaryBtn")
         self.update_check_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.update_check_button.setMinimumHeight(30)
         self.update_check_button.setSizePolicy(
             QSizePolicy.Policy.Fixed,
             QSizePolicy.Policy.Fixed,
         )
-        self.update_check_button.setStyleSheet("")
+        self.update_check_button.setStyleSheet(
+            "QPushButton {"
+            "background-color: #1f3a5f;"
+            "color: #ffffff;"
+            "font-weight: 700;"
+            "border: 1px solid #1f3a5f;"
+            "border-radius: 6px;"
+            "padding: 6px 12px;"
+            "}"
+            "QPushButton:hover {"
+            "background-color: #1a2f4c;"
+            "border-color: #1a2f4c;"
+            "}"
+        )
         self.update_check_button.clicked.connect(self._on_check_updates_clicked)
         controls_layout.addWidget(self.update_check_button)
 
         self.update_download_button = QPushButton("Download update")
+        self.update_download_button.setObjectName("messagesGhostBtn")
         self.update_download_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.update_download_button.setMinimumHeight(30)
         self.update_download_button.setSizePolicy(
             QSizePolicy.Policy.Fixed,
             QSizePolicy.Policy.Fixed,
         )
-        self.update_download_button.setStyleSheet("")
+        self.update_download_button.setStyleSheet(
+            "QPushButton {"
+            "background-color: #e8edf2;"
+            "color: #0b1a2a;"
+            "font-weight: 600;"
+            "border: 1px solid #c7d0da;"
+            "border-radius: 6px;"
+            "padding: 6px 12px;"
+            "}"
+            "QPushButton:hover {"
+            "background-color: #dce3ea;"
+            "}"
+        )
         self.update_download_button.setVisible(False)
         self.update_download_button.clicked.connect(self._open_update_download)
         controls_layout.addWidget(self.update_download_button)
 
         controls_layout.addStretch()
-        layout.addLayout(controls_layout)
+        actions_layout.addLayout(controls_layout)
         
-        # Updates placeholder
-        self.update_status_label = QLabel("🔍 No updates available")
-        self.update_status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.update_status_label.setFont(QFont('Segoe UI', 13))
+        # Updates status
+        self.update_status_label = QLabel("No updates available")
+        self.update_status_label.setObjectName("messagesEmptyText")
+        self.update_status_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.update_status_label.setFont(QFont('Segoe UI', 11, QFont.Weight.DemiBold))
         self.update_status_label.setStyleSheet("")
-        self.update_status_label.setSizePolicy(
-            QSizePolicy.Policy.Expanding,
-            QSizePolicy.Policy.Expanding,
-        )
-        layout.addWidget(self.update_status_label, 1)
+        actions_layout.addWidget(self.update_status_label)
+        layout.addWidget(actions_card)
+        layout.addStretch(1)
 
         self._pending_update_url = None
         self._pending_update_info = None
@@ -730,7 +781,7 @@ class MessagesPage(QWidget):
             self.update_download_button.setVisible(True)
             self._show_update_toast(f"Update available: v{update_info.version}")
         else:
-            self.update_status_label.setText("🔍 No updates available")
+            self.update_status_label.setText("No updates available")
             self._show_update_toast("No updates available")
             self._pending_update_info = None
             self._pending_update_url = None
@@ -941,7 +992,7 @@ class MessagesPage(QWidget):
             "• For features: Describe the feature and why it would be useful"
         )
         self.feedback_body.setFont(QFont('Segoe UI', 9))
-        self.feedback_body.setMinimumHeight(96)
+        self.feedback_body.setMinimumHeight(240)
         self.feedback_body.setStyleSheet("")
         form_layout.addWidget(self.feedback_body, 1)
 
@@ -950,10 +1001,24 @@ class MessagesPage(QWidget):
         submit_row.addStretch()
         
         self.submit_btn = QPushButton("📤 Submit Feedback")
+        self.submit_btn.setObjectName("messagesPrimaryBtn")
         self.submit_btn.setFont(QFont('Segoe UI', 9, QFont.Weight.DemiBold))
         self.submit_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.submit_btn.setFixedHeight(30)
-        self.submit_btn.setStyleSheet("")
+        self.submit_btn.setStyleSheet(
+            "QPushButton {"
+            "background-color: #1f3a5f;"
+            "color: #ffffff;"
+            "font-weight: 700;"
+            "border: 1px solid #1f3a5f;"
+            "border-radius: 6px;"
+            "padding: 6px 12px;"
+            "}"
+            "QPushButton:hover {"
+            "background-color: #1a2f4c;"
+            "border-color: #1a2f4c;"
+            "}"
+        )
         self.submit_btn.clicked.connect(self._submit_feedback)
         submit_row.addWidget(self.submit_btn)
         
@@ -984,12 +1049,13 @@ class MessagesPage(QWidget):
             notifications = service.get_cached_notifications()
             
             if not notifications:
-                # Show professional placeholder
-                placeholder = QLabel("📭 No notifications yet")
-                placeholder.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                placeholder.setFont(QFont('Segoe UI', 14))
-                placeholder.setStyleSheet("")
-                self.notifications_layout.insertWidget(0, placeholder)
+                self.notifications_layout.insertWidget(
+                    0,
+                    self._build_empty_state(
+                        title="No notifications yet",
+                        subtitle="You are all caught up. New alerts and system notices will appear here."
+                    )
+                )
                 self._unread_count = 0
                 self.header_badge.set_count(0)
                 return
@@ -1012,10 +1078,14 @@ class MessagesPage(QWidget):
             
         except Exception as e:
             logger.exception(f"Failed to load notifications: {e}")
-            error_label = QLabel(f"⚠️ Error loading notifications: {str(e)}")
-            error_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            error_label.setStyleSheet("")
-            self.notifications_layout.insertWidget(0, error_label)
+            self.notifications_layout.insertWidget(
+                0,
+                self._build_empty_state(
+                    title="Could not load notifications",
+                    subtitle=str(e),
+                    is_error=True
+                )
+            )
     
     def _on_notification_deleted(self, notification_id: str):
         """Handle notification deletion (DELETE ACTION)."""
@@ -1138,6 +1208,44 @@ class MessagesPage(QWidget):
 
         pattern = r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
         return bool(re.match(pattern, email))
+
+    def _switch_tab(self, index: int) -> None:
+        """Switch tab and keep active button state styling stable."""
+        if hasattr(self, "content_stack"):
+            self.content_stack.setCurrentIndex(index)
+        for i, btn in enumerate(self.tab_buttons):
+            btn.setProperty("active", i == index)
+            btn.style().unpolish(btn)
+            btn.style().polish(btn)
+            btn.update()
+
+    def _build_empty_state(self, title: str, subtitle: str, is_error: bool = False) -> QWidget:
+        """Build a consistent empty/error state card."""
+        card = QFrame()
+        card.setObjectName("messagesEmptyState")
+        if is_error:
+            card.setProperty("kind", "error")
+
+        row = QHBoxLayout(card)
+        row.setContentsMargins(18, 18, 18, 18)
+        row.setSpacing(12)
+
+        icon = QLabel("⚠" if is_error else "📭")
+        icon.setObjectName("messagesEmptyIcon")
+        row.addWidget(icon, alignment=Qt.AlignmentFlag.AlignTop)
+
+        text_col = QVBoxLayout()
+        text_col.setSpacing(3)
+        t = QLabel(title)
+        t.setObjectName("messagesEmptyTitle")
+        s = QLabel(subtitle)
+        s.setObjectName("messagesEmptyText")
+        s.setWordWrap(True)
+        text_col.addWidget(t)
+        text_col.addWidget(s)
+        row.addLayout(text_col, 1)
+
+        return card
 
 
 

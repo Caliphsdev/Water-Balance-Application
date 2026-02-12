@@ -58,3 +58,40 @@ Traceback (most recent call last):
     self.ui.add_facility_button.clicked.connect(self._on_add_facility)
                                                 ^^^^^^^^^^^^^^^^^^^^^
 AttributeError: 'StorageFacilitiesPage' object has no attribute '_on_add_facility'. Did you mean: '_on_edit_facility'?
+2026-02-11 21:53:44 | ERROR    | water_balance.errors | error:437 | Uncaught exception
+Traceback (most recent call last):
+  File "D:\Projects\dashboard_waterbalance\src\ui\main_window.py", line 787, in _toggle_sidebar
+    if self._sidebar_anim_group.state() == self._sidebar_anim_group.Running:
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'PySide6.QtCore.QParallelAnimationGroup' object has no attribute 'Running'
+2026-02-11 21:53:46 | ERROR    | water_balance.errors | error:437 | Uncaught exception
+Traceback (most recent call last):
+  File "D:\Projects\dashboard_waterbalance\src\ui\main_window.py", line 787, in _toggle_sidebar
+    if self._sidebar_anim_group.state() == self._sidebar_anim_group.Running:
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'PySide6.QtCore.QParallelAnimationGroup' object has no attribute 'Running'
+2026-02-12 00:09:29 | ERROR    | water_balance.errors | error:437 | Uncaught exception
+Traceback (most recent call last):
+  File "D:\Projects\dashboard_waterbalance\src\main.py", line 282, in <module>
+    main()
+    ~~~~^^
+  File "D:\Projects\dashboard_waterbalance\src\main.py", line 251, in main
+    window = MainWindow(splash)  # Pass splash to update progress
+  File "D:\Projects\dashboard_waterbalance\src\ui\main_window.py", line 86, in __init__
+    self._mount_pages()
+    ~~~~~~~~~~~~~~~~~^^
+  File "D:\Projects\dashboard_waterbalance\src\ui\main_window.py", line 777, in _mount_pages
+    self._messages_page = MessagesPage()
+                          ~~~~~~~~~~~~^^
+  File "D:\Projects\dashboard_waterbalance\src\ui\dashboards\messages_dashboard.py", line 370, in __init__
+    self._setup_ui()
+    ~~~~~~~~~~~~~~^^
+  File "D:\Projects\dashboard_waterbalance\src\ui\dashboards\messages_dashboard.py", line 388, in _setup_ui
+    tab_bar = self._create_tab_bar()
+  File "D:\Projects\dashboard_waterbalance\src\ui\dashboards\messages_dashboard.py", line 547, in _create_tab_bar
+    self._switch_tab(0)
+    ~~~~~~~~~~~~~~~~^^^
+  File "D:\Projects\dashboard_waterbalance\src\ui\dashboards\messages_dashboard.py", line 1166, in _switch_tab
+    self.content_stack.setCurrentIndex(index)
+    ^^^^^^^^^^^^^^^^^^
+AttributeError: 'MessagesPage' object has no attribute 'content_stack'. Did you mean: 'contentsRect'?

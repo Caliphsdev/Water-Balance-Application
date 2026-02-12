@@ -12,8 +12,17 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from PySide6.QtWidgets import QDialog, QColorDialog, QMessageBox, QPushButton, QFormLayout, QHBoxLayout
+from PySide6.QtWidgets import (
+    QDialog,
+    QColorDialog,
+    QMessageBox,
+    QPushButton,
+    QFormLayout,
+    QHBoxLayout,
+    QSizePolicy,
+)
 from PySide6.QtGui import QColor
+from PySide6.QtCore import Qt
 from typing import Dict, Optional
 
 from ui.dialogs.generated_ui_edit_flow_dialog import Ui_EditFlowDialog
@@ -63,10 +72,11 @@ class EditFlowDialog(QDialog):
         self.is_new_edge = is_new_edge
         self.selected_color = QColor(self.edge_data.get('color', "#3498DB"))
         self.excel_manager = get_excel_manager()
-        
+
         # Setup responsive dialog size (80% of screen, minimum 1000x800)
         self._setup_responsive_size()
-        
+        self._apply_dialog_polish()
+
         # Setup
         self._populate_fields()
         self._populate_excel_options()
@@ -77,6 +87,87 @@ class EditFlowDialog(QDialog):
         self._update_color_preview()
         
         self.setModal(True)
+
+    def _apply_dialog_polish(self):
+        """Apply a consistent visual style with Add/Edit Component dialogs."""
+        self.setWindowTitle("Add Flow Line" if self.is_new_edge else "Edit Flow Line")
+        self.ui.btn_ok.setText("Save")
+
+        self.ui.formLayout.setHorizontalSpacing(14)
+        self.ui.formLayout.setVerticalSpacing(10)
+        self.ui.formLayout.setLabelAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+
+        for widget in (self.ui.combo_flow_type, self.ui.combo_sheet, self.ui.combo_column):
+            widget.setMinimumHeight(32)
+        self.ui.btn_color_picker.setMinimumHeight(32)
+        self.ui.btn_color_picker.setMinimumWidth(110)
+        self.ui.label_color_preview.setFixedSize(64, 32)
+        self.ui.value_from.setMinimumHeight(32)
+        self.ui.value_to.setMinimumHeight(32)
+        self.ui.btn_ok.setMinimumHeight(34)
+        self.ui.btn_cancel.setMinimumHeight(34)
+        self.ui.btn_auto_map.setMinimumHeight(32)
+
+        # Reduce unused whitespace below the form.
+        self.ui.verticalSpacer.changeSize(20, 8, QSizePolicy.Minimum, QSizePolicy.Fixed)
+
+        # Improve label clarity.
+        self.ui.label_excel.setText("Excel Mapping:")
+        self.ui.groupBox_excel.setTitle("Data Source Mapping")
+
+        self.setStyleSheet(
+            """
+            QDialog {
+                background: #f5f8fc;
+            }
+            QLabel#value_from, QLabel#value_to {
+                background: #ffffff;
+                border: 1px solid #b8c9dd;
+                border-radius: 6px;
+                padding: 6px 8px;
+                color: #0f2747;
+            }
+            QLineEdit, QComboBox, QPlainTextEdit, QSpinBox {
+                background: #ffffff;
+                border: 1px solid #b8c9dd;
+                border-radius: 6px;
+                padding: 4px 8px;
+                color: #0f2747;
+            }
+            QComboBox::drop-down {
+                border: none;
+                width: 20px;
+            }
+            QGroupBox {
+                border: 1px solid #c9d8ea;
+                border-radius: 8px;
+                margin-top: 8px;
+                padding: 8px;
+                color: #173b68;
+                font-weight: 600;
+            }
+            QPushButton {
+                min-width: 100px;
+                border: 1px solid #b7c7db;
+                border-radius: 8px;
+                padding: 6px 12px;
+                background: #f8fbff;
+                color: #173b68;
+            }
+            QPushButton:hover {
+                background: #eef4fb;
+            }
+            QPushButton#btn_ok {
+                background: #1f4f8f;
+                border: 1px solid #1f4f8f;
+                color: #ffffff;
+                font-weight: 700;
+            }
+            QPushButton#btn_ok:hover {
+                background: #1a457d;
+            }
+            """
+        )
     
     def _setup_responsive_size(self):
         """Set dialog to responsive size (80% of screen, minimum 1000x800) (RESPONSIVE SIZING).
@@ -230,6 +321,7 @@ class EditFlowDialog(QDialog):
 
         self.btn_auto_create_column = QPushButton("Auto-Create Column")
         self.btn_auto_create_column.setObjectName("btn_auto_create_column")
+        self.btn_auto_create_column.setMinimumHeight(32)
         self.btn_auto_create_column.setToolTip(
             "Create a new column in the Flow Diagram Excel sheet for this flowline"
         )
@@ -408,7 +500,7 @@ class EditFlowDialog(QDialog):
         what color the flow line will be rendered as.
         """
         self.ui.label_color_preview.setStyleSheet(
-            f"background-color: {self.selected_color.name()}; border: 2px solid #333;"
+            f"background-color: {self.selected_color.name()}; border: 1px solid #556b84; border-radius: 4px;"
         )
     
     def _on_auto_map(self):

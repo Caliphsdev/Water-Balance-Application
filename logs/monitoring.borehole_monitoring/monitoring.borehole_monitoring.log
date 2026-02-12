@@ -5375,3 +5375,427 @@
 2026-02-11 15:29:06 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
 2026-02-11 15:29:06 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
 2026-02-11 15:29:06 | INFO     | run:277 | Directory loading complete
+2026-02-11 21:43:32 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-11 21:43:32 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-11 21:43:32 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-11 21:43:32 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-11 21:43:32 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-11 21:43:32 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-11 21:43:32 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-11 21:43:32 | INFO     | run:277 | Directory loading complete
+2026-02-11 21:46:30 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-11 21:46:30 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-11 21:46:30 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-11 21:46:30 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-11 21:46:30 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-11 21:46:30 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-11 21:46:30 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-11 21:46:30 | INFO     | run:277 | Directory loading complete
+2026-02-11 21:49:18 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-11 21:49:18 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-11 21:49:18 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-11 21:49:18 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-11 21:49:18 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-11 21:49:18 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-11 21:49:18 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-11 21:49:18 | INFO     | run:277 | Directory loading complete
+2026-02-11 21:53:39 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-11 21:53:39 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-11 21:53:39 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-11 21:53:39 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-11 21:53:39 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-11 21:53:39 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-11 21:53:39 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-11 21:53:39 | INFO     | run:277 | Directory loading complete
+2026-02-11 21:54:44 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-11 21:54:44 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-11 21:54:44 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-11 21:54:44 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-11 21:54:44 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-11 21:54:44 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-11 21:54:44 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-11 21:54:44 | INFO     | run:277 | Directory loading complete
+2026-02-11 22:02:50 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-11 22:02:50 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-11 22:02:50 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-11 22:02:50 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-11 22:02:50 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-11 22:02:50 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-11 22:02:50 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-11 22:02:50 | INFO     | run:277 | Directory loading complete
+2026-02-11 22:11:57 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-11 22:11:57 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-11 22:11:57 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-11 22:11:57 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-11 22:11:57 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-11 22:11:57 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-11 22:11:57 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-11 22:11:57 | INFO     | run:277 | Directory loading complete
+2026-02-11 22:22:12 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-11 22:22:12 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-11 22:22:12 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-11 22:22:12 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-11 22:22:12 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-11 22:22:12 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-11 22:22:12 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-11 22:22:12 | INFO     | run:277 | Directory loading complete
+2026-02-11 22:30:41 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-11 22:30:41 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-11 22:30:41 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-11 22:30:41 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-11 22:30:41 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-11 22:30:41 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-11 22:30:41 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-11 22:30:41 | INFO     | run:277 | Directory loading complete
+2026-02-11 22:37:11 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-11 22:37:11 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-11 22:37:11 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-11 22:37:11 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-11 22:37:11 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-11 22:37:11 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-11 22:37:11 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-11 22:37:11 | INFO     | run:277 | Directory loading complete
+2026-02-11 22:46:52 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-11 22:46:52 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-11 22:46:52 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-11 22:46:52 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-11 22:46:52 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-11 22:46:52 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-11 22:46:52 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-11 22:46:52 | INFO     | run:277 | Directory loading complete
+2026-02-11 22:49:21 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-11 22:49:21 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-11 22:49:21 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-11 22:49:21 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-11 22:49:21 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-11 22:49:21 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-11 22:49:21 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-11 22:49:21 | INFO     | run:277 | Directory loading complete
+2026-02-11 22:54:23 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-11 22:54:23 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-11 22:54:23 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-11 22:54:23 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-11 22:54:23 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-11 22:54:23 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-11 22:54:23 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-11 22:54:23 | INFO     | run:277 | Directory loading complete
+2026-02-11 22:59:34 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-11 22:59:34 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-11 22:59:34 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-11 22:59:34 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-11 22:59:34 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-11 22:59:34 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-11 22:59:34 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-11 22:59:34 | INFO     | run:277 | Directory loading complete
+2026-02-11 23:08:29 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-11 23:08:29 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-11 23:08:29 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-11 23:08:29 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-11 23:08:29 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-11 23:08:29 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-11 23:08:29 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-11 23:08:29 | INFO     | run:277 | Directory loading complete
+2026-02-11 23:12:50 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-11 23:12:50 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-11 23:12:50 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-11 23:12:50 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-11 23:12:50 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-11 23:12:50 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-11 23:12:50 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-11 23:12:50 | INFO     | run:277 | Directory loading complete
+2026-02-11 23:19:44 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-11 23:19:44 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-11 23:19:44 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-11 23:19:44 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-11 23:19:44 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-11 23:19:44 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-11 23:19:44 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-11 23:19:44 | INFO     | run:277 | Directory loading complete
+2026-02-11 23:23:08 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-11 23:23:08 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-11 23:23:08 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-11 23:23:08 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-11 23:23:08 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-11 23:23:08 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-11 23:23:08 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-11 23:23:08 | INFO     | run:277 | Directory loading complete
+2026-02-11 23:28:01 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-11 23:28:01 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-11 23:28:01 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-11 23:28:01 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-11 23:28:01 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-11 23:28:01 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-11 23:28:01 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-11 23:28:01 | INFO     | run:277 | Directory loading complete
+2026-02-11 23:33:11 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-11 23:33:11 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-11 23:33:11 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-11 23:33:11 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-11 23:33:11 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-11 23:33:11 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-11 23:33:11 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-11 23:33:11 | INFO     | run:277 | Directory loading complete
+2026-02-11 23:35:42 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-11 23:35:42 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-11 23:35:42 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-11 23:35:42 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-11 23:35:42 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-11 23:35:42 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-11 23:35:42 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-11 23:35:42 | INFO     | run:277 | Directory loading complete
+2026-02-11 23:39:36 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-11 23:39:36 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-11 23:39:36 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-11 23:39:36 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-11 23:39:36 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-11 23:39:36 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-11 23:39:36 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-11 23:39:36 | INFO     | run:277 | Directory loading complete
+2026-02-11 23:44:17 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-11 23:44:17 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-11 23:44:17 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-11 23:44:17 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-11 23:44:17 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-11 23:44:17 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-11 23:44:17 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-11 23:44:17 | INFO     | run:277 | Directory loading complete
+2026-02-11 23:49:45 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-11 23:49:45 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-11 23:49:45 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-11 23:49:45 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-11 23:49:45 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-11 23:49:45 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-11 23:49:45 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-11 23:49:45 | INFO     | run:277 | Directory loading complete
+2026-02-12 00:00:56 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-12 00:00:56 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-12 00:00:56 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-12 00:00:56 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-12 00:00:56 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-12 00:00:56 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-12 00:00:56 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-12 00:00:56 | INFO     | run:277 | Directory loading complete
+2026-02-12 00:11:59 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-12 00:11:59 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-12 00:11:59 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-12 00:11:59 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-12 00:11:59 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-12 00:11:59 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-12 00:11:59 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-12 00:11:59 | INFO     | run:277 | Directory loading complete
+2026-02-12 00:15:33 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-12 00:15:33 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-12 00:15:33 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-12 00:15:33 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-12 00:15:33 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-12 00:15:33 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-12 00:15:33 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-12 00:15:33 | INFO     | run:277 | Directory loading complete
+2026-02-12 00:24:47 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-12 00:24:47 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-12 00:24:47 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-12 00:24:47 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-12 00:24:47 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-12 00:24:47 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-12 00:24:47 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-12 00:24:47 | INFO     | run:277 | Directory loading complete
+2026-02-12 00:28:51 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-12 00:28:51 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-12 00:28:51 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-12 00:28:51 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-12 00:28:51 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-12 00:28:51 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-12 00:28:51 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-12 00:28:51 | INFO     | run:277 | Directory loading complete
+2026-02-12 01:06:30 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-12 01:06:30 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-12 01:06:30 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-12 01:06:30 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-12 01:06:30 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-12 01:06:30 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-12 01:06:30 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-12 01:06:30 | INFO     | run:277 | Directory loading complete
+2026-02-12 01:15:33 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-12 01:15:33 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-12 01:15:33 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-12 01:15:33 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-12 01:15:33 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-12 01:15:33 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-12 01:15:33 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-12 01:15:33 | INFO     | run:277 | Directory loading complete
+2026-02-12 01:24:00 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-12 01:24:00 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-12 01:24:00 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-12 01:24:00 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-12 01:24:00 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-12 01:24:00 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-12 01:24:00 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-12 01:24:00 | INFO     | run:277 | Directory loading complete
+2026-02-12 01:36:29 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-12 01:36:29 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-12 01:36:29 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-12 01:36:29 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-12 01:36:29 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-12 01:36:29 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-12 01:36:29 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-12 01:36:29 | INFO     | run:277 | Directory loading complete
+2026-02-12 01:40:50 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-12 01:40:50 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-12 01:40:50 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-12 01:40:50 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-12 01:40:50 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-12 01:40:50 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-12 01:40:50 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-12 01:40:50 | INFO     | run:277 | Directory loading complete
+2026-02-12 01:44:18 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-12 01:44:18 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-12 01:44:18 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-12 01:44:18 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-12 01:44:18 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-12 01:44:18 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-12 01:44:18 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-12 01:44:18 | INFO     | run:277 | Directory loading complete
+2026-02-12 01:56:44 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-12 01:56:44 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-12 01:56:44 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-12 01:56:44 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-12 01:56:44 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-12 01:56:44 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-12 01:56:44 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-12 01:56:44 | INFO     | run:277 | Directory loading complete
+2026-02-12 02:12:27 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-12 02:12:27 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-12 02:12:27 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-12 02:12:27 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-12 02:12:27 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-12 02:12:27 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-12 02:12:27 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-12 02:12:27 | INFO     | run:277 | Directory loading complete
+2026-02-12 02:23:05 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-12 02:23:05 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-12 02:23:05 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-12 02:23:05 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-12 02:23:05 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-12 02:23:06 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-12 02:23:06 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-12 02:23:06 | INFO     | run:277 | Directory loading complete
+2026-02-12 02:25:56 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-12 02:25:56 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-12 02:25:56 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-12 02:25:56 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-12 02:25:56 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-12 02:25:56 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-12 02:25:56 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-12 02:25:56 | INFO     | run:277 | Directory loading complete
+2026-02-12 02:34:30 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-12 02:34:30 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-12 02:34:30 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-12 02:34:30 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-12 02:34:30 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-12 02:34:30 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-12 02:34:30 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-12 02:34:30 | INFO     | run:277 | Directory loading complete
+2026-02-12 02:43:26 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-12 02:43:26 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-12 02:43:26 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-12 02:43:26 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-12 02:43:26 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-12 02:43:26 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-12 02:43:26 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-12 02:43:26 | INFO     | run:277 | Directory loading complete
+2026-02-12 02:44:08 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-12 02:44:08 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-12 02:44:08 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-12 02:44:08 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-12 02:44:08 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-12 02:44:08 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-12 02:44:08 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-12 02:44:08 | INFO     | run:277 | Directory loading complete
+2026-02-12 02:46:18 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-12 02:46:18 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-12 02:46:18 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-12 02:46:18 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-12 02:46:18 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-12 02:46:18 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-12 02:46:18 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-12 02:46:18 | INFO     | run:277 | Directory loading complete
+2026-02-12 02:51:56 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-12 02:51:56 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-12 02:51:56 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-12 02:51:56 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-12 02:51:56 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-12 02:51:56 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-12 02:51:56 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-12 02:51:56 | INFO     | run:277 | Directory loading complete
+2026-02-12 02:53:55 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-12 02:53:55 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-12 02:53:55 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-12 02:53:55 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-12 02:53:55 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-12 02:53:56 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-12 02:53:56 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-12 02:53:56 | INFO     | run:277 | Directory loading complete
+2026-02-12 02:56:54 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-12 02:56:54 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-12 02:56:54 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-12 02:56:54 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-12 02:56:54 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-12 02:56:54 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-12 02:56:54 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-12 02:56:54 | INFO     | run:277 | Directory loading complete
+2026-02-12 03:02:16 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-12 03:02:16 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-12 03:02:16 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-12 03:02:16 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-12 03:02:16 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-12 03:02:16 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-12 03:02:16 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-12 03:02:16 | INFO     | run:277 | Directory loading complete
+2026-02-12 03:03:30 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-12 03:03:30 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-12 03:03:30 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-12 03:03:30 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-12 03:03:30 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-12 03:03:30 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-12 03:03:30 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-12 03:03:30 | INFO     | run:277 | Directory loading complete
+2026-02-12 03:08:58 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-12 03:08:58 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-12 03:08:58 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-12 03:08:58 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-12 03:08:58 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-12 03:08:59 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-12 03:08:59 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-12 03:08:59 | INFO     | run:277 | Directory loading complete
+2026-02-12 03:09:13 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-12 03:09:13 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-12 03:09:13 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-12 03:09:13 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-12 03:09:13 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-12 03:09:13 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-12 03:09:13 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-12 03:09:13 | INFO     | run:277 | Directory loading complete
+2026-02-12 03:09:28 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-12 03:09:28 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-12 03:09:28 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-12 03:09:28 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-12 03:09:28 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-12 03:09:28 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-12 03:09:28 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-12 03:09:28 | INFO     | run:277 | Directory loading complete
+2026-02-12 03:09:42 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-12 03:09:42 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-12 03:09:42 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-12 03:09:42 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-12 03:09:42 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-12 03:09:42 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-12 03:09:42 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-12 03:09:42 | INFO     | run:277 | Directory loading complete
+2026-02-12 03:15:14 | INFO     | get_dashboard_logger:584 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-12 03:15:14 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-12 03:15:14 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-12 03:15:14 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-12 03:15:14 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-12 03:15:14 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-12 03:15:14 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-12 03:15:14 | INFO     | run:277 | Directory loading complete
