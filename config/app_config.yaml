@@ -1,6 +1,6 @@
 app:
   name: Water Balance System
-  version: 1.0.13
+  version: 1.0.17
 branding:
   company_name: Trans Africa Resources
   logo_path: C:\PROJECTS\Water-Balance-Application\logo\Logo Two rivers.png
@@ -40,10 +40,10 @@ colors:
 data_sources:
   dam_recirculation_path: data\templates\DAM_RECIRCULATION_TEMPLATE.txt
   inflow_codes_path: data\templates\INFLOW_CODES_TEMPLATE.txt
-  legacy_excel_path: ''
+  legacy_excel_path: D:/Downloads/New Water Balance  20250930 Oct.xlsx
   outflow_codes_path: data\templates\OUTFLOW_CODES_TEMPLATE_CORRECTED.txt
   template_excel_path: data\Water_Balance_TimeSeries_Template.xlsx
-  timeseries_excel_path: C:\Users\CALIPH~1\AppData\Local\Temp\tmpsg6sipue\test_flows.xlsx
+  timeseries_excel_path: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Flow Diagram.xlsx
 database:
   path: data/water_balance.db
 environmental:
@@ -117,11 +117,12 @@ licensing:
 logging:
   level: INFO
 monitoring:
-  borehole_monitoring_directory: ''
+  borehole_monitoring_directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring
+    Borehole
   pcd_directory: ''
   pcd_monitoring_directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution
     Control Dam
-  static_borehole_directory: ''
+  static_borehole_directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
 session:
   current_user: admin
 storage:

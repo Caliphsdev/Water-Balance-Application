@@ -11,6 +11,7 @@ from pathlib import Path
 from datetime import datetime, timedelta
 import sys
 import time
+import threading
 from queue import Queue, Empty
 from contextlib import contextmanager
 from typing import Optional
@@ -49,6 +50,10 @@ LOGS_DIR.mkdir(parents=True, exist_ok=True)
 # Log file paths
 APP_LOG = LOGS_DIR / 'water_balance.log'
 ERROR_LOG = LOGS_DIR / 'errors.log'
+
+
+_ROLLOVER_NOTICE_LOCK = threading.Lock()
+_ROLLOVER_NOTICE_UNTIL: dict[str, datetime] = {}
 
 
 def _cleanup_old_logs(max_age_days: int = 90):
@@ -179,17 +184,27 @@ class HybridRotatingHandler(RotatingFileHandler):
             self._rollover_block_until = None
         except PermissionError as exc:
             self._rollover_block_until = datetime.now() + timedelta(seconds=self._rollover_backoff_seconds)
-            sys.stderr.write(
-                f"Log rollover delayed (file in use, retry in {self._rollover_backoff_seconds}s): "
-                f"{self.baseFilename} ({exc})\n"
-            )
+            with _ROLLOVER_NOTICE_LOCK:
+                now = datetime.now()
+                notice_until = _ROLLOVER_NOTICE_UNTIL.get(self.baseFilename)
+                if notice_until is None or now >= notice_until:
+                    _ROLLOVER_NOTICE_UNTIL[self.baseFilename] = now + timedelta(minutes=5)
+                    sys.stderr.write(
+                        f"Log rollover delayed (file in use, retry in {self._rollover_backoff_seconds}s): "
+                        f"{self.baseFilename} ({exc})\n"
+                    )
             return
         except OSError as exc:
             self._rollover_block_until = datetime.now() + timedelta(seconds=self._rollover_backoff_seconds)
-            sys.stderr.write(
-                f"Log rollover delayed (OS error, retry in {self._rollover_backoff_seconds}s): "
-                f"{self.baseFilename} ({exc})\n"
-            )
+            with _ROLLOVER_NOTICE_LOCK:
+                now = datetime.now()
+                notice_until = _ROLLOVER_NOTICE_UNTIL.get(self.baseFilename)
+                if notice_until is None or now >= notice_until:
+                    _ROLLOVER_NOTICE_UNTIL[self.baseFilename] = now + timedelta(minutes=5)
+                    sys.stderr.write(
+                        f"Log rollover delayed (OS error, retry in {self._rollover_backoff_seconds}s): "
+                        f"{self.baseFilename} ({exc})\n"
+                    )
             return
         
         # Rename backup file with date (water_balance.log.1 → water_balance.log.2026-01-30)
@@ -372,6 +387,7 @@ class AppLogger:
             return
         
         self._initialized = True
+        self._dashboard_logger_lock = threading.Lock()
         
         # Run cleanup on startup (removes logs >90 days old)
         _cleanup_old_logs(max_age_days=90)
@@ -549,68 +565,68 @@ class AppLogger:
         """
         logger_name = f"water_balance.{dashboard_name}"
         dash_logger = logging.getLogger(logger_name)
-        
-        # Only configure once (check own handlers, not parent handlers)
-        if len(dash_logger.handlers) > 0:
+        with self._dashboard_logger_lock:
+            # Only configure once (check own handlers, not parent handlers)
+            if len(dash_logger.handlers) > 0:
+                return dash_logger
+
+            config = ConfigManager()
+            configured_level = self._resolve_log_level(config.get('logging.level', 'INFO'))
+            dash_logger.setLevel(configured_level)
+            dash_logger.propagate = False  # Don't send to parent loggers
+            
+            # Create dashboard-specific log folder
+            dash_log_dir = LOGS_DIR / dashboard_name
+            dash_log_dir.mkdir(parents=True, exist_ok=True)
+            
+            # Dashboard-specific log files
+            dash_log_file = dash_log_dir / f"{dashboard_name}.log"
+            dash_error_file = dash_log_dir / f"{dashboard_name}_errors.log"
+            
+            # Detailed formatter
+            detailed_formatter = logging.Formatter(
+                '%(asctime)s | %(levelname)-8s | %(funcName)s:%(lineno)d | %(message)s',
+                datefmt='%Y-%m-%d %H:%M:%S'
+            )
+            
+            # Dashboard file handler (HYBRID: 3MB max + weekly rotation)
+            dash_file_handler = HybridRotatingHandler(
+                str(dash_log_file),
+                maxBytes=3*1024*1024,  # 3 MB
+                backupCount=8,         # Keep 8 files (~2 months of weekly)
+                when='W0'              # Rotate every Monday + size limit
+            )
+            dash_file_handler.setLevel(configured_level)
+            dash_file_handler.setFormatter(detailed_formatter)
+            
+            # Dashboard error handler (HYBRID: 5MB max + weekly rotation)
+            dash_error_handler = HybridRotatingHandler(
+                str(dash_error_file),
+                maxBytes=5*1024*1024,  # 5 MB
+                backupCount=8,         # Keep 8 files
+                when='W0'
+            )
+            dash_error_handler.setLevel(logging.ERROR)
+            dash_error_handler.setFormatter(detailed_formatter)
+            
+            # Wrap file handlers with async queue handlers (non-blocking dashboard logging)
+            dash_file_queue = QueueHandler(self.log_worker, dash_file_handler)
+            dash_error_queue = QueueHandler(self.log_worker, dash_error_handler)
+            
+            dash_logger.addHandler(dash_file_queue)
+            dash_logger.addHandler(dash_error_queue)
+            
+            # Console handler for all levels with SafeConsoleHandler (DEBUG level set to DEBUG, not ERROR)
+            # Set to DEBUG level (not ERROR) so that all messages including DEBUG-level logs get proper
+            # Unicode encoding protection via SafeConsoleHandler. This prevents UnicodeEncodeError when
+            # special characters (arrows, etc.) in log messages are written to Windows console with cp1252 encoding.
+            console_handler = SafeConsoleHandler(sys.stdout)
+            console_handler.setLevel(configured_level)
+            console_handler.setFormatter(logging.Formatter('%(levelname)s | %(message)s'))
+            dash_logger.addHandler(console_handler)
+            
+            dash_logger.log(configured_level, f"=== {dashboard_name.upper()} Dashboard Logger Initialized ===")
             return dash_logger
-        
-        config = ConfigManager()
-        configured_level = self._resolve_log_level(config.get('logging.level', 'INFO'))
-        dash_logger.setLevel(configured_level)
-        dash_logger.propagate = False  # Don't send to parent loggers
-        
-        # Create dashboard-specific log folder
-        dash_log_dir = LOGS_DIR / dashboard_name
-        dash_log_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Dashboard-specific log files
-        dash_log_file = dash_log_dir / f"{dashboard_name}.log"
-        dash_error_file = dash_log_dir / f"{dashboard_name}_errors.log"
-        
-        # Detailed formatter
-        detailed_formatter = logging.Formatter(
-            '%(asctime)s | %(levelname)-8s | %(funcName)s:%(lineno)d | %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S'
-        )
-        
-        # Dashboard file handler (HYBRID: 3MB max + weekly rotation)
-        dash_file_handler = HybridRotatingHandler(
-            str(dash_log_file),
-            maxBytes=3*1024*1024,  # 3 MB
-            backupCount=8,         # Keep 8 files (~2 months of weekly)
-            when='W0'              # Rotate every Monday + size limit
-        )
-        dash_file_handler.setLevel(configured_level)
-        dash_file_handler.setFormatter(detailed_formatter)
-        
-        # Dashboard error handler (HYBRID: 5MB max + weekly rotation)
-        dash_error_handler = HybridRotatingHandler(
-            str(dash_error_file),
-            maxBytes=5*1024*1024,  # 5 MB
-            backupCount=8,         # Keep 8 files
-            when='W0'
-        )
-        dash_error_handler.setLevel(logging.ERROR)
-        dash_error_handler.setFormatter(detailed_formatter)
-        
-        # Wrap file handlers with async queue handlers (non-blocking dashboard logging)
-        dash_file_queue = QueueHandler(self.log_worker, dash_file_handler)
-        dash_error_queue = QueueHandler(self.log_worker, dash_error_handler)
-        
-        dash_logger.addHandler(dash_file_queue)
-        dash_logger.addHandler(dash_error_queue)
-        
-        # Console handler for all levels with SafeConsoleHandler (DEBUG level set to DEBUG, not ERROR)
-        # Set to DEBUG level (not ERROR) so that all messages including DEBUG-level logs get proper
-        # Unicode encoding protection via SafeConsoleHandler. This prevents UnicodeEncodeError when
-        # special characters (arrows, etc.) in log messages are written to Windows console with cp1252 encoding.
-        console_handler = SafeConsoleHandler(sys.stdout)
-        console_handler.setLevel(configured_level)
-        console_handler.setFormatter(logging.Formatter('%(levelname)s | %(message)s'))
-        dash_logger.addHandler(console_handler)
-        
-        dash_logger.log(configured_level, f"=== {dashboard_name.upper()} Dashboard Logger Initialized ===")
-        return dash_logger
 
     @staticmethod
     def _resolve_log_level(level_value: str) -> int:

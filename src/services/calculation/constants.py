@@ -111,6 +111,7 @@ class ConstantsLoader:
     
     _instance: Optional['ConstantsLoader'] = None
     _constants: Optional[CalculationConstants] = None
+    _db_overrides: set[str] = set()
     
     def __new__(cls):
         """Singleton pattern for constant loader."""
@@ -132,6 +133,7 @@ class ConstantsLoader:
         3. Defaults (least specific)
         """
         self._constants = CalculationConstants()
+        self._db_overrides = set()
         
         # Try to load from database
         try:
@@ -148,23 +150,44 @@ class ConstantsLoader:
         logger.debug("Calculation constants loaded")
     
     def _load_from_database(self) -> None:
-        """Load constants from system_constants table."""
+        """Load constants from system_constants table.
+
+        Supports both schemas:
+        - With `active` column (newer admin schema)
+        - Without `active` column (legacy/local schema)
+        """
         try:
             from database.db_manager import DatabaseManager
-            
+
             db = DatabaseManager()
             conn = db.get_connection()
-            cursor = conn.execute(
-                "SELECT constant_key, constant_value FROM system_constants WHERE active = 1"
-            )
-            rows = cursor.fetchall()
-            conn.close()
-            
-            for row in rows:
-                key = row['constant_key']
-                value = row['constant_value']
-                self._apply_constant(key, value)
-                
+            try:
+                columns = {
+                    str(row["name"]).lower()
+                    for row in conn.execute("PRAGMA table_info(system_constants)").fetchall()
+                }
+                has_active = "active" in columns
+                has_unit = "unit" in columns
+
+                select_fields = "constant_key, constant_value"
+                if has_unit:
+                    select_fields += ", unit"
+
+                sql = f"SELECT {select_fields} FROM system_constants"
+                if has_active:
+                    sql += " WHERE active = 1"
+
+                rows = conn.execute(sql).fetchall()
+                for row in rows:
+                    key = row["constant_key"]
+                    value = row["constant_value"]
+                    unit = row["unit"] if has_unit else None
+                    applied_attr = self._apply_constant(key, value, unit=unit)
+                    if applied_attr:
+                        self._db_overrides.add(applied_attr)
+            finally:
+                conn.close()
+
         except Exception as e:
             logger.debug(f"Database constants not available: {e}")
     
@@ -176,21 +199,17 @@ class ConstantsLoader:
             calc_config = config.get('calculation', {})
             if isinstance(calc_config, dict):
                 for key, value in calc_config.items():
+                    attr_name = self._resolve_attr_name(key)
+                    # Database values are authoritative when both sources define the same key.
+                    if attr_name in self._db_overrides:
+                        continue
                     self._apply_constant(key, value)
                     
         except Exception as e:
             logger.debug(f"Config constants not available: {e}")
     
-    def _apply_constant(self, key: str, value: Any) -> None:
-        """Apply a constant value to the constants object.
-        
-        Maps database/config keys to CalculationConstants attributes.
-        
-        Args:
-            key: Constant key (e.g., 'evap_pan_coefficient')
-            value: Constant value (will be type-converted)
-        """
-        # Map keys to attributes (supports multiple naming conventions)
+    def _resolve_attr_name(self, key: str) -> str:
+        """Resolve external key aliases to CalculationConstants attribute names."""
         key_mapping = {
             # Evaporation
             'evap_pan_coefficient': 'evap_pan_coefficient',
@@ -234,8 +253,32 @@ class ConstantsLoader:
             'domestic_consumption_enabled': 'domestic_consumption_enabled',
             'enable_domestic_consumption': 'domestic_consumption_enabled',
         }
+        return key_mapping.get(key, key)
+
+    def _apply_constant(self, key: str, value: Any, unit: Any = None) -> Optional[str]:
+        """Apply a constant value to the constants object.
         
-        attr_name = key_mapping.get(key, key)
+        Maps database/config keys to CalculationConstants attributes.
+        
+        Args:
+            key: Constant key (e.g., 'evap_pan_coefficient')
+            value: Constant value (will be type-converted)
+        """
+        attr_name = self._resolve_attr_name(key)
+
+        # Backward-compatible unit normalization:
+        # Dust suppression is consumed by the engine as L/t. If DB is configured as m3/t,
+        # convert here so runtime formula stays consistent.
+        if attr_name == "dust_suppression_rate_l_per_t" and unit is not None:
+            unit_text = str(unit).strip().lower()
+            if unit_text in {"m3/t", "m^3/t", "m³/t", "cum/t"}:
+                try:
+                    value = float(value) * 1000.0
+                    logger.info(
+                        "Converted dust_suppression_rate from m3/t to L/t for calculation runtime."
+                    )
+                except Exception:
+                    pass
         
         if hasattr(self._constants, attr_name):
             try:
@@ -259,8 +302,10 @@ class ConstantsLoader:
                 
                 setattr(self._constants, attr_name, value)
                 logger.debug(f"Loaded constant {attr_name}={value}")
+                return attr_name
             except (ValueError, TypeError) as e:
                 logger.warning(f"Invalid constant value for {key}: {value} ({e})")
+        return None
     
     @property
     def constants(self) -> CalculationConstants:

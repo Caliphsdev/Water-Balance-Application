@@ -37,7 +37,7 @@ from PySide6.QtWidgets import (
     QWidget, QLabel, QVBoxLayout, QHBoxLayout, QGridLayout,
     QTableWidget, QTableWidgetItem, QMessageBox, QFrame,
     QScrollArea, QSizePolicy, QSpacerItem, QProgressBar,
-    QGraphicsDropShadowEffect
+    QGraphicsDropShadowEffect, QFileDialog, QLineEdit, QPushButton
 )
 from PySide6.QtCore import Qt, QThread, Signal
 from PySide6.QtGui import QColor, QFont, QPainter, QBrush, QPen
@@ -48,7 +48,7 @@ from datetime import date, datetime
 import logging
 
 # Import calculation services
-from services.calculation.balance_service import get_balance_service, BalanceService
+from services.calculation.balance_service import get_balance_service, BalanceService, EXCEL_COLUMNS
 from services.calculation.days_of_operation_service import get_days_of_operation_service
 from services.calculation.models import BalanceResult, CalculationPeriod, DataQualityFlags
 
@@ -126,6 +126,9 @@ class CalculationPage(QWidget):
         
         # Connect signals to slots
         self._connect_signals()
+
+        # Add direct Meter Readings Excel selector to this page
+        self._setup_excel_loader_controls()
         
         # Initialize tabs with placeholder content
         self._setup_tabs()
@@ -154,11 +157,12 @@ class CalculationPage(QWidget):
         # Compact control bar
         if hasattr(self.ui, "frame"):
             self.ui.frame.setObjectName("calc_control_bar")
-            self.ui.frame.setMinimumHeight(74)
-            self.ui.frame.setMaximumHeight(84)
+            # Two rows now exist (Excel selector + month/year controls), so keep enough height.
+            self.ui.frame.setMinimumHeight(112)
+            self.ui.frame.setMaximumHeight(132)
         if hasattr(self.ui, "verticalLayout_2"):
             self.ui.verticalLayout_2.setContentsMargins(10, 8, 10, 8)
-            self.ui.verticalLayout_2.setSpacing(6)
+            self.ui.verticalLayout_2.setSpacing(8)
         if hasattr(self.ui, "label_5"):
             self.ui.label_5.setObjectName("calc_control_section")
         if hasattr(self.ui, "comboBox"):
@@ -210,6 +214,95 @@ class CalculationPage(QWidget):
         
         if hasattr(self.ui, 'comboBox_2'):  # Month combobox
             self.ui.comboBox_2.currentTextChanged.connect(self._on_date_changed)
+
+    def _setup_excel_loader_controls(self) -> None:
+        """Add Meter Readings Excel path selector inside calculations control bar."""
+        if not hasattr(self.ui, "verticalLayout_2"):
+            return
+
+        row = QHBoxLayout()
+        row.setSpacing(8)
+
+        label = QLabel("Meter Readings Excel:")
+        label.setObjectName("calc_excel_label")
+        row.addWidget(label)
+
+        self.calc_excel_path_edit = QLineEdit()
+        self.calc_excel_path_edit.setObjectName("calc_excel_path_edit")
+        self.calc_excel_path_edit.setReadOnly(True)
+        self.calc_excel_path_edit.setPlaceholderText("No file selected")
+        self.calc_excel_path_edit.setMinimumHeight(28)
+        row.addWidget(self.calc_excel_path_edit, 1)
+
+        self.calc_excel_select_btn = QPushButton("Select File")
+        self.calc_excel_select_btn.setObjectName("secondaryButton")
+        self.calc_excel_select_btn.setMinimumHeight(28)
+        self.calc_excel_select_btn.setMaximumHeight(30)
+        self.calc_excel_select_btn.clicked.connect(self._on_select_meter_excel)
+        row.addWidget(self.calc_excel_select_btn)
+
+        self.ui.verticalLayout_2.insertLayout(1, row)
+        self._refresh_meter_excel_path_display()
+
+    def _refresh_meter_excel_path_display(self) -> None:
+        """Refresh the on-page Meter Readings Excel path display."""
+        if not hasattr(self, "calc_excel_path_edit"):
+            return
+
+        try:
+            from services.excel_manager import get_excel_manager
+            excel_mgr = get_excel_manager()
+            path = excel_mgr.get_meter_readings_path() or ""
+            path_text = str(path) if path else ""
+            self.calc_excel_path_edit.setText(path_text)
+            self.calc_excel_path_edit.setToolTip(path_text)
+        except Exception as exc:
+            logger.warning(f"Unable to read meter readings path: {exc}")
+            self.calc_excel_path_edit.setText("")
+            self.calc_excel_path_edit.setToolTip("")
+
+    def _on_select_meter_excel(self) -> None:
+        """Let user select Meter Readings Excel file used by calculations."""
+        try:
+            current_dir = ""
+            if hasattr(self, "calc_excel_path_edit") and self.calc_excel_path_edit.text():
+                current_dir = self.calc_excel_path_edit.text()
+
+            file_path, _ = QFileDialog.getOpenFileName(
+                self,
+                "Select Meter Readings Excel File",
+                current_dir,
+                "Excel Files (*.xlsx *.xls *.xlsm);;All Files (*.*)"
+            )
+            if not file_path:
+                return
+
+            from services.excel_manager import get_excel_manager
+            excel_mgr = get_excel_manager()
+            excel_mgr.set_meter_readings_path(file_path)
+            # Backward-compatible cache clear across ExcelManager versions.
+            if hasattr(excel_mgr, "clear_meter_cache"):
+                excel_mgr.clear_meter_cache()
+            elif hasattr(excel_mgr, "clear_meter_readings_cache"):
+                excel_mgr.clear_meter_readings_cache()
+            elif hasattr(excel_mgr, "clear_all_caches"):
+                excel_mgr.clear_all_caches()
+            self._refresh_meter_excel_path_display()
+
+            QMessageBox.information(
+                self,
+                "Excel File Updated",
+                "Meter Readings Excel file updated successfully.\n"
+                "You can now run Calculate Balance using this file."
+            )
+            logger.info(f"Meter Readings Excel updated from Calculations page: {file_path}")
+        except Exception as exc:
+            logger.error(f"Failed to set Meter Readings Excel from Calculations page: {exc}", exc_info=True)
+            QMessageBox.critical(
+                self,
+                "Excel Selection Error",
+                f"Failed to set Meter Readings Excel file:\n\n{exc}"
+            )
     
     def _on_date_changed(self):
         """Handle date selection change (SLOT).
@@ -1311,6 +1404,7 @@ class CalculationPage(QWidget):
             has_simulated = len(quality.simulated_values) > 0
             missing_fields = quality.missing_values or []
             estimated_fields = quality.estimated_values or []
+            simulated_fields = quality.simulated_values or []
             warnings = quality.warnings or []
         else:
             has_missing = False
@@ -1318,18 +1412,16 @@ class CalculationPage(QWidget):
             has_simulated = False
             missing_fields = []
             estimated_fields = []
+            simulated_fields = []
             warnings = []
         
-        # Calculate quality score (0-100)
+        # Calculate quality score (0-100) using issue counts with guard rails.
+        # This reflects how many variables are impacted instead of a single yes/no flag.
         score = 100
-        if has_missing:
-            score -= 30
-        if has_estimated:
-            score -= 15
-        if has_simulated:
-            score -= 10
-        if warnings:
-            score -= min(len(warnings) * 5, 25)
+        score -= min(len(missing_fields) * 8, 40)
+        score -= min(len(estimated_fields) * 4, 20)
+        score -= min(len(simulated_fields) * 3, 15)
+        score -= min(len(warnings) * 3, 15)
         score = max(score, 0)
         
         # Determine status
@@ -1424,7 +1516,7 @@ class CalculationPage(QWidget):
         simulated_card = self._create_status_card(
             title="Simulated Values",
             status="YES" if has_simulated else "NO",
-            count=0,  # We don't track count for simulated
+            count=len(simulated_fields),
             is_good=not has_simulated,
             icon="🔬"
         )
@@ -1473,6 +1565,11 @@ class CalculationPage(QWidget):
                 item = QLabel(f"• Estimated: {field}")
                 item.setObjectName("calc_quality_issue_item")
                 issues_layout.addWidget(item)
+
+            for field in simulated_fields[:3]:
+                item = QLabel(f"• Simulated: {field}")
+                item.setObjectName("calc_quality_issue_item")
+                issues_layout.addWidget(item)
             
             for warning in warnings[:3]:
                 item = QLabel(f"• Warning: {warning}")
@@ -1491,10 +1588,10 @@ class CalculationPage(QWidget):
             scoring_title.setObjectName("calc_quality_issues_title")
             scoring_layout.addWidget(scoring_title)
             for line in [
-                "• Missing data: -30",
-                "• Estimated values: -15",
-                "• Simulated values: -10",
-                "• Warnings: -5 each (max -25)",
+                "• Missing values: -8 each (max -40)",
+                "• Estimated values: -4 each (max -20)",
+                "• Simulated values: -3 each (max -15)",
+                "• Warnings: -3 each (max -15)",
             ]:
                 lbl = QLabel(line)
                 lbl.setObjectName("calc_quality_rule_item")
@@ -1521,11 +1618,73 @@ class CalculationPage(QWidget):
         footer.setObjectName("calc_quality_footer")
         footer.setWordWrap(True)
         main_layout.addWidget(footer)
+
+        trace_frame = QFrame()
+        trace_frame.setObjectName("calc_quality_issues")
+        trace_layout = QVBoxLayout(trace_frame)
+        trace_layout.setContentsMargins(14, 12, 14, 12)
+        trace_layout.setSpacing(6)
+
+        trace_title = QLabel("Calculation Trace (Selected Month)")
+        trace_title.setObjectName("calc_quality_issues_title")
+        trace_layout.addWidget(trace_title)
+
+        for line in self._build_calc_trace_lines(result):
+            trace_item = QLabel(f"• {line}")
+            trace_item.setObjectName("calc_quality_issue_item")
+            trace_item.setWordWrap(True)
+            trace_layout.addWidget(trace_item)
+
+        main_layout.addWidget(trace_frame)
         
         main_layout.addStretch()
         
         scroll.setWidget(container)
         tab.layout().addWidget(scroll)
+
+    def _build_calc_trace_lines(self, result: 'BalanceResult') -> list[str]:
+        """Build business-readable trace lines for key estimated outflows."""
+        lines: list[str] = []
+        try:
+            service = get_balance_service()
+            constants = getattr(service, "_constants", None)
+            excel = getattr(service, "_excel", None)
+
+            tonnes_milled = 0.0
+            if excel:
+                series = excel.get_meter_readings_series(
+                    EXCEL_COLUMNS["tonnes_milled"],
+                    start_date=result.period.start_date,
+                    end_date=result.period.end_date
+                )
+                if series and series[0][1] is not None:
+                    tonnes_milled = float(series[0][1])
+
+            dust_rate_l_per_t = float(getattr(constants, "dust_suppression_rate_l_per_t", 1.0))
+            dust_m3 = float(result.outflows.components.get("dust_suppression", 0.0))
+            lines.append(
+                f"Dust Suppression = Tonnes Milled ({tonnes_milled:,.0f} t) x Dust Rate ({dust_rate_l_per_t:g} L/t) / 1000 = {dust_m3:,.0f} m3"
+            )
+
+            tailings_m3 = float(result.outflows.components.get("tailings_lockup", 0.0))
+            moisture_from_density = (
+                result.kpis.tailings_moisture_from_density
+                if result.kpis else None
+            )
+            if moisture_from_density is not None:
+                moisture_pct = float(moisture_from_density)
+                moisture_source = "Tailings RD from Excel"
+            else:
+                moisture_pct = float(getattr(constants, "tailings_moisture_pct", 45.0))
+                moisture_source = "Configured fallback constant"
+
+            lines.append(
+                f"Tailings Lockup = Tailings Tonnes (~{tonnes_milled:,.0f} t) x Moisture ({moisture_pct:.1f}% from {moisture_source}) = {tailings_m3:,.0f} m3"
+            )
+        except Exception as exc:
+            lines.append(f"Trace unavailable: {exc}")
+
+        return lines
     
     def _create_status_card(self, title: str, status: str, count: int, 
                             is_good: bool, icon: str) -> QFrame:
@@ -1706,10 +1865,16 @@ class CalculationPage(QWidget):
         badge.setProperty("runwayState", status_text.lower())
         status_row.addWidget(badge)
         
-        # Show monthly usage for context instead of confusing secondary number
+        # Show monthly usage with exact formula context.
         monthly_usage = daily_consumption * 30
         usage_info = QLabel(f"📊 Using {monthly_usage/1000:,.0f}k m³/month")
         usage_info.setObjectName("calc_days_usage")
+        usage_info.setToolTip(
+            "Monthly usage = Daily net fresh demand x 30\n"
+            f"Daily net fresh demand: {daily_consumption:,.1f} m3/day\n"
+            f"Monthly usage (exact): {monthly_usage:,.1f} m3/month\n"
+            f"Source: {runway.consumption_source}"
+        )
         status_row.addWidget(usage_info)
         
         status_container = QWidget()
@@ -1928,7 +2093,51 @@ class CalculationPage(QWidget):
             code_label = QLabel(f.facility_code)
             code_label.setObjectName("calc_facility_code")
             f_layout.addWidget(code_label)
-            
+
+            # Per-facility source badge:
+            # - outflows: measured system outflow source used
+            # - storage_history: proxy from storage history delta if available
+            # - estimated: 5% of capacity fallback
+            estimated_monthly = f.capacity_m3 * 0.05
+            if runway.consumption_source == "outflows":
+                source_text = "Measured"
+                source_tip = (
+                    "Uses balance outflows source at system level.\n"
+                    "Facility card is scaled from facility projection context."
+                )
+            elif runway.consumption_source == "storage_history":
+                if abs(f.monthly_consumption_m3 - estimated_monthly) <= 0.5:
+                    source_text = "Estimated"
+                    source_tip = "No storage-history proxy found for this facility in selected period.\nUsing fallback 5% of capacity/month."
+                else:
+                    source_text = "History Proxy"
+                    source_tip = "Uses storage_history delta proxy for this facility in selected period."
+            else:
+                source_text = "Estimated"
+                source_tip = "Uses fallback estimate of 5% of facility capacity per month."
+
+            source_label = QLabel(source_text)
+            source_label.setObjectName("calc_facility_source")
+            source_label.setToolTip(source_tip)
+            source_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
+            source_label.setMaximumWidth(115)
+            if source_text == "Measured":
+                source_label.setStyleSheet(
+                    "background:#ecfdf5; color:#166534; border:1px solid #86efac; "
+                    "border-radius:10px; padding:1px 8px; font-size:10px; font-weight:700;"
+                )
+            elif source_text == "History Proxy":
+                source_label.setStyleSheet(
+                    "background:#eff6ff; color:#1d4ed8; border:1px solid #93c5fd; "
+                    "border-radius:10px; padding:1px 8px; font-size:10px; font-weight:700;"
+                )
+            else:
+                source_label.setStyleSheet(
+                    "background:#fffbeb; color:#92400e; border:1px solid #fcd34d; "
+                    "border-radius:10px; padding:1px 8px; font-size:10px; font-weight:700;"
+                )
+            f_layout.addWidget(source_label)
+
             # Days remaining (reduced from 20px to 13px)
             days_label = QLabel(f"{f.days_remaining_conservative}d")
             days_label.setObjectName("calc_facility_days")

@@ -75,11 +75,11 @@ class AboutPage(QWidget):
         layout.setSpacing(16)
 
         logo_label = QLabel(card)
-        logo_label.setFixedSize(110, 110)
+        logo_label.setFixedSize(170, 120)
         logo_label.setAlignment(Qt.AlignCenter)
         pixmap = self._load_company_logo()
         if not pixmap.isNull():
-            logo_label.setPixmap(pixmap.scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+            logo_label.setPixmap(pixmap.scaled(160, 110, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         else:
             logo_label.setText("TAR")
             logo_label.setObjectName("aboutLogoFallback")

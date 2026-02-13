@@ -97,6 +97,15 @@ class NotificationSyncWorker(QRunnable):
                 return
             
             logger.debug(f"Background sync: fetching notifications for tier '{tier}'")
+            if not self.service._ensure_supabase():
+                logger.debug("No Supabase client available - using cached notifications")
+                if self._safe_emit(
+                    self.signals.result,
+                    self.service._notifications,
+                    self.service.unread_count,
+                ):
+                    self._safe_emit(self.signals.finished)
+                return
             
             # Fetch from Supabase (this is the blocking network call)
             supabase = self.service._supabase
@@ -309,9 +318,14 @@ class NotificationService(QObject):
         self._last_sync: Optional[datetime] = None
         self._init_lock = threading.Lock()
         self._initialized = False
+        self._supabase_init_attempted = supabase_client is not None
     
     def _ensure_initialized(self) -> None:
-        """Ensure service is initialized."""
+        """Ensure cache/data directory is initialized.
+
+        Important: this method must stay fast and non-blocking.
+        Network client initialization is handled lazily in _ensure_supabase().
+        """
         if self._initialized:
             return
         
@@ -328,16 +342,38 @@ class NotificationService(QObject):
                     self._data_dir = Path(__file__).parent.parent.parent / "data"
             
             self._data_dir.mkdir(parents=True, exist_ok=True)
-            
-            # Set up Supabase client
-            if self._supabase is None:
-                self._supabase = get_supabase_client()
-            
+
             # Load cached notifications
             self._load_cache()
             
             self._initialized = True
             logger.debug(f"Notification service initialized")
+
+    def _ensure_supabase(self) -> bool:
+        """Ensure Supabase client exists, but never block app startup paths.
+
+        Returns:
+            True when client is available, otherwise False.
+        """
+        if self._supabase is not None:
+            return True
+
+        with self._init_lock:
+            if self._supabase is not None:
+                return True
+
+            # Avoid repeated initialization attempts in hot paths.
+            if self._supabase_init_attempted:
+                return False
+
+            self._supabase_init_attempted = True
+            try:
+                self._supabase = get_supabase_client()
+                logger.debug("Notification service Supabase client initialized")
+                return True
+            except Exception as e:
+                logger.warning("Notification service offline: %s", e)
+                return False
     
     @property
     def cache_file_path(self) -> Path:
@@ -414,6 +450,9 @@ class NotificationService(QObject):
             List of notifications.
         """
         self._ensure_initialized()
+        if not self._ensure_supabase():
+            self.sync_error.emit("Offline - using cached notifications")
+            return self._notifications
         
         # Get user's tier
         license_service = get_license_service()
@@ -581,19 +620,20 @@ class NotificationService(QObject):
         self._save_cache()
         
         # Try to sync to Supabase
-        try:
-            # Use upsert to handle duplicates gracefully
-            # If the record already exists, it will just update it (no-op)
-            self._supabase.upsert(
-                table="notification_reads",
-                data={
-                    "notification_id": notification_id,
-                    "hwid": self.hwid
-                }
-            )
-        except Exception as e:
-            # Even if sync fails, the local cache is already updated
-            logger.debug(f"Could not sync read status to Supabase: {e}")
+        if self._ensure_supabase():
+            try:
+                # Use upsert to handle duplicates gracefully.
+                # If the record already exists, it will just update it (no-op).
+                self._supabase.upsert(
+                    table="notification_reads",
+                    data={
+                        "notification_id": notification_id,
+                        "hwid": self.hwid
+                    }
+                )
+            except Exception as e:
+                # Even if sync fails, the local cache is already updated.
+                logger.debug(f"Could not sync read status to Supabase: {e}")
         
         self.unread_count_changed.emit(self.unread_count)
         return True

@@ -142,6 +142,19 @@ class InflowsService(IInflowsService):
         self.db = db_manager
         self._excel = excel_manager or get_excel_manager()
         self._constants = get_constants()
+
+    def _get_meter_columns(self) -> set[str]:
+        """Return available Meter Readings column names.
+
+        Used to distinguish "column missing" from "column exists but month has no values".
+        """
+        try:
+            df = self._excel.load_meter_readings()
+            if df is None or df.empty:
+                return set()
+            return {str(c).strip() for c in df.columns}
+        except Exception:
+            return set()
     
     def calculate_inflows(
         self, 
@@ -359,9 +372,16 @@ class InflowsService(IInflowsService):
         """
         try:
             total = 0.0
+            available_cols = self._get_meter_columns()
             
             for source_col in EXCEL_COLUMNS['surface_water_sources']:
                 try:
+                    if source_col not in available_cols:
+                        flags.add_missing(
+                            f"surface_water:{source_col}",
+                            f"Excel Meter Readings column missing: {source_col}"
+                        )
+                        continue
                     series = self._excel.get_meter_readings_series(
                         source_col,
                         start_date=period.start_date,
@@ -398,9 +418,16 @@ class InflowsService(IInflowsService):
         """
         try:
             total = 0.0
+            available_cols = self._get_meter_columns()
             
             for source_col in EXCEL_COLUMNS['groundwater_sources']:
                 try:
+                    if source_col not in available_cols:
+                        flags.add_missing(
+                            f"groundwater:{source_col}",
+                            f"Excel Meter Readings column missing: {source_col}"
+                        )
+                        continue
                     series = self._excel.get_meter_readings_series(
                         source_col,
                         start_date=period.start_date,
@@ -440,9 +467,16 @@ class InflowsService(IInflowsService):
         """
         try:
             total = 0.0
+            available_cols = self._get_meter_columns()
             
             for source_col in EXCEL_COLUMNS['dewatering_sources']:
                 try:
+                    if source_col not in available_cols:
+                        flags.add_missing(
+                            f"dewatering:{source_col}",
+                            f"Excel Meter Readings column missing: {source_col}"
+                        )
+                        continue
                     series = self._excel.get_meter_readings_series(
                         source_col,
                         start_date=period.start_date,
@@ -560,9 +594,18 @@ class InflowsService(IInflowsService):
             Ore moisture volume in m³
         """
         try:
+            available_cols = self._get_meter_columns()
+            tonnes_col = EXCEL_COLUMNS['tonnes_milled']
+            if tonnes_col not in available_cols:
+                flags.add_missing(
+                    "ore_moisture:tonnes_milled",
+                    f"Excel Meter Readings column missing: {tonnes_col}"
+                )
+                return 0.0
+
             # Get tonnes milled from Excel (full month range)
             series = self._excel.get_meter_readings_series(
-                EXCEL_COLUMNS['tonnes_milled'],
+                tonnes_col,
                 start_date=period.start_date,
                 end_date=period.end_date
             )
@@ -1451,8 +1494,9 @@ class StorageService(IStorageService):
             if total_closing < 0:
                 logger.warning(f"Calculated closing storage is negative ({total_closing:,.0f} m³), "
                               f"clamping to 0. This may indicate missing inflow data.")
-                flags.add_warning('storage_negative', 
-                                 f'Calculated closing < 0, clamped to 0')
+                flags.add_warning(
+                    f"Storage warning: calculated closing < 0 and was clamped to 0."
+                )
                 total_closing = 0.0
             
             # Check for capacity overflow
@@ -1460,8 +1504,9 @@ class StorageService(IStorageService):
                 overflow = total_closing - total_capacity
                 logger.warning(f"Calculated closing storage ({total_closing:,.0f} m³) exceeds "
                               f"capacity ({total_capacity:,.0f} m³) by {overflow:,.0f} m³")
-                flags.add_warning('storage_overflow', 
-                                 f'Closing exceeds capacity by {overflow:,.0f} m³')
+                flags.add_warning(
+                    f"Storage warning: calculated closing exceeds total capacity by {overflow:,.0f} m³."
+                )
             
             logger.debug(f"Storage calculated from balance: Opening={total_opening:,.0f} + "
                         f"IN={inflows_m3:,.0f} - OUT={outflows_m3:,.0f} = Closing={total_closing:,.0f} m³")
@@ -1629,7 +1674,7 @@ class StorageService(IStorageService):
                 logger.info(f"{facility_code}: No storage history, using current volume as opening: {current:,.0f} m³")
                 return current
             
-            flags.add_warning(f'{facility_code}_opening', 'No volume data found')
+            flags.add_warning(f"{facility_code}: no current volume data found for opening fallback.")
             return 0.0
             
         except Exception as e:
@@ -2252,13 +2297,13 @@ class BalanceService(IBalanceEngine):
             # 2. Calculate outflows
             outflows = self.outflows_service.calculate_outflows(period, flags)
             
-            # 3. Calculate storage change using balance equation
-            # Closing = Opening + Inflows - Outflows (mass conservation)
-            # This ensures the balance closes properly with error ~0%
+            # 3. Calculate storage change from MEASURED volumes
+            # DO NOT pass inflows/outflows - we need real ΔStorage to calculate error
+            # Error % reveals data quality issues (missing flows, measurement gaps)
             storage = self.storage_service.calculate_storage(
                 period, flags,
-                inflows_m3=inflows.total_m3,
-                outflows_m3=outflows.total_m3
+                inflows_m3=None,  # Don't back-calculate storage
+                outflows_m3=None  # Use actual measured volumes
             )
             
             # 4. Calculate recycled water (for KPIs only)

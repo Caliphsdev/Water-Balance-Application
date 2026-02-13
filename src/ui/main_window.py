@@ -72,6 +72,7 @@ class MainWindow(QMainWindow):
     def __init__(self, splash=None, parent=None) -> None:
         super().__init__(parent)
         self._is_closing = False
+        self._license_block_dialog_shown = False
         self.splash = splash
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
@@ -676,6 +677,20 @@ class MainWindow(QMainWindow):
             self._network_check_timer = QTimer(self)
             self._network_check_timer.timeout.connect(self._update_network_status)
             self._network_check_timer.start(30000)  # 30 seconds
+
+            # Set up periodic runtime license enforcement.
+            # This ensures revoked licenses are blocked while the app is open.
+            interval_seconds = int(
+                ConfigManager().get(
+                    "licensing.runtime_check_interval_seconds",
+                    ConfigManager().get("licensing.background_check_interval_seconds", 120),
+                )
+            )
+            interval_seconds = max(30, min(interval_seconds, 120))
+            self._license_check_timer = QTimer(self)
+            self._license_check_timer.timeout.connect(self._enforce_runtime_license_status)
+            self._license_check_timer.start(interval_seconds * 1000)
+            QTimer.singleShot(2000, self._enforce_runtime_license_status)
             
             logger.info("Status bar widgets initialized")
             
@@ -809,6 +824,32 @@ class MainWindow(QMainWindow):
             logger.warning(f"Failed to check network status: {e}")
             self.network_label.setText("Unknown")
             self._set_network_tone("checking")
+
+    def _enforce_runtime_license_status(self) -> None:
+        """Revalidate license during runtime and block if revoked/invalid."""
+        if self._is_closing or self._license_block_dialog_shown:
+            return
+        try:
+            from services.license_service import get_license_service
+
+            status = get_license_service().validate(try_refresh=True, force_online_check=True)
+            self._update_license_status()
+            if not status.should_block:
+                return
+
+            self._license_block_dialog_shown = True
+            if hasattr(self, "_license_check_timer") and self._license_check_timer is not None:
+                self._license_check_timer.stop()
+
+            msg = QMessageBox(self)
+            msg.setIcon(QMessageBox.Icon.Critical)
+            msg.setWindowTitle("License Invalid")
+            msg.setText("License access has been revoked or is no longer valid.")
+            msg.setInformativeText(f"Status: {status.status}\n{status.message}\n\nThe application will close.")
+            msg.exec()
+            self.close()
+        except Exception as exc:
+            logger.warning(f"Runtime license validation failed: {exc}")
 
     def _set_default_page(self) -> None:
         """Set Dashboard page as the default startup page.
@@ -1161,6 +1202,11 @@ class MainWindow(QMainWindow):
                 self._network_check_timer.stop()
             except Exception as exc:
                 logger.debug(f"Unable to stop network check timer: {exc}")
+        if hasattr(self, "_license_check_timer") and self._license_check_timer is not None:
+            try:
+                self._license_check_timer.stop()
+            except Exception as exc:
+                logger.debug(f"Unable to stop license check timer: {exc}")
 
         if getattr(self, "_update_download_dialog", None):
             try:

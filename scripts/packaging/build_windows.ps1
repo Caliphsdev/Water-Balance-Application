@@ -1,11 +1,20 @@
 $ProjectRoot = Resolve-Path (Join-Path $PSScriptRoot "..\..")
-$Venv313 = Join-Path $ProjectRoot ".venv313\Scripts\python.exe"
 $VenvDefault = Join-Path $ProjectRoot ".venv\Scripts\python.exe"
-$Python = if (Test-Path $Venv313) { $Venv313 } else { $VenvDefault }
+$Python = $VenvDefault
 $Spec = Join-Path $PSScriptRoot "water_balance.spec"
 $RccSource = Join-Path $ProjectRoot "src\ui\resources\resources.qrc"
 $RccOutput = Join-Path $ProjectRoot "src\ui\resources\resources_rc.py"
 $RccTool = Join-Path (Split-Path $Python -Parent) "pyside6-rcc.exe"
+
+if (-not (Test-Path $Python)) {
+	throw "Expected packaging Python at $Python. Create/activate .venv first."
+}
+
+# Verify runtime-critical packages in the same env used for packaging.
+& $Python -c "import pandas, openpyxl, xlrd, PySide6; print('packaging-env-ok')"
+if ($LASTEXITCODE -ne 0) {
+	throw "Missing required packages in .venv (need pandas, openpyxl, xlrd, PySide6)."
+}
 
 $DistDir = Join-Path $ProjectRoot "dist\WaterBalanceDashboard"
 $BuildDir = Join-Path $ProjectRoot "build"

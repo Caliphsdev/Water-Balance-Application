@@ -8,7 +8,7 @@ Used by Settings UI and calculation services.
 import logging
 import sqlite3
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 
 from database.db_manager import DatabaseManager
 from database.repositories.system_constants_repository import SystemConstantsRepository
@@ -238,3 +238,234 @@ class SystemConstantsService:
             self.get_constant_map(refresh=True)
 
         return inserted_or_updated
+
+    def seed_defaults_if_empty(self) -> int:
+        """Seed baseline constants into an empty constants table.
+
+        This keeps Settings > Constants usable even when no packaged DB is shipped.
+        Values are sourced from runtime constants (config-aware), then persisted.
+        """
+        if self.repository.list_constants():
+            return 0
+
+        defaults = self._build_default_constants_payload()
+        inserted = 0
+        for item in defaults:
+            try:
+                self.repository.create(SystemConstant(**item))
+                inserted += 1
+            except Exception as exc:
+                logger.warning("Failed seeding constant %s: %s", item.get("constant_key"), exc)
+
+        if inserted:
+            self.get_constant_map(refresh=True)
+        return inserted
+
+    def _build_default_constants_payload(self) -> List[Dict[str, Any]]:
+        """Create constant rows from calculation defaults/config."""
+        from services.calculation.constants import ConstantsLoader
+
+        meta: List[Dict[str, Any]] = [
+            {
+                "constant_key": "evap_pan_coefficient",
+                "attr": "evap_pan_coefficient",
+                "unit": "ratio",
+                "category": "evaporation",
+                "description": "Pan-to-lake evaporation conversion factor",
+                "min_value": 0.0,
+                "max_value": 2.0,
+            },
+            {
+                "constant_key": "seepage_rate_lined_pct",
+                "attr": "seepage_rate_lined_pct",
+                "unit": "%",
+                "category": "seepage",
+                "description": "Monthly seepage loss rate for lined facilities",
+                "min_value": 0.0,
+                "max_value": 100.0,
+            },
+            {
+                "constant_key": "seepage_rate_unlined_pct",
+                "attr": "seepage_rate_unlined_pct",
+                "unit": "%",
+                "category": "seepage",
+                "description": "Monthly seepage loss rate for unlined facilities",
+                "min_value": 0.0,
+                "max_value": 100.0,
+            },
+            {
+                "constant_key": "tsf_return_water_pct",
+                "attr": "tsf_return_water_pct",
+                "unit": "%",
+                "category": "recycling",
+                "description": "Estimated percentage of process water returned from TSF",
+                "min_value": 0.0,
+                "max_value": 100.0,
+            },
+            {
+                "constant_key": "tailings_moisture_pct",
+                "attr": "tailings_moisture_pct",
+                "unit": "%",
+                "category": "tailings",
+                "description": "Fallback moisture retained in tailings",
+                "min_value": 0.0,
+                "max_value": 100.0,
+            },
+            {
+                "constant_key": "tailings_solids_density",
+                "attr": "tailings_solids_density",
+                "unit": "t/m3",
+                "category": "tailings",
+                "description": "Tailings solids density used in moisture calculations",
+                "min_value": 0.1,
+                "max_value": 10.0,
+            },
+            {
+                "constant_key": "ore_moisture_pct",
+                "attr": "ore_moisture_pct",
+                "unit": "%",
+                "category": "plant",
+                "description": "Moisture percentage in ore feed",
+                "min_value": 0.0,
+                "max_value": 100.0,
+            },
+            {
+                "constant_key": "product_moisture_pct",
+                "attr": "product_moisture_pct",
+                "unit": "%",
+                "category": "plant",
+                "description": "Moisture percentage in final product",
+                "min_value": 0.0,
+                "max_value": 100.0,
+            },
+            {
+                "constant_key": "recovery_rate_pct",
+                "attr": "recovery_rate_pct",
+                "unit": "%",
+                "category": "plant",
+                "description": "Ore mass recovery rate used for product assumptions",
+                "min_value": 0.0,
+                "max_value": 100.0,
+            },
+            {
+                "constant_key": "dust_suppression_rate_l_per_t",
+                "attr": "dust_suppression_rate_l_per_t",
+                "unit": "L/t",
+                "category": "plant",
+                "description": "Dust suppression water application rate per tonne milled",
+                "min_value": 0.0,
+                "max_value": 1000.0,
+            },
+            {
+                "constant_key": "mining_water_rate_m3_per_t",
+                "attr": "mining_water_rate_m3_per_t",
+                "unit": "m3/t",
+                "category": "mining",
+                "description": "Mining water use rate per tonne mined",
+                "min_value": 0.0,
+                "max_value": 10.0,
+            },
+            {
+                "constant_key": "domestic_consumption_l_per_person_day",
+                "attr": "domestic_consumption_l_per_person_day",
+                "unit": "L/person/day",
+                "category": "domestic",
+                "description": "Domestic water demand per person per day",
+                "min_value": 0.0,
+                "max_value": 1000.0,
+            },
+            {
+                "constant_key": "pump_start_level_pct",
+                "attr": "pump_start_level_pct",
+                "unit": "%",
+                "category": "storage",
+                "description": "Automatic transfer trigger level",
+                "min_value": 0.0,
+                "max_value": 100.0,
+            },
+            {
+                "constant_key": "pump_increment_pct",
+                "attr": "pump_increment_pct",
+                "unit": "%",
+                "category": "storage",
+                "description": "Transfer increment when auto-transfer triggers",
+                "min_value": 0.0,
+                "max_value": 100.0,
+            },
+            {
+                "constant_key": "balance_error_threshold_pct",
+                "attr": "balance_error_threshold_pct",
+                "unit": "%",
+                "category": "quality",
+                "description": "Target maximum acceptable balance closure error",
+                "min_value": 0.0,
+                "max_value": 100.0,
+            },
+            {
+                "constant_key": "stale_data_warning_days",
+                "attr": "stale_data_warning_days",
+                "unit": "days",
+                "category": "quality",
+                "description": "Warning threshold for stale source data",
+                "min_value": 0.0,
+                "max_value": 3650.0,
+            },
+            {
+                "constant_key": "runoff_enabled",
+                "attr": "runoff_enabled",
+                "unit": "0/1",
+                "category": "feature_flags",
+                "description": "Enable runoff component in inflow calculations",
+                "min_value": 0.0,
+                "max_value": 1.0,
+            },
+            {
+                "constant_key": "dewatering_enabled",
+                "attr": "dewatering_enabled",
+                "unit": "0/1",
+                "category": "feature_flags",
+                "description": "Enable dewatering inflow component",
+                "min_value": 0.0,
+                "max_value": 1.0,
+            },
+            {
+                "constant_key": "mining_consumption_enabled",
+                "attr": "mining_consumption_enabled",
+                "unit": "0/1",
+                "category": "feature_flags",
+                "description": "Enable mining consumption outflow component",
+                "min_value": 0.0,
+                "max_value": 1.0,
+            },
+            {
+                "constant_key": "domestic_consumption_enabled",
+                "attr": "domestic_consumption_enabled",
+                "unit": "0/1",
+                "category": "feature_flags",
+                "description": "Enable domestic consumption outflow component",
+                "min_value": 0.0,
+                "max_value": 1.0,
+            },
+        ]
+
+        values = ConstantsLoader().constants
+        payload: List[Dict[str, Any]] = []
+        for item in meta:
+            raw_value = getattr(values, item["attr"], None)
+            if raw_value is None:
+                continue
+            if isinstance(raw_value, bool):
+                raw_value = 1.0 if raw_value else 0.0
+            payload.append(
+                {
+                    "constant_key": item["constant_key"],
+                    "constant_value": float(raw_value),
+                    "unit": item["unit"],
+                    "category": item["category"],
+                    "description": item["description"],
+                    "editable": 1,
+                    "min_value": item.get("min_value"),
+                    "max_value": item.get("max_value"),
+                }
+            )
+        return payload

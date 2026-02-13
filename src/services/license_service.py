@@ -34,6 +34,7 @@ from core.supabase_client import (
     SupabaseConnectionError,
     SupabaseAPIError
 )
+from core.config_manager import ConfigManager
 
 logger = app_logger
 
@@ -41,7 +42,8 @@ logger = app_logger
 # (CONSTANTS)
 
 # License token validity period (days) for offline use
-OFFLINE_TOKEN_VALIDITY_DAYS = 2
+# 3 minutes for testing (3 / 1440 days)
+OFFLINE_TOKEN_VALIDITY_DAYS = 3 / 1440
 
 # How many days before expiry to refresh online
 REFRESH_INTERVAL_DAYS = 1
@@ -52,6 +54,23 @@ LICENSE_FILENAME = "license.dat"
 # Clock tamper guard
 CLOCK_GUARD_FILENAME = "license_clock.json"
 CLOCK_SKEW_TOLERANCE_SECONDS = 600
+
+
+def _load_license_timing_from_config() -> Tuple[float, float]:
+    """Load offline validity / refresh thresholds from config with safe defaults."""
+    offline_days = OFFLINE_TOKEN_VALIDITY_DAYS
+    refresh_days = REFRESH_INTERVAL_DAYS
+    try:
+        cfg = ConfigManager()
+        offline_days = float(cfg.get("license.offline_validity_days", offline_days))
+        refresh_days = float(cfg.get("license.refresh_interval_days", refresh_days))
+    except Exception:
+        # Keep defaults if config is unavailable or malformed.
+        pass
+    # Hard safety guards.
+    offline_days = max(1 / 1440, offline_days)  # minimum 1 minute
+    refresh_days = max(0.0, refresh_days)
+    return offline_days, refresh_days
 
 
 # (LICENSE STATUS)
@@ -429,8 +448,9 @@ class LicenseService:
         Returns:
             Signed token string or None if signing fails.
         """
-        # Calculate token expiry (minimum of server expiry and offline validity)
-        offline_expiry = datetime.now(timezone.utc) + timedelta(days=OFFLINE_TOKEN_VALIDITY_DAYS)
+        # Calculate token expiry (minimum of server expiry and configured offline validity).
+        offline_validity_days, _ = _load_license_timing_from_config()
+        offline_expiry = datetime.now(timezone.utc) + timedelta(days=offline_validity_days)
         
         if server_expiry:
             if server_expiry.tzinfo is None:
@@ -639,7 +659,7 @@ class LicenseService:
         logger.info(f"License activated: tier={tier}")
         return self._license_status
     
-    def validate(self, try_refresh: bool = True) -> LicenseStatus:
+    def validate(self, try_refresh: bool = True, force_online_check: bool = False) -> LicenseStatus:
         """
         Validate the current license.
         
@@ -648,6 +668,8 @@ class LicenseService:
         
         Args:
             try_refresh: Whether to attempt online refresh if needed.
+            force_online_check: Force an online revocation/status check even when token
+                is still valid locally.
             
         Returns:
             LicenseStatus indicating current state.
@@ -717,8 +739,24 @@ class LicenseService:
         # Token is valid
         self._current_token = token
         
-        # Check if refresh is due
-        needs_refresh = token.days_until_expiry() <= REFRESH_INTERVAL_DAYS
+        # Force online status check for runtime enforcement (revocation detection).
+        if force_online_check and try_refresh:
+            refresh_status = self._try_online_refresh(token.license_key)
+            if refresh_status.status in (
+                LicenseStatus.REVOKED,
+                LicenseStatus.INVALID,
+                LicenseStatus.EXPIRED,
+                LicenseStatus.HWID_MISMATCH,
+            ):
+                self._license_status = refresh_status
+                return refresh_status
+            if refresh_status.is_valid:
+                self._license_status = refresh_status
+                return refresh_status
+
+        # Check if refresh is due based on configured threshold.
+        _, refresh_interval_days = _load_license_timing_from_config()
+        needs_refresh = token.days_until_expiry() <= refresh_interval_days
         
         if needs_refresh and try_refresh:
             # Try background refresh (non-blocking)

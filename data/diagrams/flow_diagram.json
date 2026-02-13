@@ -89,7 +89,8 @@
       "outline": "#2c5d8a",
       "locked": true,
       "font_size": 7.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "rainfall_inflow",
@@ -104,7 +105,8 @@
       "outline": "#2c5d8a",
       "locked": true,
       "font_size": 7.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "softening",
@@ -119,7 +121,8 @@
       "outline": "#c46f00",
       "locked": true,
       "font_size": 7.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "reservoir",
@@ -134,7 +137,8 @@
       "outline": "#2c5d8a",
       "locked": true,
       "font_size": 7,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "trp_clinic",
@@ -149,7 +153,8 @@
       "outline": "#2c5d8a",
       "locked": false,
       "font_size": 7.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "offices",
@@ -164,7 +169,8 @@
       "outline": "#2c5d8a",
       "locked": true,
       "font_size": 7,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "sewage",
@@ -179,7 +185,8 @@
       "outline": "#c46f00",
       "locked": true,
       "font_size": 7.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "ndcd",
@@ -195,7 +202,7 @@
       "locked": false,
       "font_size": 7,
       "font_weight": "bold",
-      "recirculation_volume": -26.0,
+      "recirculation_volume": 0.0,
       "badge_angle": -167.0053832080835
     },
     {
@@ -211,7 +218,8 @@
       "outline": "#6d1c12",
       "locked": true,
       "font_size": 7.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "north_shaft",
@@ -226,7 +234,8 @@
       "outline": "#6d1c12",
       "locked": true,
       "font_size": 7.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "septic",
@@ -241,7 +250,8 @@
       "outline": "#c40000",
       "locked": true,
       "font_size": 7.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "consumption",
@@ -256,7 +266,8 @@
       "outline": "#000000",
       "locked": true,
       "font_size": 7.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "losses",
@@ -271,7 +282,8 @@
       "outline": "#000000",
       "locked": true,
       "font_size": 7.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "consumption2",
@@ -286,7 +298,8 @@
       "outline": "#000000",
       "locked": true,
       "font_size": 7.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "losses2",
@@ -301,7 +314,8 @@
       "outline": "#000000",
       "locked": true,
       "font_size": 7.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "spill",
@@ -316,7 +330,8 @@
       "outline": "#c40000",
       "locked": true,
       "font_size": 7.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "evaporation",
@@ -331,7 +346,8 @@
       "outline": "#000000",
       "locked": true,
       "font_size": 7.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "dust_suppression",
@@ -346,7 +362,8 @@
       "outline": "#000000",
       "locked": true,
       "font_size": 7.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "stockpile_area",
@@ -363,7 +380,7 @@
       "font_size": 8,
       "font_weight": "bold",
       "badge_angle": 162.75854060106005,
-      "recirculation_volume": 484.0
+      "recirculation_volume": 0.0
     },
     {
       "id": "spcd1",
@@ -380,7 +397,7 @@
       "font_size": 8,
       "font_weight": "bold",
       "badge_angle": -161.87813975209863,
-      "recirculation_volume": 3014.0
+      "recirculation_volume": 0.0
     },
     {
       "id": "stockpile_offices",
@@ -395,7 +412,8 @@
       "outline": "#2c5d8a",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "stockpile_septic",
@@ -410,7 +428,8 @@
       "outline": "#c40000",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "stockpile_consumption",
@@ -425,7 +444,8 @@
       "outline": "#000000",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "stockpile_spill",
@@ -440,7 +460,8 @@
       "outline": "#c40000",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "stockpile_evaporation",
@@ -455,7 +476,8 @@
       "outline": "#000000",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "stockpile_dust_suppression",
@@ -470,7 +492,8 @@
       "outline": "#000000",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "stockpile_evaporation2",
@@ -485,7 +508,8 @@
       "outline": "#000000",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "stockpile_bh_gwa",
@@ -500,7 +524,8 @@
       "outline": "#2c5d8a",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "stockpile_rainfall",
@@ -515,7 +540,8 @@
       "outline": "#2c5d8a",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "stockpile_rainfall_spcd1",
@@ -530,7 +556,8 @@
       "outline": "#2c5d8a",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "ug2s_borehole",
@@ -545,7 +572,8 @@
       "outline": "#2c5d8a",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "ug2s_rainfall",
@@ -560,7 +588,8 @@
       "outline": "#2c5d8a",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "ug2s_mdcdg",
@@ -577,7 +606,7 @@
       "font_size": 8,
       "font_weight": "bold",
       "badge_angle": -164.6498635075756,
-      "recirculation_volume": 190.0
+      "recirculation_volume": 0.0
     },
     {
       "id": "ug2s_soft",
@@ -592,7 +621,8 @@
       "outline": "#c46f00",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "ug2s_res",
@@ -607,7 +637,8 @@
       "outline": "#2c5d8a",
       "locked": true,
       "font_size": 8,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "ug2s_offices",
@@ -622,7 +653,8 @@
       "outline": "#2c5d8a",
       "locked": false,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "ug2s_sd",
@@ -637,7 +669,8 @@
       "outline": "#6d1c12",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "ug2s_sdsa",
@@ -652,7 +685,8 @@
       "outline": "#6d1c12",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "ug2s_stp",
@@ -667,7 +701,8 @@
       "outline": "#c46f00",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "ug2s_consumption",
@@ -682,7 +717,8 @@
       "outline": "#c40000",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "ug2s_mdcd_spill",
@@ -697,7 +733,8 @@
       "outline": "#c40000",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "ug2s_mdcd_evap",
@@ -712,7 +749,8 @@
       "outline": "#000000",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "ug2s_mdcd_dust",
@@ -727,7 +765,8 @@
       "outline": "#000000",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "ug2s_soft_losses",
@@ -742,7 +781,8 @@
       "outline": "#000000",
       "locked": false,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "ug2s_stp_losses",
@@ -757,7 +797,8 @@
       "outline": "#000000",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "mers_borehole",
@@ -772,7 +813,8 @@
       "outline": "#2c5d8a",
       "locked": true,
       "font_size": 7.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "mers_rainfall",
@@ -787,7 +829,8 @@
       "outline": "#2c5d8a",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "mers_mdcdg",
@@ -804,7 +847,7 @@
       "font_size": 8.0,
       "font_weight": "bold",
       "badge_angle": 164.9315118405078,
-      "recirculation_volume": 77.0
+      "recirculation_volume": 0.0
     },
     {
       "id": "mers_soft",
@@ -819,7 +862,8 @@
       "outline": "#c46f00",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "mers_offices",
@@ -834,7 +878,8 @@
       "outline": "#2c5d8a",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "mers_sd",
@@ -849,7 +894,8 @@
       "outline": "#6d1c12",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "mers_sdsa",
@@ -864,7 +910,8 @@
       "outline": "#6d1c12",
       "locked": false,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "mers_consumption",
@@ -879,7 +926,8 @@
       "outline": "#c40000",
       "locked": false,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "mers_mdcd_spill",
@@ -894,7 +942,8 @@
       "outline": "#c40000",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "mers_mdcd_evap",
@@ -909,7 +958,8 @@
       "outline": "#000000",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "mers_mdcd_dust",
@@ -924,7 +974,8 @@
       "outline": "#000000",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "mers_soft_losses",
@@ -939,7 +990,8 @@
       "outline": "#000000",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "oldtsf_gwa_boreholes",
@@ -954,7 +1006,8 @@
       "outline": "#148f77",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "oldtsf_old_tsf_rainrun",
@@ -969,7 +1022,8 @@
       "outline": "#148f77",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "oldtsf_trtd_rain",
@@ -984,7 +1038,8 @@
       "outline": "#148f77",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "oldtsf_new_tsf_rainrun",
@@ -999,7 +1054,8 @@
       "outline": "#148f77",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "oldtsf_nt_rwd_rain",
@@ -1014,7 +1070,8 @@
       "outline": "#148f77",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "oldtsf_offices",
@@ -1027,7 +1084,8 @@
       "height": 40,
       "fill": "#5499c7",
       "outline": "#21618c",
-      "locked": false
+      "locked": false,
+      "recirculation_volume": 0.0
     },
     {
       "id": "oldtsf_old_tsf",
@@ -1044,7 +1102,7 @@
       "font_size": 8.0,
       "font_weight": "bold",
       "badge_angle": 166.38319105635904,
-      "recirculation_volume": -347.0
+      "recirculation_volume": 0.0
     },
     {
       "id": "oldtsf_trtd",
@@ -1059,7 +1117,7 @@
       "outline": "#21618c",
       "locked": true,
       "badge_angle": 166.90810693565314,
-      "recirculation_volume": -114.0
+      "recirculation_volume": 0.0
     },
     {
       "id": "oldtsf_new_tsf",
@@ -1076,7 +1134,7 @@
       "font_size": 8.0,
       "font_weight": "bold",
       "badge_angle": -166.97080519205628,
-      "recirculation_volume": 68.0
+      "recirculation_volume": 0.0
     },
     {
       "id": "oldtsf_nt_rwd",
@@ -1093,7 +1151,7 @@
       "font_size": 8.0,
       "font_weight": "bold",
       "badge_angle": 166.3730051401085,
-      "recirculation_volume": 5836.0
+      "recirculation_volume": 0.0
     },
     {
       "id": "oldtsf_off_septic",
@@ -1108,7 +1166,8 @@
       "outline": "#e74c3c",
       "locked": true,
       "font_size": 7.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "oldtsf_off_consumption",
@@ -1123,7 +1182,8 @@
       "outline": "#e74c3c",
       "locked": true,
       "font_size": 7.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "oldtsf_old_tsf_evap",
@@ -1138,7 +1198,8 @@
       "outline": "#000000",
       "locked": true,
       "font_size": 7.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "oldtsf_old_tsf_interstitial",
@@ -1153,7 +1214,8 @@
       "outline": "#000000",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "oldtsf_old_tsf_seepage",
@@ -1168,7 +1230,8 @@
       "outline": "#000000",
       "locked": true,
       "font_size": 7.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "oldtsf_trtd_evap",
@@ -1183,7 +1246,8 @@
       "outline": "#000000",
       "locked": true,
       "font_size": 7.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "oldtsf_trtd_spill",
@@ -1198,7 +1262,8 @@
       "outline": "#e74c3c",
       "locked": true,
       "font_size": 7.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "oldtsf_new_tsf_evap",
@@ -1213,7 +1278,8 @@
       "outline": "#000000",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "oldtsf_new_tsf_interstitial",
@@ -1228,7 +1294,8 @@
       "outline": "#000000",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "oldtsf_new_tsf_seepage",
@@ -1243,7 +1310,8 @@
       "outline": "#000000",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "oldtsf_nt_rwd_evap",
@@ -1258,7 +1326,8 @@
       "outline": "#000000",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "oldtsf_nt_rwd_spill",
@@ -1273,7 +1342,8 @@
       "outline": "#e74c3c",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "ug2plant_cpgwa_boreholes",
@@ -1288,7 +1358,8 @@
       "outline": "#2980b9",
       "locked": true,
       "font_size": 8,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "ug2plant_ug2pcd1_rain",
@@ -1303,7 +1374,8 @@
       "outline": "#2980b9",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "ug2plant_ug2p_ore_water",
@@ -1318,7 +1390,8 @@
       "outline": "#2980b9",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "ug2plant_ug2p_rivers",
@@ -1333,7 +1406,8 @@
       "outline": "#2980b9",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "ug2plant_ug2p_off",
@@ -1348,7 +1422,8 @@
       "outline": "#2980b9",
       "locked": false,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "ug2plant_ug2p_plant",
@@ -1363,7 +1438,8 @@
       "outline": "#2c3e50",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "ug2plant_cprwsd1",
@@ -1378,7 +1454,8 @@
       "outline": "#2980b9",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "ug2plant_ug2pcd1",
@@ -1395,7 +1472,7 @@
       "font_size": 8.0,
       "font_weight": "bold",
       "badge_angle": 157.1094483437517,
-      "recirculation_volume": 36.0
+      "recirculation_volume": 0.0
     },
     {
       "id": "ug2plant_ug2p_res",
@@ -1408,7 +1485,8 @@
       "height": 60,
       "fill": "#5dade2",
       "outline": "#2980b9",
-      "locked": true
+      "locked": true,
+      "recirculation_volume": 0.0
     },
     {
       "id": "ug2plant_cppwt",
@@ -1421,7 +1499,8 @@
       "height": 60,
       "fill": "#5dade2",
       "outline": "#2980b9",
-      "locked": true
+      "locked": true,
+      "recirculation_volume": 0.0
     },
     {
       "id": "ug2plant_ug2p_soft",
@@ -1436,7 +1515,8 @@
       "outline": "#d68910",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "ug2plant_ug2p_stp",
@@ -1451,7 +1531,8 @@
       "outline": "#d68910",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "ug2plant_ug2pcd1_dust",
@@ -1466,7 +1547,8 @@
       "outline": "#e74c3c",
       "locked": false,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "ug2plant_ug2pcd1_evap",
@@ -1481,7 +1563,8 @@
       "outline": "#000000",
       "locked": false,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "ug2plant_ug2pcd1_spill",
@@ -1496,7 +1579,8 @@
       "outline": "#e74c3c",
       "locked": false,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "ug2plant_ug2p_off_consumption",
@@ -1511,7 +1595,8 @@
       "outline": "#3498db",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "ug2plant_ug2p_plant_losses",
@@ -1526,7 +1611,8 @@
       "outline": "#000000",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "ug2plant_ug2p_plant_product",
@@ -1541,7 +1627,8 @@
       "outline": "#e74c3c",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "ug2plant_ug2p_soft_losses",
@@ -1556,7 +1643,8 @@
       "outline": "#000000",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "ug2plant_ug2p_stp_losses",
@@ -1571,7 +1659,8 @@
       "outline": "#000000",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "merplant_mprwsd1_rivers",
@@ -1586,7 +1675,8 @@
       "outline": "#2980b9",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "merplant_merp_ore_water",
@@ -1601,7 +1691,8 @@
       "outline": "#2980b9",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "merplant_mpswd12_rain",
@@ -1616,7 +1707,8 @@
       "outline": "#2980b9",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "merplant_mpgwa_boreholes",
@@ -1631,7 +1723,8 @@
       "outline": "#2980b9",
       "locked": true,
       "font_size": 8,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "merplant_mprwsd1",
@@ -1646,7 +1739,8 @@
       "outline": "#2980b9",
       "locked": false,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "merplant_merp_plant",
@@ -1661,7 +1755,8 @@
       "outline": "#2c3e50",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "merplant_mpswd12",
@@ -1678,7 +1773,7 @@
       "font_size": 8.0,
       "font_weight": "bold",
       "badge_angle": -166.20051460398062,
-      "recirculation_volume": 36.0
+      "recirculation_volume": 0.0
     },
     {
       "id": "merplant_merp_soft",
@@ -1693,7 +1788,8 @@
       "outline": "#d68910",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "merplant_merp_res",
@@ -1708,7 +1804,8 @@
       "outline": "#2980b9",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "merplant_merp_off",
@@ -1723,7 +1820,8 @@
       "outline": "#2980b9",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "merplant_merp_stp",
@@ -1738,7 +1836,8 @@
       "outline": "#d68910",
       "locked": false,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "merplant_merp_plant_product",
@@ -1753,7 +1852,8 @@
       "outline": "#e74c3c",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "merplant_merp_plant_losses",
@@ -1768,7 +1868,8 @@
       "outline": "#000000",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "merplant_mpswd12_dust",
@@ -1783,7 +1884,8 @@
       "outline": "#e74c3c",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "merplant_mpswd12_evap",
@@ -1798,7 +1900,8 @@
       "outline": "#000000",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "merplant_mpswd12_spill",
@@ -1813,7 +1916,8 @@
       "outline": "#e74c3c",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "merplant_merp_off_consumption",
@@ -1828,7 +1932,8 @@
       "outline": "#3498db",
       "locked": true,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "merplant_merp_off_losses",
@@ -1843,7 +1948,8 @@
       "outline": "#000000",
       "locked": false,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "merplant_merp_stp_losses",
@@ -1858,7 +1964,8 @@
       "outline": "#000000",
       "locked": false,
       "font_size": 8.0,
-      "font_weight": "bold"
+      "font_weight": "bold",
+      "recirculation_volume": 0.0
     },
     {
       "id": "klein_dwars_river",
@@ -1873,7 +1980,8 @@
       "outline": "#2c3e50",
       "font_size": 8.0,
       "font_weight": "bold",
-      "locked": true
+      "locked": true,
+      "recirculation_volume": 0.0
     },
     {
       "id": "dwarsrivierriver",
@@ -1888,7 +1996,8 @@
       "outline": "#2c3e50",
       "font_size": 8.0,
       "font_weight": "bold",
-      "locked": true
+      "locked": true,
+      "recirculation_volume": 0.0
     },
     {
       "id": "septick",
@@ -1903,7 +2012,8 @@
       "outline": "#eb0214",
       "font_size": 8.0,
       "font_weight": "bold",
-      "locked": true
+      "locked": true,
+      "recirculation_volume": 0.0
     },
     {
       "id": "septic_tank",
@@ -1918,7 +2028,8 @@
       "outline": "#e1031e",
       "font_size": 8.0,
       "font_weight": "normal",
-      "locked": true
+      "locked": true,
+      "recirculation_volume": 0.0
     },
     {
       "id": "scavenger_boreholes1_6",
@@ -1933,7 +2044,8 @@
       "outline": "#148f77",
       "font_size": 7.0,
       "font_weight": "bold",
-      "locked": true
+      "locked": true,
+      "recirculation_volume": 0.0
     },
     {
       "id": "septic_tank_1",
@@ -1948,7 +2060,8 @@
       "outline": "#d70428",
       "font_size": 8.0,
       "font_weight": "bold",
-      "locked": true
+      "locked": true,
+      "recirculation_volume": 0.0
     },
     {
       "id": "scavenger_borehole1_6",
@@ -1963,7 +2076,8 @@
       "outline": "#148f77",
       "font_size": 7.0,
       "font_weight": "bold",
-      "locked": true
+      "locked": true,
+      "recirculation_volume": 0.0
     },
     {
       "id": "septic_tank_2",
@@ -1978,14 +2092,15 @@
       "outline": "#e1031e",
       "font_size": 8.0,
       "font_weight": "bold",
-      "locked": false
+      "locked": false,
+      "recirculation_volume": 0.0
     }
   ],
   "edges": [
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 47485.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 North",
         "column": "Softening Plant \u2192 Reservoir"
@@ -2000,7 +2115,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 47485.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 North",
         "column": "Reservoir \u2192 Offices"
@@ -2033,7 +2148,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 33240.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 North",
         "column": "Offices \u2192 Sewage Treatment"
@@ -2048,7 +2163,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 5363.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 North",
         "column": "Rainfall \u2192 North Decline Clean Dams"
@@ -2081,7 +2196,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 71530.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 North",
         "column": "Borehole Abstraction (NDGWA) \u2192 Softening Plant"
@@ -2096,7 +2211,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 3706.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 North",
         "column": "Softening Plant \u2192 TRP Clinic"
@@ -2121,7 +2236,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 2594.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 North",
         "column": "TRP Clinic \u2192 Septic Tank"
@@ -2136,7 +2251,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 245572.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 North",
         "column": "North Decline \u2192 North Decline Clean Dams"
@@ -2161,7 +2276,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 17288.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 North",
         "column": "North Decline Shaft Area \u2192 North Decline Clean Dams"
@@ -2176,7 +2291,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 1112.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 North",
         "column": "TRP Clinic \u2192 Consumption"
@@ -2201,7 +2316,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 14759.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 North",
         "column": "Softening Plant \u2192 Losses"
@@ -2216,7 +2331,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 14246.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 North",
         "column": "Offices \u2192 Consumption2"
@@ -2249,7 +2364,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 947.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 North",
         "column": "Sewage Treatment \u2192 Losses2"
@@ -2264,7 +2379,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 27.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 North",
         "column": "North Decline Clean Dams \u2192 Spill"
@@ -2289,7 +2404,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 5923.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 North",
         "column": "North Decline Clean Dams \u2192 Evaporation"
@@ -2329,7 +2444,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 46425.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 North",
         "column": "Sewage Treatment \u2192 Junction 127 1208 365"
@@ -2359,7 +2474,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 187761.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 North",
         "column": "North Decline Clean Dams \u2192 North Decline"
@@ -2392,7 +2507,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 15112.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Stockpile1",
         "column": "Stockpile Borehole (SPGWA) \u2192 Stockpile Offices"
@@ -2407,7 +2522,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 4534.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Stockpile1",
         "column": "Stockpile Offices \u2192 Stockpile Consumption"
@@ -2422,7 +2537,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 10579.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Stockpile1",
         "column": "Stockpile Offices \u2192 Stockpile Septic"
@@ -2437,7 +2552,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 3971.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Stockpile1",
         "column": "SPCD1 Rainfall \u2192 Stockpile Clean Dam 1"
@@ -2452,7 +2567,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 32371.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Stockpile1",
         "column": "Stockpile Rainfall \u2192 Stockpile Area"
@@ -2467,7 +2582,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 631.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Stockpile1",
         "column": "Stockpile Area \u2192 Stockpile Evaporation"
@@ -2482,7 +2597,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 19550.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Stockpile1",
         "column": "Stockpile Clean Dam 1 \u2192 Stockpile Dust Suppression"
@@ -2512,7 +2627,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 12435.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Stockpile1",
         "column": "Stockpile Area \u2192 Stockpile Clean Dam 1"
@@ -2545,7 +2660,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 1193.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Stockpile1",
         "column": "Stockpile Clean Dam 1 \u2192 Stockpile Evaporation2"
@@ -2570,7 +2685,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 4835.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Stockpile1",
         "column": "Stockpile Area(Runoff) \u2192 Stockpile Clean Dam 1"
@@ -2603,7 +2718,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 114160.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 Main",
         "column": "UG2 Main Borehole (MGDWA) \u2192 UG2 Main Softening Plant"
@@ -2618,7 +2733,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 5708.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 Main",
         "column": "UG2 Main Softening Plant \u2192 Sewage Treatment Losses"
@@ -2643,7 +2758,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 108452.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 Main",
         "column": "UG2 Main Softening Plant \u2192 UG2 Main Reservoir"
@@ -2658,7 +2773,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 32536.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 Main",
         "column": "UG2 Main Offices \u2192 UG2 Main Consumption"
@@ -2673,7 +2788,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 1895.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 Main",
         "column": "UG2 Main Sewage Treatment \u2192 Softening Losses"
@@ -2688,7 +2803,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 7337.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 Main",
         "column": "UG2 Main Rainfall \u2192 Main Decline Clean Dams (Group)"
@@ -2703,7 +2818,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 587705.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 Main",
         "column": "South Decline \u2192 Main Decline Clean Dams (Group)"
@@ -2728,7 +2843,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 514763.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 Main",
         "column": "Main Decline Clean Dams (Group) \u2192 South Decline"
@@ -2753,7 +2868,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 5166.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 Main",
         "column": "Main Decline Clean Dams (Group) \u2192 MDCD Evaporation"
@@ -2786,7 +2901,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 109.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 Main",
         "column": "Main Decline Clean Dams (Group) \u2192 MDCD Spill"
@@ -2811,7 +2926,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 17506.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 Main",
         "column": "Main Decline Clean Dams (Group) \u2192 MDCD Dust Suppression"
@@ -2844,7 +2959,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 1225.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 Main",
         "column": "South Decline Shaft Area \u2192 Main Decline Clean Dams (Group)"
@@ -2859,7 +2974,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 92864.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 Main",
         "column": "UG2 Main Sewage Treatment \u2192 Main Decline Clean Dams (Group)"
@@ -2897,7 +3012,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 75916.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 Main",
         "column": "UG2 Main Offices \u2192 UG2 Main Sewage Treatment"
@@ -2922,7 +3037,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 108452.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 Main",
         "column": "UG2 Main Reservoir \u2192 UG2 Main Offices"
@@ -2955,7 +3070,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 28336.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Merensky South",
         "column": "Merensky Borehole (MERS1-2) \u2192 Merensky Softening Plant"
@@ -2970,7 +3085,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 28336.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Merensky South",
         "column": "Merensky Softening Plant \u2192 Merensky Offices"
@@ -2985,7 +3100,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 8076.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Merensky South",
         "column": "Merensky Offices \u2192 Merensky Consumption"
@@ -3000,7 +3115,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 1417.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Merensky South",
         "column": "Merensky Softening Plant \u2192 Merensky Softening Losses"
@@ -3025,7 +3140,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 983.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Merensky South",
         "column": "Merensky Offices \u2192 UG2 Main Sewage Treatment"
@@ -3058,7 +3173,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 10626.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Merensky South",
         "column": "Merensky Decline Dams (Group) \u2192 Merensky Dust Suppression"
@@ -3073,7 +3188,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 4481.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Merensky South",
         "column": "Merensky Decline Dams (Group) \u2192 Merensky Dam Evaporation"
@@ -3113,7 +3228,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 212517.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Merensky South",
         "column": "Merensky South Decline \u2192 Merensky Decline Dams (Group)"
@@ -3138,7 +3253,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 180639.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Merensky South",
         "column": "Merensky Decline Dams (Group) \u2192 Merensky South Decline"
@@ -3163,7 +3278,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 4236.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Merensky South",
         "column": "Merensky South Rainfall \u2192 Merensky Decline Dams (Group)"
@@ -3178,7 +3293,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 1832.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Merensky South",
         "column": "Merensky Decline Dams (Group) \u2192 Main Decline Clean Dams (Group)"
@@ -3252,7 +3367,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 26447.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Old TSF",
         "column": "Old TSF Offices \u2192 Oldtsf Off Septic"
@@ -3267,7 +3382,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 11334.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Old TSF",
         "column": "Old TSF Offices \u2192 Oldtsf Off Consumption"
@@ -3282,7 +3397,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 32779.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Old TSF",
         "column": "Old Tailings Storage Facility \u2192 Oldtsf Old Tsf Evap"
@@ -3297,7 +3412,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 559670.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Old TSF",
         "column": "Old Tailings Storage Facility \u2192 Oldtsf Old Tsf Interstitial"
@@ -3312,7 +3427,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 1324.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Old TSF",
         "column": "Old Tailings Storage Facility \u2192 Oldtsf Old Tsf Seepage"
@@ -3337,7 +3452,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 3227.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Old TSF",
         "column": "TSF Return Water Dams (TRTD) \u2192 Oldtsf Trtd Evap"
@@ -3367,7 +3482,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 19757.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Old TSF",
         "column": "TRTD Rainfall \u2192 TSF Return Water Dams (TRTD)"
@@ -3382,7 +3497,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 48477.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Old TSF",
         "column": "Old TSF Rainfall & Runoff \u2192 Old Tailings Storage Facility"
@@ -3397,7 +3512,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 5298.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Old TSF",
         "column": "Old Tailings Storage Facility \u2192 TSF Return Water Dams (TRTD) (Drainage)"
@@ -3430,7 +3545,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 62270.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Old TSF",
         "column": "TSF Return Water Dams (TRTD) \u2192 Old Tailings Storage Facility"
@@ -3463,7 +3578,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 508180.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Old TSF",
         "column": "Old Tailings Storage Facility \u2192 TSF Return Water Dams (TRTD) (Return Flow)"
@@ -3496,7 +3611,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 39875.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_New TSF",
         "column": "New TSF Rainfall & Runoff \u2192 New Tailings Storage Facility"
@@ -3511,7 +3626,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 35460.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_New TSF",
         "column": "New Tailings Storage Facility \u2192 Oldtsf New Tsf Evap"
@@ -3526,7 +3641,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 2943653.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_New TSF",
         "column": "New Tailings Storage Facility \u2192 Oldtsf New Tsf Interstitial"
@@ -3541,7 +3656,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 1488.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_New TSF",
         "column": "New Tailings Storage Facility \u2192 Oldtsf New Tsf Seepage"
@@ -3574,7 +3689,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 26593.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_New TSF",
         "column": "New TSF Return Water Dams \u2192 Oldtsf Evap"
@@ -3604,7 +3719,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 61866.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_New TSF",
         "column": "New Tsf Rainrun \u2192 New Tsf Nt Rwd"
@@ -3619,7 +3734,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 2486143.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_New TSF",
         "column": "New Tailings Storage Facility \u2192 New TSF Return Water Dams (Return Flow)"
@@ -3634,7 +3749,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 5953.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_New TSF",
         "column": "New Tailings Storage Facility \u2192 New TSF Return Water Dams (Drainage)"
@@ -3667,7 +3782,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 105786.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_New TSF",
         "column": "New TSF Return Water Dams \u2192 New Tailings Storage Facility"
@@ -3700,7 +3815,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 1548729.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 Plant",
         "column": "Ug2Plant Ug2P Dwarsrivier \u2192 UG2 Plant River Water Dam"
@@ -3741,7 +3856,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 1548729.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 Plant",
         "column": "Ug2Plant Ug2P Kleindwars \u2192 UG2 Plant River Water Dam"
@@ -3782,7 +3897,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 3889500.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 Plant",
         "column": "UG2 Plant River Water Dam \u2192 UG2 Concentrator Plant"
@@ -3807,7 +3922,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 159715.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 Plant",
         "column": "Water in UG2 Ore \u2192 UG2 Concentrator Plant"
@@ -3822,7 +3937,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 108847.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 Plant",
         "column": "UG2 Concentrator Plant \u2192 UG2 Plant Losses"
@@ -3837,7 +3952,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 11747.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 Plant",
         "column": "UG2 Concentrator Plant \u2192 Water in UG2 Concentrate"
@@ -3852,7 +3967,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 37.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 Plant",
         "column": "UG2 Plant Clean Dam 1 \u2192 UG2 Dam Spill"
@@ -3867,7 +3982,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 166.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 Plant",
         "column": "UG2 Plant Clean Dam 1 \u2192 UG2 Dam Evaporation"
@@ -3882,7 +3997,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 1548.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 Plant",
         "column": "UG2 Plant Clean Dam 1 \u2192 UG2 Dam Dust Suppression"
@@ -3897,7 +4012,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 25328.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 Plant",
         "column": "Ug2Pcd1 To Plant"
@@ -3922,7 +4037,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 4888.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 Plant",
         "column": "UG2 Plant Dam Rainfall \u2192 UG2 Plant Clean Dam 1"
@@ -3937,7 +4052,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 22227.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 Plant",
         "column": "UG2 Concentrator Plant \u2192 UG2 Plant Clean Dam 1"
@@ -3970,7 +4085,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 2717.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 Plant",
         "column": "UG2 Plant Softening \u2192 UG2 Sewage Losses"
@@ -3995,7 +4110,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 15489.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 Plant",
         "column": "UG2 Plant Offices \u2192 UG2 Office Consumption"
@@ -4010,7 +4125,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 723.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 Plant",
         "column": "UG2 Plant Sewage Treatment \u2192 UG2 Softening Losses"
@@ -4025,7 +4140,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 1886.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 Plant",
         "column": "UG2 Plant Offices \u2192 UG2 Plant Sewage Treatment"
@@ -4040,7 +4155,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 2694.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 Plant",
         "column": "UG2 Plant Reservoir \u2192 UG2 Plant Offices"
@@ -4065,7 +4180,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 54347.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 Plant",
         "column": "UG2 Plant Borehole (CPGWA) \u2192 UG2 Plant Softening"
@@ -4120,7 +4235,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 93447.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Merensky Plant",
         "column": "Water in Merensky Ore \u2192 Merensky Concentrator Plant"
@@ -4135,7 +4250,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 8502.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Merensky Plant",
         "column": "Merensky Concentrator Plant \u2192 Water in Merensky Concentrate"
@@ -4160,7 +4275,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": -4839.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Merensky Plant",
         "column": "Merensky Concentrator Plant \u2192 Merensky Plant Losses"
@@ -4175,7 +4290,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 377.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Merensky Plant",
         "column": "Merensky Plant Sewage Treatment \u2192 Merensky Sewage Losses"
@@ -4190,7 +4305,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 3457.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Merensky Plant",
         "column": "Merensky Storm Water Dams \u2192 Merensky Dam Dust Suppression"
@@ -4205,7 +4320,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 268.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Merensky Plant",
         "column": "Merensky Storm Water Dams \u2192 Merensky Dam Evaporation"
@@ -4235,7 +4350,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 1417.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Merensky Plant",
         "column": "Merensky Plant Softening \u2192 Merensky Office Losses"
@@ -4250,7 +4365,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 71530.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_UG2 North",
         "column": "Borehole Abstraction (NDGWA) \u2192 Softening Plant"
@@ -4265,7 +4380,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 26919.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Merensky Plant",
         "column": "Merensky Plant Softening \u2192 Merensky Plant Reservoir"
@@ -4280,7 +4395,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 18843.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Merensky Plant",
         "column": "Merensky Plant Offices \u2192 Merensky Plant Sewage Treatment"
@@ -4305,7 +4420,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 26919.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Merensky Plant",
         "column": "Merensky Plant Reservoir \u2192 Merensky Plant Offices"
@@ -4330,7 +4445,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 28336.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Merensky Plant",
         "column": "Merensky Plant Borehole (MPGWA) \u2192 Merensky Plant Softening"
@@ -4345,7 +4460,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 6952.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Merensky Plant",
         "column": "Merensky Dam Rainfall \u2192 Merensky Storm Water Dams"
@@ -4360,7 +4475,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 18466.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Merensky Plant",
         "column": "Merensky Plant Sewage Treatment \u2192 Merensky Storm Water Dams"
@@ -4393,7 +4508,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 5497.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Merensky Plant",
         "column": "Merensky Storm Water Dams \u2192 Merensky Concentrator Plant"
@@ -4442,7 +4557,7 @@
     {
       "flow_type": "transfer",
       "color": "#0066cc",
-      "volume": 5497.0,
+      "volume": 0.0,
       "excel_mapping": {
         "sheet": "Flows_Merensky Plant",
         "column": "Merensky Concentrator Plant \u2192 Merensky Storm Water Dams"

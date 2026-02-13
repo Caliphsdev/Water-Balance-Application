@@ -19,6 +19,14 @@ block_cipher = None
 
 hiddenimports = collect_submodules("nacl")
 hiddenimports.append("_cffi_backend")
+# Excel engines used dynamically by pandas/read_excel in monitoring parsers.
+# Add explicitly so packaged builds can parse both .xls and .xlsx files.
+hiddenimports.extend(
+    [
+        "xlrd",
+        "openpyxl",
+    ]
+)
 binaries = collect_dynamic_libs("nacl")
 nacl_path = Path(nacl.__file__).parent
 sodium_pyd = nacl_path / "_sodium.pyd"
@@ -37,7 +45,6 @@ for candidate in cffi_site.glob("_cffi_backend*.pyd"):
 
 datas = [
     (str(project_root / "config"), "config"),
-    (str(project_root / "data" / "water_balance.db"), "data"),
     (str(project_root / "data" / "balance_check_config.json"), "data"),
     (str(project_root / "data" / "balance_check_flow_categories.json"), "data"),
     (str(project_root / "data" / "column_aliases.json"), "data"),
@@ -49,10 +56,6 @@ datas = [
     (str(project_root / "assets" / "fonts"), "assets/fonts"),
     (str(project_root / "src" / "ui" / "resources" / "icons"), "src/ui/resources/icons"),
 ]
-
-excel_links = project_root / "data" / "excel_flow_links.json"
-if excel_links.exists():
-    datas.append((str(excel_links), "data"))
 
 a = Analysis(
     [str(project_root / "src" / "main.py")],

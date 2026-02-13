@@ -107,6 +107,11 @@ def _sync_packaged_constants() -> None:
         inserted = service.sync_from_packaged_db(packaged_db, overwrite=False)
         if inserted:
             logger.info("Imported %s system constants from packaged DB", inserted)
+            return
+
+        seeded = service.seed_defaults_if_empty()
+        if seeded:
+            logger.info("Seeded %s default system constants into empty database", seeded)
     except Exception as exc:
         logger.warning("System constants sync skipped: %s", exc)
 
@@ -141,15 +146,12 @@ def check_license(app: QApplication, splash: SplashScreen) -> bool:
         
         splash.update_status("Checking license...", 10)
         app.processEvents()
-        
-        # Hide splash during license dialogs
-        splash.hide()
-        
-        # Check license and show dialogs if needed
+
+        # Check license and show dialogs only when needed.
+        # Keep splash visible for valid licenses to avoid flicker/double-splash effect.
         result = check_license_or_activate(None)
         
         if result:
-            splash.show()
             logger.info("License check passed")
             return True
         else:
