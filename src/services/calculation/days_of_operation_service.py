@@ -336,9 +336,12 @@ class DaysOfOperationService:
             evaporation = getattr(outflows, 'evaporation_m3', 0.0) if outflows else 0.0
             seepage = getattr(outflows, 'seepage_m3', 0.0) if outflows else 0.0
             
-            # Get recycled water from balance result
-            if hasattr(balance_result, 'recycling') and balance_result.recycling:
-                recycled_water = getattr(balance_result.recycling, 'rwd_volume_m3', 0.0)
+            # Get recycled water from balance result (use BalanceResult.recycled)
+            if hasattr(balance_result, 'recycled') and balance_result.recycled:
+                recycled_water = getattr(balance_result.recycled, 'total_m3', 0.0)
+                if recycled_water <= 0 and hasattr(balance_result.recycled, 'components'):
+                    # Fall back to specific component if available
+                    recycled_water = balance_result.recycled.components.get('rwd', 0.0)
             
             result.consumption_source = "outflows"
             result.data_quality_notes.append("Using measured outflows from balance calculation")

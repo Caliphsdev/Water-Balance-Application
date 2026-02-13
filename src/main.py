@@ -107,11 +107,14 @@ def _sync_packaged_constants() -> None:
         inserted = service.sync_from_packaged_db(packaged_db, overwrite=False)
         if inserted:
             logger.info("Imported %s system constants from packaged DB", inserted)
-            return
 
-        seeded = service.seed_defaults_if_empty()
-        if seeded:
-            logger.info("Seeded %s default system constants into empty database", seeded)
+        seeded_empty = service.seed_defaults_if_empty()
+        if seeded_empty:
+            logger.info("Seeded %s default system constants into empty database", seeded_empty)
+
+        inserted_missing = service.ensure_default_constants()
+        if inserted_missing:
+            logger.info("Inserted %s missing default system constants", inserted_missing)
     except Exception as exc:
         logger.warning("System constants sync skipped: %s", exc)
 

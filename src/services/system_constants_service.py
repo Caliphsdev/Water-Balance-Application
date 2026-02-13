@@ -261,6 +261,29 @@ class SystemConstantsService:
             self.get_constant_map(refresh=True)
         return inserted
 
+    def ensure_default_constants(self) -> int:
+        """Ensure baseline constants exist; insert any missing keys.
+
+        Use this for upgraded databases where table exists but some keys are absent.
+        """
+        defaults = self._build_default_constants_payload()
+        existing_keys = {c.constant_key for c in self.repository.list_constants()}
+        inserted = 0
+        for item in defaults:
+            key = item.get("constant_key")
+            if key in existing_keys:
+                continue
+            try:
+                self.repository.create(SystemConstant(**item))
+                inserted += 1
+                existing_keys.add(key)
+            except Exception as exc:
+                logger.warning("Failed inserting missing default constant %s: %s", key, exc)
+
+        if inserted:
+            self.get_constant_map(refresh=True)
+        return inserted
+
     def _build_default_constants_payload(self) -> List[Dict[str, Any]]:
         """Create constant rows from calculation defaults/config."""
         from services.calculation.constants import ConstantsLoader

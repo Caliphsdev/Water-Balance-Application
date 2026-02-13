@@ -35,7 +35,7 @@ import logging
 from .generated_ui_storage_facilities import Ui_Form
 from services.storage_facility_service import StorageFacilityService
 from ui.dialogs.storage_facility_dialog import StorageFacilityDialog
-from ui.dialogs.monthly_parameters_dialog import MonthlyParametersDialog
+from ui.dialogs.storage_history_dialog import StorageHistoryDialog
 from ui.models.storage_facilities_model import StorageFacilitiesModel
 from core.app_logger import logger as app_logger
 
@@ -187,7 +187,12 @@ class StorageFacilitiesPage(QWidget):
         if hasattr(self.ui, 'delete_facility_button'):
             self.ui.delete_facility_button.clicked.connect(self._on_delete_from_button)
         if hasattr(self.ui, 'monthly_parameter_button'):
-            self.ui.monthly_parameter_button.clicked.connect(self._on_monthly_parameters)
+            self.ui.monthly_parameter_button.setVisible(True)
+            self.ui.monthly_parameter_button.setText("Storage History")
+            self.ui.monthly_parameter_button.setToolTip(
+                "View history and save monthly storage volumes"
+            )
+            self.ui.monthly_parameter_button.clicked.connect(self._on_storage_history)
 
         # Wire up search and filter changes (SEARCH & FILTER WIDGETS)
         # lineedit_search: text search, comboBox_type_storage: type filter, comboBox_status_storage: status filter
@@ -1033,14 +1038,8 @@ class StorageFacilitiesPage(QWidget):
             else:
                 logger.info(f"Deletion cancelled for facility {facility_code}")
 
-    def _on_monthly_parameters(self) -> None:
-        """Open Monthly Parameters dialog for the selected facility.
-
-        Uses current table selection to locate the facility, then opens a
-        modal dialog for monthly inflows/outflows entry and history view.
-
-        Note: Database wiring for history is implemented in the next step.
-        """
+    def _on_storage_history(self) -> None:
+        """Open Storage History dialog for the selected facility."""
         selection = self.ui.tableView.selectionModel().selectedRows()
         if not selection:
             QMessageBox.warning(self, "No Selection", "Please select a facility first")
@@ -1052,8 +1051,7 @@ class StorageFacilitiesPage(QWidget):
 
         if 0 <= row < len(self._filtered_facilities):
             facility = self._filtered_facilities[row]
-            dialog = MonthlyParametersDialog(
-                facility_id=facility.get("id", 0),
+            dialog = StorageHistoryDialog(
                 facility_code=facility.get("code", "Unknown"),
                 facility_name=facility.get("name", "Unknown"),
                 parent=self,

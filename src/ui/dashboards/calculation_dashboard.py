@@ -37,7 +37,7 @@ from PySide6.QtWidgets import (
     QWidget, QLabel, QVBoxLayout, QHBoxLayout, QGridLayout,
     QTableWidget, QTableWidgetItem, QMessageBox, QFrame,
     QScrollArea, QSizePolicy, QSpacerItem, QProgressBar,
-    QGraphicsDropShadowEffect, QFileDialog, QLineEdit, QPushButton
+    QGraphicsDropShadowEffect, QFileDialog, QLineEdit, QPushButton, QToolTip
 )
 from PySide6.QtCore import Qt, QThread, Signal
 from PySide6.QtGui import QColor, QFont, QPainter, QBrush, QPen
@@ -1787,6 +1787,10 @@ class CalculationPage(QWidget):
         
         # Use the service's calculated values (now industry-standard)
         daily_consumption = runway.daily_net_fresh_demand_m3
+        gross_daily_consumption = 0.0
+        if runway.total_outflows_m3 > 0:
+            gross_daily_consumption = runway.total_outflows_m3 / 30
+        display_daily_consumption = daily_consumption
         combined_days = runway.combined_days_remaining
         
         # Log data quality for debugging
@@ -1866,15 +1870,19 @@ class CalculationPage(QWidget):
         status_row.addWidget(badge)
         
         # Show monthly usage with exact formula context.
-        monthly_usage = daily_consumption * 30
+        monthly_usage = display_daily_consumption * 30
         usage_info = QLabel(f"📊 Using {monthly_usage/1000:,.0f}k m³/month")
         usage_info.setObjectName("calc_days_usage")
-        usage_info.setToolTip(
-            "Monthly usage = Daily net fresh demand x 30\n"
-            f"Daily net fresh demand: {daily_consumption:,.1f} m3/day\n"
-            f"Monthly usage (exact): {monthly_usage:,.1f} m3/month\n"
-            f"Source: {runway.consumption_source}"
-        )
+        if daily_consumption > 0:
+            usage_info.setToolTip(
+                "Net demand = outflows - recycled\n"
+                f"Net demand: {daily_consumption:,.0f} m3/day"
+            )
+        else:
+            usage_info.setToolTip(
+                "Net demand is 0 (recycled >= outflows)\n"
+                f"Gross outflows: {gross_daily_consumption:,.0f} m3/day"
+            )
         status_row.addWidget(usage_info)
         
         status_container = QWidget()
@@ -1890,6 +1898,17 @@ class CalculationPage(QWidget):
         totals_row.setSpacing(12)
         
         # Available Water (what we can actually use)
+        QToolTip.setStyleSheet(
+            "QToolTip {"
+            "background-color: #0f172a;"
+            "color: #f8fafc;"
+            "border: 1px solid #334155;"
+            "padding: 6px;"
+            "border-radius: 6px;"
+            "max-width: 220px;"
+            "}"
+        )
+
         storage_card = self._create_metric_card(
             emoji="🏊",
             title="Available Water",
@@ -1899,6 +1918,7 @@ class CalculationPage(QWidget):
             color=PALETTE["info"],
             bg_color=PALETTE["surface"]
         )
+        storage_card.setToolTip("Usable storage = total - 10% reserve")
         totals_row.addWidget(storage_card)
         
         # Daily Water Usage
@@ -1911,6 +1931,10 @@ class CalculationPage(QWidget):
             color=PALETTE["success"],
             bg_color=PALETTE["surface"]
         )
+        if daily_consumption > 0:
+            consumption_card.setToolTip("Net demand per day (outflows - recycled)")
+        else:
+            consumption_card.setToolTip("Net demand is 0; showing gross outflows")
         totals_row.addWidget(consumption_card)
         
         # Water Lost to Environment (can't control)
@@ -1924,6 +1948,7 @@ class CalculationPage(QWidget):
             color=PALETTE["warning"],
             bg_color=PALETTE["surface"]
         )
+        env_card.setToolTip("Evaporation + seepage losses from outflows")
         totals_row.addWidget(env_card)
         
         # Recycled Water (good news!)
@@ -1936,6 +1961,7 @@ class CalculationPage(QWidget):
             color=PALETTE["success"],
             bg_color=PALETTE["surface"]
         )
+        recycled_card.setToolTip("Used in net demand (outflows - recycled)")
         totals_row.addWidget(recycled_card)
         
         totals_widget = QWidget()

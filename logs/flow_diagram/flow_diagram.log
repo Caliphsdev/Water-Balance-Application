@@ -16950,3 +16950,26 @@
 2026-02-13 07:26:17 | INFO     | load_diagram:734 | Loaded diagram for UG2N
 2026-02-13 07:26:17 | INFO     | _render_diagram:943 | Rendered diagram: 126 nodes, 116 edges
 2026-02-13 07:26:17 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-13 09:43:29 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-13 09:43:34 | INFO     | load_diagram:734 | Loaded diagram for UG2N
+2026-02-13 09:43:34 | INFO     | _render_diagram:943 | Rendered diagram: 126 nodes, 116 edges
+2026-02-13 09:43:34 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-13 10:41:20 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-13 10:41:23 | INFO     | load_diagram:734 | Loaded diagram for UG2N
+2026-02-13 10:41:24 | INFO     | _render_diagram:943 | Rendered diagram: 126 nodes, 116 edges
+2026-02-13 10:41:24 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-13 10:43:03 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-13 10:43:07 | INFO     | load_diagram:734 | Loaded diagram for UG2N
+2026-02-13 10:43:07 | INFO     | _render_diagram:943 | Rendered diagram: 126 nodes, 116 edges
+2026-02-13 10:43:07 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-13 10:45:47 | INFO     | _on_excel_setup_clicked:3360 | Excel Setup button clicked
+2026-02-13 10:45:50 | INFO     | _on_excel_setup_clicked:3367 | Excel Setup dialog closed
+2026-02-13 10:45:53 | INFO     | _on_load_excel_clicked:3245 | Load Excel button clicked
+2026-02-13 10:45:53 | INFO     | _render_diagram:943 | Rendered diagram: 126 nodes, 116 edges
+2026-02-13 10:45:53 | INFO     | _load_and_display_recirculation:1019 | Found 11 recirculation configs to load
+2026-02-13 10:45:53 | INFO     | _load_and_display_recirculation:1054 | Loaded 11 recirculation volumes for UG2N (2025/12)
+2026-02-13 10:45:55 | INFO     | _on_load_excel_clicked:3341 | Loaded Excel data: 107 flows updated, 9 errors
+2026-02-13 10:48:33 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-13 10:48:37 | INFO     | load_diagram:734 | Loaded diagram for UG2N
+2026-02-13 10:48:37 | INFO     | _render_diagram:943 | Rendered diagram: 126 nodes, 116 edges
+2026-02-13 10:48:37 | INFO     | __init__:160 | Flow Diagram Page initialized

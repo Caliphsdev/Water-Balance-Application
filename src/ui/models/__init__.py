@@ -10,5 +10,6 @@ Modules:
 
 from ui.models.storage_facilities_model import StorageFacilitiesModel
 from ui.models.monthly_parameters_history_model import MonthlyParametersHistoryModel
+from ui.models.storage_history_model import StorageHistoryModel
 
-__all__ = ["StorageFacilitiesModel", "MonthlyParametersHistoryModel"]
+__all__ = ["StorageFacilitiesModel", "MonthlyParametersHistoryModel", "StorageHistoryModel"]

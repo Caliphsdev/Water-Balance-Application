@@ -486,7 +486,7 @@ class HelpPage(QWidget):
             <li><b>Dashboard:</b> Executive snapshot of storage, climate, and closure status.</li>
             <li><b>Analytics:</b> Trend charting from Meter Readings workbook data.</li>
             <li><b>Monitoring:</b> Borehole/static/PCD monitoring review and charting.</li>
-            <li><b>Storage Facilities:</b> Facility master data, utilization, and monthly parameters.</li>
+            <li><b>Storage Facilities:</b> Facility master data, utilization, and monthly storage history updates.</li>
             <li><b>Calculations:</b> Monthly closure, recycled water, quality, and days-of-operation outputs.</li>
             <li><b>Flow Diagram:</b> Operational flow categorization and diagram-based closure checks.</li>
             <li><b>Settings:</b> Business constants and monthly rainfall/evaporation controls.</li>
@@ -530,9 +530,11 @@ class HelpPage(QWidget):
         <h3>3) Storage Facilities</h3>
         <ul>
             <li>View all storage assets with live capacity and utilization.</li>
-            <li>Add/Edit/Delete facilities and set monthly parameters.</li>
+            <li>Add/Edit/Delete facilities and update monthly storage history (closing volumes).</li>
+            <li>Use the Storage History action to save month-end volumes and view history.</li>
             <li>Cards summarize total capacity, current volume, utilization, active count.</li>
         </ul>
+        <p class="formula-note"><b>Monthly storage update steps:</b> <img src=":/icons/Storage_facility_icon.svg" width="14" height="14"/> open Storage Facilities → select facility → <img src=":/icons/history_icon.svg" width="14" height="14"/> Storage History → choose month/year → enter closing volume → Save Monthly Volume.</p>
         <p><b>Business outcome:</b> supports available-storage planning, transfer decisions, and storage risk visibility.</p>
         <p class="source-ref">Reference: <code>ui/dashboards/storage_facilities_dashboard.py</code>.</p>
         <a name="dash-calculations"></a>
@@ -610,6 +612,8 @@ class HelpPage(QWidget):
         <ul>
             <li><b>What it means:</b> estimated number of days storage can support operations at current average demand.</li>
             <li><b>Monthly usage banner (e.g. 23k m³/month):</b> calculated as <i>Daily Net Fresh Demand × 30</i> for quick planning communication.</li>
+            <li><b>Daily usage card:</b> shows <i>Net Fresh Demand</i> (outflows − recycled).</li>
+            <li><b>Water recycled card:</b> included because it reduces net fresh demand in the runway calculation.</li>
             <li><b>System days:</b> total usable storage divided by average daily use.</li>
             <li><b>Facility days:</b> each facility shows its own runway based on that facility's usable volume and share of demand, so values differ by facility.</li>
             <li><b>Source tags:</b> <i>Measured</i> (from month data), <i>History Proxy</i> (from recent pattern), <i>Estimated</i> (fallback rule).</li>
