@@ -41,9 +41,8 @@ logger = app_logger
 
 # (CONSTANTS)
 
-# License token validity period (days) for offline use
-# 3 minutes for testing (3 / 1440 days)
-OFFLINE_TOKEN_VALIDITY_DAYS = 3 / 1440
+# License token validity period (days) for offline use (production-safe fallback).
+OFFLINE_TOKEN_VALIDITY_DAYS = 30.0
 
 # How many days before expiry to refresh online
 REFRESH_INTERVAL_DAYS = 1
@@ -68,7 +67,7 @@ def _load_license_timing_from_config() -> Tuple[float, float]:
         # Keep defaults if config is unavailable or malformed.
         pass
     # Hard safety guards.
-    offline_days = max(1 / 1440, offline_days)  # minimum 1 minute
+    offline_days = max(1.0, offline_days)  # minimum 1 day for production safety
     refresh_days = max(0.0, refresh_days)
     return offline_days, refresh_days
 
@@ -85,6 +84,8 @@ class LicenseStatus:
     HWID_MISMATCH = "hwid_mismatch"
     REVOKED = "revoked"
     NETWORK_ERROR = "network_error"
+    CLOCK_TAMPER = "clock_tamper"
+    SYSTEM_UNAVAILABLE = "system_unavailable"
     
     def __init__(
         self,
@@ -113,7 +114,9 @@ class LicenseStatus:
             self.INVALID, 
             self.NOT_ACTIVATED,
             self.HWID_MISMATCH,
-            self.REVOKED
+            self.REVOKED,
+            self.CLOCK_TAMPER,
+            self.SYSTEM_UNAVAILABLE,
         )
     
     def to_dict(self) -> Dict[str, Any]:
@@ -183,7 +186,13 @@ class LicenseService:
                 self._supabase = get_supabase_client()
             
             self._initialized = True
-            logger.debug(f"License service initialized, data dir: {self._data_dir}")
+            offline_days, refresh_days = _load_license_timing_from_config()
+            logger.info(
+                "license_service_initialized data_dir=%s offline_validity_days=%s refresh_interval_days=%s",
+                self._data_dir,
+                offline_days,
+                refresh_days,
+            )
     
     @property
     def license_file_path(self) -> Path:
@@ -684,6 +693,7 @@ class LicenseService:
                 LicenseStatus.NOT_ACTIVATED,
                 message="No license found. Please activate."
             )
+            logger.info("license_validate result=not_activated")
             return self._license_status
         
         # Verify signature and HWID
@@ -704,6 +714,7 @@ class LicenseService:
                     LicenseStatus.INVALID,
                     message=f"Invalid license: {error}"
                 )
+            logger.warning("license_validate result=%s reason=%s", self._license_status.status, error)
             return self._license_status
         
         # Check expiry - STRICT BLOCKING
@@ -723,17 +734,19 @@ class LicenseService:
                 message="License expired. Connect to internet to renew.",
                 days_remaining=token.days_until_expiry()
             )
+            logger.warning("license_validate result=expired days_remaining=%s", token.days_until_expiry())
             return self._license_status
 
         # Detect clock tampering
         clock_ok, clock_error = self._check_clock_tamper()
         if not clock_ok:
             self._license_status = LicenseStatus(
-                LicenseStatus.INVALID,
+                LicenseStatus.CLOCK_TAMPER,
                 tier=token.tier,
                 message=clock_error,
                 days_remaining=token.days_until_expiry()
             )
+            logger.warning("license_validate result=clock_tamper")
             return self._license_status
         
         # Token is valid
@@ -768,6 +781,12 @@ class LicenseService:
             message="License valid",
             days_remaining=token.days_until_expiry(),
             needs_online_refresh=needs_refresh
+        )
+        logger.info(
+            "license_validate result=valid tier=%s days_remaining=%s needs_refresh=%s",
+            token.tier,
+            token.days_until_expiry(),
+            int(needs_refresh),
         )
 
         self._save_clock_guard(datetime.now(timezone.utc))

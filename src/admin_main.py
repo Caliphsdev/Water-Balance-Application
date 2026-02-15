@@ -11,11 +11,29 @@ import os
 import shutil
 import yaml
 
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QProxyStyle, QStyle
 from PySide6.QtGui import QIcon
 
 from ui.admin.license_manager_window import LicenseManagerWindow
 from core.config_manager import get_resource_path
+
+
+class _FastTooltipStyle(QProxyStyle):
+    """Reduce tooltip wake-up delay for faster hover feedback."""
+
+    def styleHint(self, hint, option=None, widget=None, returnData=None):
+        if hint == QStyle.StyleHint.SH_ToolTip_WakeUpDelay:
+            return 120
+        if hint == QStyle.StyleHint.SH_ToolTip_FallAsleepDelay:
+            return 2000
+        return super().styleHint(hint, option, widget, returnData)
+
+
+def _apply_fast_tooltips(app: QApplication) -> None:
+    try:
+        app.setStyle(_FastTooltipStyle(app.style()))
+    except Exception:
+        pass
 
 
 def _get_user_base() -> Path:
@@ -71,6 +89,7 @@ def main() -> None:
     app = QApplication(sys.argv)
     app.setApplicationName("Water Balance License Manager")
     app.setOrganizationName("Two Rivers Platinum")
+    _apply_fast_tooltips(app)
     icon_path = get_resource_path("src/ui/resources/icons/Water Balance.ico")
     if icon_path.exists():
         app.setWindowIcon(QIcon(str(icon_path)))

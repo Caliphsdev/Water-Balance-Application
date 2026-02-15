@@ -6615,3 +6615,443 @@
 2026-02-13 10:48:37 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
 2026-02-13 10:48:37 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
 2026-02-13 10:48:37 | INFO     | run:277 | Directory loading complete
+2026-02-15 10:37:31 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 10:37:31 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 10:37:31 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 10:37:31 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 10:37:31 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 10:37:31 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 10:37:31 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 10:37:31 | INFO     | run:277 | Directory loading complete
+2026-02-15 10:40:00 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 10:40:00 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 10:40:00 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 10:40:00 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 10:40:00 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 10:40:00 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 10:40:00 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 10:40:00 | INFO     | run:277 | Directory loading complete
+2026-02-15 10:47:03 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 10:47:03 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 10:47:03 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 10:47:03 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 10:47:03 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 10:47:03 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 10:47:03 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 10:47:03 | INFO     | run:277 | Directory loading complete
+2026-02-15 11:37:31 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 11:37:31 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 11:37:31 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 11:37:31 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 11:37:31 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 11:37:31 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 11:37:31 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 11:37:31 | INFO     | run:277 | Directory loading complete
+2026-02-15 11:50:10 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 11:50:10 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 11:50:10 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 11:50:10 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 11:50:10 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 11:50:10 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 11:50:10 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 11:50:10 | INFO     | run:277 | Directory loading complete
+2026-02-15 12:05:23 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 12:05:23 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 12:05:23 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 12:05:23 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 12:05:23 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 12:05:23 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 12:05:23 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 12:05:23 | INFO     | run:277 | Directory loading complete
+2026-02-15 12:23:32 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 12:23:32 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 12:23:32 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 12:23:32 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 12:23:32 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 12:23:33 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 12:23:33 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 12:23:33 | INFO     | run:277 | Directory loading complete
+2026-02-15 12:36:38 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 12:36:38 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 12:36:38 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 12:36:38 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 12:36:38 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 12:36:38 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 12:36:38 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 12:36:38 | INFO     | run:277 | Directory loading complete
+2026-02-15 13:18:30 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 13:18:30 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 13:18:30 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 13:18:30 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 13:18:30 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 13:18:30 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 13:18:30 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 13:18:30 | INFO     | run:277 | Directory loading complete
+2026-02-15 13:26:00 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 13:26:00 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 13:26:00 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 13:26:00 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 13:26:00 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 13:26:00 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 13:26:00 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 13:26:00 | INFO     | run:277 | Directory loading complete
+2026-02-15 13:28:04 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 13:28:04 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 13:28:04 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 13:28:04 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 13:28:04 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 13:28:04 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 13:28:04 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 13:28:04 | INFO     | run:277 | Directory loading complete
+2026-02-15 13:29:55 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 13:29:55 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 13:29:55 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 13:29:55 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 13:29:55 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 13:29:55 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 13:29:55 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 13:29:55 | INFO     | run:277 | Directory loading complete
+2026-02-15 13:32:25 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 13:32:25 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 13:32:25 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 13:32:25 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 13:32:25 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 13:32:25 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 13:32:25 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 13:32:25 | INFO     | run:277 | Directory loading complete
+2026-02-15 13:52:03 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 13:52:03 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 13:52:03 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 13:52:03 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 13:52:03 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 13:52:03 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 13:52:03 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 13:52:03 | INFO     | run:277 | Directory loading complete
+2026-02-15 13:57:29 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 13:57:29 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 13:57:29 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 13:57:29 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 13:57:29 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 13:57:29 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 13:57:29 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 13:57:29 | INFO     | run:277 | Directory loading complete
+2026-02-15 14:15:05 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 14:15:05 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 14:15:05 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 14:15:05 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 14:15:05 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 14:15:05 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 14:15:05 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 14:15:05 | INFO     | run:277 | Directory loading complete
+2026-02-15 14:26:15 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 14:26:15 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 14:26:15 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 14:26:15 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 14:26:15 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 14:26:15 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 14:26:15 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 14:26:15 | INFO     | run:277 | Directory loading complete
+2026-02-15 14:39:22 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 14:39:22 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 14:39:22 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 14:39:22 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 14:39:22 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 14:39:23 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 14:39:23 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 14:39:23 | INFO     | run:277 | Directory loading complete
+2026-02-15 14:48:03 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 14:48:03 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 14:48:03 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 14:48:03 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 14:48:03 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 14:48:03 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 14:48:03 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 14:48:03 | INFO     | run:277 | Directory loading complete
+2026-02-15 16:51:50 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 16:51:50 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 16:51:50 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 16:51:50 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 16:51:50 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 16:51:50 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 16:51:50 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 16:51:50 | INFO     | run:277 | Directory loading complete
+2026-02-15 16:57:12 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 16:57:12 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 16:57:12 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 16:57:12 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 16:57:12 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 16:57:12 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 16:57:12 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 16:57:12 | INFO     | run:277 | Directory loading complete
+2026-02-15 18:22:24 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 18:22:24 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 18:22:24 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 18:22:24 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 18:22:24 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 18:22:24 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 18:22:24 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 18:22:24 | INFO     | run:277 | Directory loading complete
+2026-02-15 18:28:56 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 18:28:56 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 18:28:56 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 18:28:56 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 18:28:56 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 18:28:57 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 18:28:57 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 18:28:57 | INFO     | run:277 | Directory loading complete
+2026-02-15 18:37:06 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 18:37:06 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 18:37:06 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 18:37:06 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 18:37:06 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 18:37:06 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 18:37:06 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 18:37:06 | INFO     | run:277 | Directory loading complete
+2026-02-15 18:56:01 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 18:56:01 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 18:56:01 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 18:56:01 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 18:56:01 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 18:56:01 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 18:56:01 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 18:56:01 | INFO     | run:277 | Directory loading complete
+2026-02-15 19:10:08 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 19:10:08 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 19:10:08 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 19:10:08 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 19:10:08 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 19:10:08 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 19:10:08 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 19:10:08 | INFO     | run:277 | Directory loading complete
+2026-02-15 20:20:59 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 20:20:59 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 20:20:59 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 20:20:59 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 20:20:59 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 20:20:59 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 20:20:59 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 20:20:59 | INFO     | run:277 | Directory loading complete
+2026-02-15 20:28:19 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 20:28:19 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 20:28:19 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 20:28:19 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 20:28:19 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 20:28:19 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 20:28:19 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 20:28:19 | INFO     | run:277 | Directory loading complete
+2026-02-15 20:46:43 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 20:46:43 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 20:46:43 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 20:46:43 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 20:46:43 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 20:46:43 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 20:46:43 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 20:46:43 | INFO     | run:277 | Directory loading complete
+2026-02-15 20:51:34 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 20:51:34 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 20:51:34 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 20:51:34 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 20:51:34 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 20:51:34 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 20:51:34 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 20:51:34 | INFO     | run:277 | Directory loading complete
+2026-02-15 20:55:24 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 20:55:24 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 20:55:24 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 20:55:24 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 20:55:24 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 20:55:24 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 20:55:24 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 20:55:24 | INFO     | run:277 | Directory loading complete
+2026-02-15 21:00:10 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 21:00:10 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 21:00:10 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 21:00:10 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 21:00:10 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 21:00:11 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 21:00:11 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 21:00:11 | INFO     | run:277 | Directory loading complete
+2026-02-15 21:14:26 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 21:14:26 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 21:14:26 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 21:14:26 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 21:14:26 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 21:14:26 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 21:14:26 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 21:14:26 | INFO     | run:277 | Directory loading complete
+2026-02-15 21:18:43 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 21:18:43 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 21:18:43 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 21:18:43 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 21:18:43 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 21:18:43 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 21:18:43 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 21:18:43 | INFO     | run:277 | Directory loading complete
+2026-02-15 21:22:07 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 21:22:07 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 21:22:07 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 21:22:07 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 21:22:07 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 21:22:07 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 21:22:07 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 21:22:07 | INFO     | run:277 | Directory loading complete
+2026-02-15 21:30:07 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 21:30:07 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 21:30:07 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 21:30:07 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 21:30:07 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 21:30:07 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 21:30:07 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 21:30:07 | INFO     | run:277 | Directory loading complete
+2026-02-15 21:34:41 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 21:34:41 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 21:34:41 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 21:34:41 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 21:34:41 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 21:34:41 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 21:34:41 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 21:34:41 | INFO     | run:277 | Directory loading complete
+2026-02-15 21:38:33 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 21:38:33 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 21:38:33 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 21:38:33 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 21:38:33 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 21:38:33 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 21:38:33 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 21:38:33 | INFO     | run:277 | Directory loading complete
+2026-02-15 21:41:07 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 21:41:07 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 21:41:07 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 21:41:07 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 21:41:07 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 21:41:07 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 21:41:07 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 21:41:07 | INFO     | run:277 | Directory loading complete
+2026-02-15 21:45:54 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 21:45:54 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 21:45:54 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 21:45:54 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 21:45:54 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 21:45:54 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 21:45:54 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 21:45:54 | INFO     | run:277 | Directory loading complete
+2026-02-15 21:48:31 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 21:48:31 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 21:48:31 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 21:48:31 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 21:48:31 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 21:48:31 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 21:48:31 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 21:48:31 | INFO     | run:277 | Directory loading complete
+2026-02-15 21:53:43 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 21:53:43 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 21:53:43 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 21:53:43 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 21:53:43 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 21:53:43 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 21:53:43 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 21:53:43 | INFO     | run:277 | Directory loading complete
+2026-02-15 22:00:34 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 22:00:34 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 22:00:34 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 22:00:34 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 22:00:34 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 22:00:34 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 22:00:34 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 22:00:34 | INFO     | run:277 | Directory loading complete
+2026-02-15 22:10:33 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 22:10:33 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 22:10:33 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 22:10:33 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 22:10:33 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 22:10:33 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 22:10:33 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 22:10:33 | INFO     | run:277 | Directory loading complete
+2026-02-15 22:20:27 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 22:20:27 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 22:20:27 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 22:20:27 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 22:20:27 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 22:20:27 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 22:20:27 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 22:20:27 | INFO     | run:277 | Directory loading complete
+2026-02-15 22:26:15 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 22:26:15 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 22:26:15 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 22:26:15 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 22:26:15 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 22:26:15 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 22:26:15 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 22:26:15 | INFO     | run:277 | Directory loading complete
+2026-02-15 22:28:50 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 22:28:50 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 22:28:50 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 22:28:50 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 22:28:50 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 22:28:50 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 22:28:50 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 22:28:50 | INFO     | run:277 | Directory loading complete
+2026-02-15 22:34:50 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 22:34:50 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 22:34:50 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 22:34:50 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 22:34:50 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 22:34:50 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 22:34:50 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 22:34:50 | INFO     | run:277 | Directory loading complete
+2026-02-15 22:40:51 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 22:40:51 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 22:40:51 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 22:40:51 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 22:40:51 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 22:40:51 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 22:40:51 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 22:40:51 | INFO     | run:277 | Directory loading complete
+2026-02-15 22:46:03 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 22:46:03 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 22:46:03 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 22:46:03 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 22:46:03 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 22:46:03 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 22:46:03 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 22:46:03 | INFO     | run:277 | Directory loading complete
+2026-02-15 23:00:22 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 23:00:22 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 23:00:22 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 23:00:22 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 23:00:22 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 23:00:22 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 23:00:22 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 23:00:22 | INFO     | run:277 | Directory loading complete
+2026-02-15 23:14:12 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 23:14:12 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 23:14:12 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 23:14:12 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 23:14:12 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 23:14:12 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 23:14:12 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 23:14:12 | INFO     | run:277 | Directory loading complete
+2026-02-15 23:41:03 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 23:41:03 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 23:41:03 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 23:41:03 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 23:41:03 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 23:41:03 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 23:41:03 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 23:41:03 | INFO     | run:277 | Directory loading complete
+2026-02-15 23:41:16 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 23:41:16 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 23:41:16 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 23:41:16 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 23:41:16 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 23:41:16 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 23:41:16 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 23:41:16 | INFO     | run:277 | Directory loading complete
+2026-02-15 23:45:11 | INFO     | get_dashboard_logger:628 | === MONITORING.PCD_MONITORING Dashboard Logger Initialized ===
+2026-02-15 23:45:11 | INFO     | __init__:90 | DirectoryLoadWorker initialized for pcd_monitoring
+2026-02-15 23:45:11 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-15 23:45:11 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Pollution Control Dam
+2026-02-15 23:45:11 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Pollution Control Dam
+2026-02-15 23:45:11 | INFO     | run:250 | Combined 3 files into DataFrame: 55 total rows, 28 columns
+2026-02-15 23:45:11 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-15 23:45:11 | INFO     | run:277 | Directory loading complete

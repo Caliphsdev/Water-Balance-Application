@@ -11,13 +11,15 @@ from __future__ import annotations
 from datetime import date
 from pathlib import Path
 
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QPixmap
+from PySide6.QtCore import Qt, QUrl
+from PySide6.QtGui import QPixmap, QDesktopServices
 from PySide6.QtWidgets import (
+    QApplication,
     QFrame,
     QGridLayout,
     QHBoxLayout,
     QLabel,
+    QMessageBox,
     QScrollArea,
     QVBoxLayout,
     QWidget,
@@ -255,21 +257,74 @@ class AboutPage(QWidget):
         year = date.today().year
         today = date.today().strftime("%Y-%m-%d")
         legal = QLabel(
-            f"Copyright (c) {year} TransAfrica Resources. All rights reserved.\n"
-            "Water Balance Dashboard and related materials are proprietary to "
-            "TransAfrica Resources and are intended for authorized operational use.\n"
-            "Third-party open-source notices are listed in THIRD_PARTY_LICENSES.txt.\n"
-            "For support, maintenance, or access requests, contact the project team listed above.\n"
-            f"Last updated: {today}",
+            (
+                f"Copyright (c) {year} TransAfrica Resources. All rights reserved.<br/>"
+                "Water Balance Dashboard and related materials are proprietary to "
+                "TransAfrica Resources and are intended for authorized operational use.<br/>"
+                "<b>License documents:</b> "
+                "<a href='local://third_party'>THIRD_PARTY_LICENSES.txt</a> | "
+                "<a href='local://qt_licenses'>licenses/qt/</a><br/>"
+                "<b>Qt references:</b> "
+                "<a href='https://doc.qt.io/qtforpython-6/licenses.html'>Qt for Python licenses</a> | "
+                "<a href='https://www.qt.io/licensing/open-source-lgpl-obligations'>LGPL obligations</a><br/>"
+                "Qt Virtual Keyboard module binaries are excluded from packaged builds.<br/>"
+                "For support, maintenance, or access requests, contact the project team listed above.<br/>"
+                f"Last updated: {today}"
+            ),
             card,
         )
         legal.setWordWrap(True)
         legal.setObjectName("aboutBody")
+        legal.setTextFormat(Qt.RichText)
+        legal.setTextInteractionFlags(Qt.TextBrowserInteraction)
+        legal.setOpenExternalLinks(False)
+        legal.linkActivated.connect(self._on_legal_link_activated)
 
         layout.addWidget(heading)
         layout.addWidget(legal)
         self._apply_about_styles(card)
         return card
+
+    def _on_legal_link_activated(self, link: str) -> None:
+        """Open legal references from About page."""
+        if link.startswith("local://"):
+            if link == "local://third_party":
+                self._open_local_notice_file()
+                return
+            if link == "local://qt_licenses":
+                self._open_local_licenses_folder()
+                return
+        QDesktopServices.openUrl(QUrl(link))
+
+    def _open_local_notice_file(self) -> None:
+        app_dir = Path(QApplication.applicationDirPath())
+        candidates = [
+            app_dir / "THIRD_PARTY_LICENSES.txt",
+            app_dir / "_internal" / "THIRD_PARTY_LICENSES.txt",
+            get_resource_path("THIRD_PARTY_LICENSES.txt"),
+            Path.cwd() / "THIRD_PARTY_LICENSES.txt",
+            Path(__file__).resolve().parents[3] / "THIRD_PARTY_LICENSES.txt",
+        ]
+        self._open_first_existing_path(candidates, "Could not find THIRD_PARTY_LICENSES.txt")
+
+    def _open_local_licenses_folder(self) -> None:
+        app_dir = Path(QApplication.applicationDirPath())
+        candidates = [
+            app_dir / "licenses" / "qt",
+            app_dir / "_internal" / "licenses" / "qt",
+            get_resource_path("licenses/qt"),
+            Path.cwd() / "licenses" / "qt",
+            Path(__file__).resolve().parents[3] / "licenses" / "qt",
+        ]
+        self._open_first_existing_path(candidates, "Could not find licenses/qt/ folder")
+
+    @staticmethod
+    def _open_first_existing_path(candidates: list[Path], error_message: str) -> None:
+        for path in candidates:
+            if path.exists():
+                QDesktopServices.openUrl(QUrl.fromLocalFile(str(path)))
+                return
+        QMessageBox.warning(None, "File Not Found", error_message)
 
     def _person_card(self, role: str, name: str, phone: str, email: str) -> QWidget:
         card = self._new_card("aboutPersonCard")
@@ -369,6 +424,14 @@ class AboutPage(QWidget):
             QLabel#aboutBody {
                 font-size: 14px;
                 color: #1c2f4a;
+            }
+            QLabel#aboutBody a {
+                color: #1d4f91;
+                text-decoration: none;
+                font-weight: 600;
+            }
+            QLabel#aboutBody a:hover {
+                text-decoration: underline;
             }
             QLabel#aboutRole {
                 font-size: 13px;

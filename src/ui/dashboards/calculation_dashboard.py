@@ -37,15 +37,17 @@ from PySide6.QtWidgets import (
     QWidget, QLabel, QVBoxLayout, QHBoxLayout, QGridLayout,
     QTableWidget, QTableWidgetItem, QMessageBox, QFrame,
     QScrollArea, QSizePolicy, QSpacerItem, QProgressBar,
-    QGraphicsDropShadowEffect, QFileDialog, QLineEdit, QPushButton, QToolTip
+    QGraphicsDropShadowEffect, QFileDialog, QLineEdit, QPushButton,
+    QComboBox, QToolTip, QScroller
 )
 from PySide6.QtCore import Qt, QThread, Signal
-from PySide6.QtGui import QColor, QFont, QPainter, QBrush, QPen
+from PySide6.QtGui import QColor, QFont, QPainter, QBrush, QPen, QCursor
 from PySide6.QtCharts import QChart, QChartView, QPieSeries, QBarSeries, QBarSet, QBarCategoryAxis, QValueAxis
 from ui.dashboards.generated_ui_calculation import Ui_Form
 import calendar
 from datetime import date, datetime
 import logging
+from html import escape
 
 # Import calculation services
 from services.calculation.balance_service import get_balance_service, BalanceService, EXCEL_COLUMNS
@@ -120,6 +122,10 @@ class CalculationPage(QWidget):
         
         # Store current calculation results
         self.current_results: BalanceResult = None
+        self._runway_top_n: int = 10
+        self._facility_cards_page: int = 0
+        self._runway_cache_period: tuple[int, int] | None = None
+        self._runway_cache_obj = None
         
         # Track if tabs are set up
         self._tabs_initialized = False
@@ -184,6 +190,20 @@ class CalculationPage(QWidget):
         # Tabs polish
         if hasattr(self.ui, "tabWidget"):
             self.ui.tabWidget.setObjectName("calc_tab_widget")
+
+    def _tt(self, text: str) -> str:
+        """Format tooltip text into compact wrapped rich text.
+
+        Prevents stretched single-line tooltips and keeps a consistent compact width.
+        """
+        if not text or not text.strip():
+            return ""
+        safe = escape(text.strip()).replace("\n", "<br/>")
+        return (
+            "<div style='max-width:260px; white-space:normal; "
+            "line-height:1.3; padding:2px 0; color:#0f172a; font-weight:600;'>"
+            f"{safe}</div>"
+        )
     
     @property
     def balance_service(self) -> BalanceService:
@@ -242,6 +262,23 @@ class CalculationPage(QWidget):
         row.addWidget(self.calc_excel_select_btn)
 
         self.ui.verticalLayout_2.insertLayout(1, row)
+
+        # Add latest Excel period indicator beside month/year selectors.
+        if hasattr(self.ui, "horizontalLayout_2"):
+            self.calc_latest_period_label = QLabel("Latest Excel: No Excel loaded")
+            self.calc_latest_period_label.setObjectName("calc_latest_period_label")
+            self.calc_latest_period_label.setStyleSheet(
+                "color:#64748b; font-weight:600; padding-left:8px;"
+            )
+            # Insert before Calculate button for immediate context.
+            if hasattr(self.ui, "pushButton"):
+                self.ui.horizontalLayout_2.insertWidget(
+                    self.ui.horizontalLayout_2.indexOf(self.ui.pushButton),
+                    self.calc_latest_period_label
+                )
+            else:
+                self.ui.horizontalLayout_2.addWidget(self.calc_latest_period_label)
+
         self._refresh_meter_excel_path_display()
 
     def _refresh_meter_excel_path_display(self) -> None:
@@ -255,11 +292,57 @@ class CalculationPage(QWidget):
             path = excel_mgr.get_meter_readings_path() or ""
             path_text = str(path) if path else ""
             self.calc_excel_path_edit.setText(path_text)
-            self.calc_excel_path_edit.setToolTip(path_text)
+            self.calc_excel_path_edit.setToolTip(self._tt(path_text))
+            self._refresh_latest_excel_period_indicator(excel_mgr)
         except Exception as exc:
             logger.warning(f"Unable to read meter readings path: {exc}")
             self.calc_excel_path_edit.setText("")
             self.calc_excel_path_edit.setToolTip("")
+            self._set_latest_excel_period_text("Latest Excel: Unknown", "unknown")
+
+    def _refresh_latest_excel_period_indicator(self, excel_mgr=None) -> None:
+        """Update latest available Excel month indicator near month selector."""
+        if not hasattr(self, "calc_latest_period_label"):
+            return
+        try:
+            if excel_mgr is None:
+                from services.excel_manager import get_excel_manager
+                excel_mgr = get_excel_manager()
+
+            if not excel_mgr.meter_readings_exists():
+                self._set_latest_excel_period_text("Latest Excel: No Excel loaded", "missing")
+                return
+
+            _, max_date = excel_mgr.get_meter_readings_date_range()
+            if max_date is None:
+                self._set_latest_excel_period_text("Latest Excel: No dated rows", "missing")
+                return
+
+            self._set_latest_excel_period_text(
+                f"Latest Excel: {max_date.year}-{max_date.month:02d}",
+                "ok"
+            )
+        except Exception as exc:
+            logger.warning(f"Unable to refresh latest Excel period indicator: {exc}")
+            self._set_latest_excel_period_text("Latest Excel: Unknown", "unknown")
+
+    def _set_latest_excel_period_text(self, text: str, state: str) -> None:
+        """Apply text and visual state for latest Excel period indicator."""
+        if not hasattr(self, "calc_latest_period_label"):
+            return
+
+        if state == "ok":
+            color = "#166534"
+        elif state == "missing":
+            color = "#92400e"
+        else:
+            color = "#64748b"
+
+        self.calc_latest_period_label.setText(text)
+        self.calc_latest_period_label.setStyleSheet(
+            f"color:{color}; font-weight:600; padding-left:8px;"
+        )
+        self.calc_latest_period_label.setToolTip(self._tt(text))
 
     def _on_select_meter_excel(self) -> None:
         """Let user select Meter Readings Excel file used by calculations."""
@@ -346,6 +429,13 @@ class CalculationPage(QWidget):
                 return
             
             year = int(year_str)
+
+            # HARD STOP: selected period must exist in Meter Readings data.
+            period_ok, period_msg = self._validate_period_against_meter_data(year, month)
+            if not period_ok:
+                QMessageBox.warning(self, "Calculation Blocked", period_msg)
+                logger.warning(f"Calculation blocked for {year}-{month:02d}: {period_msg}")
+                return
             
             # VALIDATE DATA QUALITY BEFORE CALCULATION (NEW)
             data_check = self._validate_data_completeness()
@@ -428,6 +518,53 @@ class CalculationPage(QWidget):
             if hasattr(self.ui, 'pushButton'):
                 self.ui.pushButton.setEnabled(True)
                 self.ui.pushButton.setText("Calculate Balance")
+
+    def _validate_period_against_meter_data(self, year: int, month: int) -> tuple[bool, str]:
+        """Ensure selected period is available in Meter Readings."""
+        try:
+            import pandas as pd
+            from services.excel_manager import get_excel_manager
+
+            excel_mgr = get_excel_manager()
+            if not excel_mgr.meter_readings_exists():
+                return False, "Meter Readings Excel file not found. Select the file first."
+
+            meter_data = excel_mgr.load_meter_readings()
+            if meter_data is None or meter_data.empty:
+                return False, "Meter Readings file is empty. Load data before calculation."
+
+            if "Date" not in meter_data.columns:
+                return False, "Meter Readings file has no Date column. Cannot validate month."
+
+            min_date, max_date = excel_mgr.get_meter_readings_date_range()
+            if min_date is None or max_date is None:
+                return False, "Could not determine Meter Readings date range."
+
+            selected_period = (year, month)
+            latest_period = (max_date.year, max_date.month)
+            if selected_period > latest_period:
+                return (
+                    False,
+                    f"Selected period {year}-{month:02d} is beyond Meter Readings data "
+                    f"(latest available: {max_date.year}-{max_date.month:02d})."
+                )
+
+            # Ensure at least one row exists for selected month/year.
+            dates = meter_data["Date"]
+            if not hasattr(dates, "dt"):
+                dates = pd.to_datetime(dates, errors="coerce")
+            month_mask = (dates.dt.year == year) & (dates.dt.month == month)
+            if not month_mask.any():
+                return (
+                    False,
+                    f"No Meter Readings rows found for {year}-{month:02d}. "
+                    "Choose a month that exists in the Excel data."
+                )
+
+            return True, ""
+        except Exception as exc:
+            logger.warning(f"Failed to validate selected period against meter data: {exc}")
+            return False, f"Could not validate selected month/year against Meter Readings data: {exc}"
     
     def _validate_data_completeness(self) -> dict:
         """Validate that all required data sources are available (DATA QUALITY CHECK).
@@ -647,6 +784,9 @@ class CalculationPage(QWidget):
         """
         # Store result for potential export/reuse
         self.current_results = result
+        self._runway_cache_period = None
+        self._runway_cache_obj = None
+        self._facility_cards_page = 0
         
         # Update Tab 0: System Balance - main summary with KPIs
         self._update_system_balance(result)
@@ -748,20 +888,27 @@ class CalculationPage(QWidget):
         dewatering = result.inflows.components.get('dewatering', 0.0)
         
         inflows_card = self._create_balance_card(
-            title="💧 FRESH INFLOWS",
-            subtitle="Natural Water Entering System",
+            title="💧 WATER INPUTS",
+            subtitle="Operational water inputs (not recycled)",
             items=[
-                ("🌧️ Rainfall", result.inflows.rainfall_m3, PALETTE["accent"]),
-                ("🏞️ Rivers", surface_water, PALETTE["info"]),
-                ("🕳️ Boreholes", groundwater, PALETTE["info"]),
-                ("⛏️ Dewatering", dewatering, PALETTE["info"]),
-                ("⛏️ Ore Moisture", result.inflows.ore_moisture_m3, PALETTE["info"]),
-                ("📥 Other Sources", result.inflows.other_m3, PALETTE["muted"]),
+                ("🌧️ Rainfall", result.inflows.rainfall_m3, PALETTE["accent"],
+                 "Rainfall input from monthly rainfall over active water surfaces."),
+                ("🏞️ Rivers", surface_water, PALETTE["info"],
+                 "Measured/derived river abstraction entering operations this month."),
+                ("🕳️ Boreholes", groundwater, PALETTE["info"],
+                 "Measured groundwater abstraction from boreholes for this month."),
+                ("⛏️ Dewatering (Captured Mine Water)", dewatering, PALETTE["info"],
+                 "Mine dewatering captured into the water system; tracked separately from recycled process water (RWD)."),
+                ("⛏️ Ore Moisture", result.inflows.ore_moisture_m3, PALETTE["info"],
+                 "Water carried into process with ore moisture based on production and moisture assumptions/measurements."),
+                ("📥 Other Sources", result.inflows.other_m3, PALETTE["muted"],
+                 "Other configured or mapped input sources included in this month."),
             ],
             total=result.inflows.total_m3,
             accent_color=PALETTE["accent"],
             bg_gradient=("from surface to surface", PALETTE["surface"], PALETTE["surface"]),
             card_object_name="calc_card_inflows",
+            total_tooltip="Total Water Inputs = sum of all input rows above for the selected month."
         )
         cards_row.addWidget(inflows_card)
         
@@ -770,16 +917,22 @@ class CalculationPage(QWidget):
             title="🔥 OUTFLOWS",
             subtitle="Water Leaving System",
             items=[
-                ("☀️ Evaporation", result.outflows.evaporation_m3, PALETTE["warning"]),
-                ("💧 Seepage", result.outflows.seepage_m3, PALETTE["danger"]),
-                ("🌫️ Dust Suppression", result.outflows.dust_suppression_m3, PALETTE["muted"]),
-                ("🏭 Tailings Lockup", result.outflows.tailings_lockup_m3, PALETTE["info"]),
-                ("📤 Other Losses", result.outflows.other_m3, PALETTE["muted"]),
+                ("☀️ Evaporation", result.outflows.evaporation_m3, PALETTE["warning"],
+                 "Water lost to atmosphere from exposed water surfaces for the selected month."),
+                ("💧 Seepage", result.outflows.seepage_m3, PALETTE["danger"],
+                 "Water lost to ground/seepage based on storage conditions and seepage assumptions."),
+                ("🌫️ Dust Suppression", result.outflows.dust_suppression_m3, PALETTE["muted"],
+                 "Water applied for dust control; measured where available or estimated from activity constants."),
+                ("🏭 Tailings Lockup", result.outflows.tailings_lockup_m3, PALETTE["info"],
+                 "Water retained in tailings stream/deposition and not immediately recoverable."),
+                ("📤 Other Losses", result.outflows.other_m3, PALETTE["muted"],
+                 "Other mapped outflow/loss components captured for this month."),
             ],
             total=result.outflows.total_m3,
             accent_color=PALETTE["warning"],
             bg_gradient=("from surface to surface", PALETTE["surface"], PALETTE["surface"]),
             card_object_name="calc_card_outflows",
+            total_tooltip="Total Outflows = sum of all outflow rows above for the selected month."
         )
         cards_row.addWidget(outflows_card)
         
@@ -806,6 +959,10 @@ class CalculationPage(QWidget):
                     'color': fac_color,
                     'icon': fac_delta_icon
                 })
+            # Show highest-impact facilities first (largest |delta|).
+            facility_breakdown.sort(
+                key=lambda x: (-abs(float(x.get('delta', 0.0) or 0.0)), str(x.get('name', '')))
+            )
         
         storage_card = self._create_storage_card(
             title="🏊 STORAGE CHANGE",
@@ -833,7 +990,7 @@ class CalculationPage(QWidget):
         
         # Equation visualization
         eq_parts = [
-            (f"{result.inflows.total_m3:,.0f}", "Fresh IN", PALETTE["accent"]),
+            (f"{result.inflows.total_m3:,.0f}", "Water Inputs", PALETTE["accent"]),
             ("−", "", PALETTE["muted"]),
             (f"{result.outflows.total_m3:,.0f}", "Outflows", PALETTE["warning"]),
             ("−", "", PALETTE["muted"]),
@@ -868,16 +1025,17 @@ class CalculationPage(QWidget):
         
         logger.info(f"Balance calculated for {result.period.period_label}: Error={result.error_pct:.2f}%")
     
-    def _create_balance_card(self, title: str, subtitle: str, items: list, 
+    def _create_balance_card(self, title: str, subtitle: str, items: list,
                               total: float, accent_color: str, bg_gradient: tuple,
                               total_label: str = "TOTAL", show_delta: bool = False,
-                              card_object_name: str = "calc_balance_card") -> QFrame:
+                              card_object_name: str = "calc_balance_card",
+                              total_tooltip: str = "") -> QFrame:
         """Create a styled balance card with items and total (UI HELPER).
         
         Args:
             title: Card title with emoji
             subtitle: Subtitle description
-            items: List of (name, value, color) tuples
+            items: List of (name, value, color) or (name, value, color, tooltip) tuples
             total: Total value to display
             accent_color: Primary accent color
             bg_gradient: Tuple of (desc, start_color, end_color)
@@ -921,7 +1079,12 @@ class CalculationPage(QWidget):
         layout.addWidget(divider)
         
         # Items
-        for name, value, color in items:
+        for row in items:
+            if len(row) >= 4:
+                name, value, color, row_tip = row[0], row[1], row[2], row[3]
+            else:
+                name, value, color = row[0], row[1], row[2]
+                row_tip = ""
             item_row = QHBoxLayout()
             item_row.setSpacing(6)
             item_name = QLabel(name)
@@ -929,6 +1092,10 @@ class CalculationPage(QWidget):
             item_value = QLabel(f"{value:,.0f} m³")
             item_value.setObjectName("calc_card_item_value")
             item_value.setAlignment(Qt.AlignmentFlag.AlignRight)
+            if row_tip:
+                tt = self._tt(str(row_tip))
+                item_name.setToolTip(tt)
+                item_value.setToolTip(tt)
             item_row.addWidget(item_name)
             item_row.addWidget(item_value)
             layout.addLayout(item_row)
@@ -950,6 +1117,10 @@ class CalculationPage(QWidget):
             total_val = QLabel(f"{total:,.0f} m³")
         total_val.setObjectName("calc_card_total_value")
         total_val.setAlignment(Qt.AlignmentFlag.AlignRight)
+        if total_tooltip:
+            tt_total = self._tt(total_tooltip)
+            total_name.setToolTip(tt_total)
+            total_val.setToolTip(tt_total)
         total_row.addWidget(total_name)
         total_row.addWidget(total_val)
         layout.addLayout(total_row)
@@ -1053,27 +1224,45 @@ class CalculationPage(QWidget):
             layout.addWidget(divider3)
             
             # Breakdown header
-            breakdown_header = QLabel("📊 By Facility:")
+            breakdown_header = QLabel(f"📊 By Facility ({len(facility_breakdown)}):")
             breakdown_header.setObjectName("calc_card_breakdown_header")
             layout.addWidget(breakdown_header)
-            
+
+            # Keep this section bounded for large facility counts.
+            breakdown_scroll = QScrollArea()
+            breakdown_scroll.setWidgetResizable(True)
+            breakdown_scroll.setFrameShape(QFrame.Shape.NoFrame)
+            breakdown_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+            breakdown_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+            breakdown_scroll.setMinimumHeight(120)
+            breakdown_scroll.setMaximumHeight(240)
+
+            breakdown_container = QWidget()
+            breakdown_layout = QVBoxLayout(breakdown_container)
+            breakdown_layout.setContentsMargins(0, 0, 0, 0)
+            breakdown_layout.setSpacing(4)
+
             # Per-facility rows
             for fac in facility_breakdown:
                 fac_row = QHBoxLayout()
                 fac_row.setSpacing(4)
-                
+
                 # Facility name with icon
                 fac_name = QLabel(f"  {fac['icon']} {fac['name']}")
                 fac_name.setObjectName("calc_card_item_name")
-                
+
                 # Delta value with color
                 fac_delta = QLabel(f"{fac['delta']:+,.0f} m³")
                 fac_delta.setObjectName("calc_card_item_value")
                 fac_delta.setAlignment(Qt.AlignmentFlag.AlignRight)
-                
+
                 fac_row.addWidget(fac_name)
                 fac_row.addWidget(fac_delta)
-                layout.addLayout(fac_row)
+                breakdown_layout.addLayout(fac_row)
+
+            breakdown_layout.addStretch(1)
+            breakdown_scroll.setWidget(breakdown_container)
+            layout.addWidget(breakdown_scroll)
         
         return card
     
@@ -1192,10 +1381,14 @@ class CalculationPage(QWidget):
             title="Water Intensity",
             value=f"{water_intensity:.3f}",
             unit="m³/tonne ore",
-            subtitle="Lower is better",
+            subtitle="Water used per tonne processed",
             color=PALETTE["accent"],
             bg_color=PALETTE["surface"]
         )
+        intensity_card.setToolTip(self._tt(
+            "Water Intensity = Total Consumption ÷ Tonnes Milled.\n"
+            "Guide (site-adjusted): <1.2 excellent, 1.2-1.6 good, 1.6-2.0 watch, >2.0 high."
+        ))
         cards_row.addWidget(intensity_card)
         
         # Card 2: Total Water Consumption (more relevant than storage days here)
@@ -1203,8 +1396,8 @@ class CalculationPage(QWidget):
         consumption_card = self._create_metric_card(
             emoji="📊",
             title="Total Consumption",
-            value=f"{total_consumption/1000:,.0f}",
-            unit="thousand m³",
+            value=f"{total_consumption:,.0f}",
+            unit="m³",
             subtitle="This period",
             color=PALETTE["info"],
             bg_color=PALETTE["surface"]
@@ -1227,6 +1420,15 @@ class CalculationPage(QWidget):
         cards_widget = QWidget()
         cards_widget.setLayout(cards_row)
         main_layout.addWidget(cards_widget)
+
+        # Visible business guidance (not hover-only) for Water Intensity.
+        intensity_guide = QLabel(
+            "Water Intensity = Total Consumption ÷ Tonnes Milled. "
+            "Guide: <1.2 excellent, 1.2-1.6 good, 1.6-2.0 watch, >2.0 high."
+        )
+        intensity_guide.setObjectName("calc_quality_footer")
+        intensity_guide.setWordWrap(True)
+        main_layout.addWidget(intensity_guide)
         
         # ═══════════════════════════════════════════════════════════════════
         # WATER SOURCE PIE CHART
@@ -1492,6 +1694,22 @@ class CalculationPage(QWidget):
         cards_row = QHBoxLayout()
         cards_row.setSpacing(12)
         
+        # Estimated-input impact indicator (contribution to score penalty).
+        estimated_penalty_points = min(len(estimated_fields) * 4, 20)
+        if estimated_penalty_points == 0:
+            estimated_impact_level = "NONE"
+        elif estimated_penalty_points <= 8:
+            estimated_impact_level = "LOW"
+        elif estimated_penalty_points <= 16:
+            estimated_impact_level = "MEDIUM"
+        else:
+            estimated_impact_level = "HIGH"
+        estimated_impact_note = (
+            "Impact: None"
+            if estimated_penalty_points == 0
+            else f"Impact: {estimated_impact_level} ({estimated_penalty_points}%)"
+        )
+
         # Missing Data Card
         missing_card = self._create_status_card(
             title="Missing Data",
@@ -1502,14 +1720,19 @@ class CalculationPage(QWidget):
         )
         cards_row.addWidget(missing_card)
         
-        # Estimated Values Card
+        # Estimated Inputs Card
         estimated_card = self._create_status_card(
-            title="Estimated Values",
+            title="Estimated Inputs",
             status="YES" if has_estimated else "NO",
             count=len(estimated_fields),
             is_good=not has_estimated,
-            icon="📈"
+            icon="📈",
+            extra_note=estimated_impact_note
         )
+        estimated_card.setToolTip(self._tt(
+            "Estimated Inputs are values inferred from fallback rules when direct measurements are missing.\n"
+            f"Current score impact: {estimated_penalty_points}%."
+        ))
         cards_row.addWidget(estimated_card)
         
         # Simulated Values Card
@@ -1562,7 +1785,7 @@ class CalculationPage(QWidget):
                 issues_layout.addWidget(more)
             
             for field in estimated_fields[:3]:
-                item = QLabel(f"• Estimated: {field}")
+                item = QLabel(f"• Estimated Input: {field}")
                 item.setObjectName("calc_quality_issue_item")
                 issues_layout.addWidget(item)
 
@@ -1589,7 +1812,7 @@ class CalculationPage(QWidget):
             scoring_layout.addWidget(scoring_title)
             for line in [
                 "• Missing values: -8 each (max -40)",
-                "• Estimated values: -4 each (max -20)",
+                "• Estimated inputs: -4 each (max -20)",
                 "• Simulated values: -3 each (max -15)",
                 "• Warnings: -3 each (max -15)",
             ]:
@@ -1686,8 +1909,8 @@ class CalculationPage(QWidget):
 
         return lines
     
-    def _create_status_card(self, title: str, status: str, count: int, 
-                            is_good: bool, icon: str) -> QFrame:
+    def _create_status_card(self, title: str, status: str, count: int,
+                            is_good: bool, icon: str, extra_note: str = "") -> QFrame:
         """Create a status indicator card (UI HELPER).
         
         Args:
@@ -1704,6 +1927,7 @@ class CalculationPage(QWidget):
         card.setObjectName("calc_quality_status_card")
         card.setProperty("qualityState", "good" if is_good else "bad")
         card.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
+        card.setMinimumHeight(132 if extra_note else 112)
         
         shadow = QGraphicsDropShadowEffect()
         shadow.setBlurRadius(10)
@@ -1737,8 +1961,84 @@ class CalculationPage(QWidget):
             count_label.setObjectName("calc_quality_status_count")
             count_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
             layout.addWidget(count_label)
+
+        if extra_note:
+            note_label = QLabel(extra_note)
+            note_label.setObjectName("calc_quality_status_count")
+            note_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            note_label.setWordWrap(False)
+            layout.addWidget(note_label)
         
         return card
+
+    def _rank_facilities_for_runway(self, facilities: list) -> list:
+        """Rank facilities by operational risk: shortest runway first."""
+        return sorted(
+            facilities or [],
+            key=lambda f: (
+                float(getattr(f, "days_remaining_conservative", 0) or 0),
+                float(getattr(f, "current_volume_m3", 0) or 0),
+                str(getattr(f, "facility_code", "") or ""),
+            ),
+        )
+
+    def _split_top_n_and_other(self, facilities: list, top_n: int) -> tuple[list, list]:
+        """Split ranked facilities into top-N and remaining tail."""
+        n = max(1, int(top_n or 10))
+        ranked = self._rank_facilities_for_runway(facilities)
+        return ranked[:n], ranked[n:]
+
+    def _build_other_bar_value(self, tail_facilities: list) -> float:
+        """Build aggregate runway value for 'Other' bar using volume-weighted mean."""
+        if not tail_facilities:
+            return 0.0
+        weighted_sum = 0.0
+        total_volume = 0.0
+        for f in tail_facilities:
+            days_val = float(getattr(f, "days_remaining_conservative", 0) or 0)
+            volume_val = float(getattr(f, "current_volume_m3", 0) or 0)
+            weighted_sum += days_val * volume_val
+            total_volume += volume_val
+        if total_volume > 0:
+            return weighted_sum / total_volume
+        return sum(float(getattr(f, "days_remaining_conservative", 0) or 0) for f in tail_facilities) / len(tail_facilities)
+
+    def _paginate(self, items: list, page: int, page_size: int = 12) -> tuple[list, int, int]:
+        """Return page slice with clamped page index and total page count."""
+        all_items = items or []
+        if not all_items:
+            return [], 0, 1
+        total_pages = (len(all_items) + page_size - 1) // page_size
+        clamped_page = max(0, min(int(page), total_pages - 1))
+        start = clamped_page * page_size
+        end = start + page_size
+        return all_items[start:end], clamped_page, total_pages
+
+    def _on_runway_top_n_changed(self, value_text: str) -> None:
+        """Handle Top-N selector changes without recalculating balance."""
+        try:
+            next_n = int(value_text)
+        except (TypeError, ValueError):
+            next_n = 10
+        next_n = next_n if next_n in (5, 10, 15, 20) else 10
+        if self._runway_top_n == next_n:
+            return
+        self._runway_top_n = next_n
+        self._facility_cards_page = 0
+        if self.current_results is not None:
+            self._update_days_of_operation(self.current_results)
+
+    def _on_facility_cards_prev(self) -> None:
+        """Navigate to previous facility cards page."""
+        self._facility_cards_page = max(0, self._facility_cards_page - 1)
+        if self.current_results is not None:
+            self._update_days_of_operation(self.current_results)
+
+    def _on_facility_cards_next(self) -> None:
+        """Navigate to next facility cards page."""
+        self._facility_cards_page = self._facility_cards_page + 1
+        if self.current_results is not None:
+            self._update_days_of_operation(self.current_results)
     
     def _update_days_of_operation(self, result: 'BalanceResult'):
         """Update Days of Operation tab with water runway analysis (TAB 3 UPDATE).
@@ -1762,34 +2062,48 @@ class CalculationPage(QWidget):
             if item.widget():
                 item.widget().deleteLater()
         
-        # Get runway analysis from service (ICMM-aligned calculation)
-        # Pass balance_result for accurate outflow-based consumption
+        # Get runway analysis from service (ICMM-aligned calculation).
+        # Cache by selected period to allow UI rerender (Top-N/paging) without recomputation.
+        period_key = (result.period.year, result.period.month)
+        if self._runway_cache_period != period_key:
+            self._facility_cards_page = 0
         try:
-            days_service = get_days_of_operation_service()
-            runway = days_service.calculate_runway(
-                month=result.period.month,
-                year=result.period.year,
-                projection_months=12,
-                balance_result=result  # NEW: Pass balance result for outflows
-            )
+            if self._runway_cache_period == period_key and self._runway_cache_obj is not None:
+                runway = self._runway_cache_obj
+            else:
+                days_service = get_days_of_operation_service()
+                runway = days_service.calculate_runway(
+                    month=result.period.month,
+                    year=result.period.year,
+                    projection_months=12,
+                    balance_result=result
+                )
+                self._runway_cache_period = period_key
+                self._runway_cache_obj = runway
         except Exception as e:
             logger.error(f"Days of operation calculation failed: {e}")
             error_label = QLabel(f"❌ Error calculating runway: {e}")
             error_label.setStyleSheet("")
             tab.layout().addWidget(error_label)
             return
+
+        # Rank once globally for charts and card pagination.
+        ranked_facilities = self._rank_facilities_for_runway(runway.facilities)
+        top_n = self._runway_top_n if self._runway_top_n in (5, 10, 15, 20) else 10
+        top_facilities, tail_facilities = self._split_top_n_and_other(ranked_facilities, top_n)
         
-        # ICMM-Standard Runway Calculation:
-        # Days = Usable_Storage / Daily_Net_Fresh_Demand
+        # ICMM-aligned runway calculation:
+        # Days = Usable_Storage / Runway_Daily_Demand
         # Where:
         #   Usable_Storage = Current - 10% reserve
-        #   Net_Fresh_Demand = Outflows - Recycled_Water
+        #   Runway_Daily_Demand = max(Net_Fresh_Demand, Gross_Outflow_Floor)
         
         # Use the service's calculated values (now industry-standard)
-        daily_consumption = runway.daily_net_fresh_demand_m3
+        days_in_selected_month = calendar.monthrange(result.period.year, result.period.month)[1]
+        daily_consumption = runway.runway_daily_demand_m3
         gross_daily_consumption = 0.0
         if runway.total_outflows_m3 > 0:
-            gross_daily_consumption = runway.total_outflows_m3 / 30
+            gross_daily_consumption = runway.total_outflows_m3 / days_in_selected_month
         display_daily_consumption = daily_consumption
         combined_days = runway.combined_days_remaining
         
@@ -1797,10 +2111,14 @@ class CalculationPage(QWidget):
         logger.info(f"Runway using {runway.consumption_source}: "
                    f"demand={daily_consumption:,.0f} m³/day, days={combined_days}")
         
-        # Use combined days for main display
+        # Use combined days for main display (None => N/A)
         days = combined_days
         
-        if days >= 180:
+        if days is None:
+            status_text = "INFO"
+            status_emoji = "⚪"
+            theme = STATUS_THEMES["moderate"]
+        elif days >= 180:
             status_text = "HEALTHY"
             status_emoji = "🟢"
             theme = STATUS_THEMES["healthy"]
@@ -1835,10 +2153,11 @@ class CalculationPage(QWidget):
         # ═══════════════════════════════════════════════════════════════════
         header = QFrame()
         header.setObjectName("calc_days_header")
+        header.setMinimumHeight(190)
         header_layout = QVBoxLayout(header)
         header_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        header_layout.setContentsMargins(10, 10, 10, 10)
-        header_layout.setSpacing(2)
+        header_layout.setContentsMargins(10, 12, 10, 12)
+        header_layout.setSpacing(3)
         
         # Title - simple and clear
         title = QLabel("How Long Will Our Water Last?")
@@ -1846,47 +2165,119 @@ class CalculationPage(QWidget):
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header_layout.addWidget(title)
         
-        # Big days display
-        days_display = QLabel(f"{days}")
+        # Primary runway metric: system runway.
+        days_display = QLabel("N/A" if days is None else f"{days}")
         days_display.setObjectName("calc_days_value")
         days_display.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header_layout.addWidget(days_display)
-        
-        # Plain English explanation
-        days_label = QLabel("DAYS OF WATER REMAINING AT CURRENT USAGE")
+
+        days_label = QLabel("SYSTEM RUNWAY (USABLE STORAGE / SELECTED DEMAND)")
         days_label.setObjectName("calc_days_subtitle")
         days_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         header_layout.addWidget(days_label)
+
+        # Secondary runway metric: limiting facility runway.
+        limiting_text = "No limiting facility identified"
+        if runway.limiting_facility:
+            limiting_text = f"{runway.limiting_facility} limits at {runway.system_days_remaining} days"
+        limiting_label = QLabel(f"Limiting Facility: {limiting_text}")
+        limiting_label.setObjectName("calc_runway_secondary")
+        limiting_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        header_layout.addWidget(limiting_label)
+
+        relation_label = QLabel(
+            "System runway can exceed limiting-facility runway; operations are constrained by the first facility to deplete."
+        )
+        relation_label.setObjectName("calc_runway_relation_note")
+        relation_label.setWordWrap(True)
+        relation_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        header_layout.addWidget(relation_label)
+
+        # Highlight bottleneck risk when limiting facility is materially below system runway.
+        risk_note = QLabel("")
+        risk_note.setObjectName("calc_runway_risk_note")
+        risk_note.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        if days is not None and runway.system_days_remaining > 0:
+            gap_days = max(0, days - runway.system_days_remaining)
+            if gap_days >= 60:
+                risk_note.setText(
+                    f"Bottleneck risk: limiting facility is {gap_days} days below system runway."
+                )
+                risk_note.setProperty("riskState", "high")
+            elif gap_days > 0:
+                risk_note.setText(
+                    f"Monitor bottleneck: limiting facility is {gap_days} days below system runway."
+                )
+                risk_note.setProperty("riskState", "moderate")
+        if risk_note.text():
+            header_layout.addWidget(risk_note)
         
         # Status row - just show the status, no confusing secondary number
         status_row = QHBoxLayout()
         status_row.setSpacing(16)
+        status_row.setContentsMargins(0, 4, 0, 4)
         status_row.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
         # Status badge
-        badge = QLabel(f"{status_emoji} {status_text}")
+        badge = QLabel(status_text)
         badge.setObjectName("calc_days_badge")
         badge.setProperty("runwayState", status_text.lower())
+        badge.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        badge.setFixedHeight(32)
         status_row.addWidget(badge)
         
-        # Show monthly usage with exact formula context.
-        monthly_usage = display_daily_consumption * 30
-        usage_info = QLabel(f"📊 Using {monthly_usage/1000:,.0f}k m³/month")
-        usage_info.setObjectName("calc_days_usage")
+        # Show monthly usage with explicit demand method.
+        monthly_usage = display_daily_consumption * days_in_selected_month
         if daily_consumption > 0:
-            usage_info.setToolTip(
-                "Net demand = outflows - recycled\n"
-                f"Net demand: {daily_consumption:,.0f} m3/day"
+            usage_info = QLabel(
+                f"📊 Using {monthly_usage:,.0f} m³/month at {daily_consumption:,.0f} m³/day"
             )
         else:
-            usage_info.setToolTip(
-                "Net demand is 0 (recycled >= outflows)\n"
-                f"Gross outflows: {gross_daily_consumption:,.0f} m3/day"
-            )
+            usage_info = QLabel("📊 No runway demand detected for selected month")
+        usage_info.setObjectName("calc_days_usage")
+
+        method_chip = QLabel(runway.runway_demand_method.upper())
+        method_chip.setObjectName("calc_runway_chip")
+        method_chip.setProperty("method", runway.runway_demand_method.lower())
+        method_chip.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        method_chip.setFixedHeight(32)
+        status_row.addWidget(method_chip)
+
+        if runway.runway_demand_method == "net":
+            usage_info.setToolTip(self._tt(
+                "Runway demand uses net freshwater demand.\n"
+                f"Net daily: {runway.net_fresh_daily_demand_m3:,.0f} m³/day"
+            ))
+        elif runway.runway_demand_method == "floor":
+            usage_info.setToolTip(self._tt(
+                "Runway demand uses an operational floor linked to gross outflows.\n"
+                f"Net daily: {runway.net_fresh_daily_demand_m3:,.0f} m³/day\n"
+                f"Floor daily: {runway.gross_floor_daily_m3:,.0f} m³/day\n"
+                f"Selected: {runway.runway_daily_demand_m3:,.0f} m³/day"
+            ))
+        else:
+            usage_info.setToolTip(self._tt(
+                "No detectable demand for selected month; runway shown as N/A."
+            ))
         status_row.addWidget(usage_info)
+
+        method_detail = QLabel(
+            f"Net: {runway.net_fresh_daily_demand_m3:,.0f} m³/day | "
+            f"Floor: {runway.gross_floor_daily_m3:,.0f} m³/day"
+        )
+        method_detail.setObjectName("calc_runway_method_detail")
+        method_detail.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        header_layout.addWidget(method_detail)
+
+        if days is None:
+            zero_note = QLabel("No net/gross demand detected for this month.")
+            zero_note.setObjectName("calc_runway_zero_note")
+            zero_note.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            header_layout.addWidget(zero_note)
         
         status_container = QWidget()
         status_container.setLayout(status_row)
+        status_container.setMinimumHeight(46)
         header_layout.addWidget(status_container)
         
         main_layout.addWidget(header)
@@ -1898,27 +2289,19 @@ class CalculationPage(QWidget):
         totals_row.setSpacing(12)
         
         # Available Water (what we can actually use)
-        QToolTip.setStyleSheet(
-            "QToolTip {"
-            "background-color: #0f172a;"
-            "color: #f8fafc;"
-            "border: 1px solid #334155;"
-            "padding: 6px;"
-            "border-radius: 6px;"
-            "max-width: 220px;"
-            "}"
-        )
-
         storage_card = self._create_metric_card(
             emoji="🏊",
             title="Available Water",
-            value=f"{runway.usable_storage_m3/1000:,.0f}",
-            unit="thousand m³",
+            value=f"{runway.usable_storage_m3:,.0f}",
+            unit="m³",
             subtitle=f"(We keep 10% as safety buffer)",
             color=PALETTE["info"],
             bg_color=PALETTE["surface"]
         )
-        storage_card.setToolTip("Usable storage = total - 10% reserve")
+        storage_card.setToolTip(self._tt(
+            "Available Water = Current Volume - Minimum Reserve\n"
+            "Minimum Reserve = 10% of system capacity"
+        ))
         totals_row.addWidget(storage_card)
         
         # Daily Water Usage
@@ -1927,41 +2310,53 @@ class CalculationPage(QWidget):
             title="Daily Usage",
             value=f"{daily_consumption:,.0f}",
             unit="m³ per day",
-            subtitle="How much we use daily",
+            subtitle="Selected runway demand",
             color=PALETTE["success"],
             bg_color=PALETTE["surface"]
         )
         if daily_consumption > 0:
-            consumption_card.setToolTip("Net demand per day (outflows - recycled)")
+            consumption_card.setToolTip(self._tt(
+                "Daily Usage is runway demand.\n"
+                "It uses net freshwater demand, with a gross-outflow floor when net demand is very low."
+            ))
         else:
-            consumption_card.setToolTip("Net demand is 0; showing gross outflows")
+            consumption_card.setToolTip(self._tt(
+                "No runway demand detected for this month.\n"
+                "Headline days are shown as N/A."
+            ))
         totals_row.addWidget(consumption_card)
         
         # Water Lost to Environment (can't control)
         env_losses = runway.evaporation_loss_m3 + runway.seepage_loss_m3
         env_card = self._create_metric_card(
             emoji="☀️",
-            title="Lost to Evaporation",
-            value=f"{env_losses/1000:,.1f}",
-            unit="thousand m³/month",
-            subtitle="Evaporation + ground seepage",
+            title="Environmental Losses",
+            value=f"{env_losses:,.0f}",
+            unit="m³/month",
+            subtitle="Evaporation and seepage losses",
             color=PALETTE["warning"],
             bg_color=PALETTE["surface"]
         )
-        env_card.setToolTip("Evaporation + seepage losses from outflows")
+        env_card.setToolTip(self._tt(
+            "Displayed value includes both evaporation and seepage losses.\n"
+            "Units: m³/month."
+        ))
         totals_row.addWidget(env_card)
         
         # Recycled Water (good news!)
         recycled_card = self._create_metric_card(
             emoji="♻️",
             title="Water Recycled",
-            value=f"{runway.recycled_water_m3/1000:,.1f}",
-            unit="thousand m³/month",
-            subtitle="Reused instead of wasted",
+            value=f"{runway.recycled_water_m3:,.0f}",
+            unit="m³/month",
+            subtitle="Contributes to lower net demand",
             color=PALETTE["success"],
             bg_color=PALETTE["surface"]
         )
-        recycled_card.setToolTip("Used in net demand (outflows - recycled)")
+        recycled_card.setToolTip(self._tt(
+            "Water Recycled reduces freshwater demand.\n"
+            "It lowers net demand before runway floor logic is applied."
+        ))
         totals_row.addWidget(recycled_card)
         
         totals_widget = QWidget()
@@ -1969,111 +2364,254 @@ class CalculationPage(QWidget):
         main_layout.addWidget(totals_widget)
         
         # ═══════════════════════════════════════════════════════════════════
-        # CHARTS ROW - Bar chart + Pie chart side by side
+        # CHART CONTROLS + CHARTS ROW
         # ═══════════════════════════════════════════════════════════════════
+        controls_row = QHBoxLayout()
+        controls_row.setContentsMargins(2, 0, 2, 0)
+        controls_row.setSpacing(8)
+        scope_label = QLabel("Visual Scope:")
+        scope_label.setObjectName("calc_topn_label")
+        controls_row.addWidget(scope_label)
+        topn_label = QLabel("Top N")
+        topn_label.setObjectName("calc_topn_label")
+        controls_row.addWidget(topn_label)
+        topn_combo = QComboBox()
+        topn_combo.setObjectName("calc_topn_combo")
+        topn_combo.addItems(["5", "10", "15", "20"])
+        topn_combo.setCurrentText(str(top_n))
+        topn_combo.currentTextChanged.connect(self._on_runway_top_n_changed)
+        controls_row.addWidget(topn_combo)
+        controls_row.addStretch(1)
+        main_layout.addLayout(controls_row)
+
         charts_row = QHBoxLayout()
         charts_row.setSpacing(16)
-        
+
         # Bar Chart - Runway by Facility
         bar_frame = QFrame()
         bar_frame.setObjectName("calc_chart_frame")
         bar_layout = QVBoxLayout(bar_frame)
         bar_layout.setContentsMargins(16, 16, 16, 16)
-        
         bar_title = QLabel("Runway by Facility (Days)")
         bar_title.setObjectName("calc_chart_title")
         bar_layout.addWidget(bar_title)
-        
-        # Create bar chart
-        bar_set = QBarSet("Days Remaining")
-        bar_set.setColor(QColor(PALETTE["accent"]))
-        categories = []
-        
-        for f in runway.facilities[:8]:  # Limit to 8 for readability
-            bar_set.append(f.days_remaining_conservative)
-            categories.append(f.facility_code[:6])  # Truncate long codes
-        
-        bar_series = QBarSeries()
-        bar_series.append(bar_set)
-        
-        bar_chart = QChart()
-        bar_chart.addSeries(bar_series)
-        bar_chart.setAnimationOptions(QChart.AnimationOption.SeriesAnimations)
-        bar_chart.legend().setVisible(False)
-        bar_chart.setBackgroundVisible(False)
-        
-        # Category axis
-        axis_x = QBarCategoryAxis()
-        axis_x.append(categories)
-        bar_chart.addAxis(axis_x, Qt.AlignmentFlag.AlignBottom)
-        bar_series.attachAxis(axis_x)
-        
-        # Value axis
-        axis_y = QValueAxis()
-        max_days = max(f.days_remaining_conservative for f in runway.facilities) if runway.facilities else 100
-        axis_y.setRange(0, max_days * 1.1)
-        axis_y.setLabelFormat("%d")
-        bar_chart.addAxis(axis_y, Qt.AlignmentFlag.AlignLeft)
-        bar_series.attachAxis(axis_y)
-        
-        bar_view = QChartView(bar_chart)
-        bar_view.setRenderHint(QPainter.RenderHint.Antialiasing)
-        bar_view.setMinimumHeight(200)
-        bar_layout.addWidget(bar_view)
-        
+
+        if not ranked_facilities:
+            empty_bar = QLabel("No facility runway data available for this period.")
+            empty_bar.setObjectName("calc_chart_empty")
+            empty_bar.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            empty_bar.setMinimumHeight(200)
+            bar_layout.addWidget(empty_bar)
+        else:
+            bar_set = QBarSet("Days Remaining")
+            bar_set.setColor(QColor(PALETTE["accent"]))
+            categories = []
+            bar_tooltips: list[str] = []
+            bar_slot_px = 72
+
+            for f in top_facilities:
+                bar_set.append(float(f.days_remaining_conservative))
+                # Keep unique axis categories; duplicate compact labels collapse bars in QBarCategoryAxis.
+                categories.append(str(f.facility_code))
+                bar_tooltips.append(
+                    f"Facility: {f.facility_code}\n"
+                    f"Runway: {f.days_remaining_conservative:.0f} days\n"
+                    f"Current volume: {f.current_volume_m3:,.0f} m³\n"
+                    f"Utilization: {f.utilization_pct:.1f}%"
+                )
+
+            if tail_facilities:
+                other_days = self._build_other_bar_value(tail_facilities)
+                bar_set.append(other_days)
+                categories.append("Other")
+                bar_tooltips.append(
+                    f"Other ({len(tail_facilities)} facilities)\n"
+                    f"Runway: {other_days:,.0f} days (volume-weighted)\n"
+                    "Aggregated tail beyond selected Top N."
+                )
+
+            bar_series = QBarSeries()
+            bar_series.append(bar_set)
+            bar_chart = QChart()
+            bar_chart.addSeries(bar_series)
+            bar_chart.setAnimationOptions(QChart.AnimationOption.SeriesAnimations)
+            bar_chart.legend().setVisible(False)
+            bar_chart.setBackgroundVisible(False)
+
+            axis_x = QBarCategoryAxis()
+            axis_x.append(categories)
+            bar_chart.addAxis(axis_x, Qt.AlignmentFlag.AlignBottom)
+            bar_series.attachAxis(axis_x)
+
+            axis_y = QValueAxis()
+            max_days = max(float(getattr(f, "days_remaining_conservative", 0) or 0) for f in ranked_facilities)
+            if tail_facilities:
+                max_days = max(max_days, self._build_other_bar_value(tail_facilities))
+            axis_y.setRange(0, max(max_days * 1.1, 10))
+            axis_y.setLabelFormat("%d")
+            bar_chart.addAxis(axis_y, Qt.AlignmentFlag.AlignLeft)
+            bar_series.attachAxis(axis_y)
+
+            bar_view = QChartView(bar_chart)
+            bar_view.setRenderHint(QPainter.RenderHint.Antialiasing)
+            bar_view.setMinimumHeight(220)
+            bar_view.setMinimumWidth(max(760, len(categories) * bar_slot_px + 220))
+
+            bar_canvas = QWidget()
+            bar_canvas.setMinimumWidth(bar_view.minimumWidth())
+            bar_canvas_layout = QVBoxLayout(bar_canvas)
+            bar_canvas_layout.setContentsMargins(0, 0, 0, 0)
+            bar_canvas_layout.setSpacing(0)
+            bar_canvas_layout.addWidget(bar_view)
+
+            bar_scroll = QScrollArea()
+            bar_scroll.setObjectName("calc_bar_scroll")
+            bar_scroll.setWidgetResizable(False)
+            bar_scroll.setFrameShape(QFrame.Shape.NoFrame)
+            bar_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+            bar_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+            bar_scroll.setMinimumHeight(236)
+            bar_scroll.setWidget(bar_canvas)
+            bar_layout.addWidget(bar_scroll)
+
+            try:
+                QScroller.grabGesture(
+                    bar_scroll.viewport(),
+                    QScroller.ScrollerGestureType.LeftMouseButtonGesture
+                )
+            except Exception:
+                pass
+
+            def _show_bar_tooltip(state: bool, bar_index: int) -> None:
+                if not state or bar_index < 0 or bar_index >= len(bar_tooltips):
+                    QToolTip.hideText()
+                    return
+                QToolTip.showText(QCursor.pos(), self._tt(bar_tooltips[bar_index]), bar_view)
+
+            bar_set.hovered.connect(_show_bar_tooltip)
+
         charts_row.addWidget(bar_frame, stretch=3)
-        
+
         # Pie Chart - Storage Distribution
         pie_frame = QFrame()
         pie_frame.setObjectName("calc_chart_frame")
+        pie_frame.setMinimumHeight(280)
         pie_layout = QVBoxLayout(pie_frame)
         pie_layout.setContentsMargins(16, 16, 16, 16)
-        
         pie_title = QLabel("Storage Distribution")
         pie_title.setObjectName("calc_chart_title")
         pie_layout.addWidget(pie_title)
-        
-        # Create pie chart with percentage labels (on slices AND legend)
-        pie_series = QPieSeries()
-        colors = [
-            PALETTE["accent"],
-            PALETTE["info"],
-            PALETTE["success"],
-            PALETTE["warning"],
-            "#0ea5e9",
-            "#14b8a6",
-            "#64748b",
-            "#94a3b8",
-        ]
-        
-        # Calculate total for percentage
-        total_volume = sum(f.current_volume_m3 for f in runway.facilities[:6])
-        
-        for i, f in enumerate(runway.facilities[:6]):  # Top 6 facilities
-            pct = (f.current_volume_m3 / total_volume * 100) if total_volume > 0 else 0
-            # Use short label for slice, full label for legend
-            slice = pie_series.append(f"{f.facility_code}: {pct:.1f}%", f.current_volume_m3)
-            slice.setBrush(QColor(colors[i % len(colors)]))
-            # Keep slice labels off (legend shows percentage), looks cleaner
-            slice.setLabelVisible(False)
-            if i == 0:  # Explode largest
-                slice.setExploded(True)
-                slice.setExplodeDistanceFactor(0.05)
-        
-        pie_chart = QChart()
-        pie_chart.addSeries(pie_series)
-        pie_chart.setAnimationOptions(QChart.AnimationOption.SeriesAnimations)
-        pie_chart.legend().setAlignment(Qt.AlignmentFlag.AlignRight)
-        pie_chart.legend().setVisible(True)
-        pie_chart.setBackgroundVisible(False)
-        
-        pie_view = QChartView(pie_chart)
-        pie_view.setRenderHint(QPainter.RenderHint.Antialiasing)
-        pie_view.setMinimumHeight(200)
-        pie_layout.addWidget(pie_view)
-        
+
+        if not ranked_facilities:
+            empty_pie = QLabel("No storage distribution data available for this period.")
+            empty_pie.setObjectName("calc_chart_empty")
+            empty_pie.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            empty_pie.setMinimumHeight(200)
+            pie_layout.addWidget(empty_pie)
+        else:
+            pie_series = QPieSeries()
+            colors = [
+                PALETTE["accent"],
+                PALETTE["info"],
+                PALETTE["success"],
+                PALETTE["warning"],
+                "#0ea5e9",
+                "#14b8a6",
+                "#64748b",
+                "#94a3b8",
+            ]
+            pie_items = list(top_facilities)
+            if tail_facilities:
+                pie_items.append(None)
+
+            total_volume = sum(float(getattr(f, "current_volume_m3", 0) or 0) for f in ranked_facilities)
+            pie_tooltip_pairs = []
+            legend_rows: list[tuple[str, str]] = []
+
+            for i, f in enumerate(pie_items):
+                if f is None:
+                    other_volume = sum(float(getattr(x, "current_volume_m3", 0) or 0) for x in tail_facilities)
+                    pct = (other_volume / total_volume * 100) if total_volume > 0 else 0
+                    slice_label = f"Other ({len(tail_facilities)}): {pct:.1f}%"
+                    pie_slice = pie_series.append(slice_label, other_volume)
+                    other_color = "#94a3b8"
+                    pie_slice.setBrush(QColor(other_color))
+                    pie_tooltip_pairs.append((pie_slice, f"Other facilities: {len(tail_facilities)}\nVolume: {other_volume:,.0f} m³"))
+                    legend_rows.append((other_color, slice_label))
+                else:
+                    pct = (float(f.current_volume_m3) / total_volume * 100) if total_volume > 0 else 0
+                    slice_label = f"{f.facility_code}: {pct:.1f}%"
+                    pie_slice = pie_series.append(slice_label, float(f.current_volume_m3))
+                    row_color = colors[i % len(colors)]
+                    pie_slice.setBrush(QColor(row_color))
+                    pie_tooltip_pairs.append(
+                        (
+                            pie_slice,
+                            f"Facility: {f.facility_code}\n"
+                            f"Volume: {f.current_volume_m3:,.0f} m³\n"
+                            f"Share: {pct:.1f}%",
+                        )
+                    )
+                    legend_rows.append((row_color, slice_label))
+                pie_slice.setLabelVisible(False)
+
+            if pie_series.count() > 0:
+                pie_series.slices()[0].setExploded(True)
+                pie_series.slices()[0].setExplodeDistanceFactor(0.05)
+
+            pie_chart = QChart()
+            pie_chart.addSeries(pie_series)
+            pie_chart.setAnimationOptions(QChart.AnimationOption.SeriesAnimations)
+            pie_chart.legend().setVisible(False)
+            pie_chart.setBackgroundVisible(False)
+
+            pie_view = QChartView(pie_chart)
+            pie_view.setRenderHint(QPainter.RenderHint.Antialiasing)
+            pie_view.setMinimumHeight(240)
+            pie_view.setMinimumWidth(280)
+
+            pie_split = QWidget()
+            pie_split.setObjectName("calc_pie_split")
+            pie_split_layout = QHBoxLayout(pie_split)
+            pie_split_layout.setContentsMargins(0, 0, 0, 0)
+            pie_split_layout.setSpacing(10)
+            pie_split_layout.addWidget(pie_view, 3)
+
+            legend_panel = QFrame()
+            legend_panel.setObjectName("calc_legend_panel")
+            legend_panel.setMinimumWidth(220)
+            legend_panel.setMaximumWidth(260)
+            legend_panel_layout = QVBoxLayout(legend_panel)
+            legend_panel_layout.setContentsMargins(6, 6, 6, 6)
+            legend_panel_layout.setSpacing(4)
+
+            legend_scroll = QScrollArea()
+            legend_scroll.setWidgetResizable(True)
+            legend_scroll.setFrameShape(QFrame.Shape.NoFrame)
+            legend_container = QWidget()
+            legend_layout = QVBoxLayout(legend_container)
+            legend_layout.setContentsMargins(2, 2, 2, 2)
+            legend_layout.setSpacing(2)
+            for color_hex, text in legend_rows:
+                row_label = QLabel(f"<span style='color:{color_hex}; font-weight:800;'>■</span> {text}")
+                row_label.setObjectName("calc_pie_legend_row")
+                row_label.setTextFormat(Qt.TextFormat.RichText)
+                row_label.setToolTip(self._tt(text))
+                legend_layout.addWidget(row_label)
+            legend_layout.addStretch(1)
+            legend_scroll.setWidget(legend_container)
+            legend_panel_layout.addWidget(legend_scroll)
+            pie_split_layout.addWidget(legend_panel, 2)
+            pie_layout.addWidget(pie_split)
+
+            for pie_slice, tip in pie_tooltip_pairs:
+                pie_slice.hovered.connect(
+                    lambda state, msg=tip, widget=pie_view: QToolTip.showText(QCursor.pos(), self._tt(msg), widget)
+                    if state else QToolTip.hideText()
+                )
+
         charts_row.addWidget(pie_frame, stretch=2)
-        
+
         charts_widget = QWidget()
         charts_widget.setLayout(charts_row)
         main_layout.addWidget(charts_widget)
@@ -2086,17 +2624,49 @@ class CalculationPage(QWidget):
         facilities_layout = QVBoxLayout(facilities_frame)
         facilities_layout.setContentsMargins(10, 8, 10, 8)
         facilities_layout.setSpacing(4)
-        
+
+        title_row = QHBoxLayout()
+        title_row.setContentsMargins(0, 0, 0, 0)
+        title_row.setSpacing(8)
         facilities_title = QLabel("Facility Status Details")
         facilities_title.setObjectName("calc_facilities_title")
-        facilities_layout.addWidget(facilities_title)
-        
-        # Facility grid - compact spacing (reduced 50%)
+        title_row.addWidget(facilities_title)
+        title_row.addStretch(1)
+
+        cards_page_items, clamped_page, total_pages = self._paginate(
+            ranked_facilities, self._facility_cards_page, page_size=12
+        )
+        self._facility_cards_page = clamped_page
+        if len(ranked_facilities) > 12:
+            prev_btn = QPushButton("Prev")
+            prev_btn.setObjectName("calc_pager_btn")
+            prev_btn.setEnabled(clamped_page > 0)
+            prev_btn.clicked.connect(self._on_facility_cards_prev)
+            title_row.addWidget(prev_btn)
+
+            page_label = QLabel(f"Page {clamped_page + 1} of {total_pages}")
+            page_label.setObjectName("calc_pager_label")
+            title_row.addWidget(page_label)
+
+            next_btn = QPushButton("Next")
+            next_btn.setObjectName("calc_pager_btn")
+            next_btn.setEnabled(clamped_page < (total_pages - 1))
+            next_btn.clicked.connect(self._on_facility_cards_next)
+            title_row.addWidget(next_btn)
+        facilities_layout.addLayout(title_row)
+
+        # Facility grid - compact spacing
         facility_grid = QGridLayout()
         facility_grid.setSpacing(6)
         facility_grid.setContentsMargins(4, 4, 4, 4)
-        
-        for i, f in enumerate(runway.facilities[:12]):  # Max 12 facilities
+
+        if not cards_page_items:
+            empty_cards = QLabel("No facility-level runway cards are available for this period.")
+            empty_cards.setObjectName("calc_chart_empty")
+            empty_cards.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            facility_grid.addWidget(empty_cards, 0, 0)
+
+        for i, f in enumerate(cards_page_items):
             # Determine color based on days
             if f.days_remaining_conservative >= 180:
                 f_state = "healthy"
@@ -2144,7 +2714,7 @@ class CalculationPage(QWidget):
 
             source_label = QLabel(source_text)
             source_label.setObjectName("calc_facility_source")
-            source_label.setToolTip(source_tip)
+            source_label.setToolTip(self._tt(source_tip))
             source_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
             source_label.setMaximumWidth(115)
             if source_text == "Measured":

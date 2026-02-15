@@ -45,6 +45,27 @@ class SettingsPage(QWidget):
     - Licensing info
     - Preferences
     """
+    # Active constants used by current calculation/runtime paths.
+    # Any constant not listed here is hidden from Settings to avoid user confusion.
+    _ACTIVE_CONSTANT_USAGE = {
+        "evap_pan_coefficient": "Used in System Balance to convert evaporation input to operational evaporation loss.",
+        "seepage_rate_lined_pct": "Used in System Balance seepage loss for lined facilities.",
+        "seepage_rate_unlined_pct": "Used in System Balance seepage loss for unlined facilities.",
+        "tsf_return_water_pct": "Used in recycling estimate for returned process water from TSF.",
+        "tailings_moisture_pct": "Used in Tailings Lockup outflow when measured moisture is unavailable.",
+        "tailings_solids_density": "Used in tailings moisture/lockup calculations from tonnage-based inputs.",
+        "ore_moisture_pct": "Used in ore moisture inflow calculations.",
+        "product_moisture_pct": "Used in product moisture outflow calculations.",
+        "recovery_rate_pct": "Used in plant/product mass split assumptions.",
+        "dust_suppression_rate_l_per_t": "Used in dust suppression outflow from tonnes milled.",
+        "mining_water_rate_m3_per_t": "Used in mining consumption outflow from tonnes mined.",
+        "domestic_consumption_l_per_person_day": "Used in domestic consumption outflow from headcount/days.",
+        "runoff_enabled": "Feature flag: enables/disables runoff inflow component.",
+        "mining_consumption_enabled": "Feature flag: enables/disables mining consumption outflow component.",
+        "domestic_consumption_enabled": "Feature flag: enables/disables domestic consumption outflow component.",
+        "runway_gross_floor_pct": "Used in Days of Operation runway demand floor (hybrid floor method).",
+    }
+    _ACTIVE_CONSTANT_KEYS = set(_ACTIVE_CONSTANT_USAGE.keys())
     
     def __init__(self, parent=None):
         """Initialize Settings page.
@@ -431,7 +452,10 @@ class SettingsPage(QWidget):
         # Map UI headers to column indexes so designer changes don't break data mapping.
         column_map = self._get_constants_column_map()
 
-        constants = self.constants_service.list_constants()
+        constants = [
+            c for c in self.constants_service.list_constants()
+            if c.constant_key in self._ACTIVE_CONSTANT_KEYS
+        ]
         filtered = []
 
         for constant in constants:
@@ -487,7 +511,7 @@ class SettingsPage(QWidget):
                 table,
                 row_index,
                 column_map["usage"],
-                constant.description or "",
+                self._ACTIVE_CONSTANT_USAGE.get(constant.constant_key, constant.description or ""),
             )
 
         table.resizeRowsToContents()
@@ -497,7 +521,13 @@ class SettingsPage(QWidget):
 
         Ensures the filter list stays consistent with stored constants.
         """
-        categories = ["All"] + self.constants_service.list_categories()
+        visible_constants = [
+            c for c in self.constants_service.list_constants()
+            if c.constant_key in self._ACTIVE_CONSTANT_KEYS
+        ]
+        categories = ["All"] + sorted(
+            {c.category for c in visible_constants if c.category}
+        )
         current = self.ui.comboBox_filter_constants.currentText()
         self.ui.comboBox_filter_constants.blockSignals(True)
         self.ui.comboBox_filter_constants.clear()

@@ -16,6 +16,7 @@ calculation:
   ore_moisture_pct: 3.5
   product_moisture_pct: 8.0
   recovery_rate_pct: 2.0
+  runway_gross_floor_pct: 0.25
   runoff_enabled: false
   seepage_rate_lined_pct: 0.1
   seepage_rate_unlined_pct: 0.5
@@ -85,6 +86,8 @@ license:
 licensing:
   api_key: a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6
   background_check_interval_seconds: 43200
+  runtime_check_interval_seconds: 900
+  fail_closed_startup: true
   check_interval_hours: 24
   check_intervals:
     premium: 168

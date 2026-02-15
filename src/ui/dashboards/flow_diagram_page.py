@@ -29,7 +29,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from PySide6.QtWidgets import (
     QWidget, QGraphicsView, QGraphicsScene, QGraphicsPathItem, QGraphicsRectItem, QGraphicsTextItem,
-    QMessageBox, QComboBox, QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFrame, QSizePolicy
+    QMessageBox, QComboBox, QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFrame, QSizePolicy,
+    QListWidget, QListWidgetItem, QDialogButtonBox
 )
 from PySide6.QtCore import Qt, Signal, QSize, QPointF, QEvent
 from PySide6.QtGui import (
@@ -96,12 +97,12 @@ class FlowDiagramPage(QWidget):
             parent: Parent widget (typically MainWindow)
         """
         super().__init__(parent)
-        
         # Setup UI from .ui file
         self.ui = Ui_Form()
         self.ui.setupUi(self)
         self._apply_toolbar_layout_refresh()
         self._modernize_balance_footer()
+        self._apply_balance_compact_mode()
         
         # Create graphics scene for drawing
         self.scene = QGraphicsScene()
@@ -166,7 +167,7 @@ class FlowDiagramPage(QWidget):
 
         footer = self.ui.frame_2
         footer.setObjectName("flow_balance_panel")
-        footer.setMinimumHeight(108)
+        footer.setMinimumHeight(96)
 
         old_layout = footer.layout()
         if old_layout is None:
@@ -188,11 +189,12 @@ class FlowDiagramPage(QWidget):
         _clear_layout_tree(old_layout)
 
         main_layout = QVBoxLayout()
-        main_layout.setContentsMargins(8, 5, 8, 5)
-        main_layout.setSpacing(5)
+        main_layout.setContentsMargins(8, 4, 8, 4)
+        main_layout.setSpacing(3)
 
         cards_row = QHBoxLayout()
-        cards_row.setSpacing(8)
+        cards_row.setSpacing(6)
+        card_layouts = []
 
         def _build_metric_card(
             title_text: str,
@@ -202,10 +204,11 @@ class FlowDiagramPage(QWidget):
         ) -> QFrame:
             card = QFrame(footer)
             card.setObjectName(card_name)
-            card.setMinimumHeight(64)
+            card.setMinimumHeight(42)
             card_layout = QVBoxLayout(card)
-            card_layout.setContentsMargins(10, 6, 10, 6)
-            card_layout.setSpacing(2)
+            card_layout.setContentsMargins(8, 4, 8, 4)
+            card_layout.setSpacing(1)
+            card_layouts.append(card_layout)
 
             title = QLabel(title_text, card)
             title.setObjectName("flow_balance_metric_title")
@@ -219,8 +222,8 @@ class FlowDiagramPage(QWidget):
             unit_label.setVisible(True)
             value_label.setObjectName("flow_balance_metric_value")
             unit_label.setObjectName("flow_balance_metric_unit")
-            value_label.setMinimumHeight(26)
-            value_label.setMaximumHeight(30)
+            value_label.setMinimumHeight(20)
+            value_label.setMaximumHeight(24)
             value_label.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
             value_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
             unit_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
@@ -256,13 +259,14 @@ class FlowDiagramPage(QWidget):
 
         badge_row = QHBoxLayout()
         badge_row.setContentsMargins(0, 0, 0, 0)
+        badge_row.setSpacing(0)
         badge_row.addStretch(1)
 
         badge = QFrame(footer)
         badge.setObjectName("flow_balance_badge")
         badge_layout = QHBoxLayout(badge)
-        badge_layout.setContentsMargins(10, 4, 10, 4)
-        badge_layout.setSpacing(5)
+        badge_layout.setContentsMargins(8, 2, 8, 2)
+        badge_layout.setSpacing(4)
 
         self.ui.balance_check_label.setParent(badge)
         self.ui.balance_check_label.setVisible(True)
@@ -283,66 +287,149 @@ class FlowDiagramPage(QWidget):
         main_layout.addLayout(badge_row)
 
         old_layout.addLayout(main_layout, 0, 0, 1, 1)
+
+        self._balance_cards = [inflows_card, recirc_card, outflows_card]
+        self._balance_card_layouts = card_layouts
+        self._balance_cards_row = cards_row
+        self._balance_main_layout = main_layout
+        self._balance_badge_layout = badge_layout
+        self._balance_badge_row = badge_row
+        self._balance_value_labels = [
+            self.ui.total_inflows_value,
+            self.ui.recirculation_value,
+            self.ui.total_outflows_value,
+        ]
         self._balance_badge = badge
+        self._apply_balance_compact_mode()
+
+    def _apply_balance_compact_mode(self) -> None:
+        """Apply balanced compact sizing, with tighter mode on short windows."""
+        if not hasattr(self.ui, "frame_2"):
+            return
+
+        is_tight = self.height() < 860
+        panel_min_h = 86 if is_tight else 96
+        frame_min_h = 174 if is_tight else 182
+        card_min_h = 38 if is_tight else 42
+        value_min_h = 18 if is_tight else 20
+        value_max_h = 22 if is_tight else 24
+        main_margins = (8, 3 if is_tight else 4, 8, 3 if is_tight else 4)
+        main_spacing = 2 if is_tight else 3
+        cards_spacing = 6
+        card_margins = (8, 3 if is_tight else 4, 8, 3 if is_tight else 4)
+        card_spacing = 1
+        badge_margins = (7 if is_tight else 8, 2, 7 if is_tight else 8, 2)
+        badge_spacing = 3 if is_tight else 4
+
+        self.ui.frame_2.setMinimumHeight(panel_min_h)
+        if hasattr(self.ui, "frame"):
+            self.ui.frame.setMinimumHeight(frame_min_h)
+
+        for card in getattr(self, "_balance_cards", []):
+            card.setMinimumHeight(card_min_h)
+
+        for value_lbl in getattr(self, "_balance_value_labels", []):
+            if value_lbl is not None:
+                value_lbl.setMinimumHeight(value_min_h)
+                value_lbl.setMaximumHeight(value_max_h)
+
+        cards_row = getattr(self, "_balance_cards_row", None)
+        if cards_row is not None:
+            cards_row.setSpacing(cards_spacing)
+
+        for card_layout in getattr(self, "_balance_card_layouts", []):
+            card_layout.setContentsMargins(*card_margins)
+            card_layout.setSpacing(card_spacing)
+
+        main_layout = getattr(self, "_balance_main_layout", None)
+        if main_layout is not None:
+            main_layout.setContentsMargins(*main_margins)
+            main_layout.setSpacing(main_spacing)
+
+        badge_layout = getattr(self, "_balance_badge_layout", None)
+        if badge_layout is not None:
+            badge_layout.setContentsMargins(*badge_margins)
+            badge_layout.setSpacing(badge_spacing)
+
+    def resizeEvent(self, event):
+        """Re-apply compact mode based on available vertical space."""
+        super().resizeEvent(event)
+        self._apply_balance_compact_mode()
 
     def _apply_toolbar_layout_refresh(self) -> None:
         """Refine header + toolbar grouping for clearer operations UX."""
         # Page margins and section spacing
         if hasattr(self.ui, "gridLayout"):
-            self.ui.gridLayout.setContentsMargins(10, 2, 12, 10)
+            self.ui.gridLayout.setContentsMargins(10, 6, 12, 10)
             self.ui.gridLayout.setVerticalSpacing(8)
         if hasattr(self.ui, "frame"):
-            self.ui.frame.setMinimumHeight(186)
+            self.ui.frame.setMinimumHeight(182)
 
         # Title row: align with global dashboard title/subtitle pattern.
         if hasattr(self.ui, "horizontalLayout_2") and hasattr(self.ui, "label"):
             title_layout = self.ui.horizontalLayout_2
-            title_label = self.ui.label
-            title_label.setText("Flow Diagram")
-            title_label.setObjectName("label_title")
-            title_label.setWordWrap(False)
-            title_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
-            title_label.setMinimumHeight(34)
-            title_label.setMaximumHeight(16777215)
+            # Hide generated label (it has restrictive size hints) and build a fresh header.
+            self.ui.label.setVisible(False)
 
-            subtitle_label = QLabel("Manual flow line drawing", self.ui.frame)
-            subtitle_label.setObjectName("label_subtitle")
-            subtitle_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+            if not hasattr(self, "_flow_header_wrap"):
+                title_label = QLabel("Flow Diagram", self.ui.frame)
+                title_label.setObjectName("label_title")
+                title_label.setWordWrap(False)
+                title_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+                title_label.setMinimumHeight(28)
+                title_label.setMaximumHeight(34)
+                title_label.setVisible(True)
+                # Enforce title paint metrics to avoid clipping under DPI/style variance.
+                title_label.setStyleSheet(
+                    "font-size: 18px; font-weight: 700; color: #0b1a2a; padding-top: 0px;"
+                )
 
-            icon_label = QLabel(self.ui.frame)
-            icon_label.setPixmap(QIcon(":/icons/flow_diagram_color.svg").pixmap(24, 24))
-            icon_label.setFixedSize(24, 24)
-            icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                subtitle_label = QLabel("Manual flow line drawing", self.ui.frame)
+                subtitle_label.setObjectName("label_subtitle")
+                subtitle_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+                subtitle_label.setMinimumHeight(18)
+                subtitle_label.setMaximumHeight(20)
+                subtitle_label.setVisible(True)
 
-            title_row = QWidget(self.ui.frame)
-            title_row_layout = QHBoxLayout(title_row)
-            title_row_layout.setContentsMargins(0, 0, 0, 0)
-            title_row_layout.setSpacing(8)
-            title_row_layout.addWidget(icon_label, 0, Qt.AlignmentFlag.AlignVCenter)
-            title_row_layout.addWidget(title_label, 0, Qt.AlignmentFlag.AlignVCenter)
-            title_row_layout.addStretch(1)
+                icon_label = QLabel(self.ui.frame)
+                icon_label.setPixmap(QIcon(":/icons/flow_diagram_color.svg").pixmap(22, 22))
+                icon_label.setFixedSize(22, 22)
+                icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-            header_wrap = QWidget(self.ui.frame)
-            header_layout = QVBoxLayout(header_wrap)
-            header_layout.setContentsMargins(0, 0, 0, 0)
-            header_layout.setSpacing(2)
-            header_layout.addWidget(title_row)
-            header_layout.addWidget(subtitle_label)
+                title_row = QWidget(self.ui.frame)
+                title_row.setMinimumHeight(32)
+                title_row_layout = QHBoxLayout(title_row)
+                title_row_layout.setContentsMargins(0, 0, 0, 0)
+                title_row_layout.setSpacing(10)
+                title_row_layout.addWidget(icon_label, 0, Qt.AlignmentFlag.AlignVCenter)
+                title_row_layout.addWidget(title_label, 0, Qt.AlignmentFlag.AlignVCenter)
+                title_row_layout.addWidget(subtitle_label, 0, Qt.AlignmentFlag.AlignVCenter)
+                title_row_layout.addStretch(1)
+
+                header_wrap = QWidget(self.ui.frame)
+                header_wrap.setMinimumHeight(34)
+                header_wrap.setMaximumHeight(38)
+                header_layout = QVBoxLayout(header_wrap)
+                header_layout.setContentsMargins(0, 0, 0, 0)
+                header_layout.setSpacing(0)
+                header_layout.addWidget(title_row)
+
+                self._flow_header_wrap = header_wrap
 
             while title_layout.count():
                 item = title_layout.takeAt(0)
                 widget = item.widget()
-                if widget is not None and widget is not title_label:
+                if widget is not None:
                     widget.setParent(None)
 
-            title_layout.setContentsMargins(8, 0, 8, 6)
+            title_layout.setContentsMargins(8, 4, 8, 4)
             title_layout.setSpacing(0)
-            title_layout.addWidget(header_wrap, 0, Qt.AlignmentFlag.AlignLeft)
+            title_layout.addWidget(self._flow_header_wrap, 0, Qt.AlignmentFlag.AlignLeft)
             title_layout.addStretch(1)
 
         # Row 1: Flows/Nodes groups
         if hasattr(self.ui, "horizontalLayout"):
-            self.ui.horizontalLayout.setContentsMargins(8, 2, 8, 0)
+            self.ui.horizontalLayout.setContentsMargins(8, 6, 8, 0)
             self.ui.horizontalLayout.setSpacing(8)
         if hasattr(self.ui, "label_2"):
             self.ui.label_2.setText("Flows")
@@ -1361,8 +1448,8 @@ class FlowDiagramPage(QWidget):
             view_center = self.ui.graphicsView.mapToScene(
                 self.ui.graphicsView.viewport().rect().center()
             )
-            width = FlowNodeItem.DEFAULT_WIDTH
-            height = FlowNodeItem.DEFAULT_HEIGHT
+            width = node_data.get('width', FlowNodeItem.DEFAULT_WIDTH)
+            height = node_data.get('height', FlowNodeItem.DEFAULT_HEIGHT)
             node_data.update({
                 'x': view_center.x() - (width / 2),
                 'y': view_center.y() - (height / 2),
@@ -1416,8 +1503,12 @@ class FlowDiagramPage(QWidget):
             updated_node.update(updated_fields)
             updated_node['x'] = existing_node.get('x', updated_node.get('x', 0))
             updated_node['y'] = existing_node.get('y', updated_node.get('y', 0))
-            updated_node['width'] = existing_node.get('width', FlowNodeItem.DEFAULT_WIDTH)
-            updated_node['height'] = existing_node.get('height', FlowNodeItem.DEFAULT_HEIGHT)
+            updated_node['width'] = updated_fields.get(
+                'width', existing_node.get('width', FlowNodeItem.DEFAULT_WIDTH)
+            )
+            updated_node['height'] = updated_fields.get(
+                'height', existing_node.get('height', FlowNodeItem.DEFAULT_HEIGHT)
+            )
 
             # Update diagram data list.
             nodes = self.diagram_data.get('nodes', [])
@@ -3330,14 +3421,13 @@ class FlowDiagramPage(QWidget):
             # This automatically shows balance metrics without opening the dialog
             self._update_balance_check_labels()
             
-            # Show results
-            message = f"[OK] Updated {updated_count} flow volume(s) for {year}/{month}"
-            if errors:
-                message += f"\n\n⚠ Warnings ({len(errors)}):\n" + "\n".join(errors[:5])
-                if len(errors) > 5:
-                    message += f"\n... and {len(errors) - 5} more"
-            
-            QMessageBox.information(self, "Load Excel", message)
+            # Show results in a structured dialog (cleaner than plain messagebox text).
+            self._show_load_excel_results_dialog(
+                updated_count=updated_count,
+                year=year,
+                month=month,
+                warnings=errors,
+            )
             logger.info(f"Loaded Excel data: {updated_count} flows updated, {len(errors)} errors")
             
         except Exception as e:
@@ -3347,6 +3437,59 @@ class FlowDiagramPage(QWidget):
                 "Error",
                 f"An error occurred while loading Excel:\n{e}"
             )
+
+    def _show_load_excel_results_dialog(
+        self,
+        updated_count: int,
+        year: int,
+        month: int,
+        warnings: list[str],
+    ) -> None:
+        """Show structured Load Excel results dialog with compact warning list."""
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Load Excel Results")
+        dialog.setModal(True)
+        dialog.setMinimumWidth(560)
+        dialog.setMinimumHeight(300)
+
+        root = QVBoxLayout(dialog)
+        root.setContentsMargins(14, 12, 14, 12)
+        root.setSpacing(10)
+
+        title = QLabel("Load Excel Summary", dialog)
+        title.setStyleSheet("font-size:16px; font-weight:700; color:#0f172a;")
+        root.addWidget(title)
+
+        subtitle = QLabel(
+            f"Updated <b>{updated_count}</b> flow volume(s) for <b>{year}/{month:02d}</b>.",
+            dialog
+        )
+        subtitle.setWordWrap(True)
+        subtitle.setStyleSheet("font-size:12px; color:#334155;")
+        root.addWidget(subtitle)
+
+        if warnings:
+            warn_title = QLabel(f"Warnings ({len(warnings)})", dialog)
+            warn_title.setStyleSheet("font-size:12px; font-weight:700; color:#92400e;")
+            root.addWidget(warn_title)
+
+            warn_list = QListWidget(dialog)
+            warn_list.setObjectName("flow_load_excel_warnings")
+            warn_list.setMinimumHeight(160)
+            for msg in warnings:
+                item = QListWidgetItem(msg)
+                warn_list.addItem(item)
+            root.addWidget(warn_list)
+        else:
+            ok_note = QLabel("No warnings. All mapped rows loaded successfully.", dialog)
+            ok_note.setStyleSheet("font-size:12px; color:#166534;")
+            root.addWidget(ok_note)
+
+        buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok, parent=dialog)
+        buttons.accepted.connect(dialog.accept)
+        root.addWidget(buttons)
+
+        dialog.exec()
     
     def _on_excel_setup_clicked(self):
         """Open Excel Setup dialog (CONFIGURATION UI).

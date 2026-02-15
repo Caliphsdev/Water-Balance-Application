@@ -541,7 +541,7 @@ class Ui_MainWindow(object):
         self.calculations_2.setText(QCoreApplication.translate("MainWindow", u"Calculations", None))
         self.flow_diagram_2.setText(QCoreApplication.translate("MainWindow", u"Flow Diagram   ", None))
         self.settings_2.setText(QCoreApplication.translate("MainWindow", u"Settings", None))
-        self.message_iconandwords.setText(QCoreApplication.translate("MainWindow", u"messages", None))
+        self.message_iconandwords.setText(QCoreApplication.translate("MainWindow", u"Messages", None))
         self.help_2.setText(QCoreApplication.translate("MainWindow", u"Help", None))
         self.about_2.setText(QCoreApplication.translate("MainWindow", u"About", None))
         self.exit_2.setText(QCoreApplication.translate("MainWindow", u"Exit", None))

@@ -32,6 +32,7 @@ from PySide6.QtWidgets import (
     QAbstractItemView,
 )
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QColor, QBrush
 
 from services.excel_manager import get_excel_manager
 
@@ -49,6 +50,8 @@ class ExcelPreviewWidget(QWidget):
         self._excel_manager = get_excel_manager()
         self._current_sheet: Optional[str] = None
         self._highlight_column: Optional[str] = None
+        self._editable_column: Optional[str] = None
+        self._add_row_enabled: bool = True
 
         # Explanatory label - what is this preview for?
         self._label_help = QLabel("<b>Excel Preview</b> - View Excel data (read-only reference)")
@@ -163,6 +166,34 @@ class ExcelPreviewWidget(QWidget):
         """
         self._highlight_column = column_name
         self._apply_highlight()
+        self._apply_edit_permissions()
+
+    def set_editable_column(self, column_name: Optional[str]) -> None:
+        """Restrict edits to a single column.
+
+        Args:
+            column_name: Exact column header that remains editable.
+                If None/empty, all table cells become read-only.
+        """
+        cleaned = (column_name or "").strip()
+        self._editable_column = cleaned or None
+        self._apply_edit_permissions()
+
+    def set_add_row_enabled(self, enabled: bool) -> None:
+        """Show/hide Add Row control based on caller mode."""
+        self._add_row_enabled = enabled
+        self._btn_add_row.setVisible(enabled)
+        self._btn_add_row.setEnabled(enabled)
+
+    def set_help_text(self, html: str) -> None:
+        """Update helper copy above the preview table."""
+        self._label_help.setText(html)
+
+    def has_loaded_column(self, column_name: Optional[str]) -> bool:
+        """Return True when the column exists in the currently loaded table."""
+        if not column_name:
+            return False
+        return self._get_header_index(column_name) is not None
 
     def _clear_table(self) -> None:
         """Clear the table contents."""
@@ -211,17 +242,20 @@ class ExcelPreviewWidget(QWidget):
                 self._table.setItem(display_row_idx, col_idx, item)
 
         self._table.resizeColumnsToContents()
+        self._apply_edit_permissions()
 
     def _apply_highlight(self) -> None:
         """Apply column highlight styling if requested."""
         if not self._highlight_column:
             self._clear_column_highlight()
+            self._apply_edit_permissions()
             return
 
         headers = [self._table.horizontalHeaderItem(i).text()
                    for i in range(self._table.columnCount())]
         if self._highlight_column not in headers:
             self._clear_column_highlight()
+            self._apply_edit_permissions()
             return
 
         self._clear_column_highlight()
@@ -229,7 +263,7 @@ class ExcelPreviewWidget(QWidget):
         for row in range(self._table.rowCount()):
             item = self._table.item(row, col_index)
             if item:
-                item.setBackground(Qt.GlobalColor.yellow)
+                item.setBackground(QBrush(QColor("#fff6a4")))
 
         # Ensure the highlighted column is visible for the user.
         # UX rule: keep mapping column in view so the yellow highlight is obvious.
@@ -237,16 +271,44 @@ class ExcelPreviewWidget(QWidget):
         if first_item:
             self._table.scrollToItem(first_item, QAbstractItemView.PositionAtCenter)
 
+        self._apply_edit_permissions()
+
     def _clear_column_highlight(self) -> None:
         """Remove any existing column highlight styling."""
         for row in range(self._table.rowCount()):
             for col in range(self._table.columnCount()):
                 item = self._table.item(row, col)
                 if item:
-                    item.setBackground(Qt.GlobalColor.white)
+                    item.setBackground(QBrush(QColor("#ffffff")))
+
+    def _apply_edit_permissions(self) -> None:
+        """Apply editable/read-only flags with visual affordance by column."""
+        editable_index: Optional[int] = None
+        if self._editable_column:
+            editable_index = self._get_header_index(self._editable_column)
+
+        for row in range(self._table.rowCount()):
+            for col in range(self._table.columnCount()):
+                item = self._table.item(row, col)
+                if not item:
+                    continue
+
+                is_editable_col = editable_index is not None and col == editable_index
+                base_flags = item.flags() | Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                if is_editable_col:
+                    item.setFlags(base_flags | Qt.ItemIsEditable)
+                    item.setForeground(QBrush(QColor("#0f2747")))
+                    item.setBackground(QBrush(QColor("#fff6a4")))
+                else:
+                    item.setFlags(base_flags & ~Qt.ItemIsEditable)
+                    item.setForeground(QBrush(QColor("#667085")))
+                    item.setBackground(QBrush(QColor("#eef2f7")))
 
     def _on_add_row(self) -> None:
         """Insert a blank row at the end of the table."""
+        if not self._add_row_enabled:
+            return
+
         row_idx = self._table.rowCount()
         self._table.insertRow(row_idx)
 
@@ -273,6 +335,8 @@ class ExcelPreviewWidget(QWidget):
 
                 self._table.setItem(row_idx, year_col, QTableWidgetItem(str(next_year)))
                 self._table.setItem(row_idx, month_col, QTableWidgetItem(str(next_month)))
+
+        self._apply_edit_permissions()
 
     def _on_save(self) -> None:
         """Save table contents back to the Flow Diagram Excel sheet."""
@@ -305,15 +369,28 @@ class ExcelPreviewWidget(QWidget):
 
             ws = wb[self._current_sheet]
             header_row = self._detect_header_row(ws)
+            editable_index = (
+                self._get_header_index(self._editable_column)
+                if self._editable_column else None
+            )
 
-            # Write headers
-            for col_idx, header in enumerate(headers, start=1):
-                ws.cell(row=header_row, column=col_idx, value=header)
+            if editable_index is not None:
+                # Flowline-only safeguard: persist only the selected mapped column.
+                excel_col = editable_index + 1
+                for row_offset, row_values in enumerate(data, start=1):
+                    ws.cell(
+                        row=header_row + row_offset,
+                        column=excel_col,
+                        value=row_values[editable_index],
+                    )
+            else:
+                # Default behavior for unrestricted modes.
+                for col_idx, header in enumerate(headers, start=1):
+                    ws.cell(row=header_row, column=col_idx, value=header)
 
-            # Write data rows
-            for row_offset, row_values in enumerate(data, start=1):
-                for col_idx, value in enumerate(row_values, start=1):
-                    ws.cell(row=header_row + row_offset, column=col_idx, value=value)
+                for row_offset, row_values in enumerate(data, start=1):
+                    for col_idx, value in enumerate(row_values, start=1):
+                        ws.cell(row=header_row + row_offset, column=col_idx, value=value)
 
             wb.save(file_path)
             wb.close()

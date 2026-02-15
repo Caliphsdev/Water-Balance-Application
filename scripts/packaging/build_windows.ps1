@@ -5,6 +5,7 @@ $Spec = Join-Path $PSScriptRoot "water_balance.spec"
 $RccSource = Join-Path $ProjectRoot "src\ui\resources\resources.qrc"
 $RccOutput = Join-Path $ProjectRoot "src\ui\resources\resources_rc.py"
 $RccTool = Join-Path (Split-Path $Python -Parent) "pyside6-rcc.exe"
+$ComplianceCheck = Join-Path $PSScriptRoot "validate_dist_compliance.py"
 
 if (-not (Test-Path $Python)) {
 	throw "Expected packaging Python at $Python. Create/activate .venv first."
@@ -32,3 +33,11 @@ if (-not (Test-Path $RccTool)) {
 & $RccTool "$RccSource" -o "$RccOutput"
 
 & $Python -m PyInstaller $Spec --clean
+if ($LASTEXITCODE -ne 0) {
+	throw "PyInstaller build failed."
+}
+
+& $Python $ComplianceCheck --dist-root $DistDir
+if ($LASTEXITCODE -ne 0) {
+	throw "Distribution compliance validation failed."
+}

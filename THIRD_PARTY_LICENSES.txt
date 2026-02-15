@@ -42,5 +42,6 @@ Upstream:
 Notes:
 - This application uses Qt through PySide6.
 - If you redistribute this software, include this notice file with your package.
+- Full GPL/LGPL license texts are bundled under: licenses/qt/
+- Packaged builds intentionally exclude Qt Virtual Keyboard module binaries/plugins.
 - License obligations may depend on your distribution model and any modifications.
-

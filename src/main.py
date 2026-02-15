@@ -127,13 +127,50 @@ if getattr(sys, "frozen", False):
     _clear_excel_cache(user_base)
 
 # Now safe to import PySide6 and app modules
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QProxyStyle, QStyle, QMessageBox
 from PySide6.QtCore import QTimer
 from PySide6.QtGui import QFontDatabase, QFont, QIcon
 from ui.components.splash_screen import SplashScreen
 from ui.main_window import MainWindow
 from core.app_logger import logger
-from core.config_manager import get_resource_path
+from core.config_manager import ConfigManager, get_resource_path
+
+
+class _FastTooltipStyle(QProxyStyle):
+    """Reduce tooltip wake-up delay for faster hover feedback."""
+
+    def styleHint(self, hint, option=None, widget=None, returnData=None):
+        if hint == QStyle.StyleHint.SH_ToolTip_WakeUpDelay:
+            return 120
+        if hint == QStyle.StyleHint.SH_ToolTip_FallAsleepDelay:
+            return 2000
+        return super().styleHint(hint, option, widget, returnData)
+
+
+def _apply_fast_tooltips(app: QApplication) -> None:
+    """Apply global tooltip timing without changing visual styling."""
+    try:
+        app.setStyle(_FastTooltipStyle(app.style()))
+    except Exception as exc:
+        logger.warning(f"Unable to apply fast tooltip style: {exc}")
+
+
+def _show_license_system_unavailable(message: str, diagnostics: str = "") -> None:
+    """Show a blocking startup error when licensing subsystem is unavailable."""
+    box = QMessageBox()
+    box.setIcon(QMessageBox.Icon.Critical)
+    box.setWindowTitle("Licensing System Unavailable")
+    box.setText("Licensing system unavailable. Startup blocked.")
+    details = (
+        f"{message}\n\n"
+        "Next step:\n"
+        "- Verify app installation integrity and internet connectivity.\n"
+        "- If issue persists, contact support: caliphs@transafreso.com.\n"
+    )
+    if diagnostics:
+        details += f"\nDiagnostics: {diagnostics}"
+    box.setInformativeText(details)
+    box.exec()
 
 
 def check_license(app: QApplication, splash: SplashScreen) -> bool:
@@ -146,27 +183,47 @@ def check_license(app: QApplication, splash: SplashScreen) -> bool:
     """
     try:
         from ui.dialogs.license_dialog import check_license_or_activate
-        
-        splash.update_status("Checking license...", 10)
-        app.processEvents()
-
-        # Check license and show dialogs only when needed.
-        # Keep splash visible for valid licenses to avoid flicker/double-splash effect.
+        # Keep license dialogs unobstructed by splash.
+        if splash.isVisible():
+            splash.hide()
+            app.processEvents()
         result = check_license_or_activate(None)
-        
         if result:
-            logger.info("License check passed")
+            logger.info("license_startup_check result=allow")
             return True
         else:
+            logger.warning("license_startup_check result=block reason=user_or_status_denied")
             return False
-            
-    except ImportError:
-        # License modules not available - skip check (dev mode)
-        logger.warning("License modules not available, skipping license check")
-        return True
+
+    except ImportError as exc:
+        diagnostics = f"{type(exc).__name__}: {exc}"
+        logger.error("license_startup_check result=error fail_closed=1 diagnostics=%s", diagnostics)
+        splash.hide()
+        app.processEvents()
+        _show_license_system_unavailable(
+            "Required licensing modules could not be loaded.",
+            diagnostics,
+        )
+        return False
     except Exception as e:
-        logger.error(f"License check error: {e}")
-        # On error, allow app to run (graceful degradation)
+        fail_closed = bool(ConfigManager().get("licensing.fail_closed_startup", True))
+        diagnostics = f"{type(e).__name__}: {e}"
+        logger.error(
+            "license_startup_check result=error fail_closed=%s diagnostics=%s",
+            int(fail_closed),
+            diagnostics,
+        )
+        if fail_closed:
+            splash.hide()
+            app.processEvents()
+            _show_license_system_unavailable(
+                "Licensing runtime check failed.",
+                diagnostics,
+            )
+            return False
+        logger.warning("Startup fail-closed disabled by config; continuing despite licensing error")
+        splash.show()
+        app.processEvents()
         return True
 def start_background_services() -> None:
     """Start background services after main window is shown."""
@@ -231,6 +288,7 @@ def main():
     app = QApplication(sys.argv)
     app.setApplicationName("Water Balance Dashboard")
     app.setOrganizationName("Two Rivers Platinum")
+    _apply_fast_tooltips(app)
     icon_path = get_resource_path("src/ui/resources/icons/Water Balance.ico")
     if icon_path.exists():
         app.setWindowIcon(QIcon(str(icon_path)))
@@ -250,13 +308,15 @@ def main():
     
     # Show splash screen immediately
     splash = SplashScreen()
-    splash.show()
-    app.processEvents()  # Force splash to render
     
     # Check license before loading main app
     if not check_license(app, splash):
         logger.info("License check failed, exiting")
         sys.exit(1)
+
+    # Show splash only after license gate passes.
+    splash.show()
+    app.processEvents()  # Force splash to render
     
     # Create main window in background (loads pages, db, etc.)
     splash.update_status("Loading database...", 20)

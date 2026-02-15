@@ -434,6 +434,15 @@ class SystemConstantsService:
                 "max_value": 3650.0,
             },
             {
+                "constant_key": "runway_gross_floor_pct",
+                "attr": "runway_gross_floor_pct",
+                "unit": "%",
+                "category": "runway",
+                "description": "Minimum runway demand floor as percentage of gross outflows",
+                "min_value": 0.0,
+                "max_value": 100.0,
+            },
+            {
                 "constant_key": "runoff_enabled",
                 "attr": "runoff_enabled",
                 "unit": "0/1",

@@ -76,7 +76,9 @@ python src/main.py
 - Message center with notification updates
 
 ### Updates and Licensing
-- License validation on startup
+- License validation on startup (fail-closed)
+- Runtime license revalidation every 15 minutes (configurable)
+- Runtime checks run in background so UI remains responsive
 - Background update checks with download prompts
 
 ---
@@ -154,6 +156,21 @@ See [Docs/INDEX.md](Docs/INDEX.md) for complete documentation including:
 ## 📄 License
 
 Proprietary - Trans Africa Resources
+
+### Third-Party and Qt Notices
+
+- This application uses **PySide6 (Qt for Python)** and related Qt libraries.
+- Third-party notices are provided in `THIRD_PARTY_LICENSES.txt`.
+- Bundled Qt/PySide license texts are provided in `licenses/qt/` for distribution builds.
+- Packaging excludes **Qt Virtual Keyboard** binaries/plugins to avoid accidental GPL-only module distribution in standard builds.
+
+### License Enforcement Behavior
+
+- Startup is **fail-closed** when licensing system is unavailable.
+- Splash screen is hidden before any licensing modal is shown.
+- Runtime recheck interval is configured by `licensing.runtime_check_interval_seconds` (default `900`).
+- Offline token defaults are production-safe (`license.offline_validity_days`, fallback `30` days).
+- Blocked states: `expired`, `revoked`, `hwid_mismatch`, `invalid`, `clock_tamper`, `system_unavailable`.
 
 ---
 

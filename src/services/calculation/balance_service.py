@@ -1753,15 +1753,21 @@ class StorageService(IStorageService):
                 data_source
             ))
             
-            # 2. Update storage_facilities.current_volume_m3 with closing volume
-            # This syncs the calculated result to the main facilities table
-            # so Storage Facilities page displays the latest calculated value
-            conn.execute("""
-                UPDATE storage_facilities
-                SET current_volume_m3 = ?,
-                    updated_at = CURRENT_TIMESTAMP
-                WHERE code = ?
-            """, (storage.closing_m3, storage.facility_code))
+            # 2. Update storage_facilities.current_volume_m3 only when this period
+            # is latest/newer. Prevent historical recalculations from overwriting
+            # the live snapshot on Storage Facilities page.
+            if self._should_update_current_volume(conn, period):
+                conn.execute("""
+                    UPDATE storage_facilities
+                    SET current_volume_m3 = ?,
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE code = ?
+                """, (storage.closing_m3, storage.facility_code))
+            else:
+                logger.info(
+                    f"Skipped current_volume update for historical period "
+                    f"{period.month:02d}/{period.year} ({storage.facility_code})"
+                )
             
             conn.commit()
             conn.close()
@@ -1774,6 +1780,29 @@ class StorageService(IStorageService):
         except Exception as e:
             logger.error(f"Failed to record storage history: {e}")
             return False
+
+    def _should_update_current_volume(self, conn, period: CalculationPeriod) -> bool:
+        """Return True if current_volume snapshot should be updated for this period.
+
+        Rule: update only when period is latest/newer than existing storage_history.
+        """
+        try:
+            cursor = conn.execute("""
+                SELECT year, month
+                FROM storage_history
+                ORDER BY year DESC, month DESC
+                LIMIT 1
+            """)
+            row = cursor.fetchone()
+            if not row:
+                return True
+            latest_year = int(row['year'])
+            latest_month = int(row['month'])
+            return (period.year, period.month) >= (latest_year, latest_month)
+        except Exception as e:
+            logger.warning(f"Could not determine latest storage period: {e}")
+            # Fail-safe: keep prior behavior and update snapshot.
+            return True
 
     def record_all_facilities_history(
         self,
@@ -2105,10 +2134,12 @@ class RecycledService(IRecycledService):
     ) -> RecycledWaterResult:
         """Calculate total recycled water for a period.
         
-        Reads from Excel Meter Readings columns:
-        - 'Total Recycled Water' - if available, use directly
-        - 'RWD', 'RWD.1' - RWD volumes
-        - 'Tailings RD' - Tailings return
+        Reads from Excel Meter Readings columns only:
+        - 'Total Recycled Water' - preferred direct monthly total
+        - 'RWD' - recirculation volume (fallback within measured Excel sources)
+
+        Policy: no estimated fallback. If no recycled values are found in Excel,
+        recycled water is set to 0 for the selected period.
         """
         components = {}
         
@@ -2127,18 +2158,19 @@ class RecycledService(IRecycledService):
                     components={'total_from_excel': total_recycled}
                 )
         except Exception:
-            pass  # Fall back to component calculation
-        
-        # TSF return water (estimate from plant consumption)
-        tsf_return = self._get_tsf_return(period, flags)
-        components['tsf_return'] = tsf_return
-        
+            pass  # Fall back to measured Excel recycled components only.
+
         # RWD circulation from Excel
         rwd = self._get_rwd_circulation(period, flags)
         components['rwd'] = rwd
-        
+
         total = sum(components.values())
-        
+        if total <= 0:
+            flags.add_missing(
+                'recycled_water',
+                f'No recycled-water measurements in Excel for {period.period_short}; set to 0'
+            )
+
         return RecycledWaterResult(
             total_m3=total,
             components=components

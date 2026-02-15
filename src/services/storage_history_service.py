@@ -122,10 +122,20 @@ class StorageHistoryService:
                 ),
             )
 
-            conn.execute(
-                "UPDATE storage_facilities SET current_volume_m3 = ?, updated_at = CURRENT_TIMESTAMP WHERE code = ?",
-                (closing_volume_m3, facility_code),
-            )
+            # Keep current snapshot stable: only update current_volume_m3 when
+            # saving the latest/newer month. Historical edits remain in history.
+            if self._should_update_current_volume(conn, year, month):
+                conn.execute(
+                    "UPDATE storage_facilities SET current_volume_m3 = ?, updated_at = CURRENT_TIMESTAMP WHERE code = ?",
+                    (closing_volume_m3, facility_code),
+                )
+            else:
+                logger.info(
+                    "Skipped current volume update for historical period %s %04d-%02d",
+                    facility_code,
+                    year,
+                    month,
+                )
             conn.commit()
         finally:
             conn.close()
@@ -159,3 +169,15 @@ class StorageHistoryService:
         if month == 1:
             return 12, year - 1
         return month - 1, year
+
+    def _should_update_current_volume(self, conn, year: int, month: int) -> bool:
+        """Return True when this save is latest/newer than existing history."""
+        cursor = conn.execute(
+            "SELECT year, month FROM storage_history ORDER BY year DESC, month DESC LIMIT 1"
+        )
+        row = cursor.fetchone()
+        if row is None:
+            return True
+        latest_year = int(row["year"])
+        latest_month = int(row["month"])
+        return (year, month) >= (latest_year, latest_month)

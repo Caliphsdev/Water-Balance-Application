@@ -17,6 +17,7 @@ from PySide6.QtWidgets import (
     QColorDialog,
     QMessageBox,
     QPushButton,
+    QLabel,
     QFormLayout,
     QHBoxLayout,
     QSizePolicy,
@@ -72,6 +73,8 @@ class EditFlowDialog(QDialog):
         self.is_new_edge = is_new_edge
         self.selected_color = QColor(self.edge_data.get('color', "#3498DB"))
         self.excel_manager = get_excel_manager()
+        self._flowline_only_mode = not self.is_new_edge
+        self._mapping_warning_label: Optional[QLabel] = None
 
         # Setup responsive dialog size (80% of screen, minimum 1000x800)
         self._setup_responsive_size()
@@ -83,6 +86,7 @@ class EditFlowDialog(QDialog):
         self._setup_excel_create_button()
         self._setup_excel_preview()
         self._setup_endpoint_edit_buttons()
+        self._apply_flowline_only_mode()
         self._connect_buttons()
         self._update_color_preview()
         
@@ -308,7 +312,8 @@ class EditFlowDialog(QDialog):
         - Column dropdown → _on_column_changed()
         """
         self.ui.btn_color_picker.clicked.connect(self._on_pick_color)
-        self.ui.btn_auto_map.clicked.connect(self._on_auto_map)
+        if self.is_new_edge:
+            self.ui.btn_auto_map.clicked.connect(self._on_auto_map)
         self.ui.combo_sheet.currentTextChanged.connect(self._on_sheet_changed)
         self.ui.combo_column.currentTextChanged.connect(self._on_column_changed)
 
@@ -318,7 +323,7 @@ class EditFlowDialog(QDialog):
         This avoids editing the generated UI file while providing a clear
         workflow for creating new columns in the Flow Diagram Excel file.
         """
-        if not hasattr(self.ui, 'formLayout_excel'):
+        if not hasattr(self.ui, 'formLayout_excel') or not self.is_new_edge:
             return
 
         self.btn_auto_create_column = QPushButton("Auto-Create Column")
@@ -359,6 +364,66 @@ class EditFlowDialog(QDialog):
             column_name = self.ui.combo_column.currentText().strip()
             if column_name:
                 self._preview_widget.set_highlight_column(column_name)
+
+    def _apply_flowline_only_mode(self):
+        """Apply focused edit behavior for existing flowlines."""
+        if not hasattr(self.ui, 'formLayout_excel'):
+            return
+
+        self._mapping_warning_label = QLabel()
+        self._mapping_warning_label.setWordWrap(True)
+        self.ui.formLayout_excel.setWidget(
+            5, QFormLayout.ItemRole.SpanningRole, self._mapping_warning_label
+        )
+
+        if self._flowline_only_mode:
+            self.ui.groupBox_excel.setTitle("Flowline Data Mapping")
+            self.ui.btn_auto_map.hide()
+            self.ui.btn_auto_map.setEnabled(False)
+            self.ui.btn_auto_map.setToolTip(
+                "Auto-mapping tools are available in new flow setup or Excel Setup."
+            )
+            if hasattr(self, "btn_auto_create_column"):
+                self.btn_auto_create_column.hide()
+                self.btn_auto_create_column.setEnabled(False)
+            if hasattr(self, "_preview_widget"):
+                self._preview_widget.set_add_row_enabled(False)
+                self._preview_widget.set_help_text(
+                    "<b>Excel Preview</b> - Only selected flowline column is editable below."
+                )
+        elif hasattr(self, "_preview_widget"):
+            self._preview_widget.set_add_row_enabled(True)
+
+        self._sync_preview_column_permissions()
+
+    def _sync_preview_column_permissions(self):
+        """Sync preview highlight + editable column lock with current mapping."""
+        if not hasattr(self, "_preview_widget"):
+            return
+
+        selected_column = self.ui.combo_column.currentText().strip() or None
+        self._preview_widget.set_highlight_column(selected_column)
+        self._preview_widget.set_editable_column(selected_column if self._flowline_only_mode else None)
+
+        if not self._mapping_warning_label:
+            return
+
+        if not self._flowline_only_mode:
+            self._mapping_warning_label.hide()
+            return
+
+        has_valid_column = self._preview_widget.has_loaded_column(selected_column)
+        if has_valid_column:
+            self._mapping_warning_label.setText(
+                "Only the selected flowline column is editable below."
+            )
+            self._mapping_warning_label.setStyleSheet("color: #285b2a; font-size: 11px;")
+        else:
+            self._mapping_warning_label.setText(
+                "Mapped column not found in this sheet. No cells are editable until a valid column is selected."
+            )
+            self._mapping_warning_label.setStyleSheet("color: #8a4b00; font-size: 11px;")
+        self._mapping_warning_label.show()
 
     def _setup_endpoint_edit_buttons(self):
         """Add buttons to edit the From/To component names.
@@ -460,7 +525,7 @@ class EditFlowDialog(QDialog):
         if hasattr(self, "_preview_widget"):
             # Keep preview sheet and highlight in sync with mapping selection.
             self._preview_widget.set_sheet(sheet_name)
-            self._preview_widget.set_highlight_column(self.ui.combo_column.currentText().strip() or None)
+            self._sync_preview_column_permissions()
 
     def _on_column_changed(self, column_name: str):
         """Highlight the selected column in the preview widget (SLOT).
@@ -476,7 +541,7 @@ class EditFlowDialog(QDialog):
             sheet_name = self.ui.combo_sheet.currentText().strip()
             if sheet_name:
                 self._preview_widget.set_sheet(sheet_name)
-            self._preview_widget.set_highlight_column(column_name.strip() or None)
+            self._sync_preview_column_permissions()
     
     def _on_pick_color(self):
         """Open color picker dialog for flow line color (SLOT).

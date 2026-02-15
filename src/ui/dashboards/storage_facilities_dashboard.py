@@ -31,6 +31,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt, QSortFilterProxyModel, QThread, Signal, QObject, QSize
 from PySide6.QtGui import QShowEvent, QColor, QIcon
 import logging
+from datetime import datetime
 
 from .generated_ui_storage_facilities import Ui_Form
 from services.storage_facility_service import StorageFacilityService
@@ -38,6 +39,7 @@ from ui.dialogs.storage_facility_dialog import StorageFacilityDialog
 from ui.dialogs.storage_history_dialog import StorageHistoryDialog
 from ui.models.storage_facilities_model import StorageFacilitiesModel
 from core.app_logger import logger as app_logger
+from database.db_manager import DatabaseManager
 
 
 # Dashboard-specific logger (logs/storage_facilities/)
@@ -145,6 +147,11 @@ class StorageFacilitiesPage(QWidget):
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
+        self._overview_base_text = (
+            "Utilization = current volume / capacity. "
+            "After each balance run, facility closing volume is stored and used as the next period opening volume. "
+            "Inter-facility transfers are tracked as records when captured."
+        )
         self.ui = Ui_Form()
         self.ui.setupUi(self)
         self._normalize_storage_page_layout()
@@ -242,11 +249,7 @@ class StorageFacilitiesPage(QWidget):
         if hasattr(self.ui, "label_6"):
             self.ui.label_6.setContentsMargins(4, 0, 0, 6)
         if hasattr(self.ui, "label_5"):
-            self.ui.label_5.setText(
-                "Utilization = current volume / capacity. "
-                "After each balance run, facility closing volume is stored and used as the next period opening volume. "
-                "Inter-facility transfers are tracked as records when captured."
-            )
+            self.ui.label_5.setText(self._overview_base_text)
 
         # Normalize toolbar action button sizes.
         toolbar_btn_height = 30
@@ -501,6 +504,7 @@ class StorageFacilitiesPage(QWidget):
         self._filtered_facilities = self._facilities.copy()
         self._logger.debug(f"[SIGNAL] Updating summary cards...")
         self._update_summary_cards()
+        self._update_snapshot_context()
         self._logger.debug(f"[SIGNAL] Populating table...")
         self._populate_table()
         self._logger.debug(f"[SIGNAL] Hiding loading state...")
@@ -516,6 +520,90 @@ class StorageFacilitiesPage(QWidget):
             self,
             "Error",
             "Failed to load storage facilities. Please check the database or logs.",
+        )
+
+    def _update_snapshot_context(self) -> None:
+        """Show which storage-history period the current snapshot reflects."""
+        if not hasattr(self.ui, "label_5"):
+            return
+
+        period_text, state = self._get_latest_storage_period_info()
+        badge_html = self._build_snapshot_badge_html(state)
+        self.ui.label_5.setText(
+            f"{self._overview_base_text} "
+            f"Snapshot as of: <b>{period_text}</b> {badge_html}."
+        )
+
+    def _get_latest_storage_period_info(self) -> tuple[str, str]:
+        """Get latest storage-history period text and freshness state.
+
+        Returns:
+            Tuple of (period_text, state), where state is:
+            - 'current' : latest history matches current month
+            - 'future'  : latest history is ahead of current month
+            - 'stale'   : latest history older than current month
+            - 'unknown' : no history or failed lookup
+        """
+        conn = None
+        try:
+            db = DatabaseManager()
+            conn = db.get_connection()
+            row = conn.execute(
+                "SELECT year, month FROM storage_history ORDER BY year DESC, month DESC LIMIT 1"
+            ).fetchone()
+            if row:
+                latest_year = int(row['year'])
+                latest_month = int(row['month'])
+                now = datetime.now()
+                period_key = (latest_year, latest_month)
+                current_key = (now.year, now.month)
+                if period_key == current_key:
+                    state = "current"
+                elif period_key > current_key:
+                    state = "future"
+                else:
+                    state = "stale"
+                return f"{latest_year:04d}-{latest_month:02d}", state
+            return "No storage history", "unknown"
+        except Exception as exc:
+            self._logger.warning(f"Could not load snapshot period: {exc}")
+            return "Unknown", "unknown"
+        finally:
+            if conn is not None:
+                conn.close()
+
+    def _build_snapshot_badge_html(self, state: str) -> str:
+        """Build colored freshness badge for snapshot period."""
+        if state == "current":
+            label = "CURRENT"
+            bg = "#DCFCE7"
+            fg = "#166534"
+            border = "#86EFAC"
+        elif state == "future":
+            label = "FUTURE"
+            bg = "#DBEAFE"
+            fg = "#1D4ED8"
+            border = "#93C5FD"
+        elif state == "stale":
+            label = "OLDER"
+            bg = "#FEF3C7"
+            fg = "#92400E"
+            border = "#FCD34D"
+        else:
+            label = "UNKNOWN"
+            bg = "#E5E7EB"
+            fg = "#374151"
+            border = "#D1D5DB"
+
+        return (
+            f"<span style=\""
+            f"background-color:{bg};"
+            f"color:{fg};"
+            f"border:1px solid {border};"
+            f"border-radius:10px;"
+            f"padding:1px 8px;"
+            f"font-weight:600;"
+            f"\">{label}</span>"
         )
 
     def _clear_load_worker(self) -> None:

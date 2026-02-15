@@ -11,9 +11,12 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from PySide6.QtWidgets import QDialog, QColorDialog, QSpinBox, QLabel, QSizePolicy
+from PySide6.QtWidgets import (
+    QDialog, QColorDialog, QSpinBox, QLabel, QSizePolicy,
+    QWidget, QHBoxLayout, QPushButton, QScrollArea, QFrame
+)
 from PySide6.QtCore import Qt, QSize
-from PySide6.QtGui import QColor, QIcon
+from PySide6.QtGui import QColor, QIcon, QGuiApplication
 from typing import Dict, Optional
 
 from ui.dialogs.generated_ui_add_edit_node_dialog import Ui_AddEditNodeDialog
@@ -52,10 +55,14 @@ class AddEditNodeDialog(QDialog):
         self.node_id = node_id
         self.node_data = node_data or {}
         self.selected_color = QColor("#DFE6ED")  # Default color
+        self.selected_outline = QColor("#2C3E50")  # Default border color
 
-        # Add font size control (not present in UI file)
-        self._add_font_size_control()
+        self._setup_responsive_size()
+
+        # Add custom controls not present in UI file.
         self._insert_section_rows()
+        self._add_custom_controls()
+        self._enable_scrollable_form()
         self._apply_layout_polish()
         self._populate_shape_options()
         
@@ -63,8 +70,46 @@ class AddEditNodeDialog(QDialog):
         self._setup_mode()
         self._connect_buttons()
         self._update_color_preview()
+        self._update_outline_preview()
         
         self.setModal(True)
+
+    def _setup_responsive_size(self):
+        """Set responsive dialog size with a safer minimum height."""
+        screen = QGuiApplication.primaryScreen().geometry()
+        dialog_width = max(640, int(screen.width() * 0.42))
+        dialog_height = max(580, int(screen.height() * 0.76))
+        self.resize(dialog_width, dialog_height)
+        self.setMinimumSize(620, 560)
+
+        # Center on screen
+        x = (screen.width() - dialog_width) // 2
+        y = (screen.height() - dialog_height) // 2
+        self.move(x, y)
+
+    def _enable_scrollable_form(self):
+        """Wrap form rows into a scroll area; keep action buttons fixed."""
+        remove_indices = []
+        for idx in range(self.ui.verticalLayout.count()):
+            item = self.ui.verticalLayout.itemAt(idx)
+            if item and (item.layout() is self.ui.formLayout or item.spacerItem() is self.ui.verticalSpacer):
+                remove_indices.append(idx)
+
+        for idx in sorted(remove_indices, reverse=True):
+            self.ui.verticalLayout.takeAt(idx)
+
+        form_container = QWidget(self)
+        form_container.setLayout(self.ui.formLayout)
+
+        self._form_scroll = QScrollArea(self)
+        self._form_scroll.setObjectName("component_form_scroll")
+        self._form_scroll.setWidgetResizable(True)
+        self._form_scroll.setFrameShape(QFrame.NoFrame)
+        self._form_scroll.setWidget(form_container)
+        self._form_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self._form_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+
+        self.ui.verticalLayout.insertWidget(0, self._form_scroll, 1)
     
     def _setup_mode(self):
         """Setup UI based on mode - add vs edit (MODE CONFIGURATION).
@@ -89,8 +134,51 @@ class AddEditNodeDialog(QDialog):
             self.ui.input_id.setReadOnly(False)
             self.ui.input_id.setFocus()
 
-    def _add_font_size_control(self):
-        """Add font size spin box to form layout (UI enhancement)."""
+    def _add_custom_controls(self):
+        """Add border color, width, height, and font size controls."""
+        # Insert custom rows right before "Behavior" section so they remain
+        # grouped under Appearance and never overlap existing generated rows.
+        custom_start_row = 8
+
+        # Border color row
+        self.label_outline_color = QLabel("Border Color:")
+        outline_row = QWidget(self)
+        outline_layout = QHBoxLayout(outline_row)
+        outline_layout.setContentsMargins(0, 0, 0, 0)
+        outline_layout.setSpacing(4)
+        outline_row.setMinimumHeight(36)
+        self.btn_outline_picker = QPushButton("Choose Color", outline_row)
+        self.btn_outline_picker.setObjectName("btn_outline_picker")
+        self.label_outline_preview = QLabel(outline_row)
+        self.label_outline_preview.setFixedSize(64, 32)
+        outline_layout.addWidget(self.btn_outline_picker)
+        outline_layout.addWidget(self.label_outline_preview)
+        outline_layout.addStretch(1)
+        self.ui.formLayout.insertRow(custom_start_row, self.label_outline_color, outline_row)
+
+        # Width row
+        self.label_width = QLabel("Width:")
+        self.spin_width = QSpinBox(self)
+        self.spin_width.setRange(60, 220)
+        self.spin_width.setValue(100)
+        self.spin_width.setAlignment(Qt.AlignCenter)
+        self.spin_width.setMinimumWidth(92)
+        self.spin_width.setMaximumWidth(120)
+        self.spin_width.setMinimumHeight(32)
+        self.ui.formLayout.insertRow(custom_start_row + 1, self.label_width, self.spin_width)
+
+        # Height row
+        self.label_height = QLabel("Height:")
+        self.spin_height = QSpinBox(self)
+        self.spin_height.setRange(50, 170)
+        self.spin_height.setValue(80)
+        self.spin_height.setAlignment(Qt.AlignCenter)
+        self.spin_height.setMinimumWidth(92)
+        self.spin_height.setMaximumWidth(120)
+        self.spin_height.setMinimumHeight(32)
+        self.ui.formLayout.insertRow(custom_start_row + 2, self.label_height, self.spin_height)
+
+        # Font size row
         self.label_font_size = QLabel("Font Size:")
         self.spin_font_size = QSpinBox(self)
         self.spin_font_size.setRange(6, 20)
@@ -100,28 +188,27 @@ class AddEditNodeDialog(QDialog):
         self.spin_font_size.setMaximumWidth(120)
         self.spin_font_size.setMinimumHeight(32)
         self.spin_font_size.setButtonSymbols(QSpinBox.PlusMinus)
-        self.ui.formLayout.insertRow(5, self.label_font_size, self.spin_font_size)
+        self.ui.formLayout.insertRow(custom_start_row + 3, self.label_font_size, self.spin_font_size)
 
     def _insert_section_rows(self):
         """Insert visual section headers to improve scanability."""
-        behavior = QLabel("Behavior")
-        behavior.setObjectName("dialogSectionHeader")
         appearance = QLabel("Appearance")
         appearance.setObjectName("dialogSectionHeader")
         identity = QLabel("Identity")
         identity.setObjectName("dialogSectionHeader")
 
-        self.ui.formLayout.insertRow(6, behavior)
-        self.ui.formLayout.insertRow(3, appearance)
+        # Base generated rows are:
+        # 0 ID, 1 Label, 2 Type, 3 Shape, 4 Fill Color, 5 Lock
+        # Insert headers in deterministic positions to avoid row collisions.
         self.ui.formLayout.insertRow(0, identity)
+        self.ui.formLayout.insertRow(4, appearance)
 
     def _apply_layout_polish(self):
         """Apply spacing, sizing, and styles for a cleaner dialog layout."""
-        self.setMinimumSize(560, 420)
-        self.resize(560, 430)
+        self.setMinimumSize(620, 560)
 
         self.ui.formLayout.setHorizontalSpacing(14)
-        self.ui.formLayout.setVerticalSpacing(10)
+        self.ui.formLayout.setVerticalSpacing(12)
         self.ui.formLayout.setLabelAlignment(Qt.AlignLeft | Qt.AlignVCenter)
 
         self.ui.label_label.setText("Label:")
@@ -135,10 +222,15 @@ class AddEditNodeDialog(QDialog):
         self.ui.input_label.setMaximumHeight(72)
         self.ui.btn_color_picker.setMinimumHeight(32)
         self.ui.btn_color_picker.setMinimumWidth(110)
+        self.btn_outline_picker.setMinimumHeight(32)
+        self.btn_outline_picker.setMinimumWidth(110)
         self.ui.label_color_preview.setFixedSize(64, 32)
+        self.label_outline_preview.setFixedSize(64, 32)
 
         # Reduce excessive bottom gap.
         self.ui.verticalSpacer.changeSize(20, 8, QSizePolicy.Minimum, QSizePolicy.Fixed)
+        if hasattr(self, "_form_scroll"):
+            self._form_scroll.setMinimumHeight(420)
 
         # Button hierarchy: primary OK, secondary Cancel.
         self.ui.btn_ok.setText("Save")
@@ -198,6 +290,31 @@ class AddEditNodeDialog(QDialog):
             QPushButton#btn_ok:hover {
                 background: #1a457d;
             }
+            QScrollArea#component_form_scroll {
+                background: transparent;
+            }
+            QScrollBar:vertical {
+                background: #eef3f9;
+                width: 10px;
+                margin: 2px 2px 2px 0;
+                border-radius: 5px;
+            }
+            QScrollBar::handle:vertical {
+                background: #b9c9de;
+                min-height: 28px;
+                border-radius: 5px;
+            }
+            QScrollBar::handle:vertical:hover {
+                background: #9eb4d0;
+            }
+            QScrollBar::add-line:vertical,
+            QScrollBar::sub-line:vertical {
+                height: 0px;
+            }
+            QScrollBar::add-page:vertical,
+            QScrollBar::sub-page:vertical {
+                background: transparent;
+            }
             """
         )
 
@@ -215,7 +332,7 @@ class AddEditNodeDialog(QDialog):
             "Rectangle",
             "Oval/Circle",
             "Trapezoid",
-            "Office/Building",
+            "Office Building",
             "Hexagon",
         ]
         self.ui.combo_shape.clear()
@@ -253,17 +370,22 @@ class AddEditNodeDialog(QDialog):
             "rect": "Rectangle",
             "oval": "Oval/Circle",
             "trapezoid": "Trapezoid",
-            "office": "Office/Building",
+            "office": "Office Building",
             "hexagon": "Hexagon",
         }.get(shape_value, "Rectangle")
         if shape_label in self.shape_options:
             self.ui.combo_shape.setCurrentText(shape_label)
         self.ui.checkbox_lock.setChecked(self.node_data.get("locked", False))
         self.spin_font_size.setValue(int(self.node_data.get("font_size", 9)))
+        self.spin_width.setValue(int(self.node_data.get("width", 100)))
+        self.spin_height.setValue(int(self.node_data.get("height", 80)))
 
         fill_color = self.node_data.get("fill", "#DFE6ED")
         self.selected_color = QColor(fill_color)
         self._update_color_preview()
+        outline_color = self.node_data.get("outline", "#2C3E50")
+        self.selected_outline = QColor(outline_color)
+        self._update_outline_preview()
     
     def _connect_buttons(self):
         """Connect button signals to slot methods (SIGNAL/SLOT WIRING).
@@ -271,6 +393,7 @@ class AddEditNodeDialog(QDialog):
         Connects color picker button to _on_pick_color() for fill color selection.
         """
         self.ui.btn_color_picker.clicked.connect(self._on_pick_color)
+        self.btn_outline_picker.clicked.connect(self._on_pick_outline_color)
     
     def _on_pick_color(self):
         """Open color picker dialog for component fill color (SLOT).
@@ -288,6 +411,19 @@ class AddEditNodeDialog(QDialog):
         if color.isValid():
             self.selected_color = color
             self._update_color_preview()
+
+    def _on_pick_outline_color(self):
+        """Open color picker dialog for component border color."""
+        color = QColorDialog.getColor(
+            self.selected_outline,
+            self,
+            "Choose Border Color",
+            QColorDialog.ShowAlphaChannel
+        )
+
+        if color.isValid():
+            self.selected_outline = color
+            self._update_outline_preview()
     
     def _update_color_preview(self):
         """Update color preview label with current selected color (UI UPDATE).
@@ -297,6 +433,12 @@ class AddEditNodeDialog(QDialog):
         """
         self.ui.label_color_preview.setStyleSheet(
             f"background-color: {self.selected_color.name()}; border: 1px solid #556b84; border-radius: 4px;"
+        )
+
+    def _update_outline_preview(self):
+        """Update border color preview swatch."""
+        self.label_outline_preview.setStyleSheet(
+            f"background-color: {self.selected_outline.name()}; border: 1px solid #556b84; border-radius: 4px;"
         )
     
     def get_node_data(self) -> Dict:
@@ -315,13 +457,12 @@ class AddEditNodeDialog(QDialog):
                 'locked': False
             }
         """
-        base_outline = self.node_data.get("outline", "#2C3E50")
         shape_label = self.ui.combo_shape.currentText()
         shape_value = {
             "Rectangle": "rect",
             "Oval/Circle": "oval",
             "Trapezoid": "trapezoid",
-            "Office/Building": "office",
+            "Office Building": "office",
             "Hexagon": "hexagon",
         }.get(shape_label, "rect")
 
@@ -331,9 +472,11 @@ class AddEditNodeDialog(QDialog):
             'type': self.ui.combo_type.currentText().lower().replace(' ', '_'),
             'shape': shape_value,
             'fill': self.selected_color.name(),
-            'outline': base_outline,
+            'outline': self.selected_outline.name(),
             'locked': self.ui.checkbox_lock.isChecked(),
-            'font_size': self.spin_font_size.value()
+            'font_size': self.spin_font_size.value(),
+            'width': self.spin_width.value(),
+            'height': self.spin_height.value(),
         }
     
     def validate(self) -> bool:

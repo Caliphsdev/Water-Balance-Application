@@ -55,6 +55,8 @@ datas = [
     (str(project_root / "data" / "sqlite_migrations"), "data/sqlite_migrations"),
     (str(project_root / "assets" / "fonts"), "assets/fonts"),
     (str(project_root / "src" / "ui" / "resources" / "icons"), "src/ui/resources/icons"),
+    (str(project_root / "THIRD_PARTY_LICENSES.txt"), "."),
+    (str(project_root / "licenses" / "qt"), "licenses/qt"),
 ]
 
 a = Analysis(
@@ -72,6 +74,27 @@ a = Analysis(
     cipher=block_cipher,
     noarchive=False,
 )
+
+# Compliance safeguard:
+# Qt Virtual Keyboard is a GPL/commercial module. Exclude related binaries/plugins
+# from packaged output to avoid accidental distribution of that module.
+_blocked_qt_tokens = [
+    "Qt6VirtualKeyboard.dll",
+    "qtvirtualkeyboardplugin.dll",
+    "qml/QtQuick/VirtualKeyboard",
+    "qml\\QtQuick\\VirtualKeyboard",
+]
+
+def _keep_toc_entry(entry):
+    try:
+        values = [str(v).replace("\\", "/") for v in entry[:2] if isinstance(v, str)]
+        merged = " ".join(values)
+    except Exception:
+        merged = str(entry).replace("\\", "/")
+    return not any(token in merged for token in _blocked_qt_tokens)
+
+a.binaries = [entry for entry in a.binaries if _keep_toc_entry(entry)]
+a.datas = [entry for entry in a.datas if _keep_toc_entry(entry)]
 
 pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 

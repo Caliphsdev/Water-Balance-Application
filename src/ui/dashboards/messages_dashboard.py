@@ -364,9 +364,12 @@ class MessagesPage(QWidget):
         super().__init__(parent)
         self.setObjectName("messagesPage")
         self._notifications = []
+        self._notification_page_size = 12
+        self._notification_page = 0
         self._unread_count = 0
         self._drawer_width = 440
         self._notification_service = None
+        self._feedback_submit_inflight = False
         self._setup_ui()
         self._bind_notification_service()
         
@@ -580,6 +583,7 @@ class MessagesPage(QWidget):
         tab = QWidget()
         layout = QVBoxLayout(tab)
         layout.setContentsMargins(0, 16, 0, 0)
+        layout.setSpacing(10)
         
         # Scroll area with custom scrollbar styling
         scroll = QScrollArea()
@@ -605,6 +609,35 @@ class MessagesPage(QWidget):
         card_layout.addWidget(scroll)
 
         layout.addWidget(card)
+
+        # Pagination controls for large notification sets.
+        pager = QWidget()
+        pager.setObjectName("messagesPager")
+        pager_layout = QHBoxLayout(pager)
+        pager_layout.setContentsMargins(0, 0, 0, 0)
+        pager_layout.setSpacing(8)
+        pager_layout.addStretch()
+
+        self.notifications_prev_btn = QPushButton("Prev")
+        self.notifications_prev_btn.setObjectName("messagesGhostBtn")
+        self.notifications_prev_btn.setMinimumHeight(28)
+        self.notifications_prev_btn.clicked.connect(lambda: self._change_notifications_page(-1))
+        pager_layout.addWidget(self.notifications_prev_btn)
+
+        self.notifications_page_label = QLabel("Page 1 of 1")
+        self.notifications_page_label.setObjectName("messagesEmptyText")
+        pager_layout.addWidget(self.notifications_page_label)
+
+        self.notifications_next_btn = QPushButton("Next")
+        self.notifications_next_btn.setObjectName("messagesGhostBtn")
+        self.notifications_next_btn.setMinimumHeight(28)
+        self.notifications_next_btn.clicked.connect(lambda: self._change_notifications_page(1))
+        pager_layout.addWidget(self.notifications_next_btn)
+        pager_layout.addStretch()
+
+        layout.addWidget(pager)
+        self.notifications_pager = pager
+        self.notifications_pager.setVisible(False)
         
         return tab
         
@@ -1047,12 +1080,7 @@ class MessagesPage(QWidget):
     def _load_notifications(self):
         """Load notifications from service (DATA LOADING)."""
         logger.info("Loading notifications...")
-        
-        # Clear existing
-        while self.notifications_layout.count() > 1:  # Keep stretch
-            item = self.notifications_layout.takeAt(0)
-            if item.widget():
-                item.widget().deleteLater()
+        self._clear_notification_cards()
         
         try:
             from services.notification_service import get_notification_service
@@ -1060,32 +1088,35 @@ class MessagesPage(QWidget):
             
             # Get notifications
             notifications = service.get_cached_notifications()
+            self._notifications = notifications
+            self._notification_page = 0
             
             if not notifications:
-                self.notifications_layout.insertWidget(
-                    0,
+                empty_wrap = QWidget()
+                wrap_layout = QVBoxLayout(empty_wrap)
+                wrap_layout.setContentsMargins(0, 20, 0, 0)
+                wrap_layout.setSpacing(0)
+                wrap_layout.addWidget(
                     self._build_empty_state(
                         title="No notifications yet",
                         subtitle="You are all caught up. New alerts and system notices will appear here."
-                    )
+                    ),
+                    0,
+                    Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter,
                 )
+                wrap_layout.addStretch(1)
+                self.notifications_layout.insertWidget(0, empty_wrap)
                 self._unread_count = 0
                 self.header_badge.set_count(0)
+                if hasattr(self, "notifications_pager"):
+                    self.notifications_pager.setVisible(False)
                 return
-            
-            # Add notification cards
-            unread_count = 0
-            for notif_data in notifications:
-                card = NotificationCard(notif_data)
-                card.deleted.connect(self._on_notification_deleted)
-                card.clicked.connect(self._on_notification_clicked)
-                self.notifications_layout.insertWidget(self.notifications_layout.count() - 1, card)
-                
-                if not notif_data.get('is_read', False):
-                    unread_count += 1
+
+            unread_count = sum(1 for n in notifications if not n.get('is_read', False))
             
             self._unread_count = unread_count
             self.header_badge.set_count(unread_count)
+            self._render_notifications_page()
             
             logger.info(f"Loaded {len(notifications)} notifications ({unread_count} unread)")
             
@@ -1099,6 +1130,55 @@ class MessagesPage(QWidget):
                     is_error=True
                 )
             )
+            if hasattr(self, "notifications_pager"):
+                self.notifications_pager.setVisible(False)
+
+    def _clear_notification_cards(self) -> None:
+        """Remove all rendered notification content and keep trailing stretch."""
+        while self.notifications_layout.count() > 1:  # Keep stretch
+            item = self.notifications_layout.takeAt(0)
+            widget = item.widget()
+            if widget:
+                widget.deleteLater()
+
+    def _render_notifications_page(self) -> None:
+        """Render only current page of notifications for better UI performance."""
+        self._clear_notification_cards()
+
+        total = len(self._notifications)
+        if total == 0:
+            if hasattr(self, "notifications_pager"):
+                self.notifications_pager.setVisible(False)
+            return
+
+        page_count = (total + self._notification_page_size - 1) // self._notification_page_size
+        self._notification_page = max(0, min(self._notification_page, page_count - 1))
+        start = self._notification_page * self._notification_page_size
+        end = min(start + self._notification_page_size, total)
+
+        for notif_data in self._notifications[start:end]:
+            card = NotificationCard(notif_data)
+            card.deleted.connect(self._on_notification_deleted)
+            card.clicked.connect(self._on_notification_clicked)
+            self.notifications_layout.insertWidget(self.notifications_layout.count() - 1, card)
+
+        self._update_notifications_pager(page_count)
+
+    def _update_notifications_pager(self, page_count: int) -> None:
+        """Refresh pagination controls state."""
+        if not hasattr(self, "notifications_pager"):
+            return
+
+        show_pager = len(self._notifications) > self._notification_page_size
+        self.notifications_pager.setVisible(show_pager)
+        self.notifications_prev_btn.setEnabled(self._notification_page > 0)
+        self.notifications_next_btn.setEnabled(self._notification_page < page_count - 1)
+        self.notifications_page_label.setText(f"Page {self._notification_page + 1} of {max(page_count, 1)}")
+
+    def _change_notifications_page(self, delta: int) -> None:
+        """Move notification page backward/forward."""
+        self._notification_page = max(0, self._notification_page + delta)
+        self._render_notifications_page()
     
     def _on_notification_deleted(self, notification_id: str):
         """Handle notification deletion (DELETE ACTION)."""
@@ -1139,6 +1219,9 @@ class MessagesPage(QWidget):
     
     def _submit_feedback(self):
         """Submit user feedback to Supabase (FEEDBACK SUBMISSION)."""
+        if self._feedback_submit_inflight:
+            return
+
         feedback_type = self.feedback_type.currentText()
         title = self.feedback_title.text().strip()
         body = self.feedback_body.toPlainText().strip()
@@ -1165,52 +1248,56 @@ class MessagesPage(QWidget):
         }
         feedback_code = type_map.get(feedback_type, "general")
         
+        self._feedback_submit_inflight = True
         self.submit_btn.setEnabled(False)
         self.submit_btn.setText("Submitting...")
-        
-        try:
-            from services.feedback_service import get_feedback_service
-            service = get_feedback_service()
-            
-            success = service.submit_feedback(
-                feedback_type=feedback_code,
-                title=title,
-                description=body,
-                email=email,
-                customer_name=customer_name
-            )
-            
-            if success:
-                QMessageBox.information(
-                    self, 
-                    "Feedback Submitted",
-                    "Thank you for your feedback! We appreciate you taking the time to help improve the application."
+
+        def _worker() -> None:
+            try:
+                from services.feedback_service import get_feedback_service
+                service = get_feedback_service()
+                success = service.submit_feedback(
+                    feedback_type=feedback_code,
+                    title=title,
+                    description=body,
+                    email=email,
+                    customer_name=customer_name
                 )
-                self.feedback_title.clear()
-                self.feedback_body.clear()
-                self.feedback_type.setCurrentIndex(0)
-                self.feedback_name.clear()
-                self.feedback_email.clear()
-            else:
-                error_message = service.last_error or (
+                error_message = None if success else (
+                    service.last_error or
                     "Failed to submit feedback. Please check your internet connection and try again."
                 )
-                QMessageBox.warning(
-                    self,
-                    "Submission Failed",
-                    error_message
-                )
-                
-        except Exception as e:
-            logger.error(f"Failed to submit feedback: {e}")
-            QMessageBox.critical(
+                QTimer.singleShot(0, self, lambda: self._on_feedback_submit_finished(success, error_message))
+            except Exception as exc:
+                logger.error(f"Failed to submit feedback: {exc}")
+                QTimer.singleShot(0, self, lambda: self._on_feedback_submit_finished(False, str(exc)))
+
+        threading.Thread(target=_worker, daemon=True).start()
+
+    def _on_feedback_submit_finished(self, success: bool, error_message: str | None) -> None:
+        """Finalize feedback submit UI state on main thread."""
+        self._feedback_submit_inflight = False
+        self.submit_btn.setEnabled(True)
+        self.submit_btn.setText("Submit Feedback")
+
+        if success:
+            QMessageBox.information(
                 self,
-                "Error",
-                f"An error occurred while submitting feedback:\n{str(e)}"
+                "Feedback Submitted",
+                "Thank you for your feedback! We appreciate you taking the time to help improve the application."
             )
-        finally:
-            self.submit_btn.setEnabled(True)
-            self.submit_btn.setText("Submit Feedback")
+            self.feedback_title.clear()
+            self.feedback_body.clear()
+            self.feedback_type.setCurrentIndex(0)
+            self.feedback_name.clear()
+            self.feedback_email.clear()
+            return
+
+        QMessageBox.warning(
+            self,
+            "Submission Failed",
+            error_message or "An error occurred while submitting feedback."
+        )
             
     def refresh(self):
         """Refresh the messages page (PUBLIC REFRESH METHOD)."""
@@ -1236,6 +1323,8 @@ class MessagesPage(QWidget):
         """Build a consistent empty/error state card."""
         card = QFrame()
         card.setObjectName("messagesEmptyState")
+        card.setMinimumWidth(520)
+        card.setMaximumWidth(980)
         if is_error:
             card.setProperty("kind", "error")
 

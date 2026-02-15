@@ -728,6 +728,16 @@ class LicenseBlockedDialog(QDialog):
                 "This license is registered to a different computer.\n"
                 "Please contact support if you need to transfer your license."
             )
+        elif self.status.status == LicenseStatus.CLOCK_TAMPER:
+            info = QLabel(
+                "Your system date/time appears inconsistent with prior license checks.\n"
+                "Correct device time, reconnect to internet, then re-activate if needed."
+            )
+        elif self.status.status == LicenseStatus.SYSTEM_UNAVAILABLE:
+            info = QLabel(
+                "Licensing service is temporarily unavailable.\n"
+                "Check connectivity and retry, or contact support."
+            )
         else:
             info = QLabel(
                 "Please enter a valid license key to continue."
@@ -797,6 +807,16 @@ class LicenseBlockedDialog(QDialog):
                 "This license key is marked as revoked by the licensing authority.",
                 "A replacement key is required to continue.",
             ]
+        if self.status.status == LicenseStatus.CLOCK_TAMPER:
+            return [
+                "System time is earlier than previous validated timestamps.",
+                "Set correct time/timezone and reconnect to refresh secure token checks.",
+            ]
+        if self.status.status == LicenseStatus.SYSTEM_UNAVAILABLE:
+            return [
+                "Licensing modules or network dependencies are not available.",
+                "Startup/runtime access is blocked until licensing can be verified.",
+            ]
         if self.status.status == LicenseStatus.INVALID:
             return [
                 "The key format is valid but did not pass verification.",
@@ -815,6 +835,8 @@ class LicenseBlockedDialog(QDialog):
             LicenseStatus.NOT_ACTIVATED: "License Required",
             LicenseStatus.HWID_MISMATCH: "Hardware Mismatch",
             LicenseStatus.REVOKED: "License Revoked",
+            LicenseStatus.CLOCK_TAMPER: "System Clock Validation",
+            LicenseStatus.SYSTEM_UNAVAILABLE: "Licensing Service Unavailable",
         }
         return titles.get(self.status.status, "License Error")
     
@@ -849,8 +871,14 @@ def check_license_or_activate(parent=None) -> bool:
     Returns:
         True if licensed, False if user cancelled/exited.
     """
-    service = get_license_service()
-    status = service.validate(try_refresh=True)
+    try:
+        service = get_license_service()
+        status = service.validate(try_refresh=True)
+    except Exception as exc:
+        status = LicenseStatus(
+            LicenseStatus.SYSTEM_UNAVAILABLE,
+            message=f"Licensing system unavailable: {type(exc).__name__}: {exc}",
+        )
     
     if status.is_valid:
         return True

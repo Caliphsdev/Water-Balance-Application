@@ -30,6 +30,10 @@ from PySide6.QtCore import (
     Qt,
     QParallelAnimationGroup,
     QAbstractAnimation,
+    QObject,
+    Signal,
+    QRunnable,
+    QThreadPool,
 )
 from PySide6.QtGui import QIcon, QPixmap, QGuiApplication, QDesktopServices
 
@@ -54,6 +58,35 @@ from ui.dashboards.help_dashboard import HelpPage
 from ui.dashboards.about_dashboard import AboutPage
 
 
+class _LicenseValidationSignals(QObject):
+    """Signals emitted by background runtime license checks."""
+
+    result = Signal(object, float, str)
+
+
+class _LicenseValidationWorker(QRunnable):
+    """Run license validation off the UI thread."""
+
+    def __init__(self):
+        super().__init__()
+        self.signals = _LicenseValidationSignals()
+
+    def run(self) -> None:
+        from time import perf_counter
+
+        started = perf_counter()
+        status = None
+        error = ""
+        try:
+            from services.license_service import get_license_service
+
+            status = get_license_service().validate(try_refresh=True, force_online_check=True)
+        except Exception as exc:
+            error = f"{type(exc).__name__}: {exc}"
+        elapsed = perf_counter() - started
+        self.signals.result.emit(status, elapsed, error)
+
+
 class MainWindow(QMainWindow):
     """Main application window controller (UI shell).
 
@@ -73,6 +106,8 @@ class MainWindow(QMainWindow):
         super().__init__(parent)
         self._is_closing = False
         self._license_block_dialog_shown = False
+        self._license_check_in_flight = False
+        self._license_worker = None
         self.splash = splash
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
@@ -680,17 +715,12 @@ class MainWindow(QMainWindow):
 
             # Set up periodic runtime license enforcement.
             # This ensures revoked licenses are blocked while the app is open.
-            interval_seconds = int(
-                ConfigManager().get(
-                    "licensing.runtime_check_interval_seconds",
-                    ConfigManager().get("licensing.background_check_interval_seconds", 120),
-                )
-            )
-            interval_seconds = max(30, min(interval_seconds, 120))
+            interval_seconds = self._resolve_runtime_license_interval_seconds()
             self._license_check_timer = QTimer(self)
             self._license_check_timer.timeout.connect(self._enforce_runtime_license_status)
             self._license_check_timer.start(interval_seconds * 1000)
             QTimer.singleShot(2000, self._enforce_runtime_license_status)
+            logger.info("license_runtime_timer interval_seconds=%s", interval_seconds)
             
             logger.info("Status bar widgets initialized")
             
@@ -827,29 +857,74 @@ class MainWindow(QMainWindow):
 
     def _enforce_runtime_license_status(self) -> None:
         """Revalidate license during runtime and block if revoked/invalid."""
-        if self._is_closing or self._license_block_dialog_shown:
+        if self._is_closing or self._license_block_dialog_shown or self._license_check_in_flight:
             return
+        self._license_check_in_flight = True
+        worker = _LicenseValidationWorker()
+        self._license_worker = worker
+        worker.signals.result.connect(self._on_runtime_license_result)
+        QThreadPool.globalInstance().start(worker)
+
+    @staticmethod
+    def _resolve_runtime_license_interval_seconds() -> int:
+        """Resolve runtime license check interval with safe production bounds."""
+        cfg = ConfigManager()
+        raw = cfg.get(
+            "licensing.runtime_check_interval_seconds",
+            cfg.get("licensing.background_check_interval_seconds", 900),
+        )
         try:
-            from services.license_service import get_license_service
+            interval_seconds = int(raw)
+        except Exception:
+            interval_seconds = 900
+        return max(60, min(interval_seconds, 86400))
 
-            status = get_license_service().validate(try_refresh=True, force_online_check=True)
-            self._update_license_status()
-            if not status.should_block:
-                return
+    @Slot(object, float, str)
+    def _on_runtime_license_result(self, status, elapsed_seconds: float, error: str) -> None:
+        """Handle background runtime license validation result in UI thread."""
+        self._license_check_in_flight = False
+        self._license_worker = None
+        if self._is_closing:
+            return
+        if error:
+            logger.warning(
+                "license_runtime_check result=error elapsed_ms=%s diagnostics=%s",
+                int(elapsed_seconds * 1000),
+                error,
+            )
+            return
+        if status is None:
+            logger.warning("license_runtime_check result=error elapsed_ms=%s diagnostics=empty_status", int(elapsed_seconds * 1000))
+            return
 
-            self._license_block_dialog_shown = True
-            if hasattr(self, "_license_check_timer") and self._license_check_timer is not None:
-                self._license_check_timer.stop()
+        logger.info(
+            "license_runtime_check result=%s should_block=%s elapsed_ms=%s",
+            status.status,
+            int(status.should_block),
+            int(elapsed_seconds * 1000),
+        )
+        self._update_license_status()
+        if not status.should_block:
+            return
 
-            msg = QMessageBox(self)
-            msg.setIcon(QMessageBox.Icon.Critical)
-            msg.setWindowTitle("License Invalid")
-            msg.setText("License access has been revoked or is no longer valid.")
-            msg.setInformativeText(f"Status: {status.status}\n{status.message}\n\nThe application will close.")
-            msg.exec()
-            self.close()
-        except Exception as exc:
-            logger.warning(f"Runtime license validation failed: {exc}")
+        self._license_block_dialog_shown = True
+        if hasattr(self, "_license_check_timer") and self._license_check_timer is not None:
+            self._license_check_timer.stop()
+
+        msg = QMessageBox(self)
+        msg.setIcon(QMessageBox.Icon.Critical)
+        msg.setWindowTitle("License Invalid")
+        msg.setText("License access has been blocked.")
+        msg.setInformativeText(
+            f"Status: {status.status}\n"
+            f"{status.message}\n\n"
+            "Next step:\n"
+            "- Connect to internet and retry if this is a refresh issue.\n"
+            "- If blocked persists, contact support with your machine ID.\n\n"
+            "The application will close."
+        )
+        msg.exec()
+        self.close()
 
     def _set_default_page(self) -> None:
         """Set Dashboard page as the default startup page.

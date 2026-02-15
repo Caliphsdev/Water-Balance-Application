@@ -75,6 +75,9 @@ class CalculationConstants:
     balance_error_threshold_pct: float = 5.0  # Error < 5% = acceptable
     stale_data_warning_days: int = 30  # Warn if data older than this
     
+    # Days-of-operation runway floor
+    runway_gross_floor_pct: float = 0.25  # Minimum demand floor as % of gross outflows
+    
     # Feature toggles (can be enabled/disabled in settings)
     runoff_enabled: bool = False  # Enable catchment runoff calculation
     dewatering_enabled: bool = True  # Enable underground dewatering as inflow
@@ -242,6 +245,10 @@ class ConstantsLoader:
             # Thresholds
             'balance_error_threshold': 'balance_error_threshold_pct',
             'abstraction_license_m3': 'abstraction_license_annual_m3',
+            # Runway
+            'runway_gross_floor_pct': 'runway_gross_floor_pct',
+            'runway_floor_pct': 'runway_gross_floor_pct',
+            'RUNWAY_GROSS_FLOOR_PCT': 'runway_gross_floor_pct',
             # Feature toggles (can be set in config or database)
             'runoff_enabled': 'runoff_enabled',
             'enable_runoff': 'runoff_enabled',

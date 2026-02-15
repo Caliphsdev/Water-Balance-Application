@@ -45,6 +45,7 @@ from calendar import monthrange
 from pydantic import BaseModel, Field
 
 from database.db_manager import DatabaseManager
+from services.calculation.constants import get_constants
 
 logger = logging.getLogger(__name__)
 
@@ -144,7 +145,9 @@ class SystemRunway(BaseModel):
     Equations:
         Usable_Storage = Current_Volume - Dead_Storage (10% reserve)
         Net_Fresh_Demand = Process_Outflows - Recycled_Water_Recovery
-        Days_Remaining = Usable_Storage / Net_Fresh_Demand
+        Gross_Floor_Demand = Gross_Outflows × Floor_Pct
+        Runway_Daily_Demand = max(Net_Fresh_Demand, Gross_Floor_Demand)
+        Days_Remaining = Usable_Storage / Runway_Daily_Demand
     
     The limiting factor is the facility that runs out first.
     """
@@ -165,6 +168,11 @@ class SystemRunway(BaseModel):
     recycled_water_m3: float = Field(default=0.0, description="Monthly recycled water recovered")
     net_fresh_demand_m3: float = Field(default=0.0, description="Net fresh water demand (outflows - recycled)")
     daily_net_fresh_demand_m3: float = Field(default=0.0, description="Daily net fresh water demand")
+    net_fresh_daily_demand_m3: float = Field(default=0.0, description="Daily net fresh demand (same as daily_net_fresh_demand_m3)")
+    gross_outflow_daily_m3: float = Field(default=0.0, description="Daily gross outflows")
+    gross_floor_daily_m3: float = Field(default=0.0, description="Daily gross outflow floor demand")
+    runway_daily_demand_m3: float = Field(default=0.0, description="Selected daily demand for runway calculation")
+    runway_demand_method: str = Field(default="zero", description="Method used: 'net', 'floor', or 'zero'")
     
     # Environmental losses (tracked separately per ICMM)
     evaporation_loss_m3: float = Field(default=0.0, description="Monthly evaporation loss")
@@ -176,7 +184,7 @@ class SystemRunway(BaseModel):
     
     # System runway (limited by first facility to deplete)
     system_days_remaining: int = Field(default=0, description="Days until first facility depletes")
-    combined_days_remaining: int = Field(default=0, description="Days for combined system (usable storage / daily demand)")
+    combined_days_remaining: Optional[int] = Field(default=None, description="Days for combined system (usable storage / selected daily demand)")
     limiting_facility: str = Field(default="", description="Facility that will deplete first")
     
     # Per-facility breakdown
@@ -264,6 +272,7 @@ class DaysOfOperationService:
             db_manager = DatabaseManager()
         
         self.db = db_manager
+        self._constants = get_constants()
         logger.info("DaysOfOperationService initialized")
     
     def calculate_runway(
@@ -280,7 +289,9 @@ class DaysOfOperationService:
         Equations:
             Usable_Storage = Current_Volume - Dead_Storage (10% minimum reserve)
             Net_Fresh_Demand = Total_Outflows - Recycled_Water_Recovery
-            Days_Remaining = Usable_Storage / Daily_Net_Fresh_Demand
+            Gross_Floor_Demand = Gross_Outflows × Floor_Pct
+            Runway_Daily_Demand = max(Net_Fresh_Demand, Gross_Floor_Demand)
+            Days_Remaining = Usable_Storage / Runway_Daily_Demand
         
         Data Sources (priority order):
             1. balance_result.outflows (BEST - actual measured/calculated outflows)
@@ -296,8 +307,8 @@ class DaysOfOperationService:
         Returns:
             SystemRunway with industry-standard metrics:
             - usable_storage_m3: Storage above minimum reserve
-            - daily_net_fresh_demand_m3: Net water demand per day
-            - combined_days_remaining: Usable storage / daily demand
+            - runway_daily_demand_m3: Selected daily demand for runway
+            - combined_days_remaining: Usable storage / selected daily demand
             - system_days_remaining: First facility to deplete (limiting factor)
         
         Example:
@@ -390,22 +401,38 @@ class DaysOfOperationService:
         result.evaporation_loss_m3 = evaporation
         result.seepage_loss_m3 = seepage
         
-        # Net fresh demand = outflows - recycled (what we actually need to replenish)
+        days_in_selected_month = monthrange(year, month)[1]
+
+        # Hybrid runway demand:
+        # - Preserve recycling benefit via net fresh demand
+        # - Apply gross outflow floor so demand doesn't collapse to zero while process still runs
+        floor_pct = float(getattr(self._constants, 'runway_gross_floor_pct', 0.25) or 0.25)
         if monthly_outflows > 0:
             result.net_fresh_demand_m3 = max(0, monthly_outflows - recycled_water)
-            result.daily_net_fresh_demand_m3 = result.net_fresh_demand_m3 / 30
+            result.daily_net_fresh_demand_m3 = result.net_fresh_demand_m3 / days_in_selected_month
+            result.net_fresh_daily_demand_m3 = result.daily_net_fresh_demand_m3
+            result.gross_outflow_daily_m3 = monthly_outflows / days_in_selected_month
+            result.gross_floor_daily_m3 = result.gross_outflow_daily_m3 * floor_pct
+            result.runway_daily_demand_m3 = max(result.net_fresh_daily_demand_m3, result.gross_floor_daily_m3)
+            result.runway_demand_method = "net" if result.net_fresh_daily_demand_m3 >= result.gross_floor_daily_m3 else "floor"
         else:
             # Fallback to facility-based consumption
-            result.net_fresh_demand_m3 = result.total_daily_consumption_m3 * 30
+            result.net_fresh_demand_m3 = result.total_daily_consumption_m3 * days_in_selected_month
             result.daily_net_fresh_demand_m3 = result.total_daily_consumption_m3
+            result.net_fresh_daily_demand_m3 = result.daily_net_fresh_demand_m3
+            result.gross_outflow_daily_m3 = 0.0
+            result.gross_floor_daily_m3 = 0.0
+            result.runway_daily_demand_m3 = 0.0
+            result.runway_demand_method = "zero"
         
         result.total_monthly_consumption_m3 = result.net_fresh_demand_m3
         
-        # Calculate combined system days (ICMM standard: usable storage / daily demand)
-        if result.daily_net_fresh_demand_m3 > 0:
-            result.combined_days_remaining = int(result.usable_storage_m3 / result.daily_net_fresh_demand_m3)
+        # Calculate combined system days using selected runway demand
+        if result.runway_daily_demand_m3 > 0:
+            result.combined_days_remaining = int(result.usable_storage_m3 / result.runway_daily_demand_m3)
         else:
-            result.combined_days_remaining = 365  # Default if no consumption
+            result.combined_days_remaining = None
+            result.runway_demand_method = "zero"
         
         if result.total_capacity_m3 > 0:
             result.system_utilization_pct = (result.total_current_volume_m3 / result.total_capacity_m3) * 100
@@ -413,9 +440,9 @@ class DaysOfOperationService:
         result.system_days_remaining = int(min_days) if min_days != float('inf') else 0
         result.limiting_facility = limiting_facility
         
-        logger.info(f"Runway calculated (ICMM method): combined={result.combined_days_remaining}d, "
+        logger.info(f"Runway calculated (ICMM method): combined={result.combined_days_remaining}, "
                    f"limiting={limiting_facility} ({result.system_days_remaining}d), "
-                   f"daily_demand={result.daily_net_fresh_demand_m3:,.0f} m³/day")
+                   f"daily_demand={result.runway_daily_demand_m3:,.0f} m³/day ({result.runway_demand_method})")
         
         return result
     
@@ -629,7 +656,8 @@ class DaysOfOperationService:
         
         # Set runway results
         runway.days_remaining_conservative = days_total
-        runway.net_daily_consumption_m3 = runway.monthly_consumption_m3 / 30  # Approximate
+        days_in_selected_month = monthrange(year, month)[1]
+        runway.net_daily_consumption_m3 = runway.monthly_consumption_m3 / days_in_selected_month
         
         # Calculate depletion date
         if days_total > 0 and days_total < projection_months * 31:

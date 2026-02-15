@@ -1,0 +1,95 @@
+{
+  "period": {
+    "year": 2025,
+    "month": 10,
+    "label": "October 2025"
+  },
+  "system_balance_tab": {
+    "fresh_inflows_m3": 223844.547204,
+    "total_outflows_m3": 227108.26738335477,
+    "opening_storage_m3": 1606727.0348536856,
+    "closing_storage_m3": 1606727.0348536856,
+    "storage_change_m3": 0.0,
+    "balance_error_m3": -3263.720179354772,
+    "error_pct": -1.4580297890305056,
+    "status": "GREEN"
+  },
+  "recycled_tab": {
+    "recycled_total_m3": 245648.5,
+    "recycled_components": {
+      "total_from_excel": 245648.5
+    },
+    "recycled_pct": 52.32207408883372,
+    "fresh_pct": 47.67792591116628,
+    "water_intensity_m3_per_tonne": 1.5337114294218486
+  },
+  "data_quality_tab": {
+    "has_issues": true,
+    "issue_count": 17,
+    "missing": [],
+    "estimated": [
+      "dust_suppression",
+      "domestic_consumption",
+      "NDCD1_opening",
+      "PCD1_opening",
+      "TST0167A2_opening",
+      "TST7E95EE_opening",
+      "TST058FE1_opening",
+      "TSTEE2983_opening",
+      "TSTF25DC0_opening",
+      "TST5BCDE0_opening",
+      "TST9577BA_opening",
+      "TSTD864C4_opening",
+      "TST5F8240_opening",
+      "TSTA7ADA4_opening",
+      "TST91EC98_opening",
+      "TST618F70_opening",
+      "TST0FC500_opening"
+    ],
+    "warnings": [],
+    "simulated": [],
+    "notes": {
+      "dust_suppression": "Estimated at 200.0 L/t \u00d7 306,116t",
+      "domestic_consumption": "Est: 2000 people \u00d7 31 days \u00d7 150.0 L/day",
+      "product_moisture": "PGM: 7,809t\u00d714.2%=1,106m\u00b3 + Chromite: 10,101t\u00d75.4%=543m\u00b3",
+      "NDCD1_opening": "No history for 9/2025, using current (376,648 m\u00b3)",
+      "PCD1_opening": "No history for 9/2025, using current (3,013 m\u00b3)",
+      "TST0167A2_opening": "No history for 9/2025, using current (93,895 m\u00b3)",
+      "TST7E95EE_opening": "No history for 9/2025, using current (93,895 m\u00b3)",
+      "TST058FE1_opening": "No history for 9/2025, using current (93,895 m\u00b3)",
+      "TSTEE2983_opening": "No history for 9/2025, using current (93,895 m\u00b3)",
+      "TSTF25DC0_opening": "No history for 9/2025, using current (93,895 m\u00b3)",
+      "TST5BCDE0_opening": "No history for 9/2025, using current (93,895 m\u00b3)",
+      "TST9577BA_opening": "No history for 9/2025, using current (93,895 m\u00b3)",
+      "TSTD864C4_opening": "No history for 9/2025, using current (93,895 m\u00b3)",
+      "TST5F8240_opening": "No history for 9/2025, using current (93,895 m\u00b3)",
+      "TSTA7ADA4_opening": "No history for 9/2025, using current (95,503 m\u00b3)",
+      "TST91EC98_opening": "No history for 9/2025, using current (95,503 m\u00b3)",
+      "TST618F70_opening": "No history for 9/2025, using current (95,503 m\u00b3)",
+      "TST0FC500_opening": "No history for 9/2025, using current (95,503 m\u00b3)"
+    }
+  },
+  "days_of_operation_tab": {
+    "combined_days_remaining": 784,
+    "system_days_remaining": 75,
+    "limiting_facility": "PCD1",
+    "usable_storage_m3": 1436227.0348536854,
+    "minimum_reserve_m3": 170500.0,
+    "total_capacity_m3": 1705000.0,
+    "total_current_volume_m3": 1606727.0348536854,
+    "total_outflows_m3": 227108.26738335477,
+    "recycled_water_m3": 245648.5,
+    "net_fresh_demand_m3": 0,
+    "net_fresh_daily_demand_m3": 0.0,
+    "gross_outflow_daily_m3": 7326.073141398541,
+    "gross_floor_daily_m3": 1831.5182853496353,
+    "runway_daily_demand_m3": 1831.5182853496353,
+    "runway_demand_method": "floor",
+    "evaporation_loss_m3": 10709.999999999998,
+    "seepage_loss_m3": 6527.04170577694,
+    "consumption_source": "outflows",
+    "data_quality_notes": [
+      "Using measured outflows from balance calculation"
+    ]
+  }
+}

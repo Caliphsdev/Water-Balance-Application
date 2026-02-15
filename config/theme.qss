@@ -15,6 +15,21 @@ QDialog {
     background-color: #f2f5f8;
 }
 
+QToolTip {
+    background-color: rgba(255, 255, 255, 240);
+    color: #0f172a;
+    border: 1px solid rgba(148, 163, 184, 170);
+    padding: 6px 8px;
+    border-radius: 7px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+QToolTip QLabel {
+    color: #0f172a;
+    background: transparent;
+}
+
 QLabel {
     color: #0b1a2a;
 }
@@ -555,44 +570,44 @@ QFrame#flow_balance_card_outflows {
 
 QLabel#flow_balance_metric_title {
     color: #4f5e70;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 600;
 }
 
 QLabel#flow_balance_metric_value {
     color: #0b1a2a;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 700;
     padding-top: 0px;
 }
 
 QLabel#flow_balance_metric_unit {
     color: #5b6775;
-    font-size: 11px;
+    font-size: 10px;
     padding-top: 1px;
 }
 
 QFrame#flow_balance_badge {
     background-color: #e8eef7;
     border: 1px solid #c7d0da;
-    border-radius: 12px;
+    border-radius: 10px;
 }
 
 QLabel#flow_balance_badge_label {
     color: #1f2f43;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 600;
 }
 
 QLabel#flow_balance_badge_value {
     color: #1f3a5f;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
 }
 
 QLabel#flow_balance_badge_unit {
     color: #1f2f43;
-    font-size: 11px;
+    font-size: 10px;
 }
 
 QLabel#flow_excel_state_badge {
@@ -851,6 +866,7 @@ QLabel#calc_quality_status_value {
 QLabel#calc_quality_status_count {
     color: #5b6775;
     font-size: 10px;
+    qproperty-alignment: 'AlignHCenter|AlignVCenter';
 }
 
 QFrame#calc_quality_issues,
@@ -921,7 +937,8 @@ QLabel#calc_days_subtitle {
 QLabel#calc_metric_header_badge,
 QLabel#calc_days_badge {
     border-radius: 12px;
-    padding: 4px 10px;
+    padding: 2px 10px;
+    min-height: 22px;
     font-size: 11px;
     font-weight: 700;
     background: #eef3f8;
@@ -971,8 +988,86 @@ QLabel#calc_days_badge[runwayState="critical"] {
     color: #6a1a14;
 }
 
+QLabel#calc_days_badge[runwayState="info"] {
+    background: #f1f5f9;
+    border: 1px solid #d0d8e2;
+    color: #475569;
+}
+
 QLabel#calc_days_usage {
     color: #5b6775;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+QLabel#calc_runway_secondary {
+    color: #1f2f43;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+QLabel#calc_runway_relation_note {
+    color: #5b6775;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+QLabel#calc_runway_risk_note {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 8px;
+}
+
+QLabel#calc_runway_risk_note[riskState="high"] {
+    color: #8a5800;
+    background: #fff7e6;
+    border: 1px solid #f7ddad;
+}
+
+QLabel#calc_runway_risk_note[riskState="moderate"] {
+    color: #1d4ed8;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+}
+
+QLabel#calc_runway_chip {
+    border-radius: 10px;
+    padding: 2px 8px;
+    min-height: 22px;
+    font-size: 10px;
+    font-weight: 800;
+    border: 1px solid #c7d0da;
+    background: #eef3f8;
+    color: #1f2f43;
+}
+
+QLabel#calc_runway_chip[method="net"] {
+    background: #e7f4ea;
+    border: 1px solid #bfe2c6;
+    color: #185d2c;
+}
+
+QLabel#calc_runway_chip[method="floor"] {
+    background: #fff7e6;
+    border: 1px solid #f7ddad;
+    color: #8a5800;
+}
+
+QLabel#calc_runway_chip[method="zero"] {
+    background: #f1f5f9;
+    border: 1px solid #d0d8e2;
+    color: #475569;
+}
+
+QLabel#calc_runway_method_detail {
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+QLabel#calc_runway_zero_note {
+    color: #475569;
     font-size: 11px;
     font-weight: 600;
 }
@@ -1034,6 +1129,66 @@ QLabel#calc_facilities_title {
     color: #1f2f43;
     font-size: 12px;
     font-weight: 700;
+}
+
+QLabel#calc_topn_label {
+    color: #334155;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+QComboBox#calc_topn_combo {
+    min-width: 72px;
+    max-width: 90px;
+    min-height: 26px;
+    padding: 2px 8px;
+}
+
+QLabel#calc_chart_empty {
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+QScrollArea#calc_bar_scroll {
+    border: none;
+    background: transparent;
+}
+
+QWidget#calc_pie_split {
+    background: transparent;
+}
+
+QFrame#calc_legend_panel {
+    background: #f8fafc;
+    border: 1px solid #d7e0eb;
+    border-radius: 8px;
+}
+
+QLabel#calc_pie_legend_row {
+    color: #334155;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+QPushButton#calc_pager_btn {
+    min-height: 26px;
+    padding: 2px 10px;
+}
+
+QLabel#calc_pager_label {
+    color: #475569;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 0 4px;
+}
+
+QListWidget#flow_load_excel_warnings {
+    background: #f8fafc;
+    border: 1px solid #d7e0eb;
+    border-radius: 8px;
+    color: #334155;
+    font-size: 11px;
 }
 
 QFrame#calc_facility_card {

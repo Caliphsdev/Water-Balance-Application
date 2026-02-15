@@ -16973,3 +16973,255 @@
 2026-02-13 10:48:37 | INFO     | load_diagram:734 | Loaded diagram for UG2N
 2026-02-13 10:48:37 | INFO     | _render_diagram:943 | Rendered diagram: 126 nodes, 116 edges
 2026-02-13 10:48:37 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-15 10:37:25 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 10:37:31 | INFO     | load_diagram:734 | Loaded diagram for UG2N
+2026-02-15 10:37:31 | INFO     | _render_diagram:943 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 10:37:31 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-15 10:39:56 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 10:40:00 | INFO     | load_diagram:734 | Loaded diagram for UG2N
+2026-02-15 10:40:00 | INFO     | _render_diagram:943 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 10:40:00 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-15 10:46:58 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 10:47:02 | INFO     | load_diagram:734 | Loaded diagram for UG2N
+2026-02-15 10:47:02 | INFO     | _render_diagram:943 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 10:47:02 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-15 11:37:26 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 11:37:30 | INFO     | load_diagram:734 | Loaded diagram for UG2N
+2026-02-15 11:37:30 | INFO     | _render_diagram:943 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 11:37:30 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-15 11:49:24 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 11:50:10 | INFO     | load_diagram:734 | Loaded diagram for UG2N
+2026-02-15 11:50:10 | INFO     | _render_diagram:943 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 11:50:10 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-15 12:05:19 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 12:05:23 | INFO     | load_diagram:734 | Loaded diagram for UG2N
+2026-02-15 12:05:23 | INFO     | _render_diagram:943 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 12:05:23 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-15 12:22:49 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 12:23:32 | INFO     | load_diagram:734 | Loaded diagram for UG2N
+2026-02-15 12:23:32 | INFO     | _render_diagram:943 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 12:23:32 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-15 12:36:34 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 12:36:38 | INFO     | load_diagram:734 | Loaded diagram for UG2N
+2026-02-15 12:36:38 | INFO     | _render_diagram:943 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 12:36:38 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-15 13:18:24 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 13:18:30 | INFO     | load_diagram:734 | Loaded diagram for UG2N
+2026-02-15 13:18:30 | INFO     | _render_diagram:943 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 13:18:30 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-15 13:25:56 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 13:26:00 | INFO     | load_diagram:734 | Loaded diagram for UG2N
+2026-02-15 13:26:00 | INFO     | _render_diagram:943 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 13:26:00 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-15 13:27:59 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 13:28:03 | INFO     | load_diagram:734 | Loaded diagram for UG2N
+2026-02-15 13:28:03 | INFO     | _render_diagram:943 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 13:28:03 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-15 13:29:51 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 13:29:55 | INFO     | load_diagram:734 | Loaded diagram for UG2N
+2026-02-15 13:29:55 | INFO     | _render_diagram:943 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 13:29:55 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-15 13:32:22 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 13:32:25 | INFO     | load_diagram:734 | Loaded diagram for UG2N
+2026-02-15 13:32:25 | INFO     | _render_diagram:943 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 13:32:25 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-15 13:51:57 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 13:52:03 | INFO     | load_diagram:734 | Loaded diagram for UG2N
+2026-02-15 13:52:03 | INFO     | _render_diagram:943 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 13:52:03 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-15 13:57:25 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 13:57:28 | INFO     | load_diagram:734 | Loaded diagram for UG2N
+2026-02-15 13:57:28 | INFO     | _render_diagram:943 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 13:57:28 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-15 14:15:00 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 14:15:05 | INFO     | load_diagram:734 | Loaded diagram for UG2N
+2026-02-15 14:15:05 | INFO     | _render_diagram:943 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 14:15:05 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-15 14:26:10 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 14:26:15 | INFO     | load_diagram:734 | Loaded diagram for UG2N
+2026-02-15 14:26:15 | INFO     | _render_diagram:943 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 14:26:15 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-15 14:39:18 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 14:39:22 | INFO     | load_diagram:734 | Loaded diagram for UG2N
+2026-02-15 14:39:22 | INFO     | _render_diagram:943 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 14:39:22 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-15 14:47:58 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 14:48:02 | INFO     | load_diagram:734 | Loaded diagram for UG2N
+2026-02-15 14:48:03 | INFO     | _render_diagram:943 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 14:48:03 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-15 16:51:45 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 16:51:49 | INFO     | load_diagram:734 | Loaded diagram for UG2N
+2026-02-15 16:51:49 | INFO     | _render_diagram:943 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 16:51:49 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-15 16:57:08 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 16:57:12 | INFO     | load_diagram:734 | Loaded diagram for UG2N
+2026-02-15 16:57:12 | INFO     | _render_diagram:943 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 16:57:12 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-15 18:22:19 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 18:22:24 | INFO     | load_diagram:734 | Loaded diagram for UG2N
+2026-02-15 18:22:24 | INFO     | _render_diagram:943 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 18:22:24 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-15 18:28:52 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 18:28:56 | INFO     | load_diagram:734 | Loaded diagram for UG2N
+2026-02-15 18:28:56 | INFO     | _render_diagram:943 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 18:28:56 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-15 18:37:02 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 18:37:06 | INFO     | load_diagram:734 | Loaded diagram for UG2N
+2026-02-15 18:37:06 | INFO     | _render_diagram:943 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 18:37:06 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-15 18:55:57 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 18:56:01 | INFO     | load_diagram:734 | Loaded diagram for UG2N
+2026-02-15 18:56:01 | INFO     | _render_diagram:943 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 18:56:01 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-15 19:10:03 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 19:10:08 | INFO     | load_diagram:734 | Loaded diagram for UG2N
+2026-02-15 19:10:08 | INFO     | _render_diagram:943 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 19:10:08 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-15 20:20:55 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 20:20:59 | INFO     | load_diagram:734 | Loaded diagram for UG2N
+2026-02-15 20:20:59 | INFO     | _render_diagram:943 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 20:20:59 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-15 20:28:15 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 20:28:19 | INFO     | load_diagram:734 | Loaded diagram for UG2N
+2026-02-15 20:28:19 | INFO     | _render_diagram:943 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 20:28:19 | INFO     | __init__:160 | Flow Diagram Page initialized
+2026-02-15 20:29:58 | INFO     | _on_excel_setup_clicked:3360 | Excel Setup button clicked
+2026-02-15 20:30:01 | INFO     | _on_excel_setup_clicked:3367 | Excel Setup dialog closed
+2026-02-15 20:30:05 | INFO     | _on_load_excel_clicked:3245 | Load Excel button clicked
+2026-02-15 20:30:05 | INFO     | _render_diagram:943 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 20:30:05 | INFO     | _load_and_display_recirculation:1019 | Found 11 recirculation configs to load
+2026-02-15 20:30:05 | INFO     | _load_and_display_recirculation:1054 | Loaded 11 recirculation volumes for UG2N (2025/12)
+2026-02-15 20:31:28 | INFO     | _on_load_excel_clicked:3341 | Loaded Excel data: 107 flows updated, 9 errors
+2026-02-15 20:31:37 | INFO     | _on_save_diagram_clicked:3223 | [OK] Saved diagram to D:\Projects\dashboard_waterbalance\data\diagrams\flow_diagram.json (nodes: 126, edges: 116)
+2026-02-15 20:34:38 | INFO     | _on_edge_selected:1260 | Selected edge item details: edge_idx=4, from_id=bh_ndgwa, to_id=softening, data_obj_id=2048168576192
+2026-02-15 20:34:38 | INFO     | _on_edge_selected:1270 | Edge data object index in diagram_data: 4
+2026-02-15 20:46:39 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 20:46:43 | INFO     | load_diagram:735 | Loaded diagram for UG2N
+2026-02-15 20:46:43 | INFO     | _render_diagram:944 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 20:46:43 | INFO     | __init__:161 | Flow Diagram Page initialized
+2026-02-15 20:46:49 | INFO     | _on_edge_selected:1261 | Selected edge item details: edge_idx=4, from_id=bh_ndgwa, to_id=softening, data_obj_id=2039582779776
+2026-02-15 20:46:49 | INFO     | _on_edge_selected:1271 | Edge data object index in diagram_data: 4
+2026-02-15 20:51:30 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 20:51:33 | INFO     | load_diagram:735 | Loaded diagram for UG2N
+2026-02-15 20:51:33 | INFO     | _render_diagram:944 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 20:51:33 | INFO     | __init__:161 | Flow Diagram Page initialized
+2026-02-15 20:51:41 | INFO     | _on_edge_selected:1261 | Selected edge item details: edge_idx=4, from_id=bh_ndgwa, to_id=softening, data_obj_id=2400360161408
+2026-02-15 20:51:41 | INFO     | _on_edge_selected:1271 | Edge data object index in diagram_data: 4
+2026-02-15 20:55:20 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 20:55:24 | INFO     | load_diagram:735 | Loaded diagram for UG2N
+2026-02-15 20:55:24 | INFO     | _render_diagram:944 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 20:55:24 | INFO     | __init__:161 | Flow Diagram Page initialized
+2026-02-15 20:55:37 | INFO     | _on_edge_selected:1261 | Selected edge item details: edge_idx=4, from_id=bh_ndgwa, to_id=softening, data_obj_id=2514170243904
+2026-02-15 20:55:37 | INFO     | _on_edge_selected:1271 | Edge data object index in diagram_data: 4
+2026-02-15 21:00:06 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 21:00:10 | INFO     | load_diagram:735 | Loaded diagram for UG2N
+2026-02-15 21:00:10 | INFO     | _render_diagram:944 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 21:00:10 | INFO     | __init__:161 | Flow Diagram Page initialized
+2026-02-15 21:14:22 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 21:14:26 | INFO     | load_diagram:735 | Loaded diagram for UG2N
+2026-02-15 21:14:26 | INFO     | _render_diagram:944 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 21:14:26 | INFO     | __init__:161 | Flow Diagram Page initialized
+2026-02-15 21:18:39 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 21:18:43 | INFO     | load_diagram:735 | Loaded diagram for UG2N
+2026-02-15 21:18:43 | INFO     | _render_diagram:944 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 21:18:43 | INFO     | __init__:161 | Flow Diagram Page initialized
+2026-02-15 21:22:03 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 21:22:07 | INFO     | load_diagram:735 | Loaded diagram for UG2N
+2026-02-15 21:22:07 | INFO     | _render_diagram:944 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 21:22:07 | INFO     | __init__:161 | Flow Diagram Page initialized
+2026-02-15 21:22:44 | INFO     | _on_excel_setup_clicked:3417 | Excel Setup button clicked
+2026-02-15 21:22:47 | INFO     | _on_excel_setup_clicked:3424 | Excel Setup dialog closed
+2026-02-15 21:22:51 | INFO     | _on_load_excel_clicked:3250 | Load Excel button clicked
+2026-02-15 21:22:51 | INFO     | _render_diagram:944 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 21:22:51 | INFO     | _load_and_display_recirculation:1020 | Found 11 recirculation configs to load
+2026-02-15 21:22:51 | INFO     | _load_and_display_recirculation:1055 | Loaded 11 recirculation volumes for UG2N (2025/12)
+2026-02-15 21:22:58 | INFO     | _on_load_excel_clicked:3345 | Loaded Excel data: 107 flows updated, 9 errors
+2026-02-15 21:30:02 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 21:30:07 | INFO     | load_diagram:786 | Loaded diagram for UG2N
+2026-02-15 21:30:07 | INFO     | _render_diagram:995 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 21:30:07 | INFO     | __init__:162 | Flow Diagram Page initialized
+2026-02-15 21:34:37 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 21:34:41 | INFO     | load_diagram:845 | Loaded diagram for UG2N
+2026-02-15 21:34:41 | INFO     | _render_diagram:1054 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 21:34:41 | INFO     | __init__:163 | Flow Diagram Page initialized
+2026-02-15 21:38:29 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 21:38:32 | INFO     | load_diagram:805 | Loaded diagram for UG2N
+2026-02-15 21:38:32 | INFO     | _render_diagram:1014 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 21:38:32 | INFO     | __init__:161 | Flow Diagram Page initialized
+2026-02-15 21:41:03 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 21:41:06 | INFO     | load_diagram:811 | Loaded diagram for UG2N
+2026-02-15 21:41:06 | INFO     | _render_diagram:1020 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 21:41:07 | INFO     | __init__:161 | Flow Diagram Page initialized
+2026-02-15 21:45:50 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 21:45:54 | INFO     | load_diagram:820 | Loaded diagram for UG2N
+2026-02-15 21:45:54 | INFO     | _render_diagram:1029 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 21:45:54 | INFO     | __init__:161 | Flow Diagram Page initialized
+2026-02-15 21:48:27 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 21:48:31 | INFO     | load_diagram:821 | Loaded diagram for UG2N
+2026-02-15 21:48:31 | INFO     | _render_diagram:1030 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 21:48:31 | INFO     | __init__:161 | Flow Diagram Page initialized
+2026-02-15 21:53:39 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 21:53:43 | INFO     | load_diagram:821 | Loaded diagram for UG2N
+2026-02-15 21:53:43 | INFO     | _render_diagram:1030 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 21:53:43 | INFO     | __init__:161 | Flow Diagram Page initialized
+2026-02-15 21:54:04 | INFO     | _on_edge_selected:1347 | Selected edge item details: edge_idx=4, from_id=bh_ndgwa, to_id=softening, data_obj_id=2196349087104
+2026-02-15 21:54:04 | INFO     | _on_edge_selected:1357 | Edge data object index in diagram_data: 4
+2026-02-15 21:54:09 | INFO     | _on_excel_setup_clicked:3503 | Excel Setup button clicked
+2026-02-15 21:54:12 | INFO     | _on_excel_setup_clicked:3510 | Excel Setup dialog closed
+2026-02-15 21:54:14 | INFO     | _on_balance_check_clicked:3229 | Balance Check button clicked
+2026-02-15 21:54:29 | INFO     | _on_balance_check_clicked:3239 | Balance Check dialog closed
+2026-02-15 22:00:30 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 22:00:34 | INFO     | load_diagram:821 | Loaded diagram for UG2N
+2026-02-15 22:00:34 | INFO     | _render_diagram:1030 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 22:00:34 | INFO     | __init__:161 | Flow Diagram Page initialized
+2026-02-15 22:10:29 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 22:10:33 | INFO     | load_diagram:821 | Loaded diagram for UG2N
+2026-02-15 22:10:33 | INFO     | _render_diagram:1030 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 22:10:33 | INFO     | __init__:161 | Flow Diagram Page initialized
+2026-02-15 22:20:23 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 22:20:27 | INFO     | load_diagram:821 | Loaded diagram for UG2N
+2026-02-15 22:20:27 | INFO     | _render_diagram:1030 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 22:20:27 | INFO     | __init__:161 | Flow Diagram Page initialized
+2026-02-15 22:26:11 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 22:26:15 | INFO     | load_diagram:821 | Loaded diagram for UG2N
+2026-02-15 22:26:15 | INFO     | _render_diagram:1030 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 22:26:15 | INFO     | __init__:161 | Flow Diagram Page initialized
+2026-02-15 22:28:46 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 22:28:50 | INFO     | load_diagram:821 | Loaded diagram for UG2N
+2026-02-15 22:28:50 | INFO     | _render_diagram:1030 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 22:28:50 | INFO     | __init__:161 | Flow Diagram Page initialized
+2026-02-15 22:34:45 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 22:34:50 | INFO     | load_diagram:821 | Loaded diagram for UG2N
+2026-02-15 22:34:50 | INFO     | _render_diagram:1030 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 22:34:50 | INFO     | __init__:161 | Flow Diagram Page initialized
+2026-02-15 22:40:47 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 22:40:51 | INFO     | load_diagram:821 | Loaded diagram for UG2N
+2026-02-15 22:40:51 | INFO     | _render_diagram:1030 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 22:40:51 | INFO     | __init__:161 | Flow Diagram Page initialized
+2026-02-15 22:45:58 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 22:46:03 | INFO     | load_diagram:821 | Loaded diagram for UG2N
+2026-02-15 22:46:03 | INFO     | _render_diagram:1030 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 22:46:03 | INFO     | __init__:161 | Flow Diagram Page initialized
+2026-02-15 23:00:18 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 23:00:22 | INFO     | load_diagram:821 | Loaded diagram for UG2N
+2026-02-15 23:00:22 | INFO     | _render_diagram:1030 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 23:00:22 | INFO     | __init__:161 | Flow Diagram Page initialized
+2026-02-15 23:14:08 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 23:14:12 | INFO     | load_diagram:821 | Loaded diagram for UG2N
+2026-02-15 23:14:12 | INFO     | _render_diagram:1030 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 23:14:12 | INFO     | __init__:161 | Flow Diagram Page initialized
+2026-02-15 23:36:20 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 23:40:57 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 23:41:03 | INFO     | load_diagram:821 | Loaded diagram for UG2N
+2026-02-15 23:41:03 | INFO     | _render_diagram:1030 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 23:41:03 | INFO     | __init__:161 | Flow Diagram Page initialized
+2026-02-15 23:41:13 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 23:41:16 | INFO     | load_diagram:821 | Loaded diagram for UG2N
+2026-02-15 23:41:16 | INFO     | _render_diagram:1030 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 23:41:16 | INFO     | __init__:161 | Flow Diagram Page initialized
+2026-02-15 23:45:07 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 23:45:11 | INFO     | load_diagram:821 | Loaded diagram for UG2N
+2026-02-15 23:45:11 | INFO     | _render_diagram:1030 | Rendered diagram: 126 nodes, 116 edges
+2026-02-15 23:45:11 | INFO     | __init__:161 | Flow Diagram Page initialized
+2026-02-15 23:48:48 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-15 23:49:29 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
