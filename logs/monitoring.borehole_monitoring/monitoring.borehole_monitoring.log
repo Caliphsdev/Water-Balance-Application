@@ -6790,3 +6790,11 @@
 2026-02-15 23:45:11 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
 2026-02-15 23:45:11 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
 2026-02-15 23:45:11 | INFO     | run:277 | Directory loading complete
+2026-02-16 00:20:47 | INFO     | get_dashboard_logger:628 | === MONITORING.BOREHOLE_MONITORING Dashboard Logger Initialized ===
+2026-02-16 00:20:47 | INFO     | __init__:90 | DirectoryLoadWorker initialized for borehole_monitoring
+2026-02-16 00:20:47 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-16 00:20:47 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Monitoring Borehole
+2026-02-16 00:20:47 | INFO     | run:169 | Found 3 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Monitoring Borehole
+2026-02-16 00:20:47 | INFO     | run:250 | Combined 3 files into DataFrame: 46 total rows, 14 columns
+2026-02-16 00:20:47 | INFO     | run:269 | Cache performance: 3 cached, 0 parsed, 3 total
+2026-02-16 00:20:47 | INFO     | run:277 | Directory loading complete

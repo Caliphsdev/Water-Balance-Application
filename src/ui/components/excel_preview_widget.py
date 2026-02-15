@@ -185,6 +185,15 @@ class ExcelPreviewWidget(QWidget):
         self._btn_add_row.setVisible(enabled)
         self._btn_add_row.setEnabled(enabled)
 
+    def set_save_enabled(self, enabled: bool) -> None:
+        """Show/hide Save button based on caller mode."""
+        self._btn_save.setVisible(enabled)
+        self._btn_save.setEnabled(enabled)
+
+    def set_save_button_text(self, text: str) -> None:
+        """Customize save button label to reduce UX ambiguity."""
+        self._btn_save.setText(text)
+
     def set_help_text(self, html: str) -> None:
         """Update helper copy above the preview table."""
         self._label_help.setText(html)

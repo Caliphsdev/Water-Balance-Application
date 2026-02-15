@@ -13108,3 +13108,11 @@ RuntimeError: Signal source has been deleted
 2026-02-15 23:45:11 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
 2026-02-15 23:45:11 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
 2026-02-15 23:45:11 | INFO     | run:277 | Directory loading complete
+2026-02-16 00:20:47 | INFO     | get_dashboard_logger:628 | === MONITORING.STATIC_BOREHOLES Dashboard Logger Initialized ===
+2026-02-16 00:20:47 | INFO     | __init__:90 | DirectoryLoadWorker initialized for static_boreholes
+2026-02-16 00:20:47 | INFO     | set_cache_functions:101 | Cache functions configured
+2026-02-16 00:20:47 | INFO     | load_directory:112 | Set load directory: C:/Users/Caliphs Zvinowanda/OneDrive/Desktop/Static Boreholes
+2026-02-16 00:20:47 | INFO     | run:169 | Found 4 Excel files in C:\Users\Caliphs Zvinowanda\OneDrive\Desktop\Static Boreholes
+2026-02-16 00:20:47 | INFO     | run:250 | Combined 4 files into DataFrame: 108 total rows, 6 columns
+2026-02-16 00:20:47 | INFO     | run:269 | Cache performance: 4 cached, 0 parsed, 4 total
+2026-02-16 00:20:47 | INFO     | run:277 | Directory loading complete

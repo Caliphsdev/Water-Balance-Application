@@ -95,7 +95,7 @@ class EditFlowDialog(QDialog):
     def _apply_dialog_polish(self):
         """Apply a consistent visual style with Add/Edit Component dialogs."""
         self.setWindowTitle("Add Flow Line" if self.is_new_edge else "Edit Flow Line")
-        self.ui.btn_ok.setText("Save")
+        self.ui.btn_ok.setText("Save Flowline")
 
         self.ui.formLayout.setHorizontalSpacing(14)
         self.ui.formLayout.setVerticalSpacing(10)
@@ -388,8 +388,11 @@ class EditFlowDialog(QDialog):
                 self.btn_auto_create_column.setEnabled(False)
             if hasattr(self, "_preview_widget"):
                 self._preview_widget.set_add_row_enabled(False)
+                self._preview_widget.set_save_enabled(True)
+                self._preview_widget.set_save_button_text("Save Excel Values")
                 self._preview_widget.set_help_text(
-                    "<b>Excel Preview</b> - Only selected flowline column is editable below."
+                    "<b>Excel Preview</b> - Only selected flowline column is editable below. "
+                    "Use 'Save Excel Values' first, then 'Save Flowline'."
                 )
         elif hasattr(self, "_preview_widget"):
             self._preview_widget.set_add_row_enabled(True)

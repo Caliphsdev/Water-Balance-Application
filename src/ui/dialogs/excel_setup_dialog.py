@@ -31,6 +31,7 @@ from ui.dialogs.generated_ui_excel_setup_dialog import Ui_ExcelSetupDialog
 from ui.dialogs.column_editor_dialog import ColumnEditorDialog
 from services.excel_manager import get_excel_manager
 from ui.components.excel_preview_widget import ExcelPreviewWidget
+import os
 
 
 class ExcelSetupDialog(QDialog):
@@ -75,7 +76,7 @@ class ExcelSetupDialog(QDialog):
         self.parent_page = parent
         self.excel_path = None
         self.excel_file = None  # openpyxl Workbook object
-        self.mappings_file = "data/excel_flow_links.json"
+        self.mappings_file = self._resolve_mappings_file_path()
         self.flow_mappings = {}  # {flow_key: {sheet, column}}
         self.excel_manager = get_excel_manager()
         
@@ -350,6 +351,11 @@ class ExcelSetupDialog(QDialog):
         # Create a horizontal layout to hold table + preview.
         self._preview_layout = QHBoxLayout()
         self._preview_widget = ExcelPreviewWidget(self.ui.groupBox_mapping)
+        self._preview_widget.set_add_row_enabled(False)
+        self._preview_widget.set_save_enabled(False)
+        self._preview_widget.set_help_text(
+            "<b>Excel Preview</b> - Read-only reference for mapping verification."
+        )
 
         # Re-add the existing table widget and the preview widget.
         self._preview_layout.addWidget(self.ui.table_mapping, stretch=2)
@@ -357,6 +363,17 @@ class ExcelSetupDialog(QDialog):
 
         # Insert the horizontal layout at the top of the mapping group.
         self.ui.verticalLayout_table.insertLayout(0, self._preview_layout)
+
+    @staticmethod
+    def _resolve_mappings_file_path() -> str:
+        """Resolve mappings path in user-writable data directory."""
+        user_dir = os.environ.get("WATERBALANCE_USER_DIR", "").strip()
+        if user_dir:
+            base = Path(user_dir) / "data"
+        else:
+            base = Path(__file__).resolve().parents[3] / "data"
+        base.mkdir(parents=True, exist_ok=True)
+        return str(base / "excel_flow_links.json")
     
     def _on_browse_excel(self):
         """
@@ -427,7 +444,7 @@ class ExcelSetupDialog(QDialog):
     def _load_excel_mappings(self):
         """Load existing flow-to-column mappings from JSON file."""
         try:
-            with open(self.mappings_file, 'r') as f:
+            with open(self.mappings_file, 'r', encoding='utf-8') as f:
                 self.flow_mappings = json.load(f)
         except FileNotFoundError:
             self.flow_mappings = {}
@@ -589,7 +606,8 @@ class ExcelSetupDialog(QDialog):
                         edge['excel_mapping'] = {'sheet': sheet, 'column': column}
             
             # Save to file
-            with open(self.mappings_file, 'w') as f:
+            Path(self.mappings_file).parent.mkdir(parents=True, exist_ok=True)
+            with open(self.mappings_file, 'w', encoding='utf-8') as f:
                 json.dump(self.flow_mappings, f, indent=2)
             
             # Save diagram JSON with updated edge mappings

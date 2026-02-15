@@ -17225,3 +17225,14 @@
 2026-02-15 23:45:11 | INFO     | __init__:161 | Flow Diagram Page initialized
 2026-02-15 23:48:48 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
 2026-02-15 23:49:29 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-16 00:20:43 | INFO     | get_dashboard_logger:628 | === FLOW_DIAGRAM Dashboard Logger Initialized ===
+2026-02-16 00:20:47 | INFO     | load_diagram:821 | Loaded diagram for UG2N
+2026-02-16 00:20:47 | INFO     | _render_diagram:1030 | Rendered diagram: 126 nodes, 116 edges
+2026-02-16 00:20:47 | INFO     | __init__:161 | Flow Diagram Page initialized
+2026-02-16 00:20:54 | INFO     | _on_excel_setup_clicked:3503 | Excel Setup button clicked
+2026-02-16 00:21:10 | INFO     | _on_excel_setup_clicked:3510 | Excel Setup dialog closed
+2026-02-16 00:21:20 | INFO     | _on_load_excel_clicked:3336 | Load Excel button clicked
+2026-02-16 00:21:21 | INFO     | _render_diagram:1030 | Rendered diagram: 126 nodes, 116 edges
+2026-02-16 00:21:21 | INFO     | _load_and_display_recirculation:1106 | Found 11 recirculation configs to load
+2026-02-16 00:21:21 | INFO     | _load_and_display_recirculation:1141 | Loaded 11 recirculation volumes for UG2N (2025/12)
+2026-02-16 00:21:22 | INFO     | _on_load_excel_clicked:3431 | Loaded Excel data: 107 flows updated, 9 errors
